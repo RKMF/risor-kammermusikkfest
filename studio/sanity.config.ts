@@ -32,7 +32,7 @@ export default defineConfig({
   name: 'default',
   title: 'studio',
 
-  projectId: 'i952bgb1',
+  projectId: 'dnk98dp0',
   dataset: 'production',
 
   plugins: [
