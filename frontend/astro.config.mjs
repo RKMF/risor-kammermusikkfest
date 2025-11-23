@@ -90,7 +90,7 @@ export default defineConfig({
   integrations: [
     react(),
     sanity({
-      projectId: process.env.PUBLIC_SANITY_PROJECT_ID || 'i952bgb1',
+      projectId: process.env.PUBLIC_SANITY_PROJECT_ID || 'dnk98dp0',
       dataset: process.env.PUBLIC_SANITY_DATASET || 'production',
       useCdn: false, // for statiske builds
       apiVersion: '2025-01-01', // Use latest API version

@@ -2,7 +2,7 @@ import {defineCliConfig} from 'sanity/cli'
 
 export default defineCliConfig({
   api: {
-    projectId: 'i952bgb1',
+    projectId: 'dnk98dp0',
     dataset: 'production'
   },
   /**
@@ -10,4 +10,9 @@ export default defineCliConfig({
    * Learn more at https://www.sanity.io/docs/cli#auto-updates
    */
   autoUpdates: true,
+  /**
+   * The hostname for deploying the studio to Sanity hosting.
+   * This prevents prompts during deployment.
+   */
+  studioHost: 'rkmf-cms',
 })

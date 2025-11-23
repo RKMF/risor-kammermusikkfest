@@ -423,7 +423,7 @@ export function initializeSomeFeature(param) {
 - `PUBLIC_SANITY_VISUAL_EDITING_ENABLED=true` - Enables Visual Editing features
 
 **Sanity Configuration:**
-- Project ID: `i952bgb1`
+- Project ID: `dnk98dp0`
 - Dataset: `production`
 - Studio URL: `http://localhost:3333`
 - Frontend URL: `http://localhost:4321`
@@ -701,7 +701,7 @@ Before every commit, verify:
 ## 7. Quick Reference
 
 **Project Settings:**
-- Project ID: `i952bgb1`
+- Project ID: `dnk98dp0`
 - Dataset: `production`
 - Node.js: `v20.19.0`
 
