@@ -32,7 +32,7 @@ export default defineConfig({
   name: 'default',
   title: 'studio',
 
-  projectId: 'i952bgb1',
+  projectId: 'dnk98dp0',
   dataset: 'production',
 
   plugins: [
@@ -44,7 +44,7 @@ export default defineConfig({
     componentGuideTool(),
     presentationTool({
       previewUrl: {
-        origin: 'http://localhost:4321',
+        origin: process.env.SANITY_STUDIO_PREVIEW_URL || 'http://localhost:4321',
         previewMode: {
           enable: '/api/draft-mode/enable',
           disable: '/api/draft-mode/disable',

@@ -123,7 +123,7 @@ This ensures type safety across the entire stack when working with Sanity conten
 Create `frontend/.env.local`:
 
 ```env
-PUBLIC_SANITY_PROJECT_ID=i952bgb1
+PUBLIC_SANITY_PROJECT_ID=dnk98dp0
 PUBLIC_SANITY_DATASET=production
 PUBLIC_SANITY_VISUAL_EDITING_ENABLED=true
 SANITY_API_READ_TOKEN=your-token-here
@@ -133,7 +133,7 @@ SITE_URL=http://localhost:4321
 See `frontend/.env.example` for all available options.
 
 ### Sanity Project Settings
-- Project ID: `i952bgb1`
+- Project ID: `dnk98dp0`
 - Dataset: `production`
 - Studio URL: `http://localhost:3333`
 - Frontend URL: `http://localhost:4321`
@@ -162,6 +162,14 @@ Currently 8 test files covering:
   - Git workflow (two-branch model)
   - AI assistant guidelines
   - Best practices and conventions
+
+- **DESIGN-SYSTEM.md** - Spacing and layout system documentation:
+  - Utopia-inspired fluid spacing tokens
+  - Intrinsic layout patterns (Grid, TwoColumn, ThreeColumn)
+  - Container queries for responsive components
+  - Layout primitives (Center, Stack, Cluster)
+  - Component width system
+  - Migration guides and decision trees
 
 - **MEDIA.md** - Media handling reference guide (images and videos):
   - Architecture and core utilities

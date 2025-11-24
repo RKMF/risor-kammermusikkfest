@@ -1,6 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-import node from '@astrojs/node';
+import vercel from '@astrojs/vercel';
 import react from '@astrojs/react';
 
 import sanity from '@sanity/astro';
@@ -31,9 +31,7 @@ export default defineConfig({
 
   // Output configuration for server rendering
   output: 'server', // Server-rendered for API routes and dynamic content
-  adapter: node({
-    mode: 'standalone',
-  }),
+  adapter: vercel(),
 
   // Modern image optimization configuration
   image: {
@@ -90,7 +88,7 @@ export default defineConfig({
   integrations: [
     react(),
     sanity({
-      projectId: process.env.PUBLIC_SANITY_PROJECT_ID || 'i952bgb1',
+      projectId: process.env.PUBLIC_SANITY_PROJECT_ID || 'dnk98dp0',
       dataset: process.env.PUBLIC_SANITY_DATASET || 'production',
       useCdn: false, // for statiske builds
       apiVersion: '2025-01-01', // Use latest API version

@@ -1,64 +1,170 @@
+# ============================================
 # Dependencies
+# ============================================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# Environment variables
+# Package manager lock files (only keep npm)
+yarn.lock
+pnpm-lock.yaml
+
+# ============================================
+# Environment Variables (CRITICAL - Never commit!)
+# ============================================
 .env
 .env.local
+.env.development
 .env.development.local
+.env.staging
+.env.staging.local
+.env.test
 .env.test.local
+.env.production
 .env.production.local
 
-# Build outputs
+# Keep .env.example for documentation
+!.env.example
+
+# ============================================
+# Build Outputs & Deployment Artifacts
+# ============================================
 dist/
 build/
 out/
 .vercel/
+.netlify/
+.output/
 
-# IDE files
+# ============================================
+# IDE & Editor Files
+# ============================================
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
 
-# OS files
+# VSCode settings that might contain tokens
+.vscode/settings.json
+
+# ============================================
+# OS Files
+# ============================================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
 
+# ============================================
 # Logs
-logs
+# ============================================
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
-# Runtime data
-pids
+# ============================================
+# Runtime Data
+# ============================================
+pids/
 *.pid
 *.seed
 *.pid.lock
 
-# Coverage directory used by tools like istanbul
+# ============================================
+# Test Coverage & Reports
+# ============================================
 coverage/
+*.lcov
+.nyc_output/
+test-results/
+playwright-report/
+vitest-report/
 
-# Sanity specific
+# ============================================
+# Sanity CMS Specific
+# ============================================
 .sanity/
-
-# Astro specific
-.astro/
-
-# TypeScript
-*.tsbuildinfo
+*.sanity/
 
 # Generated Sanity types (regenerate with: npm run typegen)
 frontend/sanity/extract.json
 frontend/sanity/sanity.types.ts
 
-# Temporary files
+# ============================================
+# Astro Framework Specific
+# ============================================
+.astro/
+
+# ============================================
+# TypeScript
+# ============================================
+*.tsbuildinfo
+.tscache/
+
+# ============================================
+# Temporary Files & Cache
+# ============================================
 *.tmp
 tmp/
 temp/
 .cache/
+.parcel-cache/
+.next/
+.nuxt/
 
-# Test artifacts
+# ============================================
+# Test Artifacts
+# ============================================
 *.test.js.snap
 test-results/
+__snapshots__/
+
+# ============================================
+# Security & Secrets (CRITICAL for public repos)
+# ============================================
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+secrets/
+.secrets/
+.npmrc
+.yarnrc
+
+# API tokens and keys (catch common patterns)
+*secret*
+*token*
+*apikey*
+*api_key*
+*private*
+
+# But allow these specific files
+!frontend/.env.example
+!studio/sanity.cli.ts
+!studio/sanity.config.ts
+
+# ============================================
+# Miscellaneous
+# ============================================
+.history/
+*.bak
+*.swp
+*.swo
+*~.nib
