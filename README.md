@@ -163,6 +163,14 @@ Currently 8 test files covering:
   - AI assistant guidelines
   - Best practices and conventions
 
+- **DESIGN-SYSTEM.md** - Spacing and layout system documentation:
+  - Utopia-inspired fluid spacing tokens
+  - Intrinsic layout patterns (Grid, TwoColumn, ThreeColumn)
+  - Container queries for responsive components
+  - Layout primitives (Center, Stack, Cluster)
+  - Component width system
+  - Migration guides and decision trees
+
 - **MEDIA.md** - Media handling reference guide (images and videos):
   - Architecture and core utilities
   - Fetching images and videos from Sanity (GROQ patterns)
