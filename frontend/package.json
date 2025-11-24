@@ -19,8 +19,8 @@
   },
   "dependencies": {
     "@astrojs/check": "0.9.4",
-    "@astrojs/node": "^9.4.2",
     "@astrojs/react": "4.2.1",
+    "@astrojs/vercel": "8.2.1",
     "@sanity/astro": "^3.2.6",
     "@sanity/client": "^6.29.1",
     "@sanity/image-url": "^1.1.0",
