@@ -8,7 +8,14 @@ interface Props {
   _type?: string;
 }
 
-const { level, text, id, className = '', _key, _type } = Astro.props;
+const props = Astro.props;
+// Clean the level and text values to remove any invisible Unicode characters (stega encoding)
+// These characters are added by Sanity's Visual Editing overlays for content tracking
+const cleanLevel = props.level?.replace(/[\u200B-\u200D\uFEFF\u2060\u180E]/g, '').trim() as Props['level'];
+const cleanText = props.text?.replace(/[\u200B-\u200D\uFEFF\u2060\u180E]/g, '').trim() || '';
+const { id, className = '', _key, _type } = props;
+const level = cleanLevel;
+const text = cleanText;
 ---
 
 {level === 'h2' && <h2 id={id} class={`heading-component ${className}`} data-component="heading" data-sanity={_key ? `${_type}.${_key}` : _type}>{text}</h2>}

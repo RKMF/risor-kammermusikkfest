@@ -97,6 +97,21 @@ const LINK_COMPONENT = `
     )
   }`
 
+const HEADING_COMPONENT = `
+  _type == "headingComponent" => {
+    ...
+  }`
+
+const BUTTON_COMPONENT = `
+  _type == "buttonComponent" => {
+    ...
+  }`
+
+const COUNTDOWN_COMPONENT = `
+  _type == "countdownComponent" => {
+    ...
+  }`
+
 // Items that can be nested in containers
 const NESTED_ITEMS = `
   ...,
@@ -104,7 +119,10 @@ const NESTED_ITEMS = `
   ${VIDEO_COMPONENT},
   ${QUOTE_COMPONENT},
   ${SPOTIFY_COMPONENT},
-  ${LINK_COMPONENT}`
+  ${LINK_COMPONENT},
+  ${HEADING_COMPONENT},
+  ${BUTTON_COMPONENT},
+  ${COUNTDOWN_COMPONENT}`
 
 // Full content projection with all component types
 const PAGE_CONTENT_WITH_LINKS = `
@@ -114,6 +132,9 @@ const PAGE_CONTENT_WITH_LINKS = `
   ${QUOTE_COMPONENT},
   ${SPOTIFY_COMPONENT},
   ${LINK_COMPONENT},
+  ${HEADING_COMPONENT},
+  ${BUTTON_COMPONENT},
+  ${COUNTDOWN_COMPONENT},
   _type == "columnLayout" => {
     ...,
     items[]{${NESTED_ITEMS}}
