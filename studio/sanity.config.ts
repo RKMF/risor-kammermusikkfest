@@ -11,6 +11,7 @@ import {componentGuideTool} from './plugins/componentGuideTool'
 import {addEventToProgramPageAction} from './actions/addEventToProgramPageAction'
 import {syncArtistEventsAction} from './actions/syncArtistEventsAction'
 import {syncEventArtistsAction} from './actions/syncEventArtistsAction'
+import {syncEventDateValue} from './actions/syncEventDateValue'
 import {addArtistToArtistPageAction} from './actions/addArtistToArtistPageAction'
 import {addArticleToArticlePageAction} from './actions/addArticleToArticlePageAction'
 import {createDeleteWithReferencesAction} from './actions/createDeleteWithReferencesAction'
@@ -177,22 +178,12 @@ export default defineConfig({
         })
       }
 
-      // Event documents: sync artists + add to program page + custom delete
+      // Event documents: sync date value + sync artists + add to program page + custom delete
       if (context.schemaType === 'event') {
         return prev.map((action) => {
           if (action.action === 'publish') {
-            // Chain both actions: sync first, then add to page
-            return (props) => {
-              const syncAction = syncEventArtistsAction(props)
-              const addToPageAction = addEventToProgramPageAction(props)
-
-              // If sync action has dialog, show it first
-              if (syncAction?.dialog) {
-                return syncAction
-              }
-              // Otherwise check add to page action
-              return addToPageAction || syncAction
-            }
+            // Use syncEventDateValue which handles the full publish flow
+            return syncEventDateValue
           }
           if (action.action === 'delete') {
             return deleteEventAction

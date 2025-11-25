@@ -79,6 +79,16 @@ const isActive = (href: string) => {
   <div class="menu-content">
     <!-- Navigation Links -->
     <ul class="nav-list" role="list">
+      <!-- Homepage link at the top -->
+      <li class="nav-item">
+        <a
+          href="/"
+          class:list={['nav-link', { 'active': isActive('/') }]}
+          aria-current={isActive('/') ? 'page' : undefined}
+        >
+          {currentLang === 'no' ? 'Hjem' : 'Home'}
+        </a>
+      </li>
       {navItems.map((item) => (
         <li class="nav-item">
           <a
@@ -90,16 +100,6 @@ const isActive = (href: string) => {
           </a>
         </li>
       ))}
-      <!-- Homepage link at the bottom -->
-      <li class="nav-item">
-        <a
-          href="/"
-          class:list={['nav-link', { 'active': isActive('/') }]}
-          aria-current={isActive('/') ? 'page' : undefined}
-        >
-          {currentLang === 'no' ? 'Hjem' : 'Home'}
-        </a>
-      </li>
     </ul>
 
     <!-- Language Switcher -->

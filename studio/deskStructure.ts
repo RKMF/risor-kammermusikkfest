@@ -50,7 +50,7 @@ export const structure = (S: StructureBuilder) =>
         .child(
           S.documentTypeList('event')
             .defaultOrdering([
-              {field: 'eventDate.date', direction: 'asc'},
+              {field: 'eventDateValue', direction: 'asc'},
               {field: 'eventTime.startTime', direction: 'asc'}
             ])
         ),
