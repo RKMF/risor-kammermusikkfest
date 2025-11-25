@@ -163,7 +163,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
         return (
           <li class="event-item">
-            <article class="event-card">
+            <article class="event-scroll-card">
               {eventImage && (
                 <Image
                   image={eventImage}
@@ -172,10 +172,10 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
                   aspectRatio="4:5"
                   loading="lazy"
                   quality={IMAGE_QUALITY.CARD}
-                  className="event-card-image"
+                  className="event-scroll-card-image"
                 />
               )}
-              <div class="event-content">
+              <div class="event-scroll-content">
                 <h4 class="event-title">
                   {eventSlug ? (
                     <a href={`${programPath}/${eventSlug}`} class="event-title-link">
@@ -246,7 +246,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
   }
 
   /* Intrinsic event cards - standardized to 4:5 */
-  .event-card {
+  .event-scroll-card {
     position: relative; /* Required for stretched link pattern */
     container-type: inline-size;
     background: var(--color-background);
@@ -258,18 +258,18 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     aspect-ratio: 4/5;
   }
 
-  .event-card:hover {
+  .event-scroll-card:hover {
     transform: translateY(clamp(-1px, -0.5vw, -3px));
     box-shadow: var(--shadow-md);
   }
 
-  /* Image component targets with className */
-  :global(.event-card-image) {
+  /* Image component - Astro scoping handles this automatically */
+  .event-scroll-card-image {
     margin: 0; /* Override Image.astro default margins */
   }
 
   /* Intrinsic content padding */
-  .event-content {
+  .event-scroll-content {
     padding: clamp(var(--space-3), 4cqw, var(--space-5));
   }
 
@@ -372,17 +372,17 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
   /* Container Query Enhancements */
   @container (min-width: 300px) {
-    .event-content {
+    .event-scroll-content {
       padding: var(--space-4);
     }
-    
+
     .event-title {
       font-size: var(--font-size-lg);
     }
   }
 
   @container (min-width: 400px) {
-    .event-content {
+    .event-scroll-content {
       padding: var(--space-5);
     }
   }
@@ -399,13 +399,13 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
   /* Support for reduced motion */
   @media (prefers-reduced-motion: reduce) {
-    .event-card,
+    .event-scroll-card,
     .event-title-link,
     .event-button {
       transition: none;
     }
 
-    .event-card:hover {
+    .event-scroll-card:hover {
       transform: none; /* Disable lift effect */
     }
 
@@ -416,7 +416,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
   /* High contrast mode support */
   @media (prefers-contrast: high) {
-    .event-card {
+    .event-scroll-card {
       border-width: 2px;
     }
 

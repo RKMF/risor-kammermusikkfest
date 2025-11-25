@@ -2,6 +2,7 @@
 import Layout from './Layout.astro';
 import DynamicComponent from '../components/DynamicComponent.astro';
 import { getMultilingualContent, detectLanguage } from '../lib/utils/language.js';
+import { stegaClean } from '@sanity/client/stega';
 
 interface Props {
   title: string;
@@ -17,14 +18,17 @@ const {
   pageDocument
 } = Astro.props;
 
+// Detect language from URL to use correct content
+const language = detectLanguage(Astro.request);
+
 // Get multilingual content if pageDocument is provided, otherwise use pageContent
 const content = pageDocument
-  ? (getMultilingualContent(pageDocument) || pageDocument?.content || pageContent)
+  ? (getMultilingualContent(pageDocument, language) || pageDocument?.content || pageContent)
   : pageContent;
 
-// Extract slug information from pageDocument if available
-const slugNo = pageDocument?.slug_no;
-const slugEn = pageDocument?.slug_en;
+// Extract slug information from pageDocument if available and clean stega encoding
+const slugNo = pageDocument?.slug_no?.current ? stegaClean(pageDocument.slug_no.current) : undefined;
+const slugEn = pageDocument?.slug_en?.current ? stegaClean(pageDocument.slug_en.current) : undefined;
 ---
 
 <Layout title={`${title} - Sanity + Astro`} slugNo={slugNo} slugEn={slugEn}>

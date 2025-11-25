@@ -137,27 +137,27 @@ export class SanityDataService {
 
   async getProgramPage(options: QueryOptions = {}) {
     return this.fetch(
-      QueryBuilder.programPage(),
+      QueryBuilder.programPage(this.language),
       options,
-      'programPage',
+      `programPage:${this.language}`,
       CACHE_DURATION.page
     );
   }
 
   async getArtistPage(options: QueryOptions = {}) {
     return this.fetch(
-      QueryBuilder.artistPage(),
+      QueryBuilder.artistPage(this.language),
       options,
-      'artistPage',
+      `artistPage:${this.language}`,
       CACHE_DURATION.page
     );
   }
 
   async getArticlePage(options: QueryOptions = {}) {
     return this.fetch(
-      QueryBuilder.articlePage(),
+      QueryBuilder.articlePage(this.language),
       options,
-      'articlePage',
+      `articlePage:${this.language}`,
       CACHE_DURATION.page
     );
   }

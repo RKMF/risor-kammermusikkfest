@@ -5,79 +5,25 @@ import Image from '../../../components/Image.astro';
 import { formatDateForLanguage } from '../../../lib/utils/dates';
 import { getMultilingualContent } from "../../../lib/utils/language.js";
 import { IMAGE_QUALITY } from '../../../lib/sanityImage';
-import type { SanityDocument } from '@sanity/client';
-import { loadQuery } from '../../../lib/sanity/loadQuery.js';
+import { createDataService } from '../../../lib/sanity/dataService.js';
 import { stegaClean } from '@sanity/client/stega';
 import '../../../styles/event.css';
 
-// Generate static paths for all events with English slugs
+// Generate static paths for all events
 export async function getStaticPaths() {
-  const { data: events } = await loadQuery<SanityDocument[]>({
-    query: `*[_type == "event" && (defined(slug_en.current) || defined(slug_no.current))]`,
-  });
+  const dataService = createDataService();
+  const events = await dataService.getSlugsForType('event');
 
-  return events.map((event) => {
-    // Use English slug, fallback to Norwegian slug
-    const slug = event.slug_en?.current || event.slug_no?.current;
-    return {
-      params: { slug },
-    };
-  });
+  return events.map((event: any) => ({
+    params: event.params
+  }));
 }
 
 const { params } = Astro;
 
-// Fetch the specific event based on the slug parameter (English priority)
-const { data: event } = await loadQuery({
-  query: `*[_type == "event" && $slug in [slug_en.current, slug_no.current, slug.current]][0]{
-    _id,
-    _type,
-    title_en,
-    "title": title_en,
-    slug_en,
-    slug_no,
-    excerpt_en,
-    "excerpt": excerpt_en,
-    "image": {
-      "image": image{
-        asset->,
-        hotspot,
-        crop
-      },
-      "alt": coalesce(imageAlt_en, imageAlt_no, image.alt),
-      "credit": coalesce(imageCredit_en, imageCredit_no)
-    },
-    eventDate->{
-      _id,
-      date,
-      title_display_en,
-      "title": title_display_en
-    },
-    eventTime,
-    venue->{
-      _id,
-      title,
-      name,
-      address,
-      city,
-      "slug": slug.current
-    },
-    "artists": artist[]-> {
-      _id,
-      name,
-      "slug": slug.current,
-      instrument_en,
-      "instrument": instrument_en
-    },
-    ticketType,
-    ticketUrl,
-    ticketInfoText,
-    content_en,
-    content_no,
-    seo
-  }`,
-  params,
-});
+// Fetch event using DataService with language awareness
+const dataService = createDataService(Astro.request);
+const event = await dataService.getEventBySlug(params.slug);
 
 if (!event) {
   return Astro.redirect('/404');
@@ -89,8 +35,8 @@ const content = getMultilingualContent(event, 'en') || event.content_en;
 
 <Layout
   title={`${stegaClean(event.title || '')} - Sanity + Astro`}
-  slugNo={event.slug_no}
-  slugEn={event.slug_en}
+  slugNo={event.slug_no?.current}
+  slugEn={event.slug_en?.current}
 >
   <div class="container">
     <div class="event-page">

@@ -3,6 +3,7 @@ import ContentPageLayout from '../layouts/ContentPageLayout.astro';
 import { createDataService } from '../lib/sanity/dataService.js';
 import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../lib/sanityImage';
 import { stegaClean } from '@sanity/client/stega';
+import '../styles/artist-card.css';
 import '../styles/artists.css';
 
 // Create data service with Visual Editing support
@@ -37,19 +38,17 @@ const hasArtists = artists.length > 0;
           </h3>
 
           {artist.image?.image && (
-            <div class="artist-image">
-              <img
-                src={getOptimizedImageUrl(artist.image.image, 280, 350, IMAGE_QUALITY.CARD)}
-                srcset={getResponsiveImageSet(artist.image.image, [300, 400, 600], 0.8, IMAGE_QUALITY.CARD)}
-                sizes="320px"
-                alt={stegaClean(artist.image.alt) || stegaClean(artist.name)}
-                width="280"
-                height="350"
-                loading="lazy"
-                decoding="async"
-                class="artist-card-image"
-              />
-            </div>
+            <img
+              src={getOptimizedImageUrl(artist.image.image, 280, 350, IMAGE_QUALITY.CARD)}
+              srcset={getResponsiveImageSet(artist.image.image, [300, 400, 600], 0.8, IMAGE_QUALITY.CARD)}
+              sizes="320px"
+              alt={stegaClean(artist.image.alt) || stegaClean(artist.name)}
+              width="280"
+              height="350"
+              loading="lazy"
+              decoding="async"
+              class="artist-card-image"
+            />
           )}
 
           <div class="artist-info-box">

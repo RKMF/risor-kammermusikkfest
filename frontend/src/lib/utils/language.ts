@@ -96,8 +96,12 @@ export function getMultilingualSlug(
 /**
  * Create multilingual GROQ field selector
  * Returns a GROQ fragment that selects multilingual fields with fallbacks
+ * Priority order changes based on language: English pages get English first, Norwegian pages get Norwegian first
  */
-export function createMultilingualField(fieldName: string): string {
+export function createMultilingualField(fieldName: string, language: Language = DEFAULT_LANGUAGE): string {
+  if (language === 'en') {
+    return `"${fieldName}": coalesce(${fieldName}_en, ${fieldName}_no, ${fieldName})`;
+  }
   return `"${fieldName}": coalesce(${fieldName}_no, ${fieldName}_en, ${fieldName})`;
 }
 
