@@ -2,12 +2,12 @@
 import ContentPageLayout from '../layouts/ContentPageLayout.astro';
 import CardGrid from '../components/CardGrid.astro';
 import ProgramFilters from '../components/ProgramFilters.astro';
-import Image from '../components/Image.astro';
+import EventCard from '../components/EventCard.astro';
 import { createDataService } from '../lib/sanity/dataService.js';
 import { formatDateWithWeekday } from '../lib/utils/dates';
-import { IMAGE_QUALITY } from '../lib/sanityImage';
 import { stegaClean } from '@sanity/client/stega';
 import '../styles/program.css';
+import '../styles/event-card.css';
 
 // Create data service with Visual Editing support
 const dataService = createDataService(Astro.request);
@@ -135,60 +135,7 @@ if (dateFilter && venueFilter) {
           <h2 class="date-title">{stegaClean(displayTitle)}</h2>
           <div class="events-grid">
             {dateEvents.map((event) => (
-              <article class="event-card card" data-event-date={event.eventDate?.date}>
-                <h3 class="event-title">
-                  <a href={`/program/${stegaClean(event.slug_no?.current || event.slug_en?.current)}`} class="event-title-link">
-                    {stegaClean(event.title)}
-                  </a>
-                </h3>
-
-                {event.excerpt && (
-                  <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
-                )}
-
-                {event.image?.image && (
-                  <div class="event-image">
-                    <Image
-                      image={event.image.image}
-                      alt={stegaClean(event.image.alt || event.title || '')}
-                      size="medium"
-                      aspectRatio="4:3"
-                      loading="lazy"
-                      quality={IMAGE_QUALITY.CARD}
-                      className="event-card-image"
-                    />
-                  </div>
-                )}
-
-                <dl class="event-meta">
-                  {event.eventDate?.date && (
-                    <>
-                      <dt class="visually-hidden">Dato og tid</dt>
-                      <dd class="event-datetime">
-                        {formatDateWithWeekday(event.eventDate.date, 'no')}{event.eventTime && (
-                          <>, kl. {stegaClean(event.eventTime.startTime)}–{stegaClean(event.eventTime.endTime)}</>
-                        )}
-                      </dd>
-                    </>
-                  )}
-                  {event.venue?.title && (
-                    <>
-                      <dt class="visually-hidden">Sted</dt>
-                      <dd class="event-venue">
-                        {stegaClean(event.venue.title)}
-                      </dd>
-                    </>
-                  )}
-                </dl>
-
-                {stegaClean(event.ticketType) === 'info' ? (
-                  <p class="ticket-info">{stegaClean(event.ticketInfoText) || 'Gratis'}</p>
-                ) : (
-                  <a href={stegaClean(event.ticketUrl)} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                    Kjøp billetter her
-                  </a>
-                )}
-              </article>
+              <EventCard event={event} language="no" />
             ))}
           </div>
         </section>
