@@ -1,9 +1,9 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import DynamicComponent from "../../components/DynamicComponent.astro";
+import Image from "../../components/Image.astro";
 import { loadQuery } from "../../lib/sanity/loadQuery.js";
 import { getMultilingualContent } from "../../lib/utils/language.js";
-import { getOptimizedImageUrl } from '../../lib/sanityImage';
 import { IMAGE_QUALITY } from '../../lib/sanityImage';
 import { stegaClean } from '@sanity/client/stega';
 import type { SanityDocument } from '@sanity/client';
@@ -154,19 +154,17 @@ const content = getMultilingualContent(article, 'no') || article.content_no;
     margin-top: 0.5rem;
   }
 
-  figure.article-image {
-    position: relative;
+  /* Image component with className */
+  :global(figure.article-image) {
     width: 100%;
-    aspect-ratio: 16/9;
-    overflow: hidden;
     margin: 0 0 2rem 0;
   }
 
-  .article-image img {
+  :global(.article-image .image) {
     width: 100%;
-    height: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
     object-fit: cover;
-    display: block;
   }
 
   .article-content {

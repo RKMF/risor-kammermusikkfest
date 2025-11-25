@@ -108,24 +108,18 @@
   overflow: hidden;
 }
 
-/* Artist Image Container - 4:5 aspect ratio anchored to top-left using Grid */
-.artist-image {
+/* Artist Image - Image component anchored to top-left using Grid */
+:global(.artist-card-image) {
   grid-area: content; /* Stack in same grid area as info box */
   justify-self: start; /* Align to left */
   align-self: start; /* Align to top */
   margin-block-start: 1rem; /* Equal margin top */
   margin-inline-start: 1rem; /* Equal margin left */
+  margin-inline-end: 0; /* Override Image.astro default margins */
+  margin-block-end: 0; /* Override Image.astro default margins */
   width: 85%; /* Narrower than full width */
   aspect-ratio: 4/5;
   overflow: hidden;
-}
-
-/* Artist Image - Direct img element fills container */
-.artist-card-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
 }
 
 /* Artist Info Box - Overlay in bottom-right using Grid */

@@ -167,17 +167,15 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
                     </h3>
 
                     {artist.image?.image?.asset && (
-                      <div class="artist-image">
-                        <Image
-                          image={artist.image.image}
-                          alt={stegaClean(artist.image.alt || artist.name || '')}
-                          size="small"
-                          aspectRatio="4:5"
-                          loading="lazy"
-                          quality={IMAGE_QUALITY.CARD}
-                          className="artist-card-image"
-                        />
-                      </div>
+                      <Image
+                        image={artist.image.image}
+                        alt={stegaClean(artist.image.alt || artist.name || '')}
+                        size="small"
+                        aspectRatio="4:5"
+                        loading="lazy"
+                        quality={IMAGE_QUALITY.CARD}
+                        className="artist-card-image"
+                      />
                     )}
 
                     <div class="artist-info-box">

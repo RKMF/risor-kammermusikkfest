@@ -143,30 +143,19 @@ const fetchPriority = priority ? 'high' : 'auto';
   data-sanity={_key ? `${_type}.${_key}` : _type}
 >
   {image ? (
-    <div
-      class="image-wrapper"
-      style={`--aspect-ratio: ${aspectValue}`}
-    >
-      {placeholderUrl && (
-        <div
-          class="image-placeholder"
-          style={`background-image: url(${placeholderUrl})`}
-          aria-hidden="true"
-        />
-      )}
-      <img
-        src={fallbackUrl || ''}
-        srcset={responsiveSrcset}
-        alt={alt}
-        width={imageWidth}
-        height={imageHeight}
-        loading={imageLoading}
-        decoding="async"
-        fetchpriority={fetchPriority}
-        sizes={imageSizes}
-        class="image"
-      />
-    </div>
+    <img
+      src={fallbackUrl || ''}
+      srcset={responsiveSrcset}
+      alt={alt}
+      width={imageWidth}
+      height={imageHeight}
+      loading={imageLoading}
+      decoding="async"
+      fetchpriority={fetchPriority}
+      sizes={imageSizes}
+      class="image"
+      style={`aspect-ratio: ${aspectValue}; ${placeholderUrl ? `background-image: url(${placeholderUrl}); background-size: cover; background-position: center;` : 'background-color: var(--color-gray-100, #f5f5f5);'}`}
+    />
   ) : (
     <div class="image-missing">
       <span>Bilde ikke tilgjengelig</span>
@@ -184,19 +173,16 @@ const fetchPriority = priority ? 'high' : 'auto';
 <script>
   // Client-side image load detection
   function initImageLoading() {
-    const images = document.querySelectorAll('.image-wrapper .image');
+    const images = document.querySelectorAll('.image-container .image');
 
     images.forEach((img) => {
-      const wrapper = img.closest('.image-wrapper');
-      if (!wrapper) return;
-
       // Check if already loaded
       if ((img as HTMLImageElement).complete) {
-        wrapper.classList.add('image-loaded');
+        img.classList.add('image-loaded');
       } else {
         // Listen for load event
         img.addEventListener('load', () => {
-          wrapper.classList.add('image-loaded');
+          img.classList.add('image-loaded');
         }, { once: true });
       }
     });
@@ -216,9 +202,12 @@ const fetchPriority = priority ? 'high' : 'auto';
 <style>
   /* CSS Variable-based width control - Kevin Powell method */
   .image-container {
-    width: fit-content; /* Wrap tightly around wrapper */
+    position: relative;
+    overflow: hidden;
+    width: fit-content; /* Wrap tightly around image */
     max-width: 100%;
     margin-block: var(--space-l); /* Fluid 24px → 30px */
+    content-visibility: auto; /* Performance: render only when visible */
   }
 
   /* Alignment controls container positioning */
@@ -234,28 +223,6 @@ const fetchPriority = priority ? 'high' : 'auto';
     margin-inline: auto 0;
   }
 
-  /* Alignment controls wrapper positioning within container */
-  .image-container.image-center .image-wrapper {
-    margin-inline: auto;
-  }
-
-  .image-container.image-left .image-wrapper {
-    margin-inline: 0;
-  }
-
-  .image-container.image-right .image-wrapper {
-    margin-inline: 0 0 0 auto;
-  }
-
-  /* Modern image wrapper with fixed 350px height (matches ContentScrollContainer) */
-  .image-wrapper {
-    position: relative;
-    overflow: hidden;
-    height: 350px;
-    width: calc(350px * var(--aspect-ratio)); /* Calculate width from aspect ratio */
-    content-visibility: auto; /* Performance: render only when visible */
-  }
-
   /* When inside a layout context, fill parent space instead of fixed dimensions */
   :global([data-layout-context]) .image-container {
     width: 100%;
@@ -263,45 +230,39 @@ const fetchPriority = priority ? 'high' : 'auto';
     margin: 0;
   }
 
-  :global([data-layout-context]) .image-wrapper {
+  :global([data-layout-context]) .image {
     width: 100%;
     height: 100%;
   }
 
-  /* LQIP/BlurHash placeholder with blur-up effect */
-  .image-placeholder {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-    filter: blur(20px);
-    transform: scale(1.1); /* Prevent blur edges from showing */
-    transition: opacity 400ms ease-out;
-    z-index: 1;
-  }
-
-  .image-loaded .image-placeholder {
-    opacity: 0;
-  }
-
-  /* Image element */
+  /* Image element with blur-up effect */
   .image {
-    position: relative;
-    z-index: 2;
+    display: block;
     width: 100%;
-    height: 100%;
+    height: 350px; /* Fixed height matching ContentScrollContainer */
     object-fit: cover;
-    opacity: 0;
-    transition: opacity 400ms ease-out;
+    object-position: center;
+
+    /* Placeholder shows as background during load */
+    /* background-image and background-color set via inline style */
+
+    /* Blur effect for LQIP background */
+    filter: blur(0);
+    transition: filter 400ms ease-out, opacity 400ms ease-out;
   }
 
-  .image-loaded .image {
-    opacity: 1;
+  /* Before image loads, show blurred placeholder */
+  .image:not(.image-loaded) {
+    filter: blur(20px);
+  }
+
+  /* Ensure smooth fade-in */
+  .image-loaded {
+    filter: blur(0);
   }
 
   /* Accessibility: Reduced motion support */
   @media (prefers-reduced-motion: reduce) {
-    .image-placeholder,
     .image {
       transition: none;
     }

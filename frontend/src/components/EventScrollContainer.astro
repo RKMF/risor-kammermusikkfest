@@ -165,17 +165,15 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
           <li class="event-item">
             <article class="event-card">
               {eventImage && (
-                <div class="event-image">
-                  <Image
-                    image={eventImage}
-                    alt={imageAlt}
-                    size="small"
-                    aspectRatio="4:5"
-                    loading="lazy"
-                    quality={IMAGE_QUALITY.CARD}
-                    className="event-card-image"
-                  />
-                </div>
+                <Image
+                  image={eventImage}
+                  alt={imageAlt}
+                  size="small"
+                  aspectRatio="4:5"
+                  loading="lazy"
+                  quality={IMAGE_QUALITY.CARD}
+                  className="event-card-image"
+                />
               )}
               <div class="event-content">
                 <h4 class="event-title">
@@ -265,18 +263,9 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     box-shadow: var(--shadow-md);
   }
 
-  .event-image {
-    width: 100%;
-    flex-shrink: 0;
-    overflow: hidden;
-    aspect-ratio: 4/5; /* Parent controls image height */
-  }
-
-  .event-card-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  /* Image component targets with className */
+  :global(.event-card-image) {
+    margin: 0; /* Override Image.astro default margins */
   }
 
   /* Intrinsic content padding */
