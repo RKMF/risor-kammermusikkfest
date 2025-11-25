@@ -40,9 +40,7 @@ export default defineConfig({
 
   // Output configuration for server rendering
   output: 'server', // Server-rendered for API routes and dynamic content
-  adapter: vercel({
-    runtime: 'nodejs20.x'
-  }),
+  adapter: vercel(),
 
   // Modern image optimization configuration
   image: {
