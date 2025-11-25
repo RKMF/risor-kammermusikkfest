@@ -1,7 +1,6 @@
 ---
-import Image from './Image.astro';
 import { formatDateWithWeekday } from '../lib/utils/dates';
-import { IMAGE_QUALITY } from '../lib/sanityImage';
+import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../lib/sanityImage';
 import { stegaClean } from '@sanity/client/stega';
 import type { EventResult } from '../lib/sanity/queries';
 
@@ -38,17 +37,19 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
   )}
 
   {event.image?.image && (
-    <figure class="event-image" data-layout-context>
-      <Image
-        image={event.image.image}
+    <div class="event-image">
+      <img
+        src={getOptimizedImageUrl(event.image.image, 320, 213, IMAGE_QUALITY.CARD)}
+        srcset={getResponsiveImageSet(event.image.image, [320, 640, 960], 1.5, IMAGE_QUALITY.CARD)}
+        sizes="320px"
         alt={stegaClean(event.image.alt || event.title || '')}
-        size="medium"
-        aspectRatio="3:2"
+        width="320"
+        height="213"
         loading="lazy"
-        quality={IMAGE_QUALITY.CARD}
-        className="event-card-image"
+        decoding="async"
+        class="event-card-image"
       />
-    </figure>
+    </div>
   )}
 
   <dl class="event-meta">
@@ -56,9 +57,11 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
       <>
         <dt class="visually-hidden">{dateLabel}</dt>
         <dd class="event-datetime">
-          {formatDateWithWeekday(event.eventDate.date, language)}{event.eventTime && (
-            <>, kl. {stegaClean(event.eventTime.startTime)}</>
-          )}
+          <time datetime={event.eventDate.date}>
+            {formatDateWithWeekday(event.eventDate.date, language)}{event.eventTime && (
+              <>, kl. {stegaClean(event.eventTime.startTime)}</>
+            )}
+          </time>
         </dd>
       </>
     )}
