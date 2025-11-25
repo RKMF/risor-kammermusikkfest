@@ -19,10 +19,17 @@ export const event = defineType({
 
   orderings: [
     {
-      title: 'Dato og tidspunkt',
-      name: 'dateAndTime',
+      title: 'Dato og klokkeslett',
+      name: 'dateTimeAsc',
       by: [
-        { field: 'eventDate.date', direction: 'asc' },
+        { field: 'eventDateValue', direction: 'asc' },
+        { field: 'eventTime.startTime', direction: 'asc' }
+      ]
+    },
+    {
+      title: 'Klokkeslett',
+      name: 'timeAsc',
+      by: [
         { field: 'eventTime.startTime', direction: 'asc' }
       ]
     },
@@ -126,6 +133,15 @@ export const event = defineType({
         }
         return true
       }),
+    }),
+    defineField({
+      name: 'eventDateValue',
+      title: 'Dato (for sortering)',
+      type: 'date',
+      description: 'Synkroniseres automatisk fra festivaldato for korrekt sortering',
+      group: 'basic',
+      readOnly: true,
+      hidden: true,
     }),
     defineField({
       name: 'venue',

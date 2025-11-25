@@ -15,7 +15,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-3) var(--space-5);
+  padding: var(--space-4) var(--space-6);
   font-size: var(--fs-base);
   font-weight: var(--font-weight-medium);
   line-height: 1;

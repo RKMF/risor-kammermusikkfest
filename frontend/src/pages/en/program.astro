@@ -1,12 +1,12 @@
 ---
 import ContentPageLayout from '../../layouts/ContentPageLayout.astro';
 import ProgramFilters from '../../components/ProgramFilters.astro';
+import EventCard from '../../components/EventCard.astro';
 import { createDataService } from '../../lib/sanity/dataService.js';
 import { formatDateWithWeekday } from '../../lib/utils/dates';
-import { IMAGE_QUALITY } from '../../lib/sanityImage';
-import Image from '../../components/Image.astro';
 import { stegaClean } from '@sanity/client/stega';
 import '../../styles/program.css';
+import '../../styles/event-card.css';
 
 // Create data service with Visual Editing support
 const dataService = createDataService(Astro.request);
@@ -112,61 +112,11 @@ const hasEvents = filteredDates.length > 0 && filteredDates.some(d => d.events.l
       {hasEvents ? (
         filteredDates.map(({ date, displayTitle, events: dateEvents }) => (
         <section class="content-section date-section" data-date={date}>
-          <h3 class="date-title">{stegaClean(displayTitle)}</h3>
-          <div class="grid events-grid">
+          <h2 class="date-title">{stegaClean(displayTitle)}</h2>
+          <div class="events-grid">
             {dateEvents.map((event) => (
-              <article class="event-card card" data-event-date={event.eventDate?.date}>
-                <h4 class="event-title">
-                  <a href={`/en/program/${stegaClean(event.slug_en?.current || event.slug_no?.current)}`} class="event-title-link">
-                    {stegaClean(event.title)}
-                  </a>
-                </h4>
-
-                {event.excerpt && (
-                  <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
-                )}
-
-                {event.image?.image && (
-                  <div class="event-image">
-                    <Image
-                      image={event.image.image}
-                      alt={event.image.alt || event.title}
-                      size="medium"
-                      aspectRatio="4:3"
-                      loading="lazy"
-                      quality={IMAGE_QUALITY.CARD}
-                      class="event-card-image"
-                    />
-                  </div>
-                )}
-
-                <div class="event-meta">
-                  {event.eventDate?.date && (
-                    <div class="event-detail event-datetime">
-                      {formatDateWithWeekday(event.eventDate.date, 'en')}
-                      {event.eventTime && (
-                        <>, at {stegaClean(event.eventTime.startTime)}–{stegaClean(event.eventTime.endTime)}</>
-                      )}
-                    </div>
-                  )}
-                  {event.venue?.title && (
-                    <div class="event-detail event-venue">
-                      {stegaClean(event.venue.title)}
-                    </div>
-                  )}
-                </div>
-
-                <div class="event-actions">
-                  {event.ticketType === 'free' ? (
-                    <p class="ticket-info">Free</p>
-                  ) : event.ticketUrl ? (
-                    <a href={event.ticketUrl} class="btn btn-primary" target="_blank" rel="noopener noreferrer">Buy tickets</a>
-                  ) : (
-                    <p class="ticket-info">Tickets available soon</p>
-                  )}
-                </div>
-            </article>
-          ))}
+              <EventCard event={event} language="en" />
+            ))}
           </div>
         </section>
       ))

@@ -144,7 +144,10 @@ export const GET: APIRoute = async ({ request, url }) => {
           <h3 class="date-title">${stegaClean(displayTitle)}</h3>
           <div class="events-grid">
             ${dateEvents.map((event: any) => {
-              const eventSlug = stegaClean(event.slug_no?.current || event.slug_en?.current);
+              // Use language-aware slug selection
+              const eventSlug = language === 'en'
+                ? stegaClean(event.slug_en?.current || event.slug_no?.current)
+                : stegaClean(event.slug_no?.current || event.slug_en?.current);
               const eventTitle = stegaClean(event.title);
               const eventExcerpt = event.excerpt ? stegaClean(event.excerpt) : '';
 
@@ -208,10 +211,12 @@ export const GET: APIRoute = async ({ request, url }) => {
                 ticketHtml = `<a href="${ticketUrl}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Kjøp billetter her</a>`;
               }
 
+              const eventPath = language === 'en' ? `/en/program/${eventSlug}` : `/program/${eventSlug}`;
+
               return `
                 <article class="event-card card" data-event-date="${event.eventDate?.date}">
                   <h4 class="event-title">
-                    <a href="/program/${eventSlug}" class="event-title-link">
+                    <a href="${eventPath}" class="event-title-link">
                       ${eventTitle}
                     </a>
                   </h4>

@@ -1,71 +1,27 @@
 ---
 import Layout from "../../../layouts/Layout.astro";
 import DynamicComponent from "../../../components/DynamicComponent.astro";
-import { loadQuery } from "../../../lib/sanity/loadQuery.js";
+import Image from "../../../components/Image.astro";
+import { createDataService } from "../../../lib/sanity/dataService.js";
 import { getMultilingualContent } from "../../../lib/utils/language.js";
-import { getOptimizedImageUrl } from '../../../lib/sanityImage';
 import { IMAGE_QUALITY } from '../../../lib/sanityImage';
 import { stegaClean } from '@sanity/client/stega';
-import type { SanityDocument } from '@sanity/client';
 
 // Generate static paths for all articles
 export async function getStaticPaths() {
-  const { data: articles } = await loadQuery<SanityDocument[]>({
-    query: `*[_type == "article" && (defined(slug_no.current) || defined(slug_en.current))]`,
-  });
+  const dataService = createDataService();
+  const articles = await dataService.getSlugsForType('article');
 
-  return articles.map((article) => {
-    // Use English slug, fallback to Norwegian slug
-    const slug = article.slug_en?.current || article.slug_no?.current;
-    return {
-      params: { slug },
-    };
-  });
+  return articles.map((article: any) => ({
+    params: article.params
+  }));
 }
 
 const { params } = Astro;
 
-// Fetch the specific article based on the slug parameter (English priority)
-const { data: article } = await loadQuery({
-  query: `*[_type == "article" && $slug in [slug_en.current, slug_no.current, slug.current]][0]{
-    _id,
-    _type,
-    title_en,
-    "title": title_en,
-    slug_en,
-    excerpt_en,
-    "excerpt": excerpt_en,
-    "image": {
-      "image": image{
-        asset->{
-          _id,
-          url,
-          metadata {
-            dimensions {
-              width,
-              height,
-              aspectRatio
-            },
-            lqip
-          }
-        },
-        hotspot,
-        crop
-      },
-      "alt": coalesce(imageAlt_en, imageAlt_no, image.alt),
-      "credit": coalesce(imageCredit_en, imageCredit_no)
-    },
-    content_en,
-    content_no,
-    publishedAt,
-    author->{
-      _id,
-      name,
-      "slug": slug.current
-    }
-  }`,
-  params,
-});
+// Fetch article using DataService with language awareness
+const dataService = createDataService(Astro.request);
+const article = await dataService.getArticleBySlug(params.slug);
 
 if (!article) {
   return Astro.redirect('/404');

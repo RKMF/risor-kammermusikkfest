@@ -94,20 +94,18 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
         return (
           <li class="artist-item">
-            <a href={`/artister/${artistSlug}`} class="artist-card-link">
-              <article class="artist-card">
+            <a href={`/artister/${artistSlug}`} class="artist-scroll-card-link">
+              <article class="artist-scroll-card">
                 {artistImage && (
-                  <div class="artist-image">
-                    <Image
-                      image={artistImage}
-                      alt={artistImageAlt}
-                      size="small"
-                      aspectRatio="4:5"
-                      loading="lazy"
-                      quality={IMAGE_QUALITY.CARD}
-                      className="artist-card-image"
-                    />
-                  </div>
+                  <Image
+                    image={artistImage}
+                    alt={artistImageAlt}
+                    size="small"
+                    aspectRatio="4:5"
+                    loading="lazy"
+                    quality={IMAGE_QUALITY.CARD}
+                    className="artist-scroll-card-image"
+                  />
                 )}
                 <div class="artist-content">
                   <h4 class="artist-name">{artistName}</h4>
@@ -148,12 +146,12 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     flex-shrink: 0;
   }
 
-  .artist-card-link {
+  .artist-scroll-card-link {
     text-decoration: none;
     display: block;
   }
 
-  .artist-card {
+  .artist-scroll-card {
     background: white;
     overflow: hidden;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -164,22 +162,15 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     width: 280px;
   }
 
-  .artist-card:hover {
+  .artist-scroll-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
 
-  .artist-image {
+  /* Image component - Astro scoping handles this automatically */
+  .artist-scroll-card-image {
     flex: 1;
-    overflow: hidden;
-    aspect-ratio: 4 / 5; /* Parent controls image height */
-  }
-
-  .artist-card-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+    margin: 0; /* Override Image.astro default margins */
   }
 
   .artist-content {
@@ -215,7 +206,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
   /* Responsive design */
   @media (max-width: 768px) {
-    .artist-card {
+    .artist-scroll-card {
       width: 240px;
     }
 

@@ -1,51 +1,79 @@
 ---
+import {buildInternalUrl, detectLanguageFromPath} from '../lib/buildInternalUrl'
+
+interface InternalLinkReference {
+  _type: string
+  slug?: string
+  slug_no?: string
+  slug_en?: string
+}
+
 interface LinkItem {
-  text: string;
-  url: string;
-  description?: string;
-  openInNewTab?: boolean;
+  linkType?: 'external' | 'internal'
+  text: string
+  url?: string
+  internalLink?: InternalLinkReference
+  description?: string
+  openInNewTab?: boolean
 }
 
 interface Props {
-  links: LinkItem[];
+  links: LinkItem[]
 }
 
-const {
-  links = []
-} = Astro.props;
+const {links = []} = Astro.props
+
+// Detect current language from URL
+const currentLanguage = detectLanguageFromPath(Astro.url.pathname)
 
 // Don't render if no links
 if (!links || links.length === 0) {
-  return null;
+  return null
 }
+
+// Process links to resolve internal references to URLs
+const processedLinks = links.map((link) => {
+  let finalUrl: string | undefined
+
+  if (link.linkType === 'internal' && link.internalLink) {
+    // Build URL from internal reference
+    finalUrl = buildInternalUrl(link.internalLink, currentLanguage)
+  } else if (link.url) {
+    // Use external URL directly
+    finalUrl = link.url
+  } else {
+    // Fallback for legacy links without linkType
+    finalUrl = link.url
+  }
+
+  return {
+    ...link,
+    url: finalUrl,
+  }
+})
 ---
 
 <div class="link-component content-media-narrow">
   <nav aria-label="Lenker">
     <ul class="link-list" role="list">
-      {links.map((link) => {
-        const target = link.openInNewTab ? '_blank' : undefined;
-        const rel = link.openInNewTab ? 'noopener noreferrer' : undefined;
+      {
+        processedLinks.map((link) => {
+          const target = link.openInNewTab ? '_blank' : undefined
+          const rel = link.openInNewTab ? 'noopener noreferrer' : undefined
 
-        return (
-          <li class="link-item">
-            <a
-              href={link.url}
-              class="link"
-              target={target}
-              rel={rel}
-            >
-              {link.text}
-              {link.openInNewTab && (
-                <span class="visually-hidden"> (åpnes i ny fane)</span>
-              )}
-            </a>
-            {link.description && (
-              <p class="link-description">{link.description}</p>
-            )}
-          </li>
-        );
-      })}
+          return (
+            <li class="link-item">
+              <a href={link.url} class="link" target={target} rel={rel}>
+                {link.text}
+                {link.openInNewTab && (
+                  <span class="visually-hidden"> (åpnes i ny fane)</span>
+                )}
+              </a>
+              {link.description && <p class="link-description">{link.description}</p>}
+            </li>
+          )
+        })
+      }
     </ul>
   </nav>
 </div>

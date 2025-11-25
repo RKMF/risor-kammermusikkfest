@@ -37,9 +37,9 @@ const isActive = (href: string) => {
   const cleanPath = currentPath.replace(/\/$/, '') || '/';
   const cleanHref = href.replace(/\/$/, '') || '/';
 
-  // Exact match for homepage - must be exactly '/'
-  if (cleanHref === '/') {
-    return cleanPath === '/';
+  // Exact match for homepages - must be exactly '/' or '/en'
+  if (cleanHref === '/' || cleanHref === '/en') {
+    return cleanPath === cleanHref;
   }
 
   // For other pages, match exact path or if current path is a sub-path
@@ -79,6 +79,16 @@ const isActive = (href: string) => {
   <div class="menu-content">
     <!-- Navigation Links -->
     <ul class="nav-list" role="list">
+      <!-- Homepage link at the top -->
+      <li class="nav-item">
+        <a
+          href={currentLang === 'no' ? '/' : '/en'}
+          class:list={['nav-link', { 'active': isActive(currentLang === 'no' ? '/' : '/en') }]}
+          aria-current={isActive(currentLang === 'no' ? '/' : '/en') ? 'page' : undefined}
+        >
+          {currentLang === 'no' ? 'Hjem' : 'Home'}
+        </a>
+      </li>
       {navItems.map((item) => (
         <li class="nav-item">
           <a
@@ -90,16 +100,6 @@ const isActive = (href: string) => {
           </a>
         </li>
       ))}
-      <!-- Homepage link at the bottom -->
-      <li class="nav-item">
-        <a
-          href="/"
-          class:list={['nav-link', { 'active': isActive('/') }]}
-          aria-current={isActive('/') ? 'page' : undefined}
-        >
-          {currentLang === 'no' ? 'Hjem' : 'Home'}
-        </a>
-      </li>
     </ul>
 
     <!-- Language Switcher -->
