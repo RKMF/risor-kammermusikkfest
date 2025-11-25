@@ -13,6 +13,7 @@ import {syncArtistEventsAction} from './actions/syncArtistEventsAction'
 import {syncEventArtistsAction} from './actions/syncEventArtistsAction'
 import {addArtistToArtistPageAction} from './actions/addArtistToArtistPageAction'
 import {addArticleToArticlePageAction} from './actions/addArticleToArticlePageAction'
+import {rkmfTheme} from './theme'
 
 // Custom Norwegian i18n resources to override publish button text
 const customNorwegianResources = {
@@ -38,6 +39,8 @@ export default defineConfig({
 
   projectId: 'dnk98dp0',
   dataset: 'production',
+
+  theme: rkmfTheme,
 
   plugins: [
     structureTool({structure}),
