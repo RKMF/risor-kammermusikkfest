@@ -1,8 +1,7 @@
 ---
 import ContentPageLayout from '../../layouts/ContentPageLayout.astro';
 import { createDataService } from '../../lib/sanity/dataService.js';
-import { IMAGE_QUALITY } from '../../lib/sanityImage';
-import Image from '../../components/Image.astro';
+import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../../lib/sanityImage';
 import { stegaClean } from '@sanity/client/stega';
 import '../../styles/artists.css';
 
@@ -39,13 +38,15 @@ const hasArtists = artists.length > 0;
 
           {artist.image?.image && (
             <div class="artist-image">
-              <Image
-                image={artist.image.image}
-                alt={artist.image.alt || artist.name}
-                size="small"
-                aspectRatio="4:5"
+              <img
+                src={getOptimizedImageUrl(artist.image.image, 280, 350, IMAGE_QUALITY.CARD)}
+                srcset={getResponsiveImageSet(artist.image.image, [300, 400, 600], 0.8, IMAGE_QUALITY.CARD)}
+                sizes="320px"
+                alt={stegaClean(artist.image.alt) || stegaClean(artist.name)}
+                width="280"
+                height="350"
                 loading="lazy"
-                quality={IMAGE_QUALITY.CARD}
+                decoding="async"
                 class="artist-card-image"
               />
             </div>
