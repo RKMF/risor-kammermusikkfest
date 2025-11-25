@@ -19,8 +19,8 @@ export const addArticleToArticlePageAction: DocumentActionComponent = (props) =>
     // Check if this is a new publish (not just an update)
     const isNewPublish = draft && !published
 
-    // Publish the document
-    publish.execute()
+    // Publish the document and wait for it to complete
+    await publish.execute()
 
     // If this is a new publish, show dialog
     if (isNewPublish) {

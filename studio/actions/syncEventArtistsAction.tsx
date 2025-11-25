@@ -22,8 +22,8 @@ export const syncEventArtistsAction: DocumentActionComponent = (props) => {
   }
 
   const handlePublish = useCallback(async () => {
-    // Publish the document
-    publish.execute()
+    // Publish the document and wait for it to complete
+    await publish.execute()
 
     // Check for missing reciprocal references
     try {
