@@ -38,7 +38,7 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
   )}
 
   {event.image?.image && (
-    <figure class="event-image">
+    <figure class="event-image" data-layout-context>
       <Image
         image={event.image.image}
         alt={stegaClean(event.image.alt || event.title || '')}

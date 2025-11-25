@@ -141,11 +141,11 @@ figure.event-image picture {
   height: 100%;
 }
 
-/* CHANGED: object-fit cover instead of contain (expert recommendation) */
+/* Image fills container and respects hotspot/crop */
 .event-card-image {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Fills container, may crop - prevents whitespace */
+  object-fit: cover; /* Fills frame, respects hotspot */
   display: block;
 }
 
