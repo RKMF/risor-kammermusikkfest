@@ -85,16 +85,23 @@ const SPOTIFY_COMPONENT = `
 
 const LINK_COMPONENT = `
   _type == "linkComponent" => {
-    ...,
-    "internalLink": select(
-      linkType == "internal" && defined(internalLink) => internalLink->{
-        _type,
-        "slug": coalesce(slug_no.current, slug_en.current, slug.current),
-        "slug_no": slug_no.current,
-        "slug_en": slug_en.current
-      },
-      defined(internalLink) => internalLink
-    )
+    _type,
+    _key,
+    links[]{
+      linkType,
+      text,
+      url,
+      description,
+      openInNewTab,
+      "internalLink": select(
+        linkType == "internal" && defined(internalLink) => internalLink->{
+          _type,
+          "slug": coalesce(slug_no.current, slug_en.current, slug.current),
+          "slug_no": slug_no.current,
+          "slug_en": slug_en.current
+        }
+      )
+    }
   }`
 
 const HEADING_COMPONENT = `
