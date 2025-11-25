@@ -9,6 +9,10 @@ import {structure} from './deskStructure'
 import {placeholderTextPlugin} from './plugins/placeholderTextPlugin'
 import {componentGuideTool} from './plugins/componentGuideTool'
 import {addEventToProgramPageAction} from './actions/addEventToProgramPageAction'
+import {syncArtistEventsAction} from './actions/syncArtistEventsAction'
+import {syncEventArtistsAction} from './actions/syncEventArtistsAction'
+import {addArtistToArtistPageAction} from './actions/addArtistToArtistPageAction'
+import {addArticleToArticlePageAction} from './actions/addArticleToArticlePageAction'
 
 // Custom Norwegian i18n resources to override publish button text
 const customNorwegianResources = {
@@ -133,12 +137,57 @@ export default defineConfig({
 
   document: {
     actions: (prev, context) => {
-      // Replace default publish action with our custom one for event documents
+      // Replace default publish action with custom actions for different document types
+
+      // Artist documents: sync events + add to artist page
+      if (context.schemaType === 'artist') {
+        return prev.map((action) => {
+          if (action.action === 'publish') {
+            // Chain both actions: sync first, then add to page
+            return (props) => {
+              const syncAction = syncArtistEventsAction(props)
+              const addToPageAction = addArtistToArtistPageAction(props)
+
+              // If sync action has dialog, show it first
+              if (syncAction?.dialog) {
+                return syncAction
+              }
+              // Otherwise check add to page action
+              return addToPageAction || syncAction
+            }
+          }
+          return action
+        })
+      }
+
+      // Event documents: sync artists + add to program page
       if (context.schemaType === 'event') {
+        return prev.map((action) => {
+          if (action.action === 'publish') {
+            // Chain both actions: sync first, then add to page
+            return (props) => {
+              const syncAction = syncEventArtistsAction(props)
+              const addToPageAction = addEventToProgramPageAction(props)
+
+              // If sync action has dialog, show it first
+              if (syncAction?.dialog) {
+                return syncAction
+              }
+              // Otherwise check add to page action
+              return addToPageAction || syncAction
+            }
+          }
+          return action
+        })
+      }
+
+      // Article documents: add to article page
+      if (context.schemaType === 'article') {
         return prev.map((action) =>
-          action.action === 'publish' ? addEventToProgramPageAction : action
+          action.action === 'publish' ? addArticleToArticlePageAction : action
         )
       }
+
       return prev
     },
   },
