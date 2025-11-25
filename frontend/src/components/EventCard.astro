@@ -33,9 +33,26 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
     </a>
   </h3>
 
-  {event.excerpt && (
-    <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
-  )}
+  <dl class="event-meta">
+    {event.eventDate?.date && (
+      <>
+        <dt class="visually-hidden">{dateLabel}</dt>
+        <dd class="event-datetime">
+          {formatDateWithWeekday(event.eventDate.date, language)}{event.eventTime && (
+            <>, kl. {stegaClean(event.eventTime.startTime)}</>
+          )}
+        </dd>
+      </>
+    )}
+    {event.venue?.title && (
+      <>
+        <dt class="visually-hidden">{venueLabel}</dt>
+        <dd class="event-venue">
+          {stegaClean(event.venue.title)}
+        </dd>
+      </>
+    )}
+  </dl>
 
   {event.image?.image && (
     <figure class="event-image" data-layout-context>
@@ -51,29 +68,8 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
     </figure>
   )}
 
-  <dl class="event-meta">
-    {event.eventDate?.date && (
-      <>
-        <dt class="visually-hidden">{dateLabel}</dt>
-        <dd class="event-datetime">
-          {formatDateWithWeekday(event.eventDate.date, language)}{event.eventTime && (
-            <>, kl. {stegaClean(event.eventTime.startTime)}–{stegaClean(event.eventTime.endTime)}</>
-          )}
-        </dd>
-      </>
-    )}
-    {event.venue?.title && (
-      <>
-        <dt class="visually-hidden">{venueLabel}</dt>
-        <dd class="event-venue">
-          {stegaClean(event.venue.title)}
-        </dd>
-      </>
-    )}
-  </dl>
-
   {stegaClean(event.ticketType) === 'info' ? (
-    <p class="ticket-info">{stegaClean(event.ticketInfoText) || freeText}</p>
+    <span class="ticket-badge">{stegaClean(event.ticketInfoText) || freeText}</span>
   ) : (
     <a href={stegaClean(event.ticketUrl)} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
       {ticketButtonText}
