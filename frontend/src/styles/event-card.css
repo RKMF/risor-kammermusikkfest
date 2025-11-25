@@ -10,9 +10,8 @@
   container-type: inline-size;
   display: grid;
 
-  /* Grid rows: title (auto) → excerpt (constrained 1fr) → image → metadata → button
-     Changed from original: excerpt moved to 1fr to prevent overflow */
-  grid-template-rows: auto minmax(0, 1fr) auto auto auto;
+  /* Grid rows: title (auto) → excerpt (auto) → image → metadata → button */
+  grid-template-rows: auto auto auto auto auto;
 
   overflow: hidden; /* Clips overflow content */
   background-color: rgba(27, 25, 143, 0.12);
@@ -53,30 +52,33 @@
 /* Event Title - Fluid typography (FLEXIBLE - no line clamp per user request) */
 .event-title {
   margin: 0;
-  font-size: clamp(1.75rem, 2vw + 1rem, 2rem);
+  font-size: var(--fs-2xl);
   line-height: 1.2;
   font-weight: 600;
   font-family: Georgia, 'Times New Roman', serif;
   text-transform: none;
   letter-spacing: -0.01em;
 
-  /* Overflow protection for long Norwegian compound words */
+  /* Overflow protection without hyphenation */
   overflow-wrap: break-word;
   word-wrap: break-word; /* Legacy fallback */
-  hyphens: auto; /* Expert recommendation for Norwegian text */
+  hyphens: none; /* Prevent automatic hyphenation */
 }
 
-/* Event Excerpt - CLAMPED to prevent overflow (per user request) */
+/* Event Excerpt - Exactly two lines with ellipsis */
 .event-excerpt {
   margin: 0;
   font-size: var(--fs-base);
   line-height: 1.5;
 
-  /* Line clamp - industry standard for card text truncation */
+  /* Two line truncation with ellipsis */
   display: -webkit-box;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4; /* Max 4 lines before truncation */
   overflow: hidden;
+
+  /* Force exact height to prevent line peek-through */
+  max-height: calc(1.5em * 2); /* line-height * 2 lines */
 
   /* Overflow protection for long words */
   overflow-wrap: break-word;
@@ -91,7 +93,8 @@ dl.event-meta {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.125rem;
+  align-self: center;
 
   /* Overflow protection */
   overflow-wrap: break-word;
@@ -124,7 +127,7 @@ dl.event-meta dd {
 figure.event-image {
   position: relative;
   width: 100%;
-  aspect-ratio: 4/3; /* Fixed aspect ratio for consistency */
+  aspect-ratio: 16/9; /* Widescreen ratio for balanced layout */
   overflow: hidden;
   margin: 0;
   align-self: center;
@@ -191,10 +194,11 @@ figure.event-image picture {
 .event-card .btn-primary {
   position: relative;
   z-index: 2;
-  /* Align button to right */
+  /* Align button to right and top of grid area */
   margin-inline-start: auto;
   width: fit-content;
-  display: block;
+  display: inline-block;
+  align-self: start;
 }
 
 /* Elevate other interactive elements */
@@ -206,17 +210,14 @@ figure.event-image picture {
 
 .ticket-badge {
   display: inline-block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  background: rgba(0, 179, 154, 0.12);
-  border-radius: 4px;
-  /* Align to right like buttons */
-  margin-inline-start: auto;
+  font-size: var(--fs-base);
+  font-weight: var(--font-weight-medium);
+  /* Align to left and top of grid area */
   width: fit-content;
-  text-align: end;
+  text-align: start;
   position: relative;
   z-index: 2;
+  align-self: start;
 }
 
 /* ============================================

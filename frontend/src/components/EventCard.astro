@@ -33,6 +33,24 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
     </a>
   </h3>
 
+  {event.excerpt && (
+    <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
+  )}
+
+  {event.image?.image && (
+    <figure class="event-image" data-layout-context>
+      <Image
+        image={event.image.image}
+        alt={stegaClean(event.image.alt || event.title || '')}
+        size="medium"
+        aspectRatio="3:2"
+        loading="lazy"
+        quality={IMAGE_QUALITY.CARD}
+        className="event-card-image"
+      />
+    </figure>
+  )}
+
   <dl class="event-meta">
     {event.eventDate?.date && (
       <>
@@ -53,20 +71,6 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
       </>
     )}
   </dl>
-
-  {event.image?.image && (
-    <figure class="event-image" data-layout-context>
-      <Image
-        image={event.image.image}
-        alt={stegaClean(event.image.alt || event.title || '')}
-        size="medium"
-        aspectRatio="4:3"
-        loading="lazy"
-        quality={IMAGE_QUALITY.CARD}
-        className="event-card-image"
-      />
-    </figure>
-  )}
 
   {stegaClean(event.ticketType) === 'info' ? (
     <span class="ticket-badge">{stegaClean(event.ticketInfoText) || freeText}</span>
