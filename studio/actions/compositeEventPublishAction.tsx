@@ -9,10 +9,11 @@ import {
 
 /**
  * Composite publish action for events that:
- * 1. Syncs eventDateValue from referenced eventDate (for sorting)
- * 2. Publishes the document
- * 3. Shows artist sync dialog if needed
- * 4. Shows program page dialog for new publishes
+ * 1. Checks for missing reciprocal artist references (before publishing)
+ * 2. Syncs eventDateValue from referenced eventDate (for sorting)
+ * 3. Publishes the document
+ * 4. Shows artist sync dialog if needed (adds event to artists)
+ * 5. Shows program page dialog for new publishes
  */
 export const compositeEventPublishAction: DocumentActionComponent = (props) => {
   const {id, type, draft, published, onComplete} = props
@@ -58,36 +59,36 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
     }
   }, [eventDateRef, client, patch])
 
-  // Step 2 & 3: Publish and check for missing artist references
+  // Step 2 & 3: Check for missing artist references, sync date, then publish
   const handlePublish = useCallback(async () => {
-    // First sync the date value
-    await syncDateValue()
-
-    // Then publish
-    await publish.execute()
-
-    // Check for missing reciprocal artist references
+    // Check for missing reciprocal artist references BEFORE publishing
+    // This ensures we query the draft document which has the current data
+    let missing: string[] = []
     try {
-      const missing = await findMissingReciprocalReferences(
+      missing = await findMissingReciprocalReferences(
         client,
         id,
         'artist',
         'artist',
         'events'
       )
-
-      if (missing.length > 0) {
-        setMissingArtistRefs(missing)
-        setArtistCount(missing.length)
-        setArtistDialogOpen(true)
-        return
-      }
     } catch (error) {
-      console.error('Error checking reciprocal references:', error)
+      console.error('[Event Publish] Error checking reciprocal references:', error)
     }
 
-    // If no artist sync needed, check if we should show program dialog
-    if (isNewPublish) {
+    // Sync the date value
+    await syncDateValue()
+
+    // Publish the document
+    await publish.execute()
+
+    // Show artist sync dialog if needed (based on what we found before publishing)
+    if (missing.length > 0) {
+      setMissingArtistRefs(missing)
+      setArtistCount(missing.length)
+      setArtistDialogOpen(true)
+    } else if (isNewPublish) {
+      // If no artist sync needed, check if we should show program dialog
       setProgramDialogOpen(true)
     } else {
       onComplete()

@@ -24,14 +24,27 @@ export function getDocumentIds(id: string): {publishedId: string; draftId: strin
 
 /**
  * Check if a reference array already contains a reference to a document
+ * Handles both proper reference objects AND corrupted plain string IDs (for backwards compatibility)
  */
 export function hasReference(
-  references: Array<{_ref: string}> | undefined,
+  references: Array<{_ref: string} | string> | undefined,
   targetId: string
 ): boolean {
   if (!references || !Array.isArray(references)) return false
+
   const publishedId = getPublishedId(targetId)
-  return references.some((ref) => getPublishedId(ref._ref) === publishedId)
+
+  return references.some((ref) => {
+    // Handle plain string (corrupted data format - should not occur with fixed GROQ query)
+    if (typeof ref === 'string') {
+      console.warn('[BiSync] ⚠️ Found corrupted string reference:', ref)
+      return getPublishedId(ref) === publishedId
+    }
+
+    // Handle proper reference object
+    if (!ref || !ref._ref) return false
+    return getPublishedId(ref._ref) === publishedId
+  })
 }
 
 /**
@@ -53,8 +66,10 @@ export async function findMissingReciprocalReferences(
   const {publishedId} = getDocumentIds(sourceDocId)
 
   // Get the source document with its references
+  // Use order(_id desc) to ensure draft is returned first if it exists (drafts. sorts after published IDs)
+  // This is critical - without ordering, GROQ returns non-deterministic results
   const sourceDoc = await client.fetch(
-    `*[_id in [$publishedId, $draftId]][0]{
+    `*[_id in [$publishedId, $draftId]] | order(_id desc)[0]{
       _id,
       "${sourceFieldName}": ${sourceFieldName}[]._ref
     }`,
@@ -73,10 +88,12 @@ export async function findMissingReciprocalReferences(
   for (const targetId of referencedIds) {
     const {publishedId: targetPublishedId} = getDocumentIds(targetId)
 
+    // Use order(_id desc) to ensure draft is returned first if it exists
+    // This prevents checking stale published versions when a draft exists
     const targetDoc = await client.fetch(
-      `*[_id in [$publishedId, $draftId]][0]{
+      `*[_id in [$publishedId, $draftId]] | order(_id desc)[0]{
         _id,
-        "${targetFieldName}": ${targetFieldName}[]._ref
+        "${targetFieldName}": ${targetFieldName}[]
       }`,
       {publishedId: targetPublishedId, draftId: `drafts.${targetPublishedId}`}
     )

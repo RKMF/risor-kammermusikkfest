@@ -2,6 +2,7 @@ import {defineField, defineType} from 'sanity'
 import {CalendarIcon} from '@sanity/icons'
 import {componentValidation, contentValidation} from '../../shared/validation'
 import type {EventScrollContainerData, ComponentHTMLGenerator, ValidationRule} from '../../shared/types'
+import {excludeAlreadySelected} from '../../shared/referenceFilters'
 
 export const eventScrollContainer = defineType({
   name: 'eventScrollContainer',
@@ -23,6 +24,9 @@ export const eventScrollContainer = defineType({
       description: 'Legg til mellom 2 og 8 arrangementer som skal vises i horisontal scroll',
               of: [{type: 'reference', to: [{type: 'event'}]}],
       validation: contentValidation.scrollContainerItems,
+      options: {
+        filter: excludeAlreadySelected(),
+      },
     }),
     defineField({
       name: 'showScrollbar',

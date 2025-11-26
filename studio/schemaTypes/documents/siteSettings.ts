@@ -3,6 +3,7 @@ import {CogIcon, ComposeIcon, ImageIcon, UsersIcon, HeartIcon, MenuIcon} from '@
 import {multilingualImageFields, imageFieldsets} from '../shared/imageFields'
 import {seoGroup} from '../objects/seoFields'
 import {componentValidation, crossFieldValidation} from '../shared/validation'
+import {excludeAlreadySelected} from '../shared/referenceFilters'
 
 export const siteSettings = defineType({
   name: 'siteSettings',
@@ -153,6 +154,9 @@ export const siteSettings = defineType({
           ],
         }
       ],
+      options: {
+        filter: excludeAlreadySelected(),
+      },
     }),
 
     defineField({

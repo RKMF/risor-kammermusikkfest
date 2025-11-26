@@ -8,9 +8,8 @@ import {schemaTypes} from './schemaTypes'
 import {structure} from './deskStructure'
 import {placeholderTextPlugin} from './plugins/placeholderTextPlugin'
 import {componentGuideTool} from './plugins/componentGuideTool'
-import {syncArtistEventsAction} from './actions/syncArtistEventsAction'
+import {compositeArtistPublishAction} from './actions/compositeArtistPublishAction'
 import {compositeEventPublishAction} from './actions/compositeEventPublishAction'
-import {addArtistToArtistPageAction} from './actions/addArtistToArtistPageAction'
 import {addArticleToArticlePageAction} from './actions/addArticleToArticlePageAction'
 import {createDeleteWithReferencesAction} from './actions/createDeleteWithReferencesAction'
 import {
@@ -156,18 +155,8 @@ export default defineConfig({
       if (context.schemaType === 'artist') {
         return prev.map((action) => {
           if (action.action === 'publish') {
-            // Chain both actions: sync first, then add to page
-            return (props) => {
-              const syncAction = syncArtistEventsAction(props)
-              const addToPageAction = addArtistToArtistPageAction(props)
-
-              // If sync action has dialog, show it first
-              if (syncAction?.dialog) {
-                return syncAction
-              }
-              // Otherwise check add to page action
-              return addToPageAction || syncAction
-            }
+            // Use composite action which handles event sync and artist page dialog
+            return compositeArtistPublishAction
           }
           if (action.action === 'delete') {
             return deleteArtistAction

@@ -3,6 +3,7 @@ import {DocumentIcon, ComposeIcon, DocumentTextIcon} from '@sanity/icons'
 import {createMirrorPortableTextInput} from '../../components/inputs/MirrorPortableTextInput'
 import {componentValidation} from '../shared/validation'
 import {seoFields, seoGroup} from '../objects/seoFields'
+import {excludeAlreadySelected} from '../shared/referenceFilters'
 
 export const articlePage = defineType({
   name: 'articlePage',
@@ -123,6 +124,9 @@ export const articlePage = defineType({
       ],
       description: 'Velg artikler som skal vises på artikkeloversikten, eller la stå tom for å vise alle publiserte artikler (vises på begge språk)',
       group: 'articles',
+      options: {
+        filter: excludeAlreadySelected(),
+      },
     }),
 
     ...seoFields,

@@ -2,6 +2,7 @@ import {defineField, defineType} from 'sanity'
 import {DocumentIcon} from '@sanity/icons'
 import {componentValidation, contentValidation} from '../../shared/validation'
 import type {ArtistScrollContainerData, ComponentHTMLGenerator, ValidationRule} from '../../shared/types'
+import {excludeAlreadySelected} from '../../shared/referenceFilters'
 
 export const artistScrollContainer = defineType({
   name: 'artistScrollContainer',
@@ -23,6 +24,9 @@ export const artistScrollContainer = defineType({
       description: 'Legg til mellom 2 og 8 artister som skal vises i horisontal scroll',
       of: [{type: 'reference', to: [{type: 'artist'}]}],
       validation: contentValidation.scrollContainerItems,
+      options: {
+        filter: excludeAlreadySelected(),
+      },
     }),
     defineField({
       name: 'showScrollbar',
