@@ -4,6 +4,7 @@ import {createMirrorPortableTextInput} from '../../components/inputs/MirrorPorta
 import {componentValidation} from '../shared/validation'
 import type {ProgramPageData} from '../shared/types'
 import {excludeAlreadySelected} from '../shared/referenceFilters'
+import {MultiSelectReferenceInput} from '../components/inputs/MultiSelectReferenceInput'
 
 export const programPage = defineType({
   name: 'programPage',
@@ -123,6 +124,9 @@ export const programPage = defineType({
       ],
       description: 'Velg arrangementer som skal vises på programoversikten (vises på begge språk)',
       group: 'events',
+      components: {
+        input: MultiSelectReferenceInput,
+      },
       options: {
         filter: excludeAlreadySelected(),
       },

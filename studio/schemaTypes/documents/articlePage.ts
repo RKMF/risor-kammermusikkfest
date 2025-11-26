@@ -4,6 +4,7 @@ import {createMirrorPortableTextInput} from '../../components/inputs/MirrorPorta
 import {componentValidation} from '../shared/validation'
 import {seoFields, seoGroup} from '../objects/seoFields'
 import {excludeAlreadySelected} from '../shared/referenceFilters'
+import {MultiSelectReferenceInput} from '../components/inputs/MultiSelectReferenceInput'
 
 export const articlePage = defineType({
   name: 'articlePage',
@@ -124,6 +125,9 @@ export const articlePage = defineType({
       ],
       description: 'Velg artikler som skal vises på artikkeloversikten, eller la stå tom for å vise alle publiserte artikler (vises på begge språk)',
       group: 'articles',
+      components: {
+        input: MultiSelectReferenceInput,
+      },
       options: {
         filter: excludeAlreadySelected(),
       },
