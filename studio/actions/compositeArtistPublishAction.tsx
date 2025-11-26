@@ -34,10 +34,12 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
   // Event sync state
   const [missingEventRefs, setMissingEventRefs] = useState<string[]>([])
   const [eventCount, setEventCount] = useState(0)
+  const [eventNames, setEventNames] = useState<string[]>([])
 
   // Orphaned event cleanup state
   const [orphanedEventRefs, setOrphanedEventRefs] = useState<string[]>([])
   const [orphanedEventCount, setOrphanedEventCount] = useState(0)
+  const [orphanedEventNames, setOrphanedEventNames] = useState<string[]>([])
 
   // Only apply to artist documents
   if (type !== 'artist') {
@@ -87,8 +89,33 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
     if (missing.length > 0) {
       setMissingEventRefs(missing)
       setEventCount(missing.length)
+
+      // Fetch event names for display
+      const names = await Promise.all(
+        missing.map(async (eventId) => {
+          const event = await client.fetch<{title?: string; title_no?: string; title_en?: string}>(
+            `*[_id == $id][0]{title, title_no, title_en}`,
+            {id: eventId}
+          )
+          return event?.title_no || event?.title_en || event?.title || 'Ukjent arrangement'
+        })
+      )
+      setEventNames(names)
+
       setEventDialogOpen(true)
     } else if (orphaned.length > 0) {
+      // Fetch orphaned event names for display
+      const orphanedNames = await Promise.all(
+        orphaned.map(async (eventId) => {
+          const event = await client.fetch<{title?: string; title_no?: string; title_en?: string}>(
+            `*[_id == $id][0]{title, title_no, title_en}`,
+            {id: eventId}
+          )
+          return event?.title_no || event?.title_en || event?.title || 'Ukjent arrangement'
+        })
+      )
+      setOrphanedEventNames(orphanedNames)
+
       setOrphanedEventDialogOpen(true)
     } else if (isNewPublish) {
       // If no sync needed, check if we should show artist page dialog
@@ -262,10 +289,17 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
             <Stack space={4} padding={4}>
               <Text>
                 {eventCount === 1
-                  ? 'Det er 1 arrangement som ikke har denne artisten i sin artistliste.'
-                  : `Det er ${eventCount} arrangementer som ikke har denne artisten i sine artistlister.`}
+                  ? 'Dette arrangementet har ikke denne artisten i sin artistliste:'
+                  : `Disse ${eventCount} arrangementene har ikke denne artisten i sine artistlister:`}
               </Text>
-              <Text>Vil du legge til denne artisten automatisk i arrangementene?</Text>
+              <Stack space={2} paddingLeft={3}>
+                {eventNames.map((name, index) => (
+                  <Text key={index} size={2}>
+                    • {name}
+                  </Text>
+                ))}
+              </Stack>
+              <Text>Vil du legge til denne artisten automatisk i {eventCount === 1 ? 'arrangementet' : 'arrangementene'}?</Text>
               <Text size={1} muted>
                 Dette sikrer at forholdet mellom artist og arrangement er toveis.
               </Text>
@@ -299,10 +333,17 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
               <Stack space={4} padding={4}>
                 <Text>
                   {orphanedEventCount === 1
-                    ? 'Det er 1 arrangement som fremdeles har denne artisten i sin artistliste, men artisten har ikke lenger arrangementet i sin liste.'
-                    : `Det er ${orphanedEventCount} arrangementer som fremdeles har denne artisten i sine artistlister, men artisten har ikke lenger disse arrangementene i sin liste.`}
+                    ? 'Dette arrangementet har fremdeles denne artisten i sin liste, men artisten har ikke lenger arrangementet:'
+                    : `Disse ${orphanedEventCount} arrangementene har fremdeles denne artisten i sine lister, men artisten har ikke lenger disse arrangementene:`}
                 </Text>
-                <Text>Vil du fjerne denne artisten automatisk fra arrangementene?</Text>
+                <Stack space={2} paddingLeft={3}>
+                  {orphanedEventNames.map((name, index) => (
+                    <Text key={index} size={2}>
+                      • {name}
+                    </Text>
+                  ))}
+                </Stack>
+                <Text>Vil du fjerne denne artisten automatisk fra {orphanedEventCount === 1 ? 'arrangementet' : 'arrangementene'}?</Text>
                 <Text size={1} muted>
                   Dette sikrer at forholdet mellom artist og arrangement forblir toveis.
                 </Text>
