@@ -5,6 +5,8 @@ import {Button, Flex, Stack, Text} from '@sanity/ui'
 import {
   findMissingReciprocalReferences,
   syncReciprocalReferences,
+  findOrphanedReciprocalReferences,
+  removeReciprocalReferences,
 } from '../utils/bidirectionalSync'
 
 /**
@@ -12,8 +14,10 @@ import {
  * 1. Checks for missing reciprocal artist references (before publishing)
  * 2. Syncs eventDateValue from referenced eventDate (for sorting)
  * 3. Publishes the document
- * 4. Shows artist sync dialog if needed (adds event to artists)
- * 5. Shows program page dialog for new publishes
+ * 4. Checks for orphaned artist references (after publishing)
+ * 5. Shows artist sync dialog if needed (adds event to artists)
+ * 6. Shows orphaned artist cleanup dialog if needed (removes event from artists)
+ * 7. Shows program page dialog for new publishes
  */
 export const compositeEventPublishAction: DocumentActionComponent = (props) => {
   const {id, type, draft, published, onComplete} = props
@@ -22,13 +26,19 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
 
   // Dialog states
   const [artistDialogOpen, setArtistDialogOpen] = useState(false)
+  const [orphanedArtistDialogOpen, setOrphanedArtistDialogOpen] = useState(false)
   const [programDialogOpen, setProgramDialogOpen] = useState(false)
   const [isSyncing, setIsSyncing] = useState(false)
+  const [isRemoving, setIsRemoving] = useState(false)
   const [isAddingToProgram, setIsAddingToProgram] = useState(false)
 
   // Artist sync state
   const [missingArtistRefs, setMissingArtistRefs] = useState<string[]>([])
   const [artistCount, setArtistCount] = useState(0)
+
+  // Orphaned artist cleanup state
+  const [orphanedArtistRefs, setOrphanedArtistRefs] = useState<string[]>([])
+  const [orphanedArtistCount, setOrphanedArtistCount] = useState(0)
 
   // Only apply to event documents
   if (type !== 'event') {
@@ -59,7 +69,7 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
     }
   }, [eventDateRef, client, patch])
 
-  // Step 2 & 3: Check for missing artist references, sync date, then publish
+  // Step 2 & 3 & 4: Check for missing artist references, sync date, publish, check for orphaned references
   const handlePublish = useCallback(async () => {
     // Check for missing reciprocal artist references BEFORE publishing
     // This ensures we query the draft document which has the current data
@@ -82,25 +92,51 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
     // Publish the document
     await publish.execute()
 
-    // Show artist sync dialog if needed (based on what we found before publishing)
+    // DISABLED: Check for orphaned references - interferes with addition flow
+    // TODO: Re-enable after fixing draft/published handling in removeReferenceFromDocument
+    /*
+    let orphaned: string[] = []
+    try {
+      orphaned = await findOrphanedReciprocalReferences(
+        client,
+        id,
+        'artist',
+        'artist',
+        'events'
+      )
+    } catch (error) {
+      console.error('[Event Publish] Error checking orphaned references:', error)
+    }
+
+    setOrphanedArtistRefs(orphaned)
+    setOrphanedArtistCount(orphaned.length)
+    */
+
+    // Show artist sync dialog if needed (additions)
     if (missing.length > 0) {
       setMissingArtistRefs(missing)
       setArtistCount(missing.length)
       setArtistDialogOpen(true)
+    // DISABLED: Orphaned dialog - uncomment after fixing removal bugs
+    // } else if (orphaned.length > 0) {
+    //   setOrphanedArtistDialogOpen(true)
     } else if (isNewPublish) {
-      // If no artist sync needed, check if we should show program dialog
+      // If no sync needed, check if we should show program dialog
       setProgramDialogOpen(true)
     } else {
       onComplete()
     }
   }, [syncDateValue, publish, client, id, isNewPublish, onComplete])
 
-  // Step 4: Handle artist sync
+  // Step 5: Handle artist sync (additions)
   const handleArtistSync = useCallback(
     async (shouldSync: boolean) => {
       if (!shouldSync) {
         setArtistDialogOpen(false)
-        // After artist dialog, check if we should show program dialog
+        // DISABLED: Orphaned dialog check
+        // if (orphanedArtistRefs.length > 0) {
+        //   setOrphanedArtistDialogOpen(true)
+        // } else if (isNewPublish) {
         if (isNewPublish) {
           setProgramDialogOpen(true)
         } else {
@@ -121,7 +157,10 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
 
         setArtistDialogOpen(false)
 
-        // After syncing, check if we should show program dialog
+        // DISABLED: Orphaned dialog check after sync
+        // if (orphanedArtistRefs.length > 0) {
+        //   setOrphanedArtistDialogOpen(true)
+        // } else if (isNewPublish) {
         if (isNewPublish) {
           setProgramDialogOpen(true)
         } else {
@@ -136,9 +175,53 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
       }
     },
     [client, id, missingArtistRefs, isNewPublish, onComplete]
+    // Removed: orphanedArtistRefs (was causing stale closure issues)
   )
 
-  // Step 5: Handle program page addition
+  // Step 6: Handle orphaned artist cleanup (removals)
+  const handleOrphanedArtistCleanup = useCallback(
+    async (shouldCleanup: boolean) => {
+      if (!shouldCleanup) {
+        setOrphanedArtistDialogOpen(false)
+        // After declining cleanup, check if we should show program dialog
+        if (isNewPublish) {
+          setProgramDialogOpen(true)
+        } else {
+          onComplete()
+        }
+        return
+      }
+
+      setIsRemoving(true)
+
+      try {
+        await removeReciprocalReferences(
+          client,
+          id,
+          orphanedArtistRefs,
+          'events' // Field name in artists to remove from
+        )
+
+        setOrphanedArtistDialogOpen(false)
+
+        // After cleanup, check if we should show program dialog
+        if (isNewPublish) {
+          setProgramDialogOpen(true)
+        } else {
+          onComplete()
+        }
+      } catch (error) {
+        console.error('Error removing orphaned references:', error)
+        setOrphanedArtistDialogOpen(false)
+        onComplete()
+      } finally {
+        setIsRemoving(false)
+      }
+    },
+    [client, id, orphanedArtistRefs, isNewPublish, onComplete]
+  )
+
+  // Step 7: Handle program page addition
   const handleAddToProgram = useCallback(
     async (addToProgram: boolean) => {
       if (!addToProgram) {
@@ -239,7 +322,44 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
             </Stack>
           ),
         }
-      : programDialogOpen
+      : orphanedArtistDialogOpen
+        ? {
+            type: 'dialog',
+            onClose: () => {
+              setOrphanedArtistDialogOpen(false)
+              onComplete()
+            },
+            header: 'Fjern arrangementet fra artister?',
+            content: (
+              <Stack space={4} padding={4}>
+                <Text>
+                  {orphanedArtistCount === 1
+                    ? 'Det er 1 artist som fremdeles har dette arrangementet i sin arrangementsliste, men arrangementet har ikke lenger artisten i sin liste.'
+                    : `Det er ${orphanedArtistCount} artister som fremdeles har dette arrangementet i sine arrangementslister, men arrangementet har ikke lenger disse artistene i sin liste.`}
+                </Text>
+                <Text>Vil du fjerne dette arrangementet automatisk fra artistene?</Text>
+                <Text size={1} muted>
+                  Dette sikrer at forholdet mellom artist og arrangement forblir toveis.
+                </Text>
+                <Flex gap={3} justify="flex-end">
+                  <Button
+                    text="Nei, ikke fjern"
+                    mode="ghost"
+                    onClick={() => handleOrphanedArtistCleanup(false)}
+                    disabled={isRemoving}
+                  />
+                  <Button
+                    text="Ja, fjern"
+                    tone="primary"
+                    icon={CheckmarkIcon}
+                    onClick={() => handleOrphanedArtistCleanup(true)}
+                    loading={isRemoving}
+                  />
+                </Flex>
+              </Stack>
+            ),
+          }
+        : programDialogOpen
         ? {
             type: 'dialog',
             onClose: () => {
