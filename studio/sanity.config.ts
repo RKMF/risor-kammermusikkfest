@@ -8,10 +8,8 @@ import {schemaTypes} from './schemaTypes'
 import {structure} from './deskStructure'
 import {placeholderTextPlugin} from './plugins/placeholderTextPlugin'
 import {componentGuideTool} from './plugins/componentGuideTool'
-import {addEventToProgramPageAction} from './actions/addEventToProgramPageAction'
 import {syncArtistEventsAction} from './actions/syncArtistEventsAction'
-import {syncEventArtistsAction} from './actions/syncEventArtistsAction'
-import {syncEventDateValue} from './actions/syncEventDateValue'
+import {compositeEventPublishAction} from './actions/compositeEventPublishAction'
 import {addArtistToArtistPageAction} from './actions/addArtistToArtistPageAction'
 import {addArticleToArticlePageAction} from './actions/addArticleToArticlePageAction'
 import {createDeleteWithReferencesAction} from './actions/createDeleteWithReferencesAction'
@@ -182,8 +180,8 @@ export default defineConfig({
       if (context.schemaType === 'event') {
         return prev.map((action) => {
           if (action.action === 'publish') {
-            // Use syncEventDateValue which handles the full publish flow
-            return syncEventDateValue
+            // Use composite action which handles date sync, artist sync, and program page dialog
+            return compositeEventPublishAction
           }
           if (action.action === 'delete') {
             return deleteEventAction
