@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import DynamicComponent from "../../components/DynamicComponent.astro";
 import Image from "../../components/Image.astro";
+import EventCardSquare from "../../components/EventCardSquare.astro";
 import { getMultilingualContent } from "../../lib/utils/language.js";
 import { IMAGE_QUALITY } from '../../lib/sanityImage';
 import type { SanityDocument } from '@sanity/client';
@@ -74,7 +75,36 @@ const { data: artist } = await loadQuery({
     websiteUrl,
     spotifyUrl,
     instagramUrl,
-    seo
+    seo,
+    "events": *[_type == "event" && references(^._id) && publishingStatus == "published"] | order(eventDate->date asc, eventTime.startTime asc){
+      _id,
+      _type,
+      title_no,
+      title_en,
+      "title": coalesce(title_no, title_en),
+      slug_no,
+      slug_en,
+      "slug": coalesce(slug_no.current, slug_en.current, slug.current),
+      eventDate->{
+        _id,
+        date,
+        title_display_no,
+        title_display_en,
+        "title": coalesce(title_display_no, title_display_en)
+      },
+      eventTime,
+      venue->{
+        _id,
+        title,
+        name,
+        address,
+        city,
+        "slug": slug.current
+      },
+      ticketType,
+      ticketUrl,
+      ticketInfoText
+    }
   }`,
   params,
 });
@@ -114,6 +144,18 @@ const content = getMultilingualContent(artist) || artist.content_no;
   <!-- Excerpt -->
   {artist.excerpt_no && (
     <p class="artist-excerpt">{stegaClean(artist.excerpt_no)}</p>
+  )}
+
+  <!-- Events Section -->
+  {artist.events && artist.events.length > 0 && (
+    <section class="artist-events">
+      <h2 class="artist-events-title">Konserter</h2>
+      <div class="artist-events-row">
+        {artist.events.map((event) => (
+          <EventCardSquare event={event} language="no" />
+        ))}
+      </div>
+    </section>
   )}
 
   <!-- Content below card -->
@@ -214,6 +256,34 @@ const content = getMultilingualContent(artist) || artist.content_no;
     color: var(--color-text);
     text-wrap: balance;
     text-align: center;
+  }
+
+  /* Events section */
+  .artist-events {
+    max-width: 100%;
+    width: 100%;
+    margin-inline: auto;
+    margin-block-start: var(--space-8);
+    margin-block-end: var(--space-8);
+    padding-inline: var(--space-4);
+  }
+
+  .artist-events-title {
+    font-size: var(--fs-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-block-start: 0;
+    margin-block-end: var(--space-6);
+    text-align: center;
+  }
+
+  .artist-events-row {
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-block-end: var(--space-2);
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Content area below card - centered, max-width for readability */
