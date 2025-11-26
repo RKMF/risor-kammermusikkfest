@@ -388,8 +388,8 @@
 
 /* Section Layout */
 .content-section {
-  /* Top margin to separate from filtering section */
-  margin-block-start: var(--space-3);
+  /* Top margin to separate from filtering section - matches grid gap */
+  margin-block-start: clamp(var(--space-4), 3vw, var(--space-6));
   margin-block-end: 0;
   margin-inline: 0;
 }

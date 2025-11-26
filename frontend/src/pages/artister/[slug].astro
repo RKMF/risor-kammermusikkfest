@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import DynamicComponent from "../../components/DynamicComponent.astro";
 import Image from "../../components/Image.astro";
+import EventCardSquare from "../../components/EventCardSquare.astro";
 import { getMultilingualContent } from "../../lib/utils/language.js";
 import { IMAGE_QUALITY } from '../../lib/sanityImage';
 import type { SanityDocument } from '@sanity/client';
@@ -37,7 +38,6 @@ const { data: artist } = await loadQuery({
     instrument_no,
     instrument_en,
     "instrument": coalesce(instrument_no, instrument_en),
-    country,
     "image": {
       "image": image{
         asset->{
@@ -75,7 +75,36 @@ const { data: artist } = await loadQuery({
     websiteUrl,
     spotifyUrl,
     instagramUrl,
-    seo
+    seo,
+    "events": *[_type == "event" && references(^._id) && publishingStatus == "published"] | order(eventDate->date asc, eventTime.startTime asc){
+      _id,
+      _type,
+      title_no,
+      title_en,
+      "title": coalesce(title_no, title_en),
+      slug_no,
+      slug_en,
+      "slug": coalesce(slug_no.current, slug_en.current, slug.current),
+      eventDate->{
+        _id,
+        date,
+        title_display_no,
+        title_display_en,
+        "title": coalesce(title_display_no, title_display_en)
+      },
+      eventTime,
+      venue->{
+        _id,
+        title,
+        name,
+        address,
+        city,
+        "slug": slug.current
+      },
+      ticketType,
+      ticketUrl,
+      ticketInfoText
+    }
   }`,
   params,
 });
@@ -89,62 +118,57 @@ const content = getMultilingualContent(artist) || artist.content_no;
 ---
 
 <Layout title={`${artist.name} - Artist`}>
-  <div class="container">
-    <div class="artist-detail-page">
-      <!-- Artist Card - Centered, same design as list cards -->
-      <div class="artist-detail-card">
-        {artist.image?.image && (
-          <Image
-            image={artist.image.image}
-            alt={stegaClean(artist.image.alt || artist.name)}
-            credit={artist.image.credit ? stegaClean(artist.image.credit) : undefined}
-            size="large"
-            aspectRatio="4:5"
-            loading="eager"
-            quality={IMAGE_QUALITY.HERO}
-            priority={true}
-            className="artist-detail-card-image"
-          />
-        )}
+  <!-- Artist Card - Centered, same design as list cards -->
+  <header class="artist-detail-card">
+    {artist.image?.image && (
+      <Image
+        image={artist.image.image}
+        alt={stegaClean(artist.image.alt || artist.name)}
+        credit={artist.image.credit ? stegaClean(artist.image.credit) : undefined}
+        aspectRatio="4:5"
+        loading="eager"
+        quality={IMAGE_QUALITY.HERO}
+        priority={true}
+        className="artist-detail-card-image"
+      />
+    )}
 
-        <div class="artist-detail-info-box">
-          <h1 class="artist-name">{stegaClean(artist.name)}</h1>
-          {artist.instrument && (
-            <p class="artist-instrument">{stegaClean(artist.instrument)}</p>
-          )}
-          {artist.country && (
-            <p class="artist-country"><strong>Land:</strong> {stegaClean(artist.country)}</p>
-          )}
-        </div>
-      </div>
-
-      <!-- Content below card -->
-      {content && Array.isArray(content) && content.length > 0 && (
-        <div class="artist-content">
-          {content.map((block) => (
-            <DynamicComponent key={block._key || block._id} block={block} />
-          ))}
-        </div>
+    <div class="artist-detail-info-box">
+      <h1 class="artist-name">{stegaClean(artist.name)}</h1>
+      {artist.instrument && (
+        <p class="artist-instrument">{stegaClean(artist.instrument)}</p>
       )}
     </div>
-  </div>
+  </header>
+
+  <!-- Excerpt -->
+  {artist.excerpt_no && (
+    <p class="artist-excerpt">{stegaClean(artist.excerpt_no)}</p>
+  )}
+
+  <!-- Events Section -->
+  {artist.events && artist.events.length > 0 && (
+    <section class="artist-events">
+      <h2 class="artist-events-title">Konserter</h2>
+      <div class="artist-events-row">
+        {artist.events.map((event) => (
+          <EventCardSquare event={event} language="no" />
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- Content below card -->
+  {content && Array.isArray(content) && content.length > 0 && (
+    <article class="artist-content">
+      {content.map((block) => (
+        <DynamicComponent key={block._key || block._id} block={block} />
+      ))}
+    </article>
+  )}
 </Layout>
 
 <style>
-  /* Green tint page background (like event pages) */
-  :global(.main-content:has(.artist-detail-page)) {
-    background-color: rgba(0, 179, 154, 0.08);
-  }
-
-  /* Artist Detail Page - Centered card design */
-  .artist-detail-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-6);
-    padding-block: var(--space-8);
-  }
-
   /* Artist Detail Card - Medium centered card (480px) with Grid stacking */
   .artist-detail-card {
     /* Grid layout for stacking image and info box */
@@ -155,11 +179,14 @@ const content = getMultilingualContent(artist) || artist.content_no;
     width: 480px;
     min-width: 480px;
     max-width: 480px;
+    margin-inline: auto;
+    margin-block-start: var(--space-8);
+    margin-block-end: var(--space-6);
     overflow: visible;
   }
 
   /* Artist Image - Grid positioned, inset from top and left */
-  :global(.artist-detail-card-image) {
+  .artist-detail-card :global(.artist-detail-card-image) {
     grid-area: content;
     justify-self: start;
     align-self: start;
@@ -168,8 +195,15 @@ const content = getMultilingualContent(artist) || artist.content_no;
     margin-inline-end: 0; /* Override Image.astro defaults */
     margin-block-end: 0; /* Override Image.astro defaults */
     width: 85%;
+    height: auto;
     aspect-ratio: 4/5;
     overflow: hidden;
+  }
+
+  :global(.artist-detail-card-image .image) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4/5;
   }
 
   /* Artist Info Box - Grid positioned in bottom right */
@@ -178,30 +212,30 @@ const content = getMultilingualContent(artist) || artist.content_no;
     justify-self: end;
     align-self: end;
     margin: 1.5rem;
-    background-color: var(--color-blue);
+    background-color: var(--color-blue-600);
     color: white;
     padding: 1.5rem;
     display: grid;
-    gap: 0.5rem;
+    gap: 0.375rem;
     z-index: 2;
-    width: fit-content;
-    max-width: 25ch;
+    width: auto;
+    min-width: 12ch;
+    max-width: 85%;
   }
 
   .artist-detail-info-box .artist-name {
     margin: 0;
-    font-size: 1.25rem;
-    line-height: 1.2;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 2rem;
+    line-height: 1.3;
     font-weight: 600;
     color: white;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.015em;
   }
 
-  .artist-detail-info-box .artist-instrument,
-  .artist-detail-info-box .artist-country {
+  .artist-detail-info-box .artist-instrument {
     margin: 0;
-    font-size: 0.75rem;
+    font-size: 1.125rem;
     line-height: 1.3;
     font-weight: var(--font-weight-medium);
     text-transform: uppercase;
@@ -210,10 +244,117 @@ const content = getMultilingualContent(artist) || artist.content_no;
     opacity: 0.9;
   }
 
+  /* Excerpt - centered with generous spacing from header */
+  .artist-excerpt {
+    max-width: 65ch;
+    width: 100%;
+    margin-inline: auto;
+    margin-block-start: var(--space-8);
+    margin-block-end: var(--space-6);
+    font-size: var(--fs-xl);
+    line-height: 1.6;
+    color: var(--color-text);
+    text-wrap: balance;
+    text-align: center;
+  }
+
+  /* Events section */
+  .artist-events {
+    max-width: 100%;
+    width: 100%;
+    margin-inline: auto;
+    margin-block-start: var(--space-8);
+    margin-block-end: var(--space-8);
+    padding-inline: var(--space-4);
+  }
+
+  .artist-events-title {
+    font-size: var(--fs-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-block-start: 0;
+    margin-block-end: var(--space-6);
+    text-align: center;
+  }
+
+  .artist-events-row {
+    /* Match program page grid-based scroll implementation */
+    container-type: inline-size;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 220px;
+    gap: var(--space-4);
+    justify-content: start;
+
+    /* Enable horizontal scroll */
+    overflow-x: scroll;
+    overflow-y: hidden;
+
+    /* Smooth scrolling behavior */
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+
+    /* iOS momentum scrolling */
+    -webkit-overflow-scrolling: touch;
+
+    /* Touch interaction */
+    touch-action: manipulation;
+
+    /* Scroll padding for better UX */
+    scroll-padding-inline: clamp(1rem, 3vw, 2rem);
+
+    /* Space for scrollbar underneath cards */
+    padding-block-end: 12px;
+
+    /* Scroll snap */
+    scroll-snap-type: x mandatory;
+
+    /* Performance optimization */
+    contain: layout style;
+
+    /* Styled scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-blue) var(--color-neutral-100);
+  }
+
+  .artist-events-row::-webkit-scrollbar {
+    height: 6px;
+    -webkit-appearance: none;
+  }
+
+  .artist-events-row::-webkit-scrollbar-track {
+    background: var(--color-neutral-100);
+    border-radius: 0;
+  }
+
+  .artist-events-row::-webkit-scrollbar-thumb {
+    background: var(--color-blue);
+    border-radius: 0;
+  }
+
+  .artist-events-row::-webkit-scrollbar-thumb:hover {
+    background: var(--color-green);
+  }
+
+  /* Keyboard focus indicator */
+  .artist-events-row:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+  }
+
+  /* Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .artist-events-row {
+      scroll-behavior: auto;
+    }
+  }
+
   /* Content area below card - centered, max-width for readability */
   .artist-content {
     max-width: 65ch;
     width: 100%;
+    margin-inline: auto;
+    margin-block-end: var(--space-8);
   }
 
   /* Responsive: Allow smaller on narrow screens */

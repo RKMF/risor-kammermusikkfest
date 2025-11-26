@@ -10,6 +10,8 @@ import {eventSlugValidation} from '../../lib/slugValidation'
 import type {EventData, ValidationRule, MultilingualDocument} from '../shared/types'
 import {getLanguageStatus} from '../shared/previewHelpers'
 import {publishingFields, publishingGroup} from '../shared/publishingFields'
+import {excludeAlreadySelected} from '../shared/referenceFilters'
+import {MultiSelectReferenceInput} from '../components/inputs/MultiSelectReferenceInput'
 
 export const event = defineType({
   name: 'event',
@@ -169,6 +171,12 @@ export const event = defineType({
       ],
       description: 'Velg artister som opptrer på arrangementet',
       group: 'basic',
+      components: {
+        input: MultiSelectReferenceInput,
+      },
+      options: {
+        filter: excludeAlreadySelected(),
+      },
     }),
     defineField({
       name: 'composers',
@@ -182,6 +190,12 @@ export const event = defineType({
       ],
       description: 'Velg komponister som har skrevet musikken som spilles på arrangementet',
       group: 'basic',
+      components: {
+        input: MultiSelectReferenceInput,
+      },
+      options: {
+        filter: excludeAlreadySelected(),
+      },
     }),
     defineField({
       name: 'ticketType',

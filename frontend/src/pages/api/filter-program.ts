@@ -182,7 +182,7 @@ export const GET: APIRoute = async ({ request, url }) => {
               if (event.eventDate?.date) {
                 const formattedDate = formatDateWithWeekday(event.eventDate.date, language as 'no' | 'en');
                 const timeRange = event.eventTime
-                  ? `, kl. ${stegaClean(event.eventTime.startTime)}–${stegaClean(event.eventTime.endTime)}`
+                  ? `, kl. ${stegaClean(event.eventTime.startTime)}`
                   : '';
 
                 metaHtml += `

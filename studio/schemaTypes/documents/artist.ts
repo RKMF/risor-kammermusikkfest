@@ -8,6 +8,8 @@ import {artistSlugValidation} from '../../lib/slugValidation'
 import type {ArtistData, ValidationRule, MultilingualDocument} from '../shared/types'
 import {getPublishingStatusText, getLanguageStatus} from '../shared/previewHelpers'
 import {publishingFields, publishingGroup} from '../shared/publishingFields'
+import {excludeAlreadySelected} from '../shared/referenceFilters'
+import {MultiSelectReferenceInput} from '../components/inputs/MultiSelectReferenceInput'
 
 export const artist = defineType({
   name: 'artist',
@@ -140,7 +142,13 @@ export const artist = defineType({
       ],
       description: 'Velg arrangementer som denne artisten opptrer på',
       group: 'basic',
+      components: {
+        input: MultiSelectReferenceInput,
+      },
       validation: (Rule) => Rule.unique(),
+      options: {
+        filter: excludeAlreadySelected(),
+      },
     }),
     ...seoFields,
   ],

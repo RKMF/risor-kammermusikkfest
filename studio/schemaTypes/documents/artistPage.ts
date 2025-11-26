@@ -3,6 +3,8 @@ import {UsersIcon, ComposeIcon, UserIcon} from '@sanity/icons'
 import {createMirrorPortableTextInput} from '../../components/inputs/MirrorPortableTextInput'
 import {componentValidation} from '../shared/validation'
 import type {ArtistPageData} from '../shared/types'
+import {excludeAlreadySelected} from '../shared/referenceFilters'
+import {MultiSelectReferenceInput} from '../components/inputs/MultiSelectReferenceInput'
 
 export const artistPage = defineType({
   name: 'artistPage',
@@ -122,6 +124,12 @@ export const artistPage = defineType({
       ],
       description: 'Velg artister som skal vises på artistoversikten (vises på begge språk)',
       group: 'artists',
+      components: {
+        input: MultiSelectReferenceInput,
+      },
+      options: {
+        filter: excludeAlreadySelected(),
+      },
     }),
   ],
   preview: {
