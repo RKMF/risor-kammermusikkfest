@@ -92,9 +92,7 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
     // Publish the document
     await publish.execute()
 
-    // DISABLED: Check for orphaned references - interferes with addition flow
-    // TODO: Re-enable after fixing draft/published handling in removeReferenceFromDocument
-    /*
+    // Check for orphaned references AFTER publishing
     let orphaned: string[] = []
     try {
       orphaned = await findOrphanedReciprocalReferences(
@@ -110,16 +108,14 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
 
     setOrphanedArtistRefs(orphaned)
     setOrphanedArtistCount(orphaned.length)
-    */
 
     // Show artist sync dialog if needed (additions)
     if (missing.length > 0) {
       setMissingArtistRefs(missing)
       setArtistCount(missing.length)
       setArtistDialogOpen(true)
-    // DISABLED: Orphaned dialog - uncomment after fixing removal bugs
-    // } else if (orphaned.length > 0) {
-    //   setOrphanedArtistDialogOpen(true)
+    } else if (orphaned.length > 0) {
+      setOrphanedArtistDialogOpen(true)
     } else if (isNewPublish) {
       // If no sync needed, check if we should show program dialog
       setProgramDialogOpen(true)
@@ -133,11 +129,9 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
     async (shouldSync: boolean) => {
       if (!shouldSync) {
         setArtistDialogOpen(false)
-        // DISABLED: Orphaned dialog check
-        // if (orphanedArtistRefs.length > 0) {
-        //   setOrphanedArtistDialogOpen(true)
-        // } else if (isNewPublish) {
-        if (isNewPublish) {
+        if (orphanedArtistRefs.length > 0) {
+          setOrphanedArtistDialogOpen(true)
+        } else if (isNewPublish) {
           setProgramDialogOpen(true)
         } else {
           onComplete()
@@ -157,11 +151,9 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
 
         setArtistDialogOpen(false)
 
-        // DISABLED: Orphaned dialog check after sync
-        // if (orphanedArtistRefs.length > 0) {
-        //   setOrphanedArtistDialogOpen(true)
-        // } else if (isNewPublish) {
-        if (isNewPublish) {
+        if (orphanedArtistRefs.length > 0) {
+          setOrphanedArtistDialogOpen(true)
+        } else if (isNewPublish) {
           setProgramDialogOpen(true)
         } else {
           onComplete()
@@ -174,8 +166,7 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
         setIsSyncing(false)
       }
     },
-    [client, id, missingArtistRefs, isNewPublish, onComplete]
-    // Removed: orphanedArtistRefs (was causing stale closure issues)
+    [client, id, missingArtistRefs, orphanedArtistRefs, isNewPublish, onComplete]
   )
 
   // Step 6: Handle orphaned artist cleanup (removals)

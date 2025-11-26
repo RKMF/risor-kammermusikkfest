@@ -229,15 +229,17 @@ export async function removeReferenceFromDocument(
   fieldName: string,
   referenceId: string
 ): Promise<void> {
+  const {publishedId, draftId} = getDocumentIds(documentId)
   const {publishedId: refPublishedId} = getDocumentIds(referenceId)
 
   // Fetch the current document to get its reference array
+  // Use order(_id desc) to ensure draft is returned first if it exists
   const doc = await client.fetch(
-    `*[_id == $documentId][0]{
+    `*[_id in [$publishedId, $draftId]] | order(_id desc)[0]{
       _id,
       "${fieldName}": ${fieldName}[]
     }`,
-    {documentId}
+    {publishedId, draftId}
   )
 
   if (!doc || !doc[fieldName]) {
@@ -249,8 +251,8 @@ export async function removeReferenceFromDocument(
     return getPublishedId(ref._ref) !== refPublishedId
   })
 
-  // Update the document with the filtered array
-  await client.patch(documentId).set({[fieldName]: updatedReferences}).commit()
+  // Update the document with the filtered array (use the actual doc._id which might be draft)
+  await client.patch(doc._id).set({[fieldName]: updatedReferences}).commit()
 }
 
 /**
