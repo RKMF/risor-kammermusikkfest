@@ -49,7 +49,7 @@
   }
 }
 
-/* Event Title - Fluid typography (FLEXIBLE - no line clamp per user request) */
+/* Event Title - Fixed 2-line height for cross-card alignment */
 .event-title {
   margin: 0;
   font-size: var(--fs-2xl);
@@ -59,7 +59,17 @@
   text-transform: none;
   letter-spacing: -0.01em;
 
-  /* Overflow protection without hyphenation */
+  /* Clamp to consistent 2-line height */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  /* Force exact height for alignment - all titles occupy same space */
+  min-height: calc(1.2em * 2); /* line-height * 2 lines */
+  max-height: calc(1.2em * 2);
+
+  /* Overflow protection for long words */
   overflow-wrap: break-word;
   word-wrap: break-word; /* Legacy fallback */
   hyphens: none; /* Prevent automatic hyphenation */
