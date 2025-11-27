@@ -102,10 +102,8 @@
 
   /* Natural wrapping for long names */
   overflow-wrap: break-word;
-  word-wrap: break-word;
-  hyphens: manual;
+  hyphens: none;
   text-wrap: balance;
-  word-break: keep-all; /* Prevent breaking at hyphens within names */
 
   /* Full name display - no truncation */
 }
