@@ -53,14 +53,18 @@
   container-name: date-filter;
 }
 
-/* Base styles - works for both wrap and scroll modes */
+/* Base styles - always single line with scroll when needed */
 .date-filter-buttons {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-3);
   align-items: center;
 
-  /* Default: Allow wrapping for wide containers */
-  flex-wrap: wrap;
+  /* Never wrap - always single horizontal line */
+  flex-wrap: nowrap;
+
+  /* Enable horizontal scroll when buttons don't fit */
+  overflow-x: auto;
+  overflow-y: hidden;
 
   /* Performance optimization */
   contain: layout style inline-size;
@@ -194,14 +198,18 @@
   margin-block-start: var(--space-4);
 }
 
-/* Base styles - works for both wrap and scroll modes */
+/* Base styles - always single line with scroll when needed */
 .venue-filter-buttons {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-3);
   align-items: center;
 
-  /* Default: Allow wrapping for wide containers */
-  flex-wrap: wrap;
+  /* Never wrap - always single horizontal line */
+  flex-wrap: nowrap;
+
+  /* Enable horizontal scroll when buttons don't fit */
+  overflow-x: auto;
+  overflow-y: hidden;
 
   /* Performance optimization */
   contain: layout style inline-size;
@@ -296,6 +304,11 @@
 
 /* Touch device optimizations for venue filter */
 @media (pointer: coarse) {
+  /* Increase spacing between date and venue filters for touch accuracy */
+  .venue-filter {
+    margin-block-start: var(--space-6);  /* 24-30px instead of 12-15px */
+  }
+
   .venue-filter-buttons .link-button {
     min-block-size: 44px;
     padding-inline: clamp(1rem, 3vw, 1.5rem);
@@ -382,8 +395,8 @@
 
 /* Section Layout */
 .content-section {
-  /* Top margin to separate from filtering section - matches grid gap */
-  margin-block-start: clamp(var(--space-4), 3vw, var(--space-6));
+  /* Top margin to separate from filtering section */
+  margin-block-start: var(--space-m-l);  /* 16-30px fluid */
   margin-block-end: 0;
   margin-inline: 0;
 }
@@ -420,6 +433,7 @@
   padding-block: var(--space-4);
   font-size: var(--fs-xl);
   font-weight: var(--font-weight-semibold);
+  font-family: var(--font-family-sans);
   color: var(--color-blue);
   letter-spacing: -0.01em;
 }

@@ -420,11 +420,7 @@
   --space-fluid-2xl: var(--space-xl-2xl);  /* 32px → 60px */
 
   /* Page layout spacing - Controls top spacing for all pages */
-  --page-top-spacing: clamp(
-    calc(var(--space-6) * 2.5),
-    15vw,
-    calc(var(--space-9) * 2.5)
-  );
+  --page-top-spacing: calc(var(--space-2xl-3xl) * 2.5);  /* 120-200px fluid */
 
   /* Container query breakpoints (as tokens for consistency) */
   --cq-breakpoint-sm: 400px;
