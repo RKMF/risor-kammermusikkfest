@@ -43,13 +43,13 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
   font-size: var(--fs-3xl);  /* 39-44px - Page titles, hero headlines */
   font-weight: var(--font-weight-bold);
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--font-family-heading);
 }
 
 /* All event titles and artist names use serif font */
 .event-title,
 .artist-name {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--font-family-heading);
 }
 
 h2 {

@@ -9,6 +9,7 @@ import { QueryBuilder } from '../lib/sanity/queryBuilder.js';
 
 // Import CSS files in order
 import '../styles/reset.css';
+import '../styles/fonts.css'; // Web fonts - must load before tokens
 import '../styles/tokens.css';
 import '../styles/primitives.css'; // Layout primitives (Center, Stack, Cluster)
 import '../styles/base.css';
@@ -67,6 +68,22 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
     <!-- Optimize resource hints -->
     <link rel="dns-prefetch" href="//cdn.sanity.io" />
     <link rel="preconnect" href="//cdn.sanity.io" crossorigin />
+
+    <!-- Preload critical fonts for optimal LCP -->
+    <link
+      rel="preload"
+      href="/fonts/serif/DomaineText-Bold.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/sans-serif/AkkRg_Pro.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
 
     <!-- Minimal critical styles -->
     <style>
