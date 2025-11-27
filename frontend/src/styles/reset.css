@@ -37,6 +37,13 @@ ol[role='list'] {
 html {
   /* Respect user browser font-size preferences (typically 16px) */
   font-size: 100%;
+
+  /*
+    Remove 300ms tap delay on touch devices
+    Allows panning and pinch-zoom, blocks double-tap zoom
+    Improves perceived performance across all interactive elements
+  */
+  touch-action: manipulation;
 }
 
 html:focus-within {

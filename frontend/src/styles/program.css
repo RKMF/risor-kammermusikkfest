@@ -109,9 +109,6 @@
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
 
-    /* Allow both horizontal and vertical scrolling, remove double-tap delay */
-    touch-action: manipulation;
-
     /* Scroll padding for better UX */
     scroll-padding-inline: clamp(1rem, 3vw, 2rem);
 
@@ -245,9 +242,6 @@
     /* Smooth scrolling behavior */
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
-
-    /* Allow both horizontal and vertical scrolling, remove double-tap delay */
-    touch-action: manipulation;
 
     /* Scroll padding for better UX */
     scroll-padding-inline: clamp(1rem, 3vw, 2rem);
@@ -477,9 +471,6 @@
     /* Smooth scrolling behavior */
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
-
-    /* Horizontal-only touch for card containers */
-    touch-action: pan-x;
 
     /* Scroll padding for better UX */
     scroll-padding-inline: clamp(1rem, 3vw, 2rem);

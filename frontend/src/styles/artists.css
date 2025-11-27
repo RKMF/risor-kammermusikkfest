@@ -54,9 +54,6 @@
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
 
-    /* Prevent vertical scroll on horizontal swipe */
-    touch-action: pan-x;
-
     /* Scroll padding for better UX */
     scroll-padding-inline: clamp(1rem, 3vw, 2rem);
 

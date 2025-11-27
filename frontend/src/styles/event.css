@@ -206,7 +206,6 @@
   overflow-y: hidden;
   scroll-behavior: smooth;
   overscroll-behavior-x: contain;
-  touch-action: pan-x;
   scroll-padding-inline: clamp(1rem, 3vw, 2rem);
   padding-block-end: 12px;
   scroll-snap-type: x proximity;

@@ -568,9 +568,6 @@
   /* Prevent scroll chaining to parent */
   overscroll-behavior-x: contain;
 
-  /* Remove double-tap delay, allow both scroll axes */
-  touch-action: manipulation;
-
   /* Fluid spacing from edges */
   scroll-padding-inline: clamp(1rem, 3vw, 2rem);
 }
@@ -589,9 +586,6 @@
 
   /* Prevent scroll chaining to parent */
   overscroll-behavior-x: contain;
-
-  /* Horizontal-only touch for card containers */
-  touch-action: pan-x;
 
   /* Fluid spacing from edges */
   scroll-padding-inline: clamp(1rem, 3vw, 2rem);
