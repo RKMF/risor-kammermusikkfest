@@ -88,6 +88,7 @@
   margin-top: 0.25rem; /* Tight spacing from title */
   font-size: var(--fs-base);
   line-height: 1.5;
+  opacity: 0.9; /* Subtle de-emphasis from title */
 
   /* Two line truncation with ellipsis */
   display: -webkit-box;
@@ -104,10 +105,33 @@
   hyphens: none;
 }
 
+/* Event subtitle (if present) - Differentiate from title with italic */
+.event-subtitle {
+  margin: 0;
+  margin-top: 0.25rem;
+  font-size: var(--fs-base);
+  font-style: italic; /* Visual differentiation */
+  font-weight: var(--font-weight-normal);
+  line-height: 1.4;
+  opacity: 0.9; /* Subtle de-emphasis */
+
+  /* Clamp to max 2 lines with ellipsis */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  /* Overflow protection */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: none;
+}
+
 /* Event Meta - Prominent styling for date/venue */
 dl.event-meta {
   font-size: var(--fs-base);
   line-height: 1.5;
+  letter-spacing: var(--tracking-normal); /* Improved clarity */
   margin: 0;
   margin-top: clamp(0.625rem, 2.5cqi, 0.75rem);
   display: flex;
@@ -129,6 +153,7 @@ dl.event-meta dd {
   display: block;
   margin: 0;
   font-weight: var(--font-weight-medium);
+  letter-spacing: 0.01em; /* Subtle spacing for readability */
   color: var(--color-blue);
 }
 
