@@ -56,7 +56,7 @@
 /* Event Title - Fixed 2-line height for cross-card alignment */
 .event-title {
   margin: 0;
-  font-size: clamp(1.875rem, 1.25rem + 3.75cqi, var(--fs-2xl));
+  font-size: clamp(var(--fs-xl), 1.25rem + 3.75cqi, var(--fs-2xl));
   line-height: 1.2;
   font-weight: 600;
   font-family: var(--font-family-heading);

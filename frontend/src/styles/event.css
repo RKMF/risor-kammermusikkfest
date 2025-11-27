@@ -99,8 +99,7 @@
 
 .event-title {
   margin: 0 0 var(--space-4) 0;
-  /* Fixed: Converted pure vw to rem + vw for WCAG 1.4.4 accessibility (200% zoom support) */
-  font-size: clamp(2.5rem, 2.5rem + 0.5vw, 3.5rem);
+  font-size: var(--fs-3xl); /* Fluid 37-55px - using token system */
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: none;
@@ -108,9 +107,7 @@
 
 .event-excerpt {
   margin: 0;
-  /* Fixed: Converted pure vw to rem + vw for WCAG 1.4.4 accessibility (200% zoom support) */
-  /* Consider using --fs-lg for consistency: clamp(1.25rem, 1.18rem + 0.33vw, 1.41rem) */
-  font-size: clamp(1.25rem, 1.25rem + 0.125vw, 1.5rem);
+  font-size: var(--fs-lg); /* Fluid 22-28px - using token system */
   line-height: var(--line-height-normal);
   text-wrap: balance;
   max-inline-size: 65ch;

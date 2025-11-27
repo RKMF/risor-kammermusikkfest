@@ -96,8 +96,7 @@ const slugEn = pageDocument?.slug_en?.current ? stegaClean(pageDocument.slug_en.
 
   .page-excerpt {
     margin: 0 0 var(--space-3) 0;
-    /* Accessible fluid typography: combines rem + vw for zoom support (WCAG 1.4.4) */
-    font-size: clamp(1.25rem, 1.25rem + 0.25vw, 1.5rem);
+    font-size: var(--fs-lg); /* Fluid 22-28px - using token system */
     line-height: var(--line-height-relaxed);
     /* Better text balance for excerpts */
     text-wrap: balance;
