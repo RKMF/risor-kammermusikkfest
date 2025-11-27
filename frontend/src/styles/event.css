@@ -103,7 +103,7 @@
   font-size: clamp(2.5rem, 2.5rem + 0.5vw, 3.5rem);
   word-wrap: break-word;
   overflow-wrap: break-word;
-  hyphens: auto;
+  hyphens: none;
 }
 
 .event-excerpt {
@@ -205,13 +205,12 @@
 }
 
 .artists-scroll-wrapper {
-  overflow-x: auto;
+  overflow-x: scroll;
   overflow-y: hidden;
   scroll-behavior: smooth;
   overscroll-behavior-x: contain;
-  -webkit-overflow-scrolling: touch;
   touch-action: pan-x;
-  scroll-padding-inline: var(--space-3);
+  scroll-padding-inline: clamp(1rem, 3vw, 2rem);
   padding-block-end: 12px;
   scroll-snap-type: x proximity;
 }

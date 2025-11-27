@@ -44,10 +44,15 @@
   /* Fixed aspect ratio - same as image */
   aspect-ratio: 4 / 5;
 
-  /* Fixed width - cards always 320px */
+  /* Default: Fixed width for grid mode */
   width: 320px;
-  min-width: 320px;
-  max-width: 320px;
+}
+
+/* Fluid width in scroll mode for better scroll affordance */
+@container (max-width: 800px) {
+  .artist-card {
+    width: clamp(290px, 35vw, 320px);
+  }
 }
 
 /* Hover effect only for devices with hover capability */

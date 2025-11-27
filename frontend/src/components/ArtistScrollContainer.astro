@@ -135,15 +135,23 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
   .artist-list {
     display: flex;
-    gap: var(--space-s-m); /* Fluid 12px → 20px */
+    gap: clamp(var(--space-l), 3vw, var(--space-6));
     list-style: none;
     margin: 0;
     padding-block: var(--space-xs);
-    overflow-x: auto;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
+    scroll-padding-inline: clamp(1rem, 3vw, 2rem);
   }
 
   .artist-item {
     flex-shrink: 0;
+    scroll-snap-align: start;
+    scroll-margin-inline-start: 0.5rem;
   }
 
   .artist-scroll-card-link {
@@ -152,6 +160,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
   }
 
   .artist-scroll-card {
+    container-type: inline-size;
     background: white;
     overflow: hidden;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -159,7 +168,13 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     display: flex;
     flex-direction: column;
     aspect-ratio: 4/5;
-    width: 280px;
+    width: 320px;
+  }
+
+  @container (max-width: 800px) {
+    .artist-scroll-card {
+      width: clamp(290px, 35vw, 320px);
+    }
   }
 
   .artist-scroll-card:hover {
@@ -174,24 +189,24 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
   }
 
   .artist-content {
-    padding: var(--space-s);
+    padding: clamp(0.875rem, 3.5cqi, 1rem);
     background: white;
   }
 
   .artist-name {
-    font-size: var(--fs-base);
+    font-size: clamp(var(--fs-base), 3.5cqi, var(--fs-lg));
     font-weight: 600;
-    margin-block-end: var(--space-3xs);
+    margin-block-end: clamp(0.625rem, 2.5cqi, 0.75rem);
     line-height: 1.2;
   }
 
   .artist-instrument {
-    font-size: var(--fs-sm);
-    margin-block-end: var(--space-3xs);
+    font-size: clamp(var(--fs-sm), 2.8cqi, var(--fs-base));
+    margin-block-end: clamp(0.625rem, 2.5cqi, 0.75rem);
   }
 
   .artist-country {
-    font-size: var(--fs-sm);
+    font-size: clamp(var(--fs-sm), 2.8cqi, var(--fs-base));
   }
 
   /* Hide scrollbar */
@@ -204,12 +219,19 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     display: none;
   }
 
-  /* Responsive design */
-  @media (max-width: 768px) {
-    .artist-scroll-card {
-      width: 240px;
+  /* Accessibility: Support for reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .artist-list {
+      scroll-behavior: auto;
     }
 
-    /* Note: Gap is fluid and adjusts automatically */
+    .artist-scroll-card {
+      transition: none;
+    }
+
+    .artist-scroll-card:hover {
+      transform: none;
+    }
   }
+
 </style> 

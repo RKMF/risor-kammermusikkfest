@@ -105,9 +105,6 @@
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
 
-    /* iOS momentum scrolling */
-    -webkit-overflow-scrolling: touch;
-
     /* Allow both horizontal and vertical scrolling, remove double-tap delay */
     touch-action: manipulation;
 
@@ -240,9 +237,6 @@
     /* Smooth scrolling behavior */
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
-
-    /* iOS momentum scrolling */
-    -webkit-overflow-scrolling: touch;
 
     /* Allow both horizontal and vertical scrolling, remove double-tap delay */
     touch-action: manipulation;
@@ -436,7 +430,7 @@
 .events-grid {
   container-type: inline-size;
   display: grid;
-  gap: clamp(var(--space-4), 3vw, var(--space-6));
+  gap: clamp(var(--space-l), 3vw, var(--space-6));
   /* Fixed 320px cards - fits as many as possible */
   grid-template-columns: repeat(auto-fill, 320px);
   padding: 0;
@@ -456,10 +450,10 @@
 
 @container (max-width: 800px) {
   .events-grid {
-    /* Transform grid to horizontal flow with fixed 320px cards */
+    /* Transform grid to horizontal flow with fluid cards */
     grid-template-columns: none;
     grid-auto-flow: column;
-    grid-auto-columns: 320px;
+    grid-auto-columns: minmax(290px, 1fr);
     justify-content: start;
 
     /* Enable horizontal scroll */
@@ -470,11 +464,8 @@
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
 
-    /* iOS momentum scrolling */
-    -webkit-overflow-scrolling: touch;
-
-    /* Allow both horizontal and vertical scrolling, remove double-tap delay */
-    touch-action: manipulation;
+    /* Horizontal-only touch for card containers */
+    touch-action: pan-x;
 
     /* Scroll padding for better UX */
     scroll-padding-inline: clamp(1rem, 3vw, 2rem);
@@ -482,8 +473,8 @@
     /* Space for scrollbar underneath cards */
     padding-block-end: 12px;
 
-    /* Scroll snap for better UX */
-    scroll-snap-type: x mandatory;
+    /* Scroll snap for better UX - proximity for flexible browsing */
+    scroll-snap-type: x proximity;
   }
 
   /* Fixed cards with snap points */

@@ -229,20 +229,23 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
   /* Fluid scroll list */
   .event-list {
     display: flex;
-    gap: clamp(var(--space-3), 2.5vw, var(--space-5));
+    gap: clamp(var(--space-l), 3vw, var(--space-6));
     list-style: none;
     margin: 0;
     padding-block: var(--space-2);
-    overflow-x: auto;
+    overflow-x: scroll;
     overflow-y: hidden;
     scroll-snap-type: x proximity;
-    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
     touch-action: manipulation; /* Allow both horizontal and vertical scrolling, remove double-tap delay */
+    scroll-padding-inline: clamp(1rem, 3vw, 2rem);
   }
 
   .event-item {
     flex-shrink: 0;
     scroll-snap-align: start;
+    scroll-margin-inline-start: 0.5rem;
   }
 
   /* Intrinsic event cards - standardized to 4:5 */
@@ -254,7 +257,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     overflow: hidden;
     box-shadow: var(--shadow-sm);
     transition: transform var(--transition-base), box-shadow var(--transition-base);
-    width: clamp(240px, 35vw, 320px);
+    width: clamp(290px, 35vw, 320px);
     aspect-ratio: 4/5;
   }
 
@@ -270,7 +273,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
   /* Intrinsic content padding */
   .event-scroll-content {
-    padding: clamp(var(--space-3), 4cqw, var(--space-5));
+    padding: clamp(0.875rem, 3.5cqi, 1rem);
   }
 
   .event-title {

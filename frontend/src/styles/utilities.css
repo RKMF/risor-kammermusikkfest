@@ -457,3 +457,94 @@
     height: 12px;
   }
 }
+
+/* ============================================
+   HORIZONTAL SCROLL CONTAINER UTILITIES
+   ============================================
+
+   Modern, accessible horizontal scroll patterns
+   for card-based content (artist cards, event cards, etc.)
+
+   Based on best practices (2024-2025):
+   - scroll-snap-type: x proximity (better UX than mandatory)
+   - scroll-snap-align: start (better for multi-card layouts)
+   - touch-action: manipulation (removes tap delay, allows both axes)
+   - Fluid scroll-padding with clamp()
+   - Accessibility: Respects prefers-reduced-motion
+
+   Research sources:
+   - MDN Web Docs (CSS Scroll Snap Module)
+   - web.dev (CSS Scroll Snap)
+   - Ahmad Shadeed (CSS Scroll Snap best practices)
+*/
+
+/* Proximity pattern - For variable content and flexible browsing
+   Use for: Filter buttons, mixed content, navigation elements */
+.scroll-container-proximity {
+  overflow-x: scroll;
+  overflow-y: hidden;
+
+  /* Soft snap for natural browsing */
+  scroll-snap-type: x proximity;
+
+  /* Smooth scrolling (disabled in reduced motion) */
+  scroll-behavior: smooth;
+
+  /* Prevent scroll chaining to parent */
+  overscroll-behavior-x: contain;
+
+  /* Remove double-tap delay, allow both scroll axes */
+  touch-action: manipulation;
+
+  /* Fluid spacing from edges */
+  scroll-padding-inline: clamp(1rem, 3vw, 2rem);
+}
+
+/* Mandatory pattern - For fixed-size cards with predictable snapping
+   Use for: Card carousels, gallery views, full-width sections */
+.scroll-container-mandatory {
+  overflow-x: scroll;
+  overflow-y: hidden;
+
+  /* Strict snap for card-by-card navigation */
+  scroll-snap-type: x mandatory;
+
+  /* Smooth scrolling (disabled in reduced motion) */
+  scroll-behavior: smooth;
+
+  /* Prevent scroll chaining to parent */
+  overscroll-behavior-x: contain;
+
+  /* Horizontal-only touch for card containers */
+  touch-action: pan-x;
+
+  /* Fluid spacing from edges */
+  scroll-padding-inline: clamp(1rem, 3vw, 2rem);
+}
+
+/* Child item - Snap alignment and spacing */
+.scroll-item {
+  /* Prevent shrinking */
+  flex-shrink: 0;
+
+  /* Snap to start of container */
+  scroll-snap-align: start;
+
+  /* Offset from container edge */
+  scroll-margin-inline-start: 0.5rem;
+}
+
+/* Keyboard focus indicator for scroll containers */
+.scroll-container-proximity:focus-visible,
+.scroll-container-mandatory:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+/* Accessibility: Disable smooth scroll for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-container-proximity,
+  .scroll-container-mandatory {
+    scroll-behavior: auto;
+  }
+}
