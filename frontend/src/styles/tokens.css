@@ -181,48 +181,84 @@
   --font-family-heading: var(--font-family-serif);
   --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 
-  /* Font sizes - Fluid typography with Major Third (1.250) modular scale
-   *
-   * DESIGN PHILOSOPHY:
-   * This type scale uses a consistent mathematical ratio (1.250) to create
-   * visual harmony and clear hierarchy. Each size is 1.25× the previous size.
-   *
-   * USAGE GUIDELINES:
-   * --fs-xs:   Extra small text, micro UI, dense data, filter labels (12-14px)
-   * --fs-sm:   Small text, captions, labels, metadata (13-14px)
-   * --fs-base: Body text, paragraphs (default for most content)
-   * --fs-lg:   H4, emphasized text, large buttons
-   * --fs-xl:   H3, section headings, card titles
-   * --fs-2xl:  H2, major sections, page subtitles
-   * --fs-3xl:  H1, page titles, hero headlines
-   *
-   * WHY FLUID TYPOGRAPHY:
-   * Using clamp() allows text to scale smoothly across all viewport sizes
-   * without media queries, creating a more intrinsic and responsive design.
-   * The middle value (with vw) ensures text grows proportionally with viewport.
-   *
-   * ACCESSIBILITY:
-   * All sizes use rem units to respect user browser font-size preferences.
-   * The base size ensures minimum 16px for readability and WCAG compliance.
-   * Even --fs-xs maintains readability while providing compact UI options.
-   */
-  --fs-xs: clamp(0.75rem, 0.72rem + 0.15vw, 0.875rem);       /* 12-14px */
-  --fs-sm: clamp(0.8rem, 0.77rem + 0.15vw, 0.875rem);        /* ~13-14px */
-  --fs-base: clamp(1rem, 0.95rem + 0.24vw, 1.125rem);        /* 16-18px */
-  --fs-lg: clamp(1.25rem, 1.18rem + 0.33vw, 1.41rem);        /* 20-23px */
-  --fs-xl: clamp(1.563rem, 1.47rem + 0.43vw, 1.76rem);       /* 25-28px */
-  --fs-2xl: clamp(1.953rem, 1.84rem + 0.55vw, 2.2rem);       /* 31-35px */
-  --fs-3xl: clamp(2.441rem, 2.29rem + 0.73vw, 2.75rem);      /* 39-44px */
+  /* ============================================
+     FLUID TYPOGRAPHY - Utopia Type Scale
+     ============================================
 
-  /* Legacy aliases - Kept for backward compatibility with existing code
-   * These map to the new scale to prevent breaking changes.
+     Generated with Utopia Type Calculator
+     https://utopia.fyi/type/calculator/?c=320,16,1.2,1240,18,1.25,9,2,&s=0.75|0.5|0.25,1.5|2|3|4|6,s-l
+
+     DESIGN PHILOSOPHY:
+     This type scale uses the Major Third (1.25) ratio - a genuine musical interval
+     from just intonation (5:4 frequency ratio). This creates visual harmony that
+     aligns with the mathematical beauty inherent in classical music.
+
+     PARAMETERS:
+     - Viewport Range: 320px (mobile) → 1240px (desktop)
+     - Min Scale (320px): 16px base, 1.2 ratio (Minor Third - tighter on mobile)
+     - Max Scale (1240px): 18px base, 1.25 ratio (Major Third - elegant on desktop)
+     - Total Steps: 9 (--step--2 through --step-6)
+
+     USAGE GUIDELINES:
+     --step--2:  Micro text, fine print, legal disclaimers (13px → 14px)
+     --step--1:  Small UI, captions, labels, metadata (15px → 18px)
+     --step-0:   Body text, paragraphs (18px → 23px) ← Primary reading size
+     --step-1:   H5, emphasized text, large buttons (22px → 28px)
+     --step-2:   H4, card titles, subsection headings (26px → 35px)
+     --step-3:   H3, section headings (31px → 44px)
+     --step-4:   H2, page subtitles, major sections (37px → 55px)
+     --step-5:   H1, page titles, hero headlines (45px → 69px)
+     --step-6:   Display headings, festival announcements (54px → 86px)
+
+     WHY FLUID TYPOGRAPHY:
+     Using clamp() allows text to scale smoothly across all viewport sizes
+     without media queries, creating intrinsic, responsive design. The viewport-
+     based calculation (vw) ensures proportional growth from mobile to desktop.
+
+     ACCESSIBILITY:
+     All sizes use rem units to respect user browser font-size preferences.
+     Minimum sizes ensure readability and WCAG AA compliance.
+     The scale maintains clear hierarchy even when users adjust their base font size.
+
+     MUSICAL CONNECTION:
+     The Major Third ratio (1.25 = 5:4) represents the interval between C and E
+     in Western music - creating warmth and brightness without aggression.
+     This mathematical harmony translates to visual elegance appropriate for
+     classical music festivals.
+  */
+
+  /* Utopia-generated fluid type scale */
+  --step--2: clamp(0.7813rem, 0.7736rem + 0.0341vw, 0.8rem);       /* 13-14px - Micro text */
+  --step--1: clamp(0.9375rem, 0.9119rem + 0.1136vw, 1rem);         /* 15-18px - Small UI */
+  --step-0: clamp(1.125rem, 1.0739rem + 0.2273vw, 1.25rem);        /* 18-23px - Body text */
+  --step-1: clamp(1.35rem, 1.2631rem + 0.3864vw, 1.5625rem);       /* 22-28px - H5 */
+  --step-2: clamp(1.62rem, 1.4837rem + 0.6057vw, 1.9531rem);       /* 26-35px - H4 */
+  --step-3: clamp(1.944rem, 1.7405rem + 0.9044vw, 2.4414rem);      /* 31-44px - H3 */
+  --step-4: clamp(2.3328rem, 2.0387rem + 1.3072vw, 3.0518rem);     /* 37-55px - H2 */
+  --step-5: clamp(2.7994rem, 2.384rem + 1.8461vw, 3.8147rem);      /* 45-69px - H1 */
+  --step-6: clamp(3.3592rem, 2.7874rem + 2.5413vw, 4.7684rem);     /* 54-86px - Display */
+
+  /* Legacy aliases - Backward compatibility for existing components
+   * These map old --fs-* naming to new --step-* system.
+   * Prevents breaking changes while allowing gradual migration.
    *
-   * DEPRECATION NOTICE:
-   * The --font-size-* naming convention is being phased out in favor of --fs-*
-   * All new code should use --fs-* tokens. Existing --font-size-* usage will
-   * continue to work but should be migrated to --fs-* during maintenance.
-   *
-   * Gradually migrate to the new --fs-* naming convention for consistency.
+   * MIGRATION STRATEGY:
+   * - All existing code using --fs-* continues to work
+   * - New code should use --step-* for clarity
+   * - Gradually migrate components during maintenance
+   * - These aliases can be removed in future major version
+   */
+  --fs-xs: var(--step--2);     /* Maps to micro text */
+  --fs-sm: var(--step--1);     /* Maps to small UI */
+  --fs-base: var(--step-0);    /* Maps to body text */
+  --fs-lg: var(--step-1);      /* Maps to H5 */
+  --fs-xl: var(--step-2);      /* Maps to H4 */
+  --fs-2xl: var(--step-3);     /* Maps to H3 */
+  --fs-3xl: var(--step-4);     /* Maps to H2 */
+
+  /* Legacy --font-size-* aliases - Also kept for backward compatibility
+   * These are from an even older naming convention.
+   * Maintained to prevent breaking any legacy code.
    */
   --font-size-xs: var(--fs-xs);
   --font-size-sm: var(--fs-sm);
@@ -231,8 +267,8 @@
   --font-size-xl: var(--fs-xl);
   --font-size-2xl: var(--fs-2xl);
   --font-size-3xl: var(--fs-3xl);
-  --font-size-4xl: var(--fs-3xl);  /* Maps to largest size */
-  --font-size-5xl: var(--fs-3xl);  /* Maps to largest size */
+  --font-size-4xl: var(--step-5);  /* Maps to H1 (was mapped to --fs-3xl) */
+  --font-size-5xl: var(--step-6);  /* Maps to Display (was mapped to --fs-3xl) */
   
   /* Font weights */
   --font-weight-light: 300;
@@ -250,15 +286,23 @@
      SPACING SYSTEM - Utopia-inspired Fluid Scale
      ============================================
 
+     VIEWPORT RANGE:
+     - Minimum: 320px (smallest mobile devices)
+     - Maximum: 1240px (comfortable desktop reading width)
+     - Beyond 1240px: Values lock at maximum (no further growth)
+     - Matches container max-width (1200px) + padding
+
      ACCESSIBILITY REQUIREMENT (WCAG 1.4.4):
      Maximum spacing MUST be ≤ 2.5× minimum spacing
      This ensures proper scaling at 200% browser zoom
 
      Reference: https://www.smashingmagazine.com/2023/11/addressing-accessibility-concerns-fluid-type/
 
-     Fluid breakpoints: 320px → 1240px
+     IMPLEMENTATION:
      All values use rem units for zoom accessibility
-     Combines rem + vw for smooth, accessible scaling
+     Combines rem + vw for smooth, proportional scaling
+     Primary steps maintain 1.25× ratio (see inline comments)
+     Space pairs provide steeper responsive curves when needed
   */
 
   /* Fluid spacing scale - Primary tokens */

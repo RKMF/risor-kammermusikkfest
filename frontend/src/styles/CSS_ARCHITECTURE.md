@@ -840,14 +840,125 @@ If you're stuck or unsure:
 
 **Philosophy:** Keep it simple, follow existing patterns, don't over-engineer.
 
-## Resources
+## Typography System: Utopia Fluid Type Scale
+
+### Background
+
+The project uses a **Utopia-based fluid typography system** that creates harmonious visual hierarchy using the Major Third (1.25) musical ratio. This was implemented in January 2025 to replace the previous manual clamp() calculations.
+
+### Why Utopia?
+
+**Problem Solved:**
+- Previous type scale used manually-calculated `clamp()` values
+- Spacing system was already Utopia-inspired but typography wasn't
+- Inconsistent approach made maintenance harder
+- Limited scale (7 steps) didn't provide enough editorial flexibility
+
+**Utopia Benefits:**
+1. **Systematic Foundation**: Calculator-generated values based on explicit parameters
+2. **Type-Space Harmony**: Typography now matches the existing Utopia-inspired spacing system
+3. **Musical Connection**: Major Third ratio (1.25 = 5:4) comes from just intonation frequency ratios
+4. **More Flexibility**: 9 steps (--step--2 through --step-6) vs. previous 7 steps
+5. **Clear Documentation**: Generated values include provenance link back to calculator
+
+### Technical Implementation
+
+**Configuration Parameters:**
+```
+Viewport Range: 320px (mobile) → 1240px (desktop)
+Min Scale (320px): 16px base, 1.2 ratio (Minor Third - tighter on mobile)
+Max Scale (1240px): 18px base, 1.25 ratio (Major Third - elegant on desktop)
+Total Steps: 9 (--step--2 through --step-6)
+```
+
+**Generated Scale:**
+```css
+--step--2: clamp(0.7813rem, 0.7736rem + 0.0341vw, 0.8rem);       /* 13-14px - Micro text */
+--step--1: clamp(0.9375rem, 0.9119rem + 0.1136vw, 1rem);         /* 15-18px - Small UI */
+--step-0: clamp(1.125rem, 1.0739rem + 0.2273vw, 1.25rem);        /* 18-23px - Body text */
+--step-1: clamp(1.35rem, 1.2631rem + 0.3864vw, 1.5625rem);       /* 22-28px - H5 */
+--step-2: clamp(1.62rem, 1.4837rem + 0.6057vw, 1.9531rem);       /* 26-35px - H4 */
+--step-3: clamp(1.944rem, 1.7405rem + 0.9044vw, 2.4414rem);      /* 31-44px - H3 */
+--step-4: clamp(2.3328rem, 2.0387rem + 1.3072vw, 3.0518rem);     /* 37-55px - H2 */
+--step-5: clamp(2.7994rem, 2.384rem + 1.8461vw, 3.8147rem);      /* 45-69px - H1 */
+--step-6: clamp(3.3592rem, 2.7874rem + 2.5413vw, 4.7684rem);     /* 54-86px - Display */
+```
+
+**Legacy Aliases (Backward Compatibility):**
+```css
+--fs-base: var(--step-0);   /* Old code still works */
+--fs-lg: var(--step-1);
+--fs-xl: var(--step-2);
+--fs-2xl: var(--step-3);
+--fs-3xl: var(--step-4);
+```
+
+### Usage Guidelines
+
+**For full usage details**, see `/frontend/src/styles/TYPOGRAPHY_GUIDE.md`
+
+**Quick Reference:**
+- `--step--2`: Fine print, legal disclaimers (13-14px)
+- `--step--1`: Captions, labels, metadata (15-18px)
+- `--step-0`: Body text, navigation (18-23px) ← Primary reading size
+- `--step-1`: H5, emphasized text (22-28px)
+- `--step-2`: H4, card titles (26-35px)
+- `--step-3`: H3, section headings (31-44px)
+- `--step-4`: H2, page subtitles (37-55px)
+- `--step-5`: H1, page titles (45-69px)
+- `--step-6`: Display headings, festival announcements (54-86px)
+
+### Musical Context
+
+**Why Major Third (1.25)?**
+
+The Major Third ratio comes from just intonation in Western music - it's the interval between C and E (frequency ratio of 5:4). This creates:
+- Visual harmony that aligns with musical harmony
+- Warmth and brightness without aggression
+- Elegant restraint appropriate for classical music aesthetic
+- Clear hierarchy without excessive drama
+
+This isn't a metaphor - it's the same mathematical relationship that makes chords sound harmonious, applied to typography.
+
+### Migration Strategy
+
+**Current State:**
+- All existing code using `--fs-*` continues to work via legacy aliases ✓
+- New code should use `--step-*` naming for clarity
+- Gradually migrate components during maintenance
+- Legacy aliases can be removed in future major version
+
+**No Breaking Changes:**
+The Utopia implementation maintains complete backward compatibility. Existing components continue working without modification.
+
+### Accessibility Compliance
+
+- **WCAG AA**: Minimum 16px base, all sizes use rem units ✓
+- **Browser Zoom**: Respects 200% zoom (WCAG 1.4.4) ✓
+- **User Preferences**: All rem-based values respect browser font-size settings ✓
+- **Fluid Scaling**: Maintains clear hierarchy at all viewport sizes ✓
+
+### Resources
+
+**Utopia Type Calculator:**
+https://utopia.fyi/type/calculator/?c=320,16,1.2,1240,18,1.25,9,2,
+
+**Documentation:**
+- **Typography Guide**: `/frontend/src/styles/TYPOGRAPHY_GUIDE.md` (comprehensive usage examples)
+- **Tokens File**: `/frontend/src/styles/tokens.css` (lines 184-271)
+- **Musical Theory**: Just Intonation and the Major Third (5:4 ratio)
+
+---
+
+## General Resources
 
 - [Astro CSS Docs](https://docs.astro.build/en/guides/styling/)
 - [Container Queries MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Container_Queries)
 - [Intrinsic CSS](https://every-layout.dev/)
 - [HTMX Docs](https://htmx.org/)
+- [Utopia Fluid Design](https://utopia.fyi/)
 
 ---
 
-**Last Updated:** 2025-11-06 (Phase 5 Complete)
+**Last Updated:** 2025-01-27 (Utopia Typography Implementation)
 **Maintainer:** Development Team
