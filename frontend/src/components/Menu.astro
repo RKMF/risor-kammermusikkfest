@@ -123,9 +123,16 @@ const isActive = (href: string) => {
     /* Fixed positioning in top-left */
     position: fixed;
     top: var(--space-3);
-    /* Position with extra spacing to avoid interfering with text when scrolling */
-    /* Container left edge + container padding - button width - extra gap */
-    left: calc((100% - min(100% - var(--space-4), var(--container-max-width))) / 2 + clamp(var(--space-3), 4vw, var(--space-6)) - 60px - var(--space-3));
+    /* Position left of container edge on wide screens, prevent overflow on narrow screens */
+    left: max(
+      var(--space-3),
+      calc(
+        (100% - min(100% - var(--space-4), var(--container-max-width))) / 2
+        + clamp(var(--space-3), 4vw, var(--space-6))
+        - 60px
+        - var(--space-3)
+      )
+    );
     z-index: var(--z-modal);
 
     /* Size and appearance */
@@ -203,7 +210,16 @@ const isActive = (href: string) => {
     position: fixed;
     /* Position below and aligned with the button */
     top: calc(var(--space-3) + 60px + var(--space-2));
-    left: calc((100% - min(100% - var(--space-4), var(--container-max-width))) / 2 + clamp(var(--space-3), 4vw, var(--space-6)) - 60px - var(--space-3));
+    /* Match button positioning - left of container edge, prevent overflow */
+    left: max(
+      var(--space-3),
+      calc(
+        (100% - min(100% - var(--space-4), var(--container-max-width))) / 2
+        + clamp(var(--space-3), 4vw, var(--space-6))
+        - 60px
+        - var(--space-3)
+      )
+    );
     z-index: var(--z-modal);
 
     /* Size determined by content */
