@@ -155,10 +155,10 @@
   /* Surface variants (for button-styled links) */
   --color-surface-hover: var(--color-neutral-100);
 
-  /* Event card specific colors (lavender theme) */
-  --color-event-card-bg: #e8e6f2;
-  --color-event-card-text: var(--color-blue);
-  --color-event-card-text-hover: var(--color-blue-600);
+  /* Card surface colors (used by event cards, artist info boxes, etc.) */
+  --color-card-surface: #e8e6f2;
+  --color-card-text: var(--color-blue);
+  --color-card-text-hover: var(--color-blue-600);
 
   /* Link component specific colors */
   --color-link: var(--color-red);
