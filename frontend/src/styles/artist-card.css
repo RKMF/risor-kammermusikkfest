@@ -35,8 +35,8 @@
   border: none;
   background-color: rgba(27, 25, 143, 0.12);
   box-shadow: none;
-  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 200ms var(--ease-standard),
+              box-shadow 200ms var(--ease-standard);
 
   /* Grid layout for stacking image and info box */
   display: grid;

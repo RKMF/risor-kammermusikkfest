@@ -87,6 +87,7 @@ const hasArticles = articles.length > 0;
       column-gap: var(--space-l);
       row-gap: clamp(var(--space-2xl), 5vw, var(--space-2xl));
       grid-template-columns: repeat(auto-fit, minmax(min(100%, max(350px, 30ch)), 1fr));
+      justify-items: center;
     }
 
     @container (min-width: 700px) {
@@ -111,11 +112,13 @@ const hasArticles = articles.length > 0;
       border: none;
       background-color: rgba(27, 25, 143, 0.08);
       box-shadow: none;
-      transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
-                  box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
-                  background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 200ms var(--ease-standard),
+                  box-shadow 200ms var(--ease-standard),
+                  background-color 200ms var(--ease-standard);
       padding: var(--space-4);
       gap: var(--space-3);
+      max-width: 50ch;
+      width: 100%;
     }
 
     /* Hover effect only for devices with hover capability */

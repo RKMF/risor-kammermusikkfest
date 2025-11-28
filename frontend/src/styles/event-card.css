@@ -16,9 +16,9 @@
   overflow: hidden; /* Clips overflow content */
   background-color: rgba(27, 25, 143, 0.12);
   box-shadow: none;
-  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
-              background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 200ms var(--ease-standard),
+              box-shadow 200ms var(--ease-standard),
+              background-color 200ms var(--ease-standard);
 
   /* Fluid spacing - scales with card width in scroll mode */
   padding: clamp(0.875rem, 3.5cqi, 1rem);

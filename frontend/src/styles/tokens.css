@@ -383,7 +383,16 @@
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
   --transition-slow: 350ms ease;
-  
+
+  /* Easing curves - Material Design inspired
+   * Use these for precise control over animation timing.
+   * Reference: https://m2.material.io/design/motion/speed.html#easing
+   */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);  /* Deceleration curve - default for most UI interactions */
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);  /* Strong deceleration - elements entering screen */
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);  /* Acceleration curve - elements leaving screen */
+  --ease-sharp: cubic-bezier(0.4, 0, 0.6, 1);     /* Sharp curve - large/complex movements */
+
   /* Z-index scale */
   --z-base: 0;
   --z-dropdown: 100;

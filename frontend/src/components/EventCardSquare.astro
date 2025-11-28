@@ -94,9 +94,9 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
     overflow: hidden;
     background-color: var(--color-card-surface);
     border-radius: var(--radius-sm, 0);
-    transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
-                background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 200ms var(--ease-standard),
+                box-shadow 200ms var(--ease-standard),
+                background-color 200ms var(--ease-standard);
 
     padding: var(--space-4);
 
