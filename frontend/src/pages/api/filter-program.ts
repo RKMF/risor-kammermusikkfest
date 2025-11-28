@@ -142,7 +142,7 @@ export const GET: APIRoute = async ({ request, url }) => {
       html = filteredDates.map(({ date, displayTitle, events: dateEvents }) => `
         <section class="content-section date-section" data-date="${date}">
           <h3 class="date-title">${stegaClean(displayTitle)}</h3>
-          <div class="events-grid">
+          <div class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar">
             ${dateEvents.map((event: any) => {
               // Use language-aware slug selection
               const eventSlug = language === 'en'

@@ -92,7 +92,7 @@ const content = getMultilingualContent(event, 'en') || event.content_en;
       {event.artists && event.artists.length > 0 && (
         <section class="artists-section">
           <h2 class="artists-title">Artists</h2>
-          <div class="artists-scroll-wrapper">
+          <div class="artists-scroll-wrapper scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
             <ul class="artists-list">
               {event.artists.map((artist) => (
                 <li class="artist-item">

@@ -14,6 +14,7 @@ import '../styles/tokens.css';
 import '../styles/primitives.css'; // Layout primitives (Center, Stack, Cluster)
 import '../styles/base.css';
 import '../styles/utilities.css';
+import '../styles/scroll-containers.css'; // Scroll container patterns
 import '../styles/components.css';
 import '../styles/layouts.css';
 import '../styles/artist-card.css';
@@ -113,7 +114,7 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
         display: flex;
         flex-direction: column;
         /* Kevin Powell pattern: Fluid on mobile, capped on desktop */
-        width: min(100ch, 100% - 4rem);
+        width: min(100ch, 100% - 3rem);
         margin-inline: auto;
         /* Intrinsic padding using fluid values */
         padding-block-start: var(--page-top-spacing);

@@ -80,7 +80,7 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
       {event.artists && event.artists.length > 0 && (
         <section class="artists-section">
           <h2 class="artists-title">Artister</h2>
-          <div class="artists-scroll-wrapper">
+          <div class="artists-scroll-wrapper scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
             <ul class="artists-list">
               {event.artists.map((artist) => (
                 <li class="artist-item">

@@ -182,9 +182,9 @@
    ARTIST SCROLLBAR SECTION
    ============================================
 
-   Horizontal scroll container for artist names.
-   Simple, text-focused design to avoid competing
-   with main content. Similar to program page filters.
+   Horizontal scroll container for artist cards.
+   Scroll behavior handled by scroll-containers.css utility classes.
+   Simple, text-focused design to avoid competing with main content.
 */
 
 .artists-section {
@@ -201,64 +201,20 @@
   color: var(--color-blue);
 }
 
-.artists-scroll-wrapper {
-  overflow-x: scroll;
-  overflow-y: hidden;
-  scroll-behavior: smooth;
-  overscroll-behavior-x: contain;
-  scroll-padding-inline: clamp(1rem, 3vw, 2rem);
-  padding-block-end: 12px;
-  scroll-snap-type: x mandatory;
-}
-
 .artists-list {
-  display: flex;
-  gap: var(--space-3);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.artist-item {
-  flex-shrink: 0;
-  scroll-snap-align: start;
-  scroll-margin-inline-start: var(--space-2);
-}
-
 /* Artist card component styles now centralized in:
    /src/styles/artist-card.css
 
-   This file only contains event page-specific layout and scrolling behavior.
+   This file only contains event page-specific layout.
+   Scroll behavior is handled by scroll-containers.css.
    The card component itself (overlay design, hover states, accessibility)
    is shared with artist overview pages.
 */
-
-/* Styled scrollbar - always visible for discoverability
- * Pattern defined in utilities.css (.scrollbar-styled)
- * Kept inline here due to specific context */
-.artists-scroll-wrapper {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-blue) var(--color-neutral-100);
-}
-
-.artists-scroll-wrapper::-webkit-scrollbar {
-  height: 4px;
-  -webkit-appearance: none;
-}
-
-.artists-scroll-wrapper::-webkit-scrollbar-track {
-  background: var(--color-neutral-100);
-  border-radius: 0;
-}
-
-.artists-scroll-wrapper::-webkit-scrollbar-thumb {
-  background: var(--color-blue);
-  border-radius: 0;
-}
-
-.artists-scroll-wrapper::-webkit-scrollbar-thumb:hover {
-  background: var(--color-green);
-}
 
 /* ============================================
    MAIN CONTENT AREA
@@ -301,10 +257,6 @@
    ============================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  .artists-scroll-wrapper {
-    scroll-behavior: auto;
-  }
-
   .artist-card,
   .back-button {
     transition: none;
@@ -322,12 +274,5 @@
 
   .artist-card-link:focus-visible {
     outline-width: 3px;
-  }
-}
-
-/* Touch device optimizations */
-@media (pointer: coarse) {
-  .artists-scroll-wrapper::-webkit-scrollbar {
-    height: 8px;
   }
 }

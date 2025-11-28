@@ -452,73 +452,21 @@
    ============================================
 
    Below 800px container width, switch from wrapping grid
-   to horizontal scrolling grid. Each date section scrolls
-   independently. Cards remain fixed at 320px width.
+   to horizontal scrolling flexbox. Each date section scrolls
+   independently using scroll-container pattern.
+
+   Scroll behavior and styling now handled by:
+   - .scroll-container (base)
+   - .scroll-container--event-cards (sizing)
+   - .scroll-container--styled-scrollbar (scrollbar)
 */
 
 @container (max-width: 800px) {
   .events-grid {
-    /* Transform grid to horizontal flow with fluid cards */
-    grid-template-columns: none;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(290px, 1fr);
-    justify-content: start;
-
-    /* Enable horizontal scroll */
-    overflow-x: scroll;
-    overflow-y: hidden;
-
-    /* Smooth scrolling behavior */
-    scroll-behavior: smooth;
-    overscroll-behavior-x: contain;
-
-    /* Scroll padding for better UX */
-    scroll-padding-inline: clamp(1rem, 3vw, 2rem);
-
-    /* Space for scrollbar underneath cards */
-    padding-block-end: 12px;
-
-    /* Scroll snap for better UX - mandatory for Instagram-like snapping */
-    scroll-snap-type: x mandatory;
-  }
-
-  /* Fixed cards with snap points */
-  .event-card {
-    scroll-snap-align: start;
-    scroll-margin-inline-start: 0.5rem;
-  }
-
-  /* Styled native scrollbar - always visible and functional
-   * Pattern defined in utilities.css (.scrollbar-styled)
-   * Kept inline here due to container query context */
-  .events-grid {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-blue) var(--color-neutral-100);
-  }
-
-  .events-grid::-webkit-scrollbar {
-    height: 6px;
-    -webkit-appearance: none;
-  }
-
-  .events-grid::-webkit-scrollbar-track {
-    background: var(--color-neutral-100);
-    border-radius: 0;
-  }
-
-  .events-grid::-webkit-scrollbar-thumb {
-    background: var(--color-blue);
-    border-radius: 0;
-  }
-
-  .events-grid::-webkit-scrollbar-thumb:hover {
-    background: var(--color-green);
-  }
-
-  /* Keyboard focus indicator for scroll container */
-  .events-grid:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: 2px;
+    /* Transform from grid to flex for scroll mode */
+    display: flex;
+    /* Clear grid properties */
+    grid-template-columns: initial;
   }
 
   /* Override hover effect for horizontal scroll mode */

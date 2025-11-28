@@ -32,7 +32,7 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
 <section class={`content-scroll-container ${scrollbarClass} ${className}`} {...sanityAttributes}>
   {title && <h2 class="scroll-container-title">{title}</h2>}
 
-  <ul class="scroll-list">
+  <ul class="scroll-list scroll-container scroll-container--content scroll-container--hide-scrollbar">
     {items.map((item) => {
       if (!item) return null
 
@@ -85,33 +85,18 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
     margin-block-end: var(--space-m-l); /* Fluid 16px → 30px */
   }
 
+  /* Scroll list - behavior from scroll-containers.css */
   .scroll-list {
-    display: flex;
     align-items: flex-start; /* Parent controls alignment - force top alignment */
-    gap: var(--space-m-l); /* Fluid 16px → 30px */
     list-style: none;
     margin: 0;
     padding-block: var(--space-xs) var(--space-m);
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-
-    /* Scroll snap for Instagram-like snapping */
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    overscroll-behavior-x: contain;
-    scroll-padding-inline: clamp(1rem, 3vw, 2rem);
   }
 
   .scroll-item {
-    flex-shrink: 0;
     height: 350px; /* Height is king - all items share this height */
     overflow: hidden;
     position: relative;
-
-    /* Scroll snap alignment */
-    scroll-snap-align: start;
-    scroll-margin-inline-start: 0.5rem;
   }
 
   /* Parent-controlled layout: All children get uniform sizing */
@@ -137,15 +122,7 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
     color: #666;
   }
 
-  /* Hide scrollbar */
-  .hide-scrollbar .scroll-list {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
-  }
-
-  .hide-scrollbar .scroll-list::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
-  }
+  /* Hide scrollbar handled by scroll-container--hide-scrollbar */
 
   /* Tablet: Slightly smaller cards */
   @media (max-width: 1024px) {
@@ -191,7 +168,7 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
 
   /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
-    .scroll-list {
+    .scroll-list.scroll-container {
       scroll-behavior: auto;
     }
   }

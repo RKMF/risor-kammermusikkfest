@@ -142,7 +142,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
 <section class={`${containerClass} ${scrollbarClass}`}>
   {title && <h2 class="event-scroll-title">{title}</h2>}
-  <ul class="event-list">
+  <ul class="event-list scroll-container scroll-container--event-cards">
     {sortedEvents.map((event) => {
         if (!event) return null
 
@@ -169,7 +169,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
                   image={eventImage}
                   alt={imageAlt}
                   size="small"
-                  aspectRatio="4:5"
+                  aspectRatio="7:11"
                   loading="lazy"
                   quality={IMAGE_QUALITY.CARD}
                   className="event-scroll-card-image"
@@ -226,28 +226,14 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     margin-block-end: var(--space-m);
   }
 
-  /* Fluid scroll list */
+  /* Scroll list - behavior from scroll-containers.css */
   .event-list {
-    display: flex;
-    gap: clamp(var(--space-l), 3vw, var(--space-6));
     list-style: none;
     margin: 0;
     padding-block: var(--space-2);
-    overflow-x: scroll;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    overscroll-behavior-x: contain;
-    scroll-padding-inline: clamp(1rem, 3vw, 2rem);
   }
 
-  .event-item {
-    flex-shrink: 0;
-    scroll-snap-align: start;
-    scroll-margin-inline-start: 0.5rem;
-  }
-
-  /* Intrinsic event cards - standardized to 4:5 */
+  /* Intrinsic event cards - standardized to 7:11 for events */
   .event-scroll-card {
     position: relative; /* Required for stretched link pattern */
     container-type: inline-size;
@@ -256,8 +242,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     overflow: hidden;
     box-shadow: var(--shadow-sm);
     transition: transform var(--transition-base), box-shadow var(--transition-base);
-    width: clamp(290px, 35vw, 320px);
-    aspect-ratio: 4/5;
+    aspect-ratio: 7/11;
   }
 
   .event-scroll-card:hover {
@@ -389,13 +374,14 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     }
   }
 
-  /* Scroll snap and accessibility */
-  .hide-scrollbar .event-list {
+  /* Hide scrollbar variant */
+  .hide-scrollbar .event-list.scroll-container {
     scrollbar-width: none;
     -ms-overflow-style: none;
+    padding-block-end: 0;
   }
 
-  .hide-scrollbar .event-list::-webkit-scrollbar {
+  .hide-scrollbar .event-list.scroll-container::-webkit-scrollbar {
     display: none;
   }
 
@@ -411,7 +397,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
       transform: none; /* Disable lift effect */
     }
 
-    .event-list {
+    .event-list.scroll-container {
       scroll-behavior: auto;
     }
   }

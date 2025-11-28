@@ -36,7 +36,7 @@
 /* Fluid width in scroll mode for better scroll affordance */
 @container (max-width: 800px) {
   .event-card {
-    width: clamp(290px, 35vw, 320px);
+    width: clamp(300px, 35vw, 320px);
   }
 }
 

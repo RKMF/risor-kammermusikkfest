@@ -81,7 +81,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
 <section class={`${containerClass} ${scrollbarClass}`}>
   {title && <h2 class="artist-scroll-title">{title}</h2>}
-  <ul class="artist-list">
+  <ul class="artist-list scroll-container scroll-container--artist-cards">
     {artistData.map((artist) => {
         if (!artist) return null
 
@@ -133,24 +133,11 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     margin-block-end: var(--space-m);
   }
 
+  /* Scroll list - behavior from scroll-containers.css */
   .artist-list {
-    display: flex;
-    gap: clamp(var(--space-l), 3vw, var(--space-6));
     list-style: none;
     margin: 0;
     padding-block: var(--space-xs);
-    overflow-x: scroll;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    overscroll-behavior-x: contain;
-    scroll-padding-inline: clamp(1rem, 3vw, 2rem);
-  }
-
-  .artist-item {
-    flex-shrink: 0;
-    scroll-snap-align: start;
-    scroll-margin-inline-start: 0.5rem;
   }
 
   .artist-scroll-card-link {
@@ -208,13 +195,14 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     font-size: clamp(var(--fs-sm), 2.8cqi, var(--fs-base));
   }
 
-  /* Hide scrollbar */
-  .hide-scrollbar .artist-list {
+  /* Hide scrollbar variant */
+  .hide-scrollbar .artist-list.scroll-container {
     scrollbar-width: none;
     -ms-overflow-style: none;
+    padding-block-end: 0;
   }
 
-  .hide-scrollbar .artist-list::-webkit-scrollbar {
+  .hide-scrollbar .artist-list.scroll-container::-webkit-scrollbar {
     display: none;
   }
 
