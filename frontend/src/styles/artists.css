@@ -100,6 +100,56 @@
 }
 
 /* ============================================
+   THREE DISTINCT ARTIST SECTIONS
+   ============================================
+
+   Sections for large, medium, and small cards stack
+   vertically on wide screens. Each section transforms
+   to horizontal scroll on narrow screens.
+
+   No visible section headings - visual separation only.
+*/
+
+.artist-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin-block-start: var(--space-6);
+}
+
+.artist-section {
+  container-type: inline-size;
+  display: grid;
+  gap: clamp(var(--space-l), 3vw, var(--space-6));
+  padding: 0;
+  contain: layout style;
+  justify-content: start;
+}
+
+/* Large section - 320px cards */
+.artist-section--large {
+  grid-template-columns: repeat(auto-fill, 320px);
+}
+
+/* Medium section - 320px cards (square aspect handled by modifier) */
+.artist-section--medium {
+  grid-template-columns: repeat(auto-fill, 320px);
+}
+
+/* Small section - 320px cards */
+.artist-section--small {
+  grid-template-columns: repeat(auto-fill, 320px);
+}
+
+/* Horizontal scroll mode for each section */
+@container (max-width: 800px) {
+  .artist-section {
+    display: flex;
+    grid-template-columns: initial;
+  }
+}
+
+/* ============================================
    ACCESSIBILITY & MOTION PREFERENCES
    ============================================ */
 

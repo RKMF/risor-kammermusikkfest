@@ -53,21 +53,13 @@
 /* Event cards pattern */
 .scroll-container--event-cards {
   --scroll-gap: clamp(var(--space-l), 3vw, var(--space-6));
-}
-
-.scroll-container--event-cards > * {
-  width: clamp(300px, 35vw, 320px);
-  /* Note: aspect-ratio (7/11) set by .event-card component */
+  /* Note: width and aspect-ratio (7/11) set by .event-card component */
 }
 
 /* Artist cards pattern */
 .scroll-container--artist-cards {
   --scroll-gap: clamp(var(--space-l), 3vw, var(--space-6));
-}
-
-.scroll-container--artist-cards > * {
-  width: clamp(290px, 35vw, 320px);
-  /* Note: aspect-ratio (4/5) set by .artist-card component */
+  /* Note: width and aspect-ratio (4/5, 1/1, or 16/9) set by .artist-card component variants */
 }
 
 /* Content items (generic) */

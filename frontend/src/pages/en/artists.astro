@@ -13,13 +13,18 @@ const dataService = createDataService(Astro.request);
 const artistsPage = await dataService.getArtistPage();
 
 // Use only selected artists from artistPage
-const artists = artistsPage?.selectedArtists || [];
+const allArtists = artistsPage?.selectedArtists || [];
+
+// Group artists by cardSize - maintains selectedArtists array order
+const largeArtists = allArtists.filter((artist) => stegaClean(artist.cardSize) === 'stor');
+const mediumArtists = allArtists.filter((artist) => stegaClean(artist.cardSize) === 'medium');
+const smallArtists = allArtists.filter((artist) => stegaClean(artist.cardSize) === 'liten');
 
 // Fallback values
 const pageTitle = artistsPage?.title || 'Artists';
 
 // Check if we have any artists
-const hasArtists = artists.length > 0;
+const hasArtists = allArtists.length > 0;
 ---
 
 <ContentPageLayout
@@ -28,37 +33,100 @@ const hasArtists = artists.length > 0;
   pageDocument={artistsPage}
 >
   {hasArtists ? (
-    <div class="artists-grid scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
-      {artists.map((artist) => (
-        <article class="artist-card">
-          <h3 class="artist-title">
-            <a href={`/en/artists/${stegaClean(artist.slug)}`} class="artist-title-link">
-              {stegaClean(artist.name)}
-            </a>
-          </h3>
+    <div class="artist-sections">
+      {/* Large Artists Section */}
+      {largeArtists.length > 0 && (
+        <div class="artist-section artist-section--large scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
+          {largeArtists.map((artist) => (
+            <article class="artist-card">
+              <h3 class="artist-title">
+                <a href={`/en/artists/${stegaClean(artist.slug)}`} class="artist-title-link">
+                  {stegaClean(artist.name)}
+                </a>
+              </h3>
 
-          {artist.image?.image && (
-            <img
-              src={getOptimizedImageUrl(artist.image.image, 280, 350, IMAGE_QUALITY.CARD)}
-              srcset={getResponsiveImageSet(artist.image.image, [300, 400, 600], 0.8, IMAGE_QUALITY.CARD)}
-              sizes="320px"
-              alt={stegaClean(artist.image.alt) || stegaClean(artist.name)}
-              width="280"
-              height="350"
-              loading="lazy"
-              decoding="async"
-              class="artist-card-image"
-            />
-          )}
+              {artist.image?.image && (
+                <img
+                  src={getOptimizedImageUrl(artist.image.image, 280, 350, IMAGE_QUALITY.CARD)}
+                  srcset={getResponsiveImageSet(artist.image.image, [300, 400, 600], 0.8, IMAGE_QUALITY.CARD)}
+                  sizes="320px"
+                  alt={stegaClean(artist.image.alt) || stegaClean(artist.name)}
+                  width="280"
+                  height="350"
+                  loading="lazy"
+                  decoding="async"
+                  class="artist-card-image"
+                />
+              )}
 
-          <div class="artist-info-box">
-            <p class="artist-name">{stegaClean(artist.name)}</p>
-            {artist.instrument && (
-              <p class="artist-instrument">{stegaClean(artist.instrument)}</p>
-            )}
-          </div>
-        </article>
-      ))}
+              <div class="artist-info-box">
+                <p class="artist-name">{stegaClean(artist.name)}</p>
+                {artist.instrument && (
+                  <p class="artist-instrument">{stegaClean(artist.instrument)}</p>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {/* Medium Artists Section */}
+      {mediumArtists.length > 0 && (
+        <div class="artist-section artist-section--medium scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
+          {mediumArtists.map((artist) => (
+            <article class="artist-card artist-card--medium">
+              <h3 class="artist-title">
+                <a href={`/en/artists/${stegaClean(artist.slug)}`} class="artist-title-link">
+                  {stegaClean(artist.name)}
+                </a>
+              </h3>
+
+              {artist.image?.image && (
+                <img
+                  src={getOptimizedImageUrl(artist.image.image, 320, 320, IMAGE_QUALITY.CARD)}
+                  srcset={getResponsiveImageSet(artist.image.image, [320, 480, 640], 1.0, IMAGE_QUALITY.CARD)}
+                  sizes="320px"
+                  alt={stegaClean(artist.image.alt) || stegaClean(artist.name)}
+                  width="320"
+                  height="320"
+                  loading="lazy"
+                  decoding="async"
+                  class="artist-card-image"
+                />
+              )}
+
+              <div class="artist-info-box">
+                <p class="artist-name">{stegaClean(artist.name)}</p>
+                {artist.instrument && (
+                  <p class="artist-instrument">{stegaClean(artist.instrument)}</p>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {/* Small Artists Section */}
+      {smallArtists.length > 0 && (
+        <div class="artist-section artist-section--small scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
+          {smallArtists.map((artist) => (
+            <article class="artist-card artist-card--small">
+              <h3 class="artist-title">
+                <a href={`/en/artists/${stegaClean(artist.slug)}`} class="artist-title-link">
+                  {stegaClean(artist.name)}
+                </a>
+              </h3>
+
+              <div class="artist-info-box">
+                <p class="artist-name">{stegaClean(artist.name)}</p>
+                {artist.instrument && (
+                  <p class="artist-instrument">{stegaClean(artist.instrument)}</p>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
     </div>
   ) : (
     <div class="no-artists">

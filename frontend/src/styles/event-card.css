@@ -26,18 +26,11 @@
   /* Fixed aspect ratio - ensures consistent card dimensions */
   aspect-ratio: 7 / 11;
 
-  /* Default: Fixed width for grid mode */
-  width: 320px;
+  /* Fluid width for scroll affordance - shows partial next card */
+  width: clamp(300px, 35vw, 320px);
 
   /* Prevent grid blowout */
   min-height: 0;
-}
-
-/* Fluid width in scroll mode for better scroll affordance */
-@container (max-width: 800px) {
-  .event-card {
-    width: clamp(300px, 35vw, 320px);
-  }
 }
 
 /* Hover effect only for devices with hover capability */

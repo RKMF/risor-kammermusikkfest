@@ -44,15 +44,8 @@
   /* Fixed aspect ratio - same as image */
   aspect-ratio: 4 / 5;
 
-  /* Default: Fixed width for grid mode */
-  width: 320px;
-}
-
-/* Fluid width in scroll mode for better scroll affordance */
-@container (max-width: 800px) {
-  .artist-card {
-    width: clamp(290px, 35vw, 320px);
-  }
+  /* Fluid width for scroll affordance - shows partial next card */
+  width: clamp(300px, 35vw, 320px);
 }
 
 /* Hover effect only for devices with hover capability */
@@ -209,5 +202,75 @@
 
   .artist-card-link:focus-visible {
     outline-width: 3px;
+  }
+}
+
+/* ============================================
+   CARD SIZE VARIANTS
+   ============================================ */
+
+/* LARGE (stor) - Default, no modifier needed */
+/* Already defined above: 320px width, 4:5 aspect ratio, overlay pattern */
+
+/* MEDIUM (medium) - Square 1:1 cards with overlay */
+.artist-card--medium {
+  aspect-ratio: 1 / 1; /* Square instead of 4:5 */
+}
+
+.artist-card--medium .artist-card-image {
+  aspect-ratio: 1/1; /* Match card aspect ratio */
+}
+
+/* SMALL (liten) - Text-only cards, no image */
+.artist-card--small {
+  /* Remove grid overlay pattern - use simple flex layout */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 1.5rem;
+
+  /* Fluid width for scroll affordance - same as other card sizes */
+  width: clamp(300px, 35vw, 320px);
+  aspect-ratio: 16 / 9; /* Wider, shorter format */
+
+  /* Blue background - same as info box */
+  background-color: var(--color-blue-600);
+}
+
+/* Hide image in small cards */
+.artist-card--small .artist-card-image {
+  display: none;
+}
+
+/* Remove overlay positioning for small cards */
+.artist-card--small .artist-info-box {
+  /* Reset grid positioning */
+  grid-area: unset;
+  place-self: unset;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  z-index: unset;
+
+  /* Full width within card */
+  width: 100%;
+  max-width: unset;
+
+  /* Stack content */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Small card hover effect - simpler since no image */
+@media (hover: hover) {
+  .artist-card--small:hover {
+    background-color: rgb(235, 249, 247);
+  }
+
+  .artist-card--small:hover .artist-name,
+  .artist-card--small:hover .artist-instrument {
+    color: var(--color-blue);
   }
 }
