@@ -79,12 +79,13 @@ const hasArticles = articles.length > 0;
   <style>
     /* Articles Grid - Intrinsic responsive layout */
     /* Double spacing from excerpt since no filter section (match artist page spacing) */
-    /* Generous gap spacing for focused reading experience */
+    /* More compact horizontal gap, generous vertical gap for focused reading experience */
     .articles-grid {
       margin-block-start: var(--space-3xl);
       container-type: inline-size;
       display: grid;
-      gap: clamp(var(--space-2xl), 5vw, var(--space-2xl));
+      column-gap: var(--space-l);
+      row-gap: clamp(var(--space-2xl), 5vw, var(--space-2xl));
       grid-template-columns: repeat(auto-fit, minmax(min(100%, max(350px, 30ch)), 1fr));
     }
 
