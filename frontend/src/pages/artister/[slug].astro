@@ -2,13 +2,14 @@
 import Layout from "../../layouts/Layout.astro";
 import DynamicComponent from "../../components/DynamicComponent.astro";
 import Image from "../../components/Image.astro";
-import EventCardSquare from "../../components/EventCardSquare.astro";
+import EventCard from "../../components/EventCard.astro";
 import { getMultilingualContent } from "../../lib/utils/language.js";
 import { IMAGE_QUALITY } from '../../lib/sanityImage';
 import type { SanityDocument } from '@sanity/client';
 import { loadQuery } from '../../lib/sanity/loadQuery.js';
 import { stegaClean } from '@sanity/client/stega';
 import '../../styles/event.css';
+import '../../styles/event-card.css';
 
 // Generate static paths for all artists
 export async function getStaticPaths() {
@@ -85,6 +86,36 @@ const { data: artist } = await loadQuery({
       slug_no,
       slug_en,
       "slug": coalesce(slug_no.current, slug_en.current, slug.current),
+      excerpt_no,
+      excerpt_en,
+      "excerpt": coalesce(excerpt_no, excerpt_en),
+      "image": {
+        "image": image{
+          asset->{
+            _id,
+            url,
+            metadata {
+              dimensions {
+                width,
+                height,
+                aspectRatio
+              },
+              lqip,
+              blurHash,
+              palette {
+                dominant {
+                  background,
+                  foreground
+                }
+              }
+            }
+          },
+          hotspot,
+          crop
+        },
+        "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
+        "credit": coalesce(imageCredit_no, imageCredit_en)
+      },
       eventDate->{
         _id,
         date,
@@ -150,9 +181,9 @@ const content = getMultilingualContent(artist) || artist.content_no;
   {artist.events && artist.events.length > 0 && (
     <section class="artist-events">
       <h2 class="artist-events-title">Konserter</h2>
-      <div class="artist-events-row">
+      <div class="scroll-container scroll-container--event-cards scroll-container--styled-scrollbar">
         {artist.events.map((event) => (
-          <EventCardSquare event={event} language="no" />
+          <EventCard event={event} language="no" />
         ))}
       </div>
     </section>
@@ -275,75 +306,6 @@ const content = getMultilingualContent(artist) || artist.content_no;
     margin-block-start: 0;
     margin-block-end: var(--space-6);
     text-align: center;
-  }
-
-  .artist-events-row {
-    /* Match program page grid-based scroll implementation */
-    container-type: inline-size;
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: 220px;
-    gap: var(--space-4);
-    justify-content: start;
-
-    /* Enable horizontal scroll */
-    overflow-x: scroll;
-    overflow-y: hidden;
-
-    /* Smooth scrolling behavior */
-    scroll-behavior: smooth;
-    overscroll-behavior-x: contain;
-
-    /* iOS momentum scrolling */
-    -webkit-overflow-scrolling: touch;
-
-    /* Scroll padding for better UX */
-    scroll-padding-inline: clamp(1rem, 3vw, 2rem);
-
-    /* Space for scrollbar underneath cards */
-    padding-block-end: 12px;
-
-    /* Scroll snap */
-    scroll-snap-type: x mandatory;
-
-    /* Performance optimization */
-    contain: layout style;
-
-    /* Styled scrollbar */
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-blue) var(--color-neutral-100);
-  }
-
-  .artist-events-row::-webkit-scrollbar {
-    height: 6px;
-    -webkit-appearance: none;
-  }
-
-  .artist-events-row::-webkit-scrollbar-track {
-    background: var(--color-neutral-100);
-    border-radius: 0;
-  }
-
-  .artist-events-row::-webkit-scrollbar-thumb {
-    background: var(--color-blue);
-    border-radius: 0;
-  }
-
-  .artist-events-row::-webkit-scrollbar-thumb:hover {
-    background: var(--color-green);
-  }
-
-  /* Keyboard focus indicator */
-  .artist-events-row:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: 2px;
-  }
-
-  /* Respect reduced motion preferences */
-  @media (prefers-reduced-motion: reduce) {
-    .artist-events-row {
-      scroll-behavior: auto;
-    }
   }
 
   /* Content area below card - centered, max-width for readability */

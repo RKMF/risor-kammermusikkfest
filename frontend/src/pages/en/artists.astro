@@ -62,12 +62,12 @@ const hasArtists = allArtists.length > 0;
 
               {artist.image?.image && (
                 <img
-                  src={getOptimizedImageUrl(artist.image.image, 280, 350, IMAGE_QUALITY.CARD)}
-                  srcset={getResponsiveImageSet(artist.image.image, [300, 400, 600], 0.8, IMAGE_QUALITY.CARD)}
+                  src={getOptimizedImageUrl(artist.image.image, 320, 569, IMAGE_QUALITY.CARD)}
+                  srcset={getResponsiveImageSet(artist.image.image, [320, 480, 640], 9/16, IMAGE_QUALITY.CARD)}
                   sizes="320px"
                   alt={stegaClean(artist.image.alt) || stegaClean(artist.name)}
-                  width="280"
-                  height="350"
+                  width="320"
+                  height="569"
                   loading="lazy"
                   decoding="async"
                   class="artist-card-image"

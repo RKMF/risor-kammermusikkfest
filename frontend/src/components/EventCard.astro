@@ -41,12 +41,12 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
   {event.image?.image && (
     <div class="event-image">
       <img
-        src={getOptimizedImageUrl(event.image.image, 320, 213, IMAGE_QUALITY.CARD)}
-        srcset={getResponsiveImageSet(event.image.image, [320, 640, 960], 1.5, IMAGE_QUALITY.CARD)}
+        src={getOptimizedImageUrl(event.image.image, 320, 180, IMAGE_QUALITY.CARD)}
+        srcset={getResponsiveImageSet(event.image.image, [320, 640, 960], 16/9, IMAGE_QUALITY.CARD)}
         sizes="320px"
         alt={stegaClean(event.image.alt || event.title || '')}
         width="320"
-        height="213"
+        height="180"
         loading="lazy"
         decoding="async"
         class="event-card-image"
