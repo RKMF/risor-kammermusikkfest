@@ -100,7 +100,7 @@ const slugEn = pageDocument?.slug_en?.current ? stegaClean(pageDocument.slug_en.
     line-height: var(--line-height-subhead); /* 1.3 - industry standard for 22-28px */
     /* Better text balance for excerpts */
     text-wrap: balance;
-    max-inline-size: 70ch; /* Optimal reading width */
+    max-inline-size: 70ch; /* Max 70ch on desktop, 100% on mobile */
     /* Bottom spacing handled by .stack primitive (--space-xl = 32-40px) */
   }
 
