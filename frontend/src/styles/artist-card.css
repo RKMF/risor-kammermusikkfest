@@ -90,8 +90,8 @@
 /* Artist Name - Visible name in info box */
 .artist-name {
   margin: 0;
-  /* Migrated to fluid token: --fs-lg (20-23px responsive) */
-  font-size: var(--fs-lg);
+  /* Fluid font size using Utopia token: 22-28px responsive */
+  font-size: var(--step-1);
   line-height: 1.3;
   font-weight: 600;
   font-family: var(--font-family-heading);
@@ -143,8 +143,8 @@
 
 .artist-instrument {
   margin: 0;
-  /* Migrated to fluid token: --fs-xs (12-14px responsive) */
-  font-size: var(--fs-xs);
+  /* Fluid font size using Utopia token: 13-14px responsive */
+  font-size: var(--step--2);
   line-height: 1.3;
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;

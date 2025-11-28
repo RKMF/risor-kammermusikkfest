@@ -221,7 +221,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
   }
 
   .event-scroll-title {
-    font-size: var(--fs-2xl);
+    font-size: var(--step-3);
     font-weight: 600;
     margin-block-end: var(--space-m);
   }
@@ -261,14 +261,14 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
   }
 
   .event-title {
-    font-size: clamp(var(--fs-base), 3.5cqw, var(--fs-lg));
+    font-size: clamp(var(--step-0), 3.5cqw, var(--step-1));
     font-weight: var(--font-weight-semibold);
     margin: 0 0 var(--space-2) 0;
     line-height: var(--line-height-tight);
   }
 
   .event-date {
-    font-size: clamp(var(--fs-sm), 2.8cqw, var(--fs-base));
+    font-size: clamp(var(--step--1), 2.8cqw, var(--step-0));
     font-weight: var(--font-weight-medium);
     margin-block-end: var(--space-1);
   }
@@ -278,14 +278,14 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
   .event-venue {
     position: relative;
     z-index: 0; /* Below stretched link */
-    font-size: clamp(var(--fs-sm), 2.8cqw, var(--fs-base));
+    font-size: clamp(var(--step--1), 2.8cqw, var(--step-0));
     margin-block-end: var(--space-1);
   }
 
   .event-artists {
     position: relative;
     z-index: 0; /* Below stretched link */
-    font-size: clamp(var(--fs-sm), 2.8cqw, var(--fs-base));
+    font-size: clamp(var(--step--1), 2.8cqw, var(--step-0));
     margin-block-end: var(--space-4);
     font-style: italic;
   }
@@ -301,7 +301,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     background: var(--color-blue);
     color: white;
     text-decoration: none;
-    font-size: clamp(var(--fs-sm), 2.5cqw, var(--fs-base));
+    font-size: clamp(var(--step--1), 2.5cqw, var(--step-0));
     font-weight: var(--font-weight-medium);
     transition: background-color var(--transition-base);
     margin-inline-end: var(--space-2);
@@ -364,7 +364,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     }
 
     .event-title {
-      font-size: var(--fs-lg);
+      font-size: var(--step-1);
     }
   }
 

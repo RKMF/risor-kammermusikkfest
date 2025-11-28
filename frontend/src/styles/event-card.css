@@ -56,7 +56,7 @@
 /* Event Title - Fixed 2-line height for cross-card alignment */
 .event-title {
   margin: 0;
-  font-size: clamp(var(--fs-xl), 1.25rem + 3.75cqi, var(--fs-2xl));
+  font-size: clamp(var(--step-2), 1.25rem + 3.75cqi, var(--step-3));
   line-height: 1.2;
   font-weight: 600;
   font-family: var(--font-family-heading);
@@ -81,7 +81,7 @@
 /* Fallback for browsers without container query unit support */
 @supports not (font-size: 1cqi) {
   .event-title {
-    font-size: var(--fs-2xl);
+    font-size: var(--step-3);
   }
 }
 
@@ -89,7 +89,7 @@
 .event-excerpt {
   margin: 0;
   margin-top: 0.25rem; /* Tight spacing from title */
-  font-size: var(--fs-base); /* 18-23px fluid - body text size */
+  font-size: var(--step-0); /* 18-23px fluid - body text size */
   line-height: var(--line-height-compact); /* 1.5 - compact for card context */
   opacity: 0.9; /* Subtle de-emphasis from title */
 
@@ -110,7 +110,7 @@
 
 /* Event Meta - Prominent styling for date/venue */
 dl.event-meta {
-  font-size: var(--fs-base);
+  font-size: var(--step-0);
   line-height: 1.5;
   letter-spacing: var(--tracking-normal); /* Improved clarity */
   margin: 0;
@@ -232,7 +232,7 @@ dl.event-meta dd {
 
 .ticket-badge {
   display: inline-block;
-  font-size: var(--fs-base);
+  font-size: var(--step-0);
   font-weight: var(--font-weight-medium);
   /* Fluid gap from metadata */
   margin-top: clamp(1.25rem, 5cqi, 1.5rem);

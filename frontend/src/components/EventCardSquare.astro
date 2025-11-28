@@ -121,7 +121,7 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
   .event-card-square-title {
     margin: 0;
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: clamp(var(--fs-base), 0.75rem + 5cqi, var(--fs-lg));
+    font-size: clamp(var(--step-0), 0.75rem + 5cqi, var(--step-1));
     font-weight: var(--font-weight-semibold);
     line-height: 1.2;
     color: var(--color-event-card-text);
@@ -137,7 +137,7 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
 
   @supports not (font-size: 1cqi) {
     .event-card-square-title {
-      font-size: var(--fs-lg);
+      font-size: var(--step-1);
     }
   }
 
@@ -154,7 +154,7 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
-    font-size: var(--fs-sm);
+    font-size: var(--step--1);
     color: var(--color-event-card-text);
   }
 
@@ -164,7 +164,7 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
   }
 
   .event-card-square-ticket-info {
-    font-size: var(--fs-sm);
+    font-size: var(--step--1);
     font-weight: var(--font-weight-semibold);
     color: var(--color-event-card-text);
     margin-top: 0.75rem;
@@ -177,7 +177,7 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
     align-self: start;
     position: relative;
     z-index: 2;
-    font-size: var(--fs-base);
+    font-size: var(--step-0);
     padding: var(--space-3) var(--space-4);
   }
 
