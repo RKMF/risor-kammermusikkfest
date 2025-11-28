@@ -114,7 +114,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
-  margin-block-start: var(--space-6);
+  /* Double spacing from excerpt since no filter section (unlike program page) */
+  /* Use --space-3xl (64-80px) instead of stack's --space-xl (32-40px) */
+  margin-block-start: var(--space-3xl);
 }
 
 .artist-section {

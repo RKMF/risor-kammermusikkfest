@@ -78,7 +78,7 @@ export const artist = defineType({
       name: 'cardSize',
       title: 'Kortstørrelse på artistsiden',
       type: 'string',
-      description: 'Velg størrelse på artistkortet i kunstner-oversikten',
+      description: 'Velg størrelse på artistkortet',
       group: 'basic',
       options: {
         list: [
