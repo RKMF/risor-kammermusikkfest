@@ -113,6 +113,9 @@
   aspect-ratio: 9/16; /* Matches card aspect ratio */
   object-fit: cover;
   object-position: center;
+
+  /* Large cards - bottom wave pattern from logo (deeper wave) */
+  clip-path: url(#artist-wave-clip-large);
 }
 
 /* Artist Info Box - Overlay in bottom-right using Grid */
@@ -225,6 +228,9 @@
 
 .artist-card--medium .artist-card-image {
   aspect-ratio: 4/5; /* Match card aspect ratio */
+
+  /* Medium cards - top shallow wave pattern from logo */
+  clip-path: url(#artist-wave-clip-medium);
 }
 
 /* SMALL (liten) - Square 1:1 cards with overlay pattern */
@@ -241,6 +247,9 @@
 /* Small card image - square format */
 .artist-card--small .artist-card-image {
   aspect-ratio: 1/1; /* Match card aspect ratio */
+
+  /* Small cards - no wave pattern, straight edge */
+  clip-path: none;
 }
 
 /* Info box overlay for small cards - matches large/medium pattern */
