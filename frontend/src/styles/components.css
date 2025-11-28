@@ -81,6 +81,50 @@ a.btn-primary:active {
   }
 }
 
+/* Warning variant - for low stock/few tickets */
+.btn-warning,
+a.btn-warning:link,
+a.btn-warning:visited {
+  background-color: var(--color-yellow);
+  color: var(--color-blue);
+  border-color: transparent;
+}
+
+@media (hover: hover) {
+  .btn-warning:hover,
+  a.btn-warning:hover {
+    background-color: var(--color-yellow-100);
+    color: var(--color-blue);
+    border-color: var(--color-yellow);
+  }
+}
+
+.btn-warning:active,
+a.btn-warning:active {
+  color: var(--color-blue);
+}
+
+/* Disabled variant - for sold out tickets */
+.btn-disabled,
+[aria-disabled="true"].btn-disabled {
+  background-color: var(--color-red-100);
+  color: var(--color-blue);
+  border-color: transparent;
+  cursor: not-allowed;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* Prevent hover effects on disabled buttons */
+@media (hover: hover) {
+  .btn-disabled:hover,
+  [aria-disabled="true"].btn-disabled:hover {
+    background-color: var(--color-red-100);
+    color: var(--color-blue);
+    border-color: transparent;
+  }
+}
+
 /* ============================================
    BADGE/TAG COMPONENTS
    ============================================ */

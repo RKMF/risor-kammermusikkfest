@@ -21,6 +21,8 @@ const eventPath = language === 'en' ? `/en/program/${eventSlug}` : `/program/${e
 const dateLabel = language === 'en' ? 'Date and time' : 'Dato og tid';
 const venueLabel = language === 'en' ? 'Venue' : 'Sted';
 const ticketButtonText = language === 'en' ? 'Buy tickets' : 'Kjøp billetter';
+const fewTicketsText = language === 'en' ? 'Few tickets' : 'Få billetter';
+const soldOutText = language === 'en' ? 'Sold out' : 'Utsolgt';
 const freeText = language === 'en' ? 'Free' : 'Gratis';
 ---
 
@@ -54,11 +56,22 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
     )}
   </dl>
 
-  {stegaClean(event.ticketType) === 'info' && (
+  {stegaClean(event.ticketType) === 'info' ? (
     <span class="event-card-square-ticket-info">{stegaClean(event.ticketInfoText) || freeText}</span>
-  )}
-
-  {stegaClean(event.ticketType) === 'button' && (
+  ) : stegaClean(event.ticketStatus) === 'sold_out' ? (
+    <span class="btn btn-disabled event-card-square-btn" role="button" aria-disabled="true">
+      {soldOutText}
+    </span>
+  ) : stegaClean(event.ticketStatus) === 'low_stock' ? (
+    <a
+      href={stegaClean(event.ticketUrl)}
+      class="btn btn-warning event-card-square-btn"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {fewTicketsText}
+    </a>
+  ) : (
     <a
       href={stegaClean(event.ticketUrl)}
       class="btn btn-primary event-card-square-btn"

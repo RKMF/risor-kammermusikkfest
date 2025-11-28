@@ -255,6 +255,7 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
   ticketType,
   ticketUrl,
   ticketInfoText,
+  ticketStatus,
   publishingStatus,
   scheduledPeriod,
   content_no[]{

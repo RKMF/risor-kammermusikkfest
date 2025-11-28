@@ -250,6 +250,31 @@ export const event = defineType({
         .max(50).warning('Teksten bør være maksimum 50 tegn'),
       hidden: ({ document }) => document?.ticketType !== 'info',
     }),
+    defineField({
+      name: 'ticketStatus',
+      title: 'Billettstatus',
+      type: 'string',
+      description: 'Viser tilgjengelighet av billetter',
+      group: 'ticketing',
+      options: {
+        list: [
+          { title: 'Billetter tilgjengelig', value: 'available' },
+          { title: 'Få billetter', value: 'low_stock' },
+          { title: 'Utsolgt', value: 'sold_out' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'available',
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const ticketType = (context.document as any)?.ticketType
+          if (ticketType === 'button' && !value) {
+            return 'Billettstatus er påkrevd når du velger kjøpsknapp'
+          }
+          return true
+        }),
+      hidden: ({ document }) => document?.ticketType !== 'button',
+    }),
     ...multilingualImageFields('image'),
     // NORSK INNHOLD
     defineField({
