@@ -6,8 +6,9 @@
  * - /pages/program/[slug].astro (Event detail pages)
  * - /pages/en/program/[slug].astro (English event detail pages)
  *
- * Design: Fixed 320px cards with 4:5 image anchored top-left
+ * Design: Fixed 320px cards with images anchored top-left
  * and info box overlaid in bottom-right corner.
+ * Three sizes: Large (9:16), Medium (4:5), Small (1:1)
  *
  * Note: Global CSS required for HTMX compatibility.
  * See program.css lines 1-36 for explanation of why we use global CSS.
@@ -21,8 +22,8 @@
    Image and info box stack in the same grid area using grid-area: content.
 
    Layout:
-   - Image: anchored top-left with 1rem left margin (85% width, 4:5 ratio)
-   - Info box: anchored bottom-right with 1rem margins
+   - Image: anchored top-left with 1rem margin (85% width, aspect ratio varies by size)
+   - Info box: anchored bottom-right with 1rem margins, dynamic width
 
    Modern Grid approach following CSS best practices (Ahmad Shadeed, CSS-Tricks).
 */
@@ -42,7 +43,7 @@
   grid-template: "content" 1fr / 1fr;
 
   /* Fixed aspect ratio - same as image */
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 9 / 16; /* Tall portrait format */
 
   /* Fluid width for scroll affordance - shows partial next card */
   width: clamp(300px, 35vw, 320px);
@@ -96,7 +97,7 @@
   /* Natural wrapping for long names */
   overflow-wrap: break-word;
   hyphens: none;
-  text-wrap: balance;
+  text-wrap: wrap; /* Changed from balance for more consistent box widths */
 
   /* Full name display - no truncation */
 }
@@ -109,7 +110,7 @@
   margin: 1rem; /* Equal margin on all sides, same as info box */
   width: 85%; /* Narrower than full width */
   height: auto;
-  aspect-ratio: 4/5;
+  aspect-ratio: 9/16; /* Matches card aspect ratio */
   object-fit: cover;
   object-position: center;
 }
@@ -210,62 +211,62 @@
    ============================================ */
 
 /* LARGE (stor) - Default, no modifier needed */
-/* Already defined above: 320px width, 4:5 aspect ratio, overlay pattern */
+/* Already defined above: 320px width, 9:16 aspect ratio, overlay pattern */
 
-/* MEDIUM (medium) - Square 1:1 cards with overlay */
+/* Force two-line name wrap on large cards for consistent layout */
+.artist-card:not(.artist-card--medium):not(.artist-card--small) .artist-info-box {
+  max-width: 85%; /* Matches image width for visual alignment */
+}
+
+/* MEDIUM (medium) - Portrait 4:5 cards with overlay */
 .artist-card--medium {
-  aspect-ratio: 1 / 1; /* Square instead of 4:5 */
+  aspect-ratio: 4 / 5; /* Portrait format */
 }
 
 .artist-card--medium .artist-card-image {
+  aspect-ratio: 4/5; /* Match card aspect ratio */
+}
+
+/* SMALL (liten) - Square 1:1 cards with overlay pattern */
+.artist-card--small {
+  /* Square aspect ratio for small cards */
+  aspect-ratio: 1 / 1;
+
+  /* Light blue tint background - matches large/medium cards */
+  background-color: rgba(27, 25, 143, 0.08);
+
+  /* Grid layout inherited from .artist-card - keeps overlay pattern consistent */
+}
+
+/* Small card image - square format */
+.artist-card--small .artist-card-image {
   aspect-ratio: 1/1; /* Match card aspect ratio */
 }
 
-/* SMALL (liten) - Text-only cards, no image */
-.artist-card--small {
-  /* Remove grid overlay pattern - use simple flex layout */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 1.5rem;
-
-  /* Fluid width for scroll affordance - same as other card sizes */
-  width: clamp(300px, 35vw, 320px);
-  aspect-ratio: 16 / 9; /* Wider, shorter format */
-
-  /* Blue background - same as info box */
-  background-color: var(--color-blue-600);
-}
-
-/* Hide image in small cards */
-.artist-card--small .artist-card-image {
-  display: none;
-}
-
-/* Remove overlay positioning for small cards */
+/* Info box overlay for small cards - matches large/medium pattern */
 .artist-card--small .artist-info-box {
-  /* Reset grid positioning */
-  grid-area: unset;
-  place-self: unset;
-  margin: 0;
-  padding: 0;
-  background-color: transparent;
-  z-index: unset;
+  /* Keep overlay positioning from parent .artist-info-box */
+  /* grid-area: content, place-self: end, margin: 1rem all inherited */
 
-  /* Full width within card */
-  width: 100%;
-  max-width: unset;
+  /* Restore blue background and padding */
+  background-color: var(--color-blue-600);
+  padding: 1rem;
 
-  /* Stack content */
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  /* Dynamic width - same as large/medium cards */
+  width: auto;
+  min-width: 12ch;
+  max-width: 85%;
 }
 
-/* Small card hover effect - simpler since no image */
+/* Small card hover effect - matches large/medium pattern */
 @media (hover: hover) {
   .artist-card--small:hover {
+    transform: translateY(-4px);
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 8px 24px;
+    background-color: rgba(0, 179, 154, 0.08);
+  }
+
+  .artist-card--small:hover .artist-info-box {
     background-color: rgb(235, 249, 247);
   }
 
