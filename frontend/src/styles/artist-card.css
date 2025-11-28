@@ -149,8 +149,7 @@
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: white;
-  opacity: 0.9;
+  color: rgba(255, 255, 255, 0.9); /* Semi-transparent white on image backgrounds */
   transition: color var(--transition-base);
 }
 

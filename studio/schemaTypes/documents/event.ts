@@ -259,7 +259,7 @@ export const event = defineType({
       options: {
         list: [
           { title: 'Billetter tilgjengelig', value: 'available' },
-          { title: 'Få billetter', value: 'low_stock' },
+          { title: 'Få billetter igjen', value: 'low_stock' },
           { title: 'Utsolgt', value: 'sold_out' },
         ],
         layout: 'radio',

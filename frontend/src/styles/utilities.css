@@ -118,7 +118,7 @@
   font-family: var(--font-family-base);      /* Akkurat Pro sans */
   line-height: var(--line-height-compact);   /* 1.5 */
   letter-spacing: var(--tracking-normal);    /* 0 */
-  opacity: 0.8;                              /* Subtle de-emphasis */
+  color: var(--color-neutral-600);           /* Subtle de-emphasis */
 }
 
 /* Subtext - Subtitle, secondary information, artist roles */
@@ -129,7 +129,7 @@
   font-family: var(--font-family-heading);   /* Serif italic for emphasis */
   line-height: var(--line-height-subhead);   /* 1.3 */
   letter-spacing: var(--tracking-normal);    /* 0 */
-  opacity: 0.9;                              /* Slightly de-emphasized */
+  color: var(--color-neutral-700);           /* Slightly de-emphasized */
 }
 
 /* ============================================

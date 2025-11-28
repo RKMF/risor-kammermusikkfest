@@ -91,7 +91,6 @@
   margin-top: 0.25rem; /* Tight spacing from title */
   font-size: var(--step-0); /* 18-23px fluid - body text size */
   line-height: var(--line-height-compact); /* 1.5 - compact for card context */
-  opacity: 0.9; /* Subtle de-emphasis from title */
 
   /* Two line truncation with ellipsis */
   display: -webkit-box;
