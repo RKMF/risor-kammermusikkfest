@@ -89,20 +89,20 @@ const content = getMultilingualContent(article, 'no') || article.content_no;
   }
 
   h1 {
-    font-size: 2.5rem;
+    font-size: var(--step-4);
     font-weight: bold;
     line-height: 1.2;
     margin-bottom: 1rem;
   }
 
   .excerpt {
-    font-size: 1.25rem;
+    font-size: var(--step-1);
     line-height: 1.5;
     margin-bottom: 1rem;
   }
 
   time {
-    font-size: 0.9rem;
+    font-size: var(--step--1);
   }
 
   .author {
@@ -133,11 +133,11 @@ const content = getMultilingualContent(article, 'no') || article.content_no;
     }
 
     h1 {
-      font-size: 2rem;
+      font-size: var(--step-3);
     }
 
     .excerpt {
-      font-size: 1.1rem;
+      font-size: var(--step-0);
     }
   }
 </style>

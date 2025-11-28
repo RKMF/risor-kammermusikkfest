@@ -245,7 +245,11 @@ export const POST: APIRoute = async ({ request }) => {
       },
       venue->{title},
       genre->{title},
-      "artists": artist[]->{name}
+      "artists": artist[]->{name},
+      ticketType,
+      ticketUrl,
+      ticketInfoText,
+      ticketStatus
     }`)
 
     const events = await sanityClient.fetch<EventResult[]>(FILTER_EVENTS_QUERY, {

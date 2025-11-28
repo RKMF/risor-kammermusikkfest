@@ -249,12 +249,15 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
     _id,
     name,
     "slug": slug.current,
-    image,
-    "imageAlt": coalesce(imageAlt_no, imageAlt_en)
+    ${ARTIST_IMAGE_SELECTION},
+    instrument_no,
+    instrument_en,
+    "instrument": coalesce(instrument_no, instrument_en)
   },
   ticketType,
   ticketUrl,
   ticketInfoText,
+  ticketStatus,
   publishingStatus,
   scheduledPeriod,
   content_no[]{
@@ -307,6 +310,7 @@ const buildArtistBaseFields = (language: Language = 'no'): string => `
   _id,
   _type,
   name,
+  cardSize,
   ${createMultilingualField('excerpt', language)},
   instrument_no,
   instrument_en,

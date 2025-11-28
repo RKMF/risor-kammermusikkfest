@@ -13,7 +13,7 @@
 /* Body defaults */
 body {
   font-family: var(--font-family-base);
-  font-size: var(--font-size-base);
+  font-size: var(--step-0);
   line-height: var(--line-height-normal);
   color: var(--color-blue);
   background-color: var(--color-background);
@@ -24,54 +24,77 @@ body {
   color: inherit;
 }
 
-/* Headings - Using refined modular scale
+/* Headings - Enhanced typographic hierarchy
  *
  * Font sizes follow Major Third (1.250) ratio for visual harmony.
- * Sizes are appropriate for a festival website - not too large, clear hierarchy.
+ * Letter-spacing provides optical refinement (tighter for large text).
+ * Line-height optimized per heading level for readability and visual impact.
+ * Font weight creates clear differentiation across hierarchy levels.
  *
- * Line height is tighter (1.2) for headings to maintain visual cohesion.
- * Font weight differentiates H5/H6 from body text at the same size.
+ * Hierarchy layers (from strongest to subtlest):
+ * 1. Size (Major Third scale)
+ * 2. Weight (bold → medium progression)
+ * 3. Line-height (tight display → relaxed body)
+ * 4. Letter-spacing (negative → neutral → positive)
  */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-family-heading);
   font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-tight);
+  line-height: var(--line-height-heading);
   margin-top: var(--space-6);
   margin-bottom: var(--space-3);
 }
 
 h1 {
-  font-size: var(--fs-3xl);  /* 39-44px - Page titles, hero headlines */
+  font-size: var(--step-4);  /* 37-55px - Page titles, hero headlines */
   font-weight: var(--font-weight-bold);
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--font-family-heading);
+  line-height: var(--line-height-heading);  /* 1.2 - balanced for large text */
+  letter-spacing: var(--tracking-tight);    /* -0.015em - optical tightening */
+  text-wrap: balance;                       /* Modern CSS: Balanced line lengths */
 }
 
 /* All event titles and artist names use serif font */
 .event-title,
 .artist-name {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--font-family-heading);
 }
 
 h2 {
-  font-size: var(--fs-2xl);  /* 31-35px - Major sections, page subtitles */
+  font-size: var(--step-3);  /* 31-44px - Major sections, page subtitles */
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-heading);  /* 1.2 */
+  letter-spacing: var(--tracking-tight);    /* -0.015em */
+  text-wrap: balance;                       /* Modern CSS: Balanced line lengths */
 }
 
 h3 {
-  font-size: var(--fs-xl);  /* 25-28px - Section headings, card titles */
+  font-size: var(--step-2);  /* 26-35px - Section headings, card titles */
+  font-weight: var(--font-weight-medium);   /* 500 - lighter than h1/h2 */
+  line-height: var(--line-height-subhead);  /* 1.3 - more open */
+  letter-spacing: var(--tracking-normal);   /* 0 - neutral */
+  text-wrap: balance;                       /* Modern CSS: Balanced line lengths */
 }
 
 h4 {
-  font-size: var(--fs-lg);  /* 20-23px - Subsection headings */
+  font-size: var(--step-1);  /* 22-28px - Subsection headings */
+  font-weight: var(--font-weight-semibold); /* 600 - mid-weight */
+  line-height: var(--line-height-subhead);  /* 1.3 */
+  letter-spacing: var(--tracking-normal);   /* 0 */
 }
 
 h5 {
-  font-size: var(--fs-base);  /* 16-18px - Minor headings */
-  font-weight: var(--font-weight-semibold);  /* Differentiate from body */
+  font-size: var(--step-0);  /* 18-23px - Minor headings */
+  font-weight: var(--font-weight-semibold);  /* 600 - differentiate from body */
+  line-height: var(--line-height-body);      /* 1.6 - same as body for cohesion */
+  letter-spacing: var(--tracking-normal);    /* 0 */
 }
 
 h6 {
-  font-size: var(--fs-base);  /* 16-18px - Smallest headings */
-  font-weight: var(--font-weight-medium);  /* Slightly lighter than H5 */
+  font-size: var(--step-0);  /* 18-23px - Smallest headings */
+  font-weight: var(--font-weight-medium);    /* 500 - slightly lighter than h5 */
+  line-height: var(--line-height-body);      /* 1.6 */
+  letter-spacing: var(--tracking-normal);    /* 0 */
 }
 
 /* Reset heading margins when first child */
@@ -84,6 +107,7 @@ h4:first-child, h5:first-child, h6:first-child {
 p {
   margin-top: var(--space-4);
   margin-bottom: var(--space-4);
+  text-wrap: pretty; /* Modern CSS: Prevents orphans and improves line breaks */
 }
 
 p:first-child {
@@ -307,7 +331,7 @@ textarea,
 select {
   width: 100%;
   padding: var(--space-3) var(--space-4);
-  font-size: var(--font-size-base);
+  font-size: var(--step-0);
   border: 1px solid var(--color-border);
   background-color: var(--color-background);
   transition: border-color var(--transition-fast);

@@ -16,20 +16,18 @@
   overflow: hidden; /* Clips overflow content */
   background-color: rgba(27, 25, 143, 0.12);
   box-shadow: none;
-  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
-              background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 200ms var(--ease-standard),
+              box-shadow 200ms var(--ease-standard),
+              background-color 200ms var(--ease-standard);
 
-  /* Fixed spacing - controlled per-element via margins */
-  padding: 1rem;
+  /* Fluid spacing - scales with card width in scroll mode */
+  padding: clamp(0.875rem, 3.5cqi, 1rem);
 
   /* Fixed aspect ratio - ensures consistent card dimensions */
   aspect-ratio: 7 / 11;
 
-  /* Fixed width - cards always 320px */
-  width: 320px;
-  min-width: 320px;
-  max-width: 320px;
+  /* Fluid width for scroll affordance - shows partial next card */
+  width: clamp(300px, 35vw, 320px);
 
   /* Prevent grid blowout */
   min-height: 0;
@@ -51,12 +49,15 @@
 /* Event Title - Fixed 2-line height for cross-card alignment */
 .event-title {
   margin: 0;
-  font-size: clamp(1.875rem, 1rem + 5cqi, var(--fs-2xl));
+  font-size: clamp(var(--step-2), 1.25rem + 3.75cqi, var(--step-3));
   line-height: 1.2;
   font-weight: 600;
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--font-family-heading);
   text-transform: none;
   letter-spacing: -0.01em;
+
+  /* Space for Norwegian diacritics (Å, Ø, Æ) to prevent clipping */
+  padding-block-start: 0.15em;
 
   /* Clamp to max 2 lines with ellipsis */
   display: -webkit-box;
@@ -73,7 +74,7 @@
 /* Fallback for browsers without container query unit support */
 @supports not (font-size: 1cqi) {
   .event-title {
-    font-size: var(--fs-2xl);
+    font-size: var(--step-3);
   }
 }
 
@@ -81,8 +82,8 @@
 .event-excerpt {
   margin: 0;
   margin-top: 0.25rem; /* Tight spacing from title */
-  font-size: var(--fs-base);
-  line-height: 1.5;
+  font-size: var(--step-0); /* 18-23px fluid - body text size */
+  line-height: var(--line-height-compact); /* 1.5 - compact for card context */
 
   /* Two line truncation with ellipsis */
   display: -webkit-box;
@@ -96,15 +97,16 @@
   /* Overflow protection for long words */
   overflow-wrap: break-word;
   word-wrap: break-word;
-  hyphens: auto;
+  hyphens: none;
 }
 
 /* Event Meta - Prominent styling for date/venue */
 dl.event-meta {
-  font-size: var(--fs-base);
+  font-size: var(--step-0);
   line-height: 1.5;
+  letter-spacing: var(--tracking-normal); /* Improved clarity */
   margin: 0;
-  margin-top: 0.75rem; /* Normal spacing from image */
+  margin-top: clamp(0.625rem, 2.5cqi, 0.75rem);
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
@@ -124,6 +126,7 @@ dl.event-meta dd {
   display: block;
   margin: 0;
   font-weight: var(--font-weight-medium);
+  letter-spacing: 0.01em; /* Subtle spacing for readability */
   color: var(--color-blue);
 }
 
@@ -144,7 +147,7 @@ dl.event-meta dd {
   aspect-ratio: 16/9; /* Widescreen ratio for balanced layout */
   overflow: hidden;
   margin: 0;
-  margin-top: 0.75rem; /* Normal spacing from excerpt */
+  margin-top: clamp(0.625rem, 2.5cqi, 0.75rem);
   align-self: center;
 
   /* Critical for grid items - allows proper row sizing */
@@ -203,8 +206,8 @@ dl.event-meta dd {
 .event-card .btn-primary {
   position: relative;
   z-index: 2;
-  /* Spacious gap from metadata */
-  margin-top: 1.5rem;
+  /* Fluid gap from metadata */
+  margin-top: clamp(1.25rem, 5cqi, 1.5rem);
   /* Align button to right and top of grid area */
   margin-inline-start: auto;
   width: fit-content;
@@ -221,10 +224,10 @@ dl.event-meta dd {
 
 .ticket-badge {
   display: inline-block;
-  font-size: var(--fs-base);
+  font-size: var(--step-0);
   font-weight: var(--font-weight-medium);
-  /* Spacious gap from metadata */
-  margin-top: 1.5rem;
+  /* Fluid gap from metadata */
+  margin-top: clamp(1.25rem, 5cqi, 1.5rem);
   /* Align to left and top of grid area */
   width: fit-content;
   text-align: start;

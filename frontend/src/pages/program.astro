@@ -133,7 +133,7 @@ if (dateFilter && venueFilter) {
         filteredDates.map(({ date, displayTitle, events: dateEvents }) => (
         <section class="content-section date-section" data-date={date}>
           <h2 class="date-title">{stegaClean(displayTitle)}</h2>
-          <div class="events-grid">
+          <div class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar">
             {dateEvents.map((event) => (
               <EventCard event={event} language="no" />
             ))}

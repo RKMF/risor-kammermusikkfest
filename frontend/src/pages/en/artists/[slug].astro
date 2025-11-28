@@ -208,7 +208,7 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
   .artist-detail-info-box .artist-name {
     margin: 0;
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: 2rem;
+    font-size: var(--step-3);
     line-height: 1.3;
     font-weight: 600;
     color: white;
@@ -217,7 +217,7 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
 
   .artist-detail-info-box .artist-instrument {
     margin: 0;
-    font-size: 1.125rem;
+    font-size: var(--step-0);
     line-height: 1.3;
     font-weight: var(--font-weight-medium);
     text-transform: uppercase;
@@ -233,7 +233,7 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
     margin-inline: auto;
     margin-block-start: var(--space-8);
     margin-block-end: var(--space-6);
-    font-size: var(--fs-xl);
+    font-size: var(--step-2);
     line-height: 1.6;
     color: var(--color-text);
     text-wrap: balance;
@@ -251,7 +251,7 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
   }
 
   .artist-events-title {
-    font-size: var(--fs-2xl);
+    font-size: var(--step-3);
     font-weight: var(--font-weight-semibold);
     color: var(--color-text-primary);
     margin-block-start: 0;
@@ -278,9 +278,6 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
 
     /* iOS momentum scrolling */
     -webkit-overflow-scrolling: touch;
-
-    /* Touch interaction */
-    touch-action: manipulation;
 
     /* Scroll padding for better UX */
     scroll-padding-inline: clamp(1rem, 3vw, 2rem);

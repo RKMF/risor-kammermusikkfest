@@ -1,7 +1,7 @@
 ---
 import { sanityClient } from "sanity:client";
-import Image from './Image.astro';
-import { IMAGE_QUALITY } from '../lib/sanityImage';
+import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../lib/sanityImage';
+import { stegaClean } from '@sanity/client/stega';
 
 interface Props {
   title?: string
@@ -81,7 +81,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
 <section class={`${containerClass} ${scrollbarClass}`}>
   {title && <h2 class="artist-scroll-title">{title}</h2>}
-  <ul class="artist-list">
+  <ul class="artist-list scroll-container scroll-container--artist-cards">
     {artistData.map((artist) => {
         if (!artist) return null
 
@@ -97,20 +97,22 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
             <a href={`/artister/${artistSlug}`} class="artist-scroll-card-link">
               <article class="artist-scroll-card">
                 {artistImage && (
-                  <Image
-                    image={artistImage}
-                    alt={artistImageAlt}
-                    size="small"
-                    aspectRatio="4:5"
+                  <img
+                    src={getOptimizedImageUrl(artistImage, 320, 400, IMAGE_QUALITY.CARD)}
+                    srcset={getResponsiveImageSet(artistImage, [320, 480, 640], 4/5, IMAGE_QUALITY.CARD)}
+                    sizes="320px"
+                    alt={stegaClean(artistImageAlt)}
+                    width="320"
+                    height="400"
                     loading="lazy"
-                    quality={IMAGE_QUALITY.CARD}
-                    className="artist-scroll-card-image"
+                    decoding="async"
+                    class="artist-scroll-card-image"
                   />
                 )}
                 <div class="artist-content">
-                  <h4 class="artist-name">{artistName}</h4>
-                  {artistInstrument && <p class="artist-instrument">{artistInstrument}</p>}
-                  {artistCountry && <p class="artist-country">{artistCountry}</p>}
+                  <h4 class="artist-name">{stegaClean(artistName)}</h4>
+                  {artistInstrument && <p class="artist-instrument">{stegaClean(artistInstrument)}</p>}
+                  {artistCountry && <p class="artist-country">{stegaClean(artistCountry)}</p>}
                 </div>
               </article>
             </a>
@@ -128,22 +130,16 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
   }
 
   .artist-scroll-title {
-    font-size: var(--fs-2xl);
+    font-size: var(--step-3);
     font-weight: 600;
     margin-block-end: var(--space-m);
   }
 
+  /* Scroll list - behavior from scroll-containers.css */
   .artist-list {
-    display: flex;
-    gap: var(--space-s-m); /* Fluid 12px → 20px */
     list-style: none;
     margin: 0;
     padding-block: var(--space-xs);
-    overflow-x: auto;
-  }
-
-  .artist-item {
-    flex-shrink: 0;
   }
 
   .artist-scroll-card-link {
@@ -152,6 +148,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
   }
 
   .artist-scroll-card {
+    container-type: inline-size;
     background: white;
     overflow: hidden;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -159,7 +156,13 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     display: flex;
     flex-direction: column;
     aspect-ratio: 4/5;
-    width: 280px;
+    width: 320px;
+  }
+
+  @container (max-width: 800px) {
+    .artist-scroll-card {
+      width: clamp(290px, 35vw, 320px);
+    }
   }
 
   .artist-scroll-card:hover {
@@ -167,49 +170,61 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
 
-  /* Image component - Astro scoping handles this automatically */
+  /* Image - direct img tag */
   .artist-scroll-card-image {
     flex: 1;
-    margin: 0; /* Override Image.astro default margins */
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4/5;
+    object-fit: cover;
+    margin: 0;
   }
 
   .artist-content {
-    padding: var(--space-s);
+    padding: clamp(0.875rem, 3.5cqi, 1rem);
     background: white;
   }
 
   .artist-name {
-    font-size: var(--fs-base);
+    font-size: clamp(var(--step-0), 3.5cqi, var(--step-1));
     font-weight: 600;
-    margin-block-end: var(--space-3xs);
+    margin-block-end: clamp(0.625rem, 2.5cqi, 0.75rem);
     line-height: 1.2;
   }
 
   .artist-instrument {
-    font-size: var(--fs-sm);
-    margin-block-end: var(--space-3xs);
+    font-size: clamp(var(--step--1), 2.8cqi, var(--step-0));
+    margin-block-end: clamp(0.625rem, 2.5cqi, 0.75rem);
   }
 
   .artist-country {
-    font-size: var(--fs-sm);
+    font-size: clamp(var(--step--1), 2.8cqi, var(--step-0));
   }
 
-  /* Hide scrollbar */
-  .hide-scrollbar .artist-list {
+  /* Hide scrollbar variant */
+  .hide-scrollbar .artist-list.scroll-container {
     scrollbar-width: none;
     -ms-overflow-style: none;
+    padding-block-end: 0;
   }
 
-  .hide-scrollbar .artist-list::-webkit-scrollbar {
+  .hide-scrollbar .artist-list.scroll-container::-webkit-scrollbar {
     display: none;
   }
 
-  /* Responsive design */
-  @media (max-width: 768px) {
-    .artist-scroll-card {
-      width: 240px;
+  /* Accessibility: Support for reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .artist-list {
+      scroll-behavior: auto;
     }
 
-    /* Note: Gap is fluid and adjusts automatically */
+    .artist-scroll-card {
+      transition: none;
+    }
+
+    .artist-scroll-card:hover {
+      transform: none;
+    }
   }
+
 </style> 

@@ -1,7 +1,6 @@
 ---
 import { sanityClient } from "sanity:client";
-import Image from './Image.astro';
-import { IMAGE_QUALITY } from '../lib/sanityImage';
+import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../lib/sanityImage';
 import { detectLanguage } from "../lib/utils/language.js";
 import { stegaClean } from '@sanity/client/stega';
 
@@ -101,6 +100,7 @@ if (events && events.length > 0) {
       ticketType,
       ticketUrl,
       ticketInfoText,
+      ticketStatus,
       publishingStatus,
       scheduledPeriod,
       seo
@@ -142,7 +142,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
 <section class={`${containerClass} ${scrollbarClass}`}>
   {title && <h2 class="event-scroll-title">{title}</h2>}
-  <ul class="event-list">
+  <ul class="event-list scroll-container scroll-container--event-cards">
     {sortedEvents.map((event) => {
         if (!event) return null
 
@@ -165,14 +165,16 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
           <li class="event-item">
             <article class="event-scroll-card">
               {eventImage && (
-                <Image
-                  image={eventImage}
-                  alt={imageAlt}
-                  size="small"
-                  aspectRatio="4:5"
+                <img
+                  src={getOptimizedImageUrl(eventImage, 320, 180, IMAGE_QUALITY.CARD)}
+                  srcset={getResponsiveImageSet(eventImage, [320, 640, 960], 16/9, IMAGE_QUALITY.CARD)}
+                  sizes="320px"
+                  alt={stegaClean(imageAlt)}
+                  width="320"
+                  height="180"
                   loading="lazy"
-                  quality={IMAGE_QUALITY.CARD}
-                  className="event-scroll-card-image"
+                  decoding="async"
+                  class="event-scroll-card-image"
                 />
               )}
               <div class="event-scroll-content">
@@ -221,31 +223,19 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
   }
 
   .event-scroll-title {
-    font-size: var(--fs-2xl);
+    font-size: var(--step-3);
     font-weight: 600;
     margin-block-end: var(--space-m);
   }
 
-  /* Fluid scroll list */
+  /* Scroll list - behavior from scroll-containers.css */
   .event-list {
-    display: flex;
-    gap: clamp(var(--space-3), 2.5vw, var(--space-5));
     list-style: none;
     margin: 0;
     padding-block: var(--space-2);
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x proximity;
-    -webkit-overflow-scrolling: touch;
-    touch-action: manipulation; /* Allow both horizontal and vertical scrolling, remove double-tap delay */
   }
 
-  .event-item {
-    flex-shrink: 0;
-    scroll-snap-align: start;
-  }
-
-  /* Intrinsic event cards - standardized to 4:5 */
+  /* Intrinsic event cards - standardized to 16:9 for events */
   .event-scroll-card {
     position: relative; /* Required for stretched link pattern */
     container-type: inline-size;
@@ -254,8 +244,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     overflow: hidden;
     box-shadow: var(--shadow-sm);
     transition: transform var(--transition-base), box-shadow var(--transition-base);
-    width: clamp(240px, 35vw, 320px);
-    aspect-ratio: 4/5;
+    aspect-ratio: 16/9;
   }
 
   .event-scroll-card:hover {
@@ -263,25 +252,29 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     box-shadow: var(--shadow-md);
   }
 
-  /* Image component - Astro scoping handles this automatically */
+  /* Image - direct img tag */
   .event-scroll-card-image {
-    margin: 0; /* Override Image.astro default margins */
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    margin: 0;
   }
 
   /* Intrinsic content padding */
   .event-scroll-content {
-    padding: clamp(var(--space-3), 4cqw, var(--space-5));
+    padding: clamp(0.875rem, 3.5cqi, 1rem);
   }
 
   .event-title {
-    font-size: clamp(var(--font-size-base), 3.5cqw, var(--font-size-lg));
+    font-size: clamp(var(--step-0), 3.5cqw, var(--step-1));
     font-weight: var(--font-weight-semibold);
     margin: 0 0 var(--space-2) 0;
     line-height: var(--line-height-tight);
   }
 
   .event-date {
-    font-size: clamp(var(--font-size-sm), 2.8cqw, var(--font-size-base));
+    font-size: clamp(var(--step--1), 2.8cqw, var(--step-0));
     font-weight: var(--font-weight-medium);
     margin-block-end: var(--space-1);
   }
@@ -291,14 +284,14 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
   .event-venue {
     position: relative;
     z-index: 0; /* Below stretched link */
-    font-size: clamp(var(--font-size-sm), 2.8cqw, var(--font-size-base));
+    font-size: clamp(var(--step--1), 2.8cqw, var(--step-0));
     margin-block-end: var(--space-1);
   }
 
   .event-artists {
     position: relative;
     z-index: 0; /* Below stretched link */
-    font-size: clamp(var(--font-size-sm), 2.8cqw, var(--font-size-base));
+    font-size: clamp(var(--step--1), 2.8cqw, var(--step-0));
     margin-block-end: var(--space-4);
     font-style: italic;
   }
@@ -314,7 +307,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     background: var(--color-blue);
     color: white;
     text-decoration: none;
-    font-size: clamp(var(--font-size-sm), 2.5cqw, var(--font-size-base));
+    font-size: clamp(var(--step--1), 2.5cqw, var(--step-0));
     font-weight: var(--font-weight-medium);
     transition: background-color var(--transition-base);
     margin-inline-end: var(--space-2);
@@ -377,7 +370,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     }
 
     .event-title {
-      font-size: var(--font-size-lg);
+      font-size: var(--step-1);
     }
   }
 
@@ -387,13 +380,14 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     }
   }
 
-  /* Scroll snap and accessibility */
-  .hide-scrollbar .event-list {
+  /* Hide scrollbar variant */
+  .hide-scrollbar .event-list.scroll-container {
     scrollbar-width: none;
     -ms-overflow-style: none;
+    padding-block-end: 0;
   }
 
-  .hide-scrollbar .event-list::-webkit-scrollbar {
+  .hide-scrollbar .event-list.scroll-container::-webkit-scrollbar {
     display: none;
   }
 
@@ -409,7 +403,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
       transform: none; /* Disable lift effect */
     }
 
-    .event-list {
+    .event-list.scroll-container {
       scroll-behavior: auto;
     }
   }

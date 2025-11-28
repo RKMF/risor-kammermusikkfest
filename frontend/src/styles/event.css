@@ -54,7 +54,7 @@
 
 .back-button::before {
   content: '←';
-  font-size: var(--fs-lg);
+  font-size: var(--step-1);
 }
 
 .back-button::after {
@@ -99,18 +99,15 @@
 
 .event-title {
   margin: 0 0 var(--space-4) 0;
-  /* Fixed: Converted pure vw to rem + vw for WCAG 1.4.4 accessibility (200% zoom support) */
-  font-size: clamp(2.5rem, 2.5rem + 0.5vw, 3.5rem);
+  font-size: var(--step-4); /* Fluid 37-55px - Utopia token system */
   word-wrap: break-word;
   overflow-wrap: break-word;
-  hyphens: auto;
+  hyphens: none;
 }
 
 .event-excerpt {
   margin: 0;
-  /* Fixed: Converted pure vw to rem + vw for WCAG 1.4.4 accessibility (200% zoom support) */
-  /* Consider using --fs-lg for consistency: clamp(1.25rem, 1.18rem + 0.33vw, 1.41rem) */
-  font-size: clamp(1.25rem, 1.25rem + 0.125vw, 1.5rem);
+  font-size: var(--step-1); /* Fluid 22-28px - Utopia token system */
   line-height: var(--line-height-normal);
   text-wrap: balance;
   max-inline-size: 65ch;
@@ -122,7 +119,7 @@
   flex-direction: column;
   gap: var(--space-1);
   margin: 0;
-  font-size: var(--fs-base);
+  font-size: var(--step-0);
   line-height: var(--line-height-tight);
 }
 
@@ -136,10 +133,9 @@
 }
 
 .ticket-info {
-  font-size: var(--fs-base);
+  font-size: var(--step-0);
   font-style: italic;
-  color: var(--color-blue);
-  opacity: 0.85;
+  color: var(--color-blue-300);
 }
 
 /* Right column - event image */
@@ -185,9 +181,9 @@
    ARTIST SCROLLBAR SECTION
    ============================================
 
-   Horizontal scroll container for artist names.
-   Simple, text-focused design to avoid competing
-   with main content. Similar to program page filters.
+   Horizontal scroll container for artist cards.
+   Scroll behavior handled by scroll-containers.css utility classes.
+   Simple, text-focused design to avoid competing with main content.
 */
 
 .artists-section {
@@ -199,71 +195,25 @@
 
 .artists-title {
   margin: 0 0 var(--space-4) 0;
-  font-size: var(--fs-2xl);
+  font-size: var(--step-3);
   font-weight: var(--font-weight-semibold);
   color: var(--color-blue);
 }
 
-.artists-scroll-wrapper {
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-behavior: smooth;
-  overscroll-behavior-x: contain;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
-  scroll-padding-inline: var(--space-3);
-  padding-block-end: 12px;
-  scroll-snap-type: x proximity;
-}
-
 .artists-list {
-  display: flex;
-  gap: var(--space-3);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.artist-item {
-  flex-shrink: 0;
-  scroll-snap-align: start;
-  scroll-margin-inline-start: var(--space-2);
-}
-
 /* Artist card component styles now centralized in:
    /src/styles/artist-card.css
 
-   This file only contains event page-specific layout and scrolling behavior.
+   This file only contains event page-specific layout.
+   Scroll behavior is handled by scroll-containers.css.
    The card component itself (overlay design, hover states, accessibility)
    is shared with artist overview pages.
 */
-
-/* Styled scrollbar - always visible for discoverability
- * Pattern defined in utilities.css (.scrollbar-styled)
- * Kept inline here due to specific context */
-.artists-scroll-wrapper {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-blue) var(--color-neutral-100);
-}
-
-.artists-scroll-wrapper::-webkit-scrollbar {
-  height: 4px;
-  -webkit-appearance: none;
-}
-
-.artists-scroll-wrapper::-webkit-scrollbar-track {
-  background: var(--color-neutral-100);
-  border-radius: 0;
-}
-
-.artists-scroll-wrapper::-webkit-scrollbar-thumb {
-  background: var(--color-blue);
-  border-radius: 0;
-}
-
-.artists-scroll-wrapper::-webkit-scrollbar-thumb:hover {
-  background: var(--color-green);
-}
 
 /* ============================================
    MAIN CONTENT AREA
@@ -280,14 +230,14 @@
 
 .section-title {
   margin: 0 0 var(--space-3) 0;
-  font-size: var(--fs-2xl);
+  font-size: var(--step-3);
   font-weight: var(--font-weight-semibold);
   color: var(--color-blue);
 }
 
 .description-text {
   margin: 0;
-  font-size: var(--fs-base);
+  font-size: var(--step-0);
   line-height: var(--line-height-relaxed);
 }
 
@@ -306,10 +256,6 @@
    ============================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  .artists-scroll-wrapper {
-    scroll-behavior: auto;
-  }
-
   .artist-card,
   .back-button {
     transition: none;
@@ -327,12 +273,5 @@
 
   .artist-card-link:focus-visible {
     outline-width: 3px;
-  }
-}
-
-/* Touch device optimizations */
-@media (pointer: coarse) {
-  .artists-scroll-wrapper::-webkit-scrollbar {
-    height: 8px;
   }
 }

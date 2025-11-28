@@ -74,6 +74,23 @@ export const artist = defineType({
         }),
       group: 'basic',
     }),
+    defineField({
+      name: 'cardSize',
+      title: 'Kortstørrelse på artistsiden',
+      type: 'string',
+      description: 'Velg størrelse på artistkortet',
+      group: 'basic',
+      options: {
+        list: [
+          { title: 'Stor', value: 'stor' },
+          { title: 'Medium', value: 'medium' },
+          { title: 'Liten', value: 'liten' },
+        ],
+        layout: 'radio',
+      },
+      validation: (Rule) => Rule.required().error('Velg kortstørrelse'),
+      initialValue: 'stor',
+    }),
 
     // NORSK INNHOLD
     defineField({

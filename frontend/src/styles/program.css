@@ -53,14 +53,18 @@
   container-name: date-filter;
 }
 
-/* Base styles - works for both wrap and scroll modes */
+/* Base styles - always single line with scroll when needed */
 .date-filter-buttons {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-3);
   align-items: center;
 
-  /* Default: Allow wrapping for wide containers */
-  flex-wrap: wrap;
+  /* Never wrap - always single horizontal line */
+  flex-wrap: nowrap;
+
+  /* Enable horizontal scroll when buttons don't fit */
+  overflow-x: auto;
+  overflow-y: hidden;
 
   /* Performance optimization */
   contain: layout style inline-size;
@@ -75,13 +79,13 @@
   white-space: nowrap;
   /* Smaller button size */
   padding: var(--space-2) var(--space-4);
-  font-size: var(--fs-sm);
+  font-size: var(--step--1);
 }
 
 /* Event count indicator - subtle styling */
 .event-count {
-  font-size: var(--fs-sm);
-  opacity: 0.75;
+  font-size: var(--step--1);
+  color: var(--color-neutral-600);
   font-weight: var(--font-weight-normal);
   margin: 0 0 var(--space-4) 0;
 }
@@ -105,12 +109,6 @@
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
 
-    /* iOS momentum scrolling */
-    -webkit-overflow-scrolling: touch;
-
-    /* Allow both horizontal and vertical scrolling, remove double-tap delay */
-    touch-action: manipulation;
-
     /* Scroll padding for better UX */
     scroll-padding-inline: clamp(1rem, 3vw, 2rem);
 
@@ -118,7 +116,7 @@
     padding-block-end: 12px;
 
     /* Scroll snap for better UX */
-    scroll-snap-type: x proximity;
+    scroll-snap-type: x mandatory;
   }
 
   .date-filter-buttons .link-button {
@@ -197,14 +195,18 @@
   margin-block-start: var(--space-4);
 }
 
-/* Base styles - works for both wrap and scroll modes */
+/* Base styles - always single line with scroll when needed */
 .venue-filter-buttons {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-3);
   align-items: center;
 
-  /* Default: Allow wrapping for wide containers */
-  flex-wrap: wrap;
+  /* Never wrap - always single horizontal line */
+  flex-wrap: nowrap;
+
+  /* Enable horizontal scroll when buttons don't fit */
+  overflow-x: auto;
+  overflow-y: hidden;
 
   /* Performance optimization */
   contain: layout style inline-size;
@@ -219,7 +221,7 @@
   white-space: nowrap;
   /* Smaller button size */
   padding: var(--space-2) var(--space-4);
-  font-size: var(--fs-sm);
+  font-size: var(--step--1);
 }
 
 /* ============================================
@@ -241,12 +243,6 @@
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
 
-    /* iOS momentum scrolling */
-    -webkit-overflow-scrolling: touch;
-
-    /* Allow both horizontal and vertical scrolling, remove double-tap delay */
-    touch-action: manipulation;
-
     /* Scroll padding for better UX */
     scroll-padding-inline: clamp(1rem, 3vw, 2rem);
 
@@ -257,7 +253,7 @@
     margin-block-start: -12px;
 
     /* Scroll snap for better UX */
-    scroll-snap-type: x proximity;
+    scroll-snap-type: x mandatory;
   }
 
   .venue-filter-buttons .link-button {
@@ -302,6 +298,11 @@
 
 /* Touch device optimizations for venue filter */
 @media (pointer: coarse) {
+  /* Increase spacing between date and venue filters for touch accuracy */
+  .venue-filter {
+    margin-block-start: var(--space-6);  /* 24-30px instead of 12-15px */
+  }
+
   .venue-filter-buttons .link-button {
     min-block-size: 44px;
     padding-inline: clamp(1rem, 3vw, 1.5rem);
@@ -333,7 +334,7 @@
   --loading-fade-out: 100ms;
 
   margin-block-start: var(--space-3);
-  font-size: var(--fs-sm);
+  font-size: var(--step--1);
   font-style: italic;
 
   /* Hidden state - prevents interaction and screen reader announcement */
@@ -388,8 +389,8 @@
 
 /* Section Layout */
 .content-section {
-  /* Top margin to separate from filtering section - matches grid gap */
-  margin-block-start: clamp(var(--space-4), 3vw, var(--space-6));
+  /* Top margin to separate from filtering section */
+  margin-block-start: var(--space-m-l);  /* 16-30px fluid */
   margin-block-end: 0;
   margin-inline: 0;
 }
@@ -424,8 +425,9 @@
   margin-block-start: 0;
   margin-block-end: var(--space-5);
   padding-block: var(--space-4);
-  font-size: var(--fs-xl);
+  font-size: var(--step-2);
   font-weight: var(--font-weight-semibold);
+  font-family: var(--font-family-sans);
   color: var(--color-blue);
   letter-spacing: -0.01em;
 }
@@ -436,7 +438,7 @@
 .events-grid {
   container-type: inline-size;
   display: grid;
-  gap: clamp(var(--space-4), 3vw, var(--space-6));
+  gap: clamp(var(--space-l), 3vw, var(--space-6));
   /* Fixed 320px cards - fits as many as possible */
   grid-template-columns: repeat(auto-fill, 320px);
   padding: 0;
@@ -450,79 +452,21 @@
    ============================================
 
    Below 800px container width, switch from wrapping grid
-   to horizontal scrolling grid. Each date section scrolls
-   independently. Cards remain fixed at 320px width.
+   to horizontal scrolling flexbox. Each date section scrolls
+   independently using scroll-container pattern.
+
+   Scroll behavior and styling now handled by:
+   - .scroll-container (base)
+   - .scroll-container--event-cards (sizing)
+   - .scroll-container--styled-scrollbar (scrollbar)
 */
 
 @container (max-width: 800px) {
   .events-grid {
-    /* Transform grid to horizontal flow with fixed 320px cards */
-    grid-template-columns: none;
-    grid-auto-flow: column;
-    grid-auto-columns: 320px;
-    justify-content: start;
-
-    /* Enable horizontal scroll */
-    overflow-x: scroll;
-    overflow-y: hidden;
-
-    /* Smooth scrolling behavior */
-    scroll-behavior: smooth;
-    overscroll-behavior-x: contain;
-
-    /* iOS momentum scrolling */
-    -webkit-overflow-scrolling: touch;
-
-    /* Allow both horizontal and vertical scrolling, remove double-tap delay */
-    touch-action: manipulation;
-
-    /* Scroll padding for better UX */
-    scroll-padding-inline: clamp(1rem, 3vw, 2rem);
-
-    /* Space for scrollbar underneath cards */
-    padding-block-end: 12px;
-
-    /* Scroll snap for better UX */
-    scroll-snap-type: x mandatory;
-  }
-
-  /* Fixed cards with snap points */
-  .event-card {
-    scroll-snap-align: start;
-    scroll-margin-inline-start: 0.5rem;
-  }
-
-  /* Styled native scrollbar - always visible and functional
-   * Pattern defined in utilities.css (.scrollbar-styled)
-   * Kept inline here due to container query context */
-  .events-grid {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-blue) var(--color-neutral-100);
-  }
-
-  .events-grid::-webkit-scrollbar {
-    height: 6px;
-    -webkit-appearance: none;
-  }
-
-  .events-grid::-webkit-scrollbar-track {
-    background: var(--color-neutral-100);
-    border-radius: 0;
-  }
-
-  .events-grid::-webkit-scrollbar-thumb {
-    background: var(--color-blue);
-    border-radius: 0;
-  }
-
-  .events-grid::-webkit-scrollbar-thumb:hover {
-    background: var(--color-green);
-  }
-
-  /* Keyboard focus indicator for scroll container */
-  .events-grid:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: 2px;
+    /* Transform from grid to flex for scroll mode */
+    display: flex;
+    /* Clear grid properties */
+    grid-template-columns: initial;
   }
 
   /* Override hover effect for horizontal scroll mode */
@@ -544,20 +488,20 @@
 
 .no-results-title {
   margin: 0 0 var(--space-2) 0;
-  font-size: var(--fs-lg);
+  font-size: var(--step-1);
   line-height: var(--line-height-relaxed);
 }
 
 .no-results-text {
   margin: 0 0 var(--space-5) 0;
-  font-size: var(--fs-lg);
+  font-size: var(--step-1);
   line-height: var(--line-height-relaxed);
 }
 
 /* Reset button matches filter button size */
 .no-results .link-button {
   padding: var(--space-2) var(--space-4);
-  font-size: var(--fs-sm);
+  font-size: var(--step--1);
 }
 
 /* ============================================

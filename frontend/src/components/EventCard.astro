@@ -21,7 +21,9 @@ const eventPath = language === 'en' ? `/en/program/${eventSlug}` : `/program/${e
 // Translation strings
 const dateLabel = language === 'en' ? 'Date and time' : 'Dato og tid';
 const venueLabel = language === 'en' ? 'Venue' : 'Sted';
-const ticketButtonText = language === 'en' ? 'Buy tickets here' : 'Kjøp billetter her';
+const ticketButtonText = language === 'en' ? 'Buy tickets' : 'Kjøp billetter her';
+const fewTicketsText = language === 'en' ? 'Few tickets' : 'Få billetter igjen';
+const soldOutText = language === 'en' ? 'Sold out' : 'Utsolgt';
 const freeText = language === 'en' ? 'Free' : 'Gratis';
 ---
 
@@ -39,12 +41,12 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
   {event.image?.image && (
     <div class="event-image">
       <img
-        src={getOptimizedImageUrl(event.image.image, 320, 213, IMAGE_QUALITY.CARD)}
-        srcset={getResponsiveImageSet(event.image.image, [320, 640, 960], 1.5, IMAGE_QUALITY.CARD)}
+        src={getOptimizedImageUrl(event.image.image, 320, 180, IMAGE_QUALITY.CARD)}
+        srcset={getResponsiveImageSet(event.image.image, [320, 640, 960], 16/9, IMAGE_QUALITY.CARD)}
         sizes="320px"
         alt={stegaClean(event.image.alt || event.title || '')}
         width="320"
-        height="213"
+        height="180"
         loading="lazy"
         decoding="async"
         class="event-card-image"
@@ -77,6 +79,14 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
 
   {stegaClean(event.ticketType) === 'info' ? (
     <span class="ticket-badge">{stegaClean(event.ticketInfoText) || freeText}</span>
+  ) : stegaClean(event.ticketStatus) === 'sold_out' ? (
+    <span class="btn btn-disabled" role="button" aria-disabled="true">
+      {soldOutText}
+    </span>
+  ) : stegaClean(event.ticketStatus) === 'low_stock' ? (
+    <a href={stegaClean(event.ticketUrl)} class="btn btn-warning" target="_blank" rel="noopener noreferrer">
+      {fewTicketsText}
+    </a>
   ) : (
     <a href={stegaClean(event.ticketUrl)} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
       {ticketButtonText}
