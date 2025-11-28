@@ -116,7 +116,7 @@
     padding-block-end: 12px;
 
     /* Scroll snap for better UX */
-    scroll-snap-type: x proximity;
+    scroll-snap-type: x mandatory;
   }
 
   .date-filter-buttons .link-button {
@@ -253,7 +253,7 @@
     margin-block-start: -12px;
 
     /* Scroll snap for better UX */
-    scroll-snap-type: x proximity;
+    scroll-snap-type: x mandatory;
   }
 
   .venue-filter-buttons .link-button {
@@ -478,8 +478,8 @@
     /* Space for scrollbar underneath cards */
     padding-block-end: 12px;
 
-    /* Scroll snap for better UX - proximity for flexible browsing */
-    scroll-snap-type: x proximity;
+    /* Scroll snap for better UX - mandatory for Instagram-like snapping */
+    scroll-snap-type: x mandatory;
   }
 
   /* Fixed cards with snap points */

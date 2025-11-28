@@ -208,7 +208,7 @@
   overscroll-behavior-x: contain;
   scroll-padding-inline: clamp(1rem, 3vw, 2rem);
   padding-block-end: 12px;
-  scroll-snap-type: x proximity;
+  scroll-snap-type: x mandatory;
 }
 
 .artists-list {

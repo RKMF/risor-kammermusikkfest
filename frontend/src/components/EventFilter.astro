@@ -172,6 +172,12 @@ function getActiveFilterName(filterType: string, filterValue: string, filterOpti
     scrollbar-width: thin;
     scrollbar-color: #ced4da #f8f9fa;
     -webkit-overflow-scrolling: touch;
+
+    /* Scroll snap for Instagram-like snapping */
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+    scroll-padding-inline: clamp(1rem, 3vw, 2rem);
   }
 
   .tabs-scroll::-webkit-scrollbar {
@@ -202,6 +208,10 @@ function getActiveFilterName(filterType: string, filterValue: string, filterOpti
     white-space: nowrap;
     flex-shrink: 0;
     min-width: fit-content;
+
+    /* Scroll snap alignment */
+    scroll-snap-align: start;
+    scroll-margin-inline-start: 0.5rem;
   }
 
   .tab-button:hover {

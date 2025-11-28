@@ -95,6 +95,12 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+
+    /* Scroll snap for Instagram-like snapping */
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+    scroll-padding-inline: clamp(1rem, 3vw, 2rem);
   }
 
   .scroll-item {
@@ -102,6 +108,10 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
     height: 350px; /* Height is king - all items share this height */
     overflow: hidden;
     position: relative;
+
+    /* Scroll snap alignment */
+    scroll-snap-align: start;
+    scroll-margin-inline-start: 0.5rem;
   }
 
   /* Parent-controlled layout: All children get uniform sizing */

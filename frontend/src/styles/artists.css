@@ -60,8 +60,8 @@
     /* Space for scrollbar underneath cards */
     padding-block-end: 12px;
 
-    /* Scroll snap for better UX - proximity for flexible browsing */
-    scroll-snap-type: x proximity;
+    /* Scroll snap for better UX - mandatory for Instagram-like snapping */
+    scroll-snap-type: x mandatory;
   }
 
   /* Fixed cards with snap points */
