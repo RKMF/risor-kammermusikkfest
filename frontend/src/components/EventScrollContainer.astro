@@ -1,7 +1,6 @@
 ---
 import { sanityClient } from "sanity:client";
-import Image from './Image.astro';
-import { IMAGE_QUALITY } from '../lib/sanityImage';
+import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../lib/sanityImage';
 import { detectLanguage } from "../lib/utils/language.js";
 import { stegaClean } from '@sanity/client/stega';
 
@@ -166,14 +165,16 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
           <li class="event-item">
             <article class="event-scroll-card">
               {eventImage && (
-                <Image
-                  image={eventImage}
-                  alt={imageAlt}
-                  size="small"
-                  aspectRatio="7:11"
+                <img
+                  src={getOptimizedImageUrl(eventImage, 320, 180, IMAGE_QUALITY.CARD)}
+                  srcset={getResponsiveImageSet(eventImage, [320, 640, 960], 16/9, IMAGE_QUALITY.CARD)}
+                  sizes="320px"
+                  alt={stegaClean(imageAlt)}
+                  width="320"
+                  height="180"
                   loading="lazy"
-                  quality={IMAGE_QUALITY.CARD}
-                  className="event-scroll-card-image"
+                  decoding="async"
+                  class="event-scroll-card-image"
                 />
               )}
               <div class="event-scroll-content">
@@ -234,7 +235,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     padding-block: var(--space-2);
   }
 
-  /* Intrinsic event cards - standardized to 7:11 for events */
+  /* Intrinsic event cards - standardized to 16:9 for events */
   .event-scroll-card {
     position: relative; /* Required for stretched link pattern */
     container-type: inline-size;
@@ -243,7 +244,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     overflow: hidden;
     box-shadow: var(--shadow-sm);
     transition: transform var(--transition-base), box-shadow var(--transition-base);
-    aspect-ratio: 7/11;
+    aspect-ratio: 16/9;
   }
 
   .event-scroll-card:hover {
@@ -251,9 +252,13 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     box-shadow: var(--shadow-md);
   }
 
-  /* Image component - Astro scoping handles this automatically */
+  /* Image - direct img tag */
   .event-scroll-card-image {
-    margin: 0; /* Override Image.astro default margins */
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    margin: 0;
   }
 
   /* Intrinsic content padding */

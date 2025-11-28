@@ -1,7 +1,7 @@
 ---
 import { sanityClient } from "sanity:client";
-import Image from './Image.astro';
-import { IMAGE_QUALITY } from '../lib/sanityImage';
+import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../lib/sanityImage';
+import { stegaClean } from '@sanity/client/stega';
 
 interface Props {
   title?: string
@@ -97,20 +97,22 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
             <a href={`/artister/${artistSlug}`} class="artist-scroll-card-link">
               <article class="artist-scroll-card">
                 {artistImage && (
-                  <Image
-                    image={artistImage}
-                    alt={artistImageAlt}
-                    size="small"
-                    aspectRatio="4:5"
+                  <img
+                    src={getOptimizedImageUrl(artistImage, 320, 400, IMAGE_QUALITY.CARD)}
+                    srcset={getResponsiveImageSet(artistImage, [320, 480, 640], 4/5, IMAGE_QUALITY.CARD)}
+                    sizes="320px"
+                    alt={stegaClean(artistImageAlt)}
+                    width="320"
+                    height="400"
                     loading="lazy"
-                    quality={IMAGE_QUALITY.CARD}
-                    className="artist-scroll-card-image"
+                    decoding="async"
+                    class="artist-scroll-card-image"
                   />
                 )}
                 <div class="artist-content">
-                  <h4 class="artist-name">{artistName}</h4>
-                  {artistInstrument && <p class="artist-instrument">{artistInstrument}</p>}
-                  {artistCountry && <p class="artist-country">{artistCountry}</p>}
+                  <h4 class="artist-name">{stegaClean(artistName)}</h4>
+                  {artistInstrument && <p class="artist-instrument">{stegaClean(artistInstrument)}</p>}
+                  {artistCountry && <p class="artist-country">{stegaClean(artistCountry)}</p>}
                 </div>
               </article>
             </a>
@@ -168,10 +170,14 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
 
-  /* Image component - Astro scoping handles this automatically */
+  /* Image - direct img tag */
   .artist-scroll-card-image {
     flex: 1;
-    margin: 0; /* Override Image.astro default margins */
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4/5;
+    object-fit: cover;
+    margin: 0;
   }
 
   .artist-content {
