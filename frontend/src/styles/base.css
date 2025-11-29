@@ -8,7 +8,59 @@
 
 /* ============================================
    BASE TYPOGRAPHY
-   ============================================ */
+   ============================================
+
+   GLOBAL SPACING PHILOSOPHY:
+
+   This project uses a hybrid spacing approach combining:
+   1. Global element margins (headings, paragraphs, lists)
+   2. Composition utilities (.stack, .cluster from primitives.css)
+   3. Utility classes (logical properties from utilities.css)
+
+   KEY PRINCIPLES:
+
+   1. ZERO SPECIFICITY (:where() wrapper)
+      - All global margins wrapped in :where() for zero specificity
+      - Components can override without specificity battles
+      - Simple class beats global default: .card p { margin: 0; }
+
+   2. PROXIMITY PRINCIPLE (different top/bottom margins)
+      - Headings: MORE space above (24-30px), LESS below (8-10px)
+      - Rationale: Headings "belong" to content below them
+      - Creates natural visual grouping and section separation
+      - This is standard typographic best practice
+
+   3. VERTICAL RHYTHM (consistent spacing scale)
+      - Paragraphs & lists: Equal top/bottom (12-15px fluid)
+      - Based on Utopia fluid spacing system (tokens.css)
+      - WCAG compliant: max ≤ 2.5× min for zoom accessibility
+
+   4. EDGE HANDLING (first/last-child resets)
+      - :first-child { margin-top: 0; } prevents double-spacing
+      - :last-child { margin-bottom: 0; } prevents unwanted gaps
+      - Works at any nesting level
+
+   WHEN TO USE WHAT:
+
+   - Global margins (current): Automatic spacing, works out of the box
+   - .stack utilities: Explicit spacing via parent container
+   - Margin utilities: One-off adjustments (.mbs-4, .mbe-2)
+
+   MIGRATION PATH (for future):
+   When you find components frequently overriding global margins,
+   consider using composition patterns instead:
+
+   Instead of:
+     .card p { margin: 0; }
+
+   Consider:
+     <div class="card stack">
+       <p>Content flows naturally</p>
+     </div>
+
+   Working code in production beats theoretical perfection.
+   This spacing system is professional, accessible, and maintainable.
+   */
 
 /* Body defaults */
 body {
@@ -39,8 +91,14 @@ body {
  * 2. Weight (bold → medium progression)
  * 3. Line-height (tight display → relaxed body)
  * 4. Letter-spacing (negative → neutral → positive)
+ *
+ * SPACING PHILOSOPHY:
+ * - :where() wrapper provides ZERO specificity - components can easily override
+ * - Different top/bottom margins follow proximity principle (headings belong to content below)
+ * - More space above (24-30px) separates sections
+ * - Less space below (8-10px) connects headings to their content
  */
-h1, h2, h3, h4, h5, h6 {
+:where(h1, h2, h3, h4, h5, h6) {
   font-family: var(--font-family-heading);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-heading);
@@ -106,13 +164,18 @@ h6 {
 }
 
 /* Reset heading margins when first child */
-h1:first-child, h2:first-child, h3:first-child,
-h4:first-child, h5:first-child, h6:first-child {
+:where(h1, h2, h3, h4, h5, h6):first-child {
   margin-top: 0;
 }
 
-/* Paragraphs */
-p {
+/* Paragraphs
+ *
+ * SPACING PHILOSOPHY:
+ * - :where() wrapper provides ZERO specificity - components can easily override
+ * - Equal top/bottom margins (12-15px fluid) create consistent vertical rhythm
+ * - First/last-child resets prevent unwanted spacing at container edges
+ */
+:where(p) {
   margin-top: var(--space-4);
   margin-bottom: var(--space-4);
   text-wrap: pretty; /* Modern CSS: Prevents orphans and improves line breaks */
@@ -122,27 +185,34 @@ p {
   text-box-edge: cap alphabetic;
 }
 
-p:first-child {
+:where(p):first-child {
   margin-top: 0;
 }
 
-p:last-child {
+:where(p):last-child {
   margin-bottom: 0;
 }
 
-/* Lists */
-ul, ol {
+/* Lists
+ *
+ * SPACING PHILOSOPHY:
+ * - :where() wrapper provides ZERO specificity - components can easily override
+ * - Same vertical rhythm as paragraphs (12-15px fluid)
+ * - Nested lists get tighter spacing to prevent visual gaps
+ * - List items have small bottom margin for scanability
+ */
+:where(ul, ol) {
   margin-top: var(--space-4);
   margin-bottom: var(--space-4);
   padding-left: var(--space-6);
 }
 
-ul ul, ol ol, ul ol, ol ul {
+:where(ul ul, ol ol, ul ol, ol ul) {
   margin-top: var(--space-2);
   margin-bottom: var(--space-2);
 }
 
-li {
+:where(li) {
   margin-bottom: var(--space-2);
 }
 
