@@ -294,13 +294,13 @@
    * All values are unitless to scale proportionally with font-size changes.
    */
   --line-height-display: 1.1;    /* Display headings (--step-5, --step-6) - tight for impact */
-  --line-height-heading: 1.2;    /* Regular headings (--step-3, --step-4) - balanced */
+  --line-height-heading: 1.25;   /* Regular headings (--step-3, --step-4) - balanced, prevents clipping Norwegian Å, Æ, Ø */
   --line-height-subhead: 1.3;    /* Subheadings (--step-1, --step-2) - opening up */
   --line-height-body: 1.6;       /* Body text (--step-0) - optimal reading comfort */
   --line-height-compact: 1.5;    /* Small text (--step--1, --step--2) - readable but tight */
 
   /* Legacy line-height aliases - Backward compatibility */
-  --line-height-tight: var(--line-height-heading);     /* Maps to 1.2 */
+  --line-height-tight: var(--line-height-heading);     /* Maps to 1.25 */
   --line-height-normal: var(--line-height-body);       /* Maps to 1.6 */
   --line-height-relaxed: 1.8;                          /* Preserved for extra-relaxed layouts */
 

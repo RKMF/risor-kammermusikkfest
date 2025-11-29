@@ -82,10 +82,8 @@
   line-height: var(--line-height-display);   /* 1.1 - tight for impact */
   letter-spacing: var(--tracking-tighter);   /* -0.025em - optical tightening */
 
-  /* Modern CSS typography - Optical alignment */
+  /* Modern CSS typography - Optical sizing */
   font-size-adjust: var(--font-size-adjust-heading);
-  text-box-trim: both;
-  text-box-edge: cap alphabetic;
 }
 
 /* Hero text - Page titles, main headings when not using h1 */
@@ -96,10 +94,8 @@
   line-height: var(--line-height-display);   /* 1.1 */
   letter-spacing: var(--tracking-tight);     /* -0.015em */
 
-  /* Modern CSS typography - Optical alignment */
+  /* Modern CSS typography - Optical sizing */
   font-size-adjust: var(--font-size-adjust-heading);
-  text-box-trim: both;
-  text-box-edge: cap alphabetic;
 }
 
 /* Lead paragraph - Introductory text, article leads, emphasized content */
@@ -110,10 +106,8 @@
   line-height: var(--line-height-subhead);   /* 1.3 - comfortable reading */
   letter-spacing: var(--tracking-normal);    /* 0 */
 
-  /* Modern CSS typography - Optical alignment */
+  /* Modern CSS typography - Optical sizing */
   font-size-adjust: var(--font-size-adjust-body);
-  text-box-trim: both;
-  text-box-edge: cap alphabetic;
 }
 
 /* Label text - UI labels, form labels, category tags, badges */
@@ -125,10 +119,8 @@
   letter-spacing: var(--tracking-wide);      /* 0.02em - improved legibility */
   text-transform: uppercase;                 /* UI convention */
 
-  /* Modern CSS typography - Optical alignment */
+  /* Modern CSS typography - Optical sizing */
   font-size-adjust: var(--font-size-adjust-body);
-  text-box-trim: both;
-  text-box-edge: cap alphabetic;
 }
 
 /* Caption text - Image captions, metadata, timestamps, attributions */
@@ -140,10 +132,8 @@
   letter-spacing: var(--tracking-normal);    /* 0 */
   color: var(--color-neutral-600);           /* Subtle de-emphasis */
 
-  /* Modern CSS typography - Optical alignment */
+  /* Modern CSS typography - Optical sizing */
   font-size-adjust: var(--font-size-adjust-body);
-  text-box-trim: both;
-  text-box-edge: cap alphabetic;
 }
 
 /* Subtext - Subtitle, secondary information, artist roles */
@@ -156,10 +146,8 @@
   letter-spacing: var(--tracking-normal);    /* 0 */
   color: var(--color-neutral-700);           /* Slightly de-emphasized */
 
-  /* Modern CSS typography - Optical alignment */
+  /* Modern CSS typography - Optical sizing */
   font-size-adjust: var(--font-size-adjust-heading);
-  text-box-trim: both;
-  text-box-edge: cap alphabetic;
 }
 
 /* ============================================

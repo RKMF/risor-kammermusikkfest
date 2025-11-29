@@ -2,13 +2,14 @@
 import Layout from "../../../layouts/Layout.astro";
 import DynamicComponent from "../../../components/DynamicComponent.astro";
 import Image from "../../../components/Image.astro";
-import EventCardSquare from "../../../components/EventCardSquare.astro";
+import EventCard from "../../../components/EventCard.astro";
 import { getMultilingualContent } from "../../../lib/utils/language.js";
 import { IMAGE_QUALITY } from '../../../lib/sanityImage';
 import type { SanityDocument } from '@sanity/client';
 import { loadQuery } from '../../../lib/sanity/loadQuery.js';
 import { stegaClean } from '@sanity/client/stega';
 import '../../../styles/event.css';
+import '../../../styles/event-card.css';
 
 // Generate static paths for all artists
 export async function getStaticPaths() {
@@ -66,7 +67,18 @@ const { data: artist } = await loadQuery({
       "title": coalesce(title_en, title_no),
       slug_no,
       slug_en,
-      "slug": coalesce(slug_en.current, slug_no.current, slug.current),
+      excerpt_no,
+      excerpt_en,
+      "excerpt": coalesce(excerpt_en, excerpt_no),
+      "image": {
+        "image": image{
+          asset->,
+          hotspot,
+          crop
+        },
+        "alt": coalesce(imageAlt_en, imageAlt_no, image.alt),
+        "credit": coalesce(imageCredit_en, imageCredit_no)
+      },
       eventDate->{
         _id,
         date,
@@ -85,7 +97,8 @@ const { data: artist } = await loadQuery({
       },
       ticketType,
       ticketUrl,
-      ticketInfoText
+      ticketInfoText,
+      ticketStatus
     }
   }`,
   params,
@@ -102,6 +115,16 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
 <Layout title={`${artist.name} - Artist`}>
   <!-- Artist Card - Centered, same design as list cards -->
   <article class="artist-detail-card">
+    <!-- Hidden SVG for wave clip-path definition -->
+    <svg width="0" height="0" style="position: absolute;" aria-hidden="true">
+      <defs>
+        {/* Medium cards - top shallow wave pattern from logo (line 7) */}
+        <clipPath id="artist-wave-clip-medium" clipPathUnits="objectBoundingBox">
+          <path d="M 0 0.015 C 0.035 0.006, 0.077 0, 0.136 0 C 0.234 0, 0.286 0.01, 0.333 0.022 C 0.377 0.033, 0.415 0.048, 0.499 0.048 C 0.583 0.048, 0.621 0.033, 0.665 0.022 C 0.712 0.01, 0.764 0, 0.862 0 C 0.921 0, 0.963 0.006, 0.998 0.015 L 1 0.015 L 1 1 L 0 1 Z" />
+        </clipPath>
+      </defs>
+    </svg>
+
     {artist.image?.image && (
       <Image
         image={artist.image.image}
@@ -134,7 +157,7 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
       <h2 class="artist-events-title">Concerts</h2>
       <div class="artist-events-row">
         {artist.events.map((event) => (
-          <EventCardSquare event={event} language="en" />
+          <EventCard event={event} language="en" />
         ))}
       </div>
     </section>
@@ -186,6 +209,9 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
     width: 100%;
     height: auto;
     aspect-ratio: 4/5;
+
+    /* Apply medium wave clip-path - top shallow wave pattern from logo */
+    clip-path: url(#artist-wave-clip-medium);
   }
 
   /* Artist Info Box - Grid positioned in bottom right */
@@ -228,15 +254,14 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
 
   /* Excerpt - centered with generous spacing from header */
   .artist-excerpt {
-    max-width: 65ch;
-    width: 100%;
+    max-inline-size: 50ch;
+    inline-size: 100%;
     margin-inline: auto;
-    margin-block-start: var(--space-8);
     margin-block-end: var(--space-6);
     font-size: var(--step-2);
-    line-height: 1.6;
+    line-height: 1.4;
     color: var(--color-text);
-    text-wrap: balance;
+    text-wrap: pretty;
     text-align: center;
   }
 
@@ -264,7 +289,7 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
     container-type: inline-size;
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: 220px;
+    grid-auto-columns: clamp(300px, 35vw, 320px); /* Match EventCard width */
     gap: var(--space-4);
     justify-content: start;
 

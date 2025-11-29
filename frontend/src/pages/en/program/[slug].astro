@@ -40,67 +40,47 @@ const content = getMultilingualContent(event, 'en') || event.content_en;
   slugEn={event.slug_en?.current}
 >
   <article class="event-page">
-      <div class="event-info-grid">
-        <div class="event-info-column">
-          <div class="event-info-box">
-            <header class="event-header">
-              <h1 class="event-title">{stegaClean(event.title || '')}</h1>
-              {event.excerpt && (
-                <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
-              )}
+      <div class="event-info-box">
+        <header class="event-header">
+          <h1 class="event-title">{stegaClean(event.title || '')}</h1>
+          {event.excerpt && (
+            <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
+          )}
 
-              <dl class="event-meta">
-                {event.eventDate?.date && (
-                  <>
-                    <dt class="sr-only">Date</dt>
-                    <dd>
-                      <time datetime={event.eventDate.date}>
-                        {stegaClean(formatDateForLanguage(event.eventDate.date, 'en'))}
-                      </time>
-                    </dd>
-                  </>
-                )}
-                {event.eventTime && (
-                  <>
-                    <dt class="sr-only">Time</dt>
-                    <dd>
-                      <time datetime={event.eventTime.startTime}>{stegaClean(event.eventTime.startTime)}</time>–<time datetime={event.eventTime.endTime}>{stegaClean(event.eventTime.endTime)}</time>
-                    </dd>
-                  </>
-                )}
-                {event.venue?.title && (
-                  <>
-                    <dt class="sr-only">Venue</dt>
-                    <dd>{stegaClean(event.venue.title)}</dd>
-                  </>
-                )}
-              </dl>
-            </header>
-
-            {stegaClean(event.ticketType) === 'info' ? (
-              <p class="ticket-info">{stegaClean(event.ticketInfoText) || 'Free'}</p>
-            ) : (
-              <a href={stegaClean(event.ticketUrl)} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-                Buy tickets
-              </a>
+          <dl class="event-meta">
+            {event.eventDate?.date && (
+              <>
+                <dt class="sr-only">Date</dt>
+                <dd>
+                  <time datetime={event.eventDate.date}>
+                    {stegaClean(formatDateForLanguage(event.eventDate.date, 'en'))}
+                  </time>
+                </dd>
+              </>
             )}
-          </div>
-        </div>
+            {event.eventTime && (
+              <>
+                <dt class="sr-only">Time</dt>
+                <dd>
+                  <time datetime={event.eventTime.startTime}>{stegaClean(event.eventTime.startTime)}</time>–<time datetime={event.eventTime.endTime}>{stegaClean(event.eventTime.endTime)}</time>
+                </dd>
+              </>
+            )}
+            {event.venue?.title && (
+              <>
+                <dt class="sr-only">Venue</dt>
+                <dd>{stegaClean(event.venue.title)}</dd>
+              </>
+            )}
+          </dl>
+        </header>
 
-        {event.image?.image && (
-          <div class="event-image-column">
-            <figure class="event-image">
-              <Image
-                image={event.image.image}
-                alt={stegaClean(event.image.alt || event.title || '')}
-                size="medium"
-                aspectRatio="4:3"
-                loading="eager"
-                quality={IMAGE_QUALITY.HERO}
-                priority={true}
-              />
-            </figure>
-          </div>
+        {stegaClean(event.ticketType) === 'info' ? (
+          <p class="ticket-info">{stegaClean(event.ticketInfoText) || 'Free'}</p>
+        ) : (
+          <a href={stegaClean(event.ticketUrl)} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+            Buy tickets
+          </a>
         )}
       </div>
 
@@ -163,6 +143,19 @@ const content = getMultilingualContent(event, 'en') || event.content_en;
             <DynamicComponent key={block._key || block._id} block={block} />
           ))}
         </div>
+      )}
+
+      {event.image?.image?.asset && (
+        <Image
+          image={event.image.image}
+          alt={stegaClean(event.image.alt || event.title || '')}
+          credit={event.image.credit ? stegaClean(event.image.credit) : undefined}
+          size="large"
+          aspectRatio="4:3"
+          loading="lazy"
+          quality={IMAGE_QUALITY.CARD}
+          className="event-image-bottom"
+        />
       )}
   </article>
 </Layout>

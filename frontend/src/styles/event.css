@@ -112,12 +112,13 @@
 }
 
 .event-excerpt {
-  margin: 0;
-  margin-block-end: var(--space-xl); /* 32-40px below excerpt */
-  font-size: var(--step-1); /* Fluid 22-28px - Utopia token system */
-  line-height: var(--line-height-subhead); /* 1.3 - industry standard for 22-28px excerpts */
-  text-wrap: balance;
-  max-inline-size: 70ch; /* Optimal readability - matches program page */
+  max-inline-size: 50ch;
+  inline-size: 100%;
+  margin-block-end: var(--space-6);
+  font-size: var(--step-2);
+  line-height: 1.4;
+  color: var(--color-text);
+  text-wrap: pretty;
 }
 
 /* Event metadata (date, time, venue) - definition list */
@@ -148,8 +149,8 @@ dl.event-meta {
   margin: 0;
 }
 
-/* Extra space before venue (last dd) */
-.event-meta dd:last-of-type {
+/* Extra space before venue (last dd) - scoped to event detail pages only */
+.event-info-box .event-meta dd:last-of-type {
   margin-block-start: var(--space-s); /* 12-15px additional space before venue */
 }
 

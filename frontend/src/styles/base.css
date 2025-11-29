@@ -101,14 +101,18 @@ body {
 :where(h1, h2, h3, h4, h5, h6) {
   font-family: var(--font-family-heading);
   font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-heading);
+  line-height: 1.25;  /* Slightly generous spacing prevents clipping of Norwegian characters (Å, Æ, Ø) */
   margin-top: var(--space-6);
   margin-bottom: var(--space-3);
 
-  /* Modern CSS typography - Progressive enhancement for optical alignment */
+  /* Modern CSS typography - Optical sizing for headings */
   font-size-adjust: var(--font-size-adjust-heading);
-  text-box-trim: both;
-  text-box-edge: cap alphabetic;
+
+  /* REMOVED: text-box-trim (clips Norwegian characters Å, Æ, Ø)
+   * Browser support: 28% (Chrome/Edge 120+, no Firefox/Safari as of 2025)
+   * Issue: Clips tall glyphs and diacritics with no workaround
+   * Decision: Revisit when browser support improves and bugs are fixed
+   */
 }
 
 h1 {
@@ -180,9 +184,7 @@ h6 {
   margin-bottom: var(--space-4);
   text-wrap: pretty; /* Modern CSS: Prevents orphans and improves line breaks */
 
-  /* Modern CSS typography - Optical alignment for body text */
-  text-box-trim: both;
-  text-box-edge: cap alphabetic;
+  /* text-box-trim removed - see heading styles above for rationale */
 }
 
 :where(p):first-child {
@@ -476,17 +478,3 @@ button:focus-visible,
    Ensures decent appearance in older browsers while providing
    pixel-perfect alignment in modern browsers.
 */
-
-/* Fallback for browsers without text-box-trim support */
-@supports not (text-box-trim: both) {
-  h1, h2, h3, h4, h5, h6 {
-    /* Slightly reduce top margin to compensate for missing leading trim */
-    margin-top: calc(var(--space-6) * 0.75);
-  }
-
-  .text-display,
-  .text-hero {
-    /* Tighter margins for display text without trim */
-    margin-block-start: calc(var(--space-6) * 0.65);
-  }
-}
