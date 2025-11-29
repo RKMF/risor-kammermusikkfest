@@ -1,9 +1,10 @@
 ---
 import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../lib/sanityImage';
 import { stegaClean } from '@sanity/client/stega';
+import type { ArtistResult } from '../lib/sanity/queries';
 
 export interface Props {
-  artist: any; // Artist data from Sanity - will be typed properly in Part 2
+  artist: ArtistResult;
   language?: 'no' | 'en';
   size?: 'large' | 'medium' | 'small';
 }
