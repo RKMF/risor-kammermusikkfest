@@ -2,12 +2,14 @@
 import Layout from '../../layouts/Layout.astro';
 import DynamicComponent from '../../components/DynamicComponent.astro';
 import Image from '../../components/Image.astro';
+import ArtistCard from '../../components/ArtistCard.astro';
 import { formatDateWithWeekday } from '../../lib/utils/dates';
 import { getMultilingualContent } from "../../lib/utils/language.js";
 import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../../lib/sanityImage';
 import { createDataService } from '../../lib/sanity/dataService.js';
 import { stegaClean } from '@sanity/client/stega';
 import '../../styles/event.css';
+import '../../styles/artist-card.css';
 
 // Generate static paths for all events
 export async function getStaticPaths() {
@@ -111,34 +113,7 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
           <h2 class="artists-title">Artister</h2>
           <div class="artist-section scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
             {event.artists.map((artist) => (
-              <article class="artist-card artist-card--medium">
-                <h3 class="artist-title">
-                  <a href={`/artister/${stegaClean(artist.slug)}`} class="artist-title-link">
-                    {stegaClean(artist.name)}
-                  </a>
-                </h3>
-
-                {artist.image?.image && (
-                  <img
-                    src={getOptimizedImageUrl(artist.image.image, 320, 400, IMAGE_QUALITY.CARD)}
-                    srcset={getResponsiveImageSet(artist.image.image, [320, 480, 640], 4/5, IMAGE_QUALITY.CARD)}
-                    sizes="320px"
-                    alt={stegaClean(artist.image.alt) || stegaClean(artist.name)}
-                    width="320"
-                    height="400"
-                    loading="lazy"
-                    decoding="async"
-                    class="artist-card-image"
-                  />
-                )}
-
-                <div class="artist-info-box">
-                  <p class="artist-name">{stegaClean(artist.name)}</p>
-                  {artist.instrument && (
-                    <p class="artist-instrument">{stegaClean(artist.instrument)}</p>
-                  )}
-                </div>
-              </article>
+              <ArtistCard artist={artist} language="no" size="medium" />
             ))}
           </div>
         </section>

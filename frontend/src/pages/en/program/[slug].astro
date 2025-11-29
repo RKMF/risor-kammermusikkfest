@@ -2,6 +2,7 @@
 import Layout from '../../../layouts/Layout.astro';
 import DynamicComponent from '../../../components/DynamicComponent.astro';
 import Image from '../../../components/Image.astro';
+import ArtistCard from '../../../components/ArtistCard.astro';
 import { formatDateForLanguage } from '../../../lib/utils/dates';
 import { getMultilingualContent } from "../../../lib/utils/language.js";
 import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../../../lib/sanityImage';
@@ -104,34 +105,7 @@ const content = getMultilingualContent(event, 'en') || event.content_en;
           <h2 class="artists-title">Artists</h2>
           <div class="artist-section scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
             {event.artists.map((artist) => (
-              <article class="artist-card artist-card--medium">
-                <h3 class="artist-title">
-                  <a href={`/en/artists/${stegaClean(artist.slug)}`} class="artist-title-link">
-                    {stegaClean(artist.name)}
-                  </a>
-                </h3>
-
-                {artist.image?.image && (
-                  <img
-                    src={getOptimizedImageUrl(artist.image.image, 320, 400, IMAGE_QUALITY.CARD)}
-                    srcset={getResponsiveImageSet(artist.image.image, [320, 480, 640], 4/5, IMAGE_QUALITY.CARD)}
-                    sizes="320px"
-                    alt={stegaClean(artist.image.alt) || stegaClean(artist.name)}
-                    width="320"
-                    height="400"
-                    loading="lazy"
-                    decoding="async"
-                    class="artist-card-image"
-                  />
-                )}
-
-                <div class="artist-info-box">
-                  <p class="artist-name">{stegaClean(artist.name)}</p>
-                  {artist.instrument && (
-                    <p class="artist-instrument">{stegaClean(artist.instrument)}</p>
-                  )}
-                </div>
-              </article>
+              <ArtistCard artist={artist} language="en" size="medium" />
             ))}
           </div>
         </section>

@@ -1,0 +1,58 @@
+---
+import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../lib/sanityImage';
+import { stegaClean } from '@sanity/client/stega';
+
+export interface Props {
+  artist: any; // Artist data from Sanity - will be typed properly in Part 2
+  language?: 'no' | 'en';
+  size?: 'large' | 'medium' | 'small';
+}
+
+const { artist, language = 'no', size = 'medium' } = Astro.props;
+
+// Determine artist link based on language
+const artistPath = language === 'en'
+  ? `/en/artists/${stegaClean(artist.slug)}`
+  : `/artister/${stegaClean(artist.slug)}`;
+
+// Size-specific image dimensions and aspect ratios
+const sizeConfig = {
+  large: { width: 320, height: 569, aspectRatio: 9/16 },   // 9:16
+  medium: { width: 320, height: 400, aspectRatio: 4/5 },   // 4:5
+  small: { width: 320, height: 320, aspectRatio: 1/1 }     // 1:1
+};
+
+const { width, height, aspectRatio } = sizeConfig[size];
+
+// CSS class based on size variant
+const sizeClass = size === 'medium' ? 'artist-card--medium' : size === 'small' ? 'artist-card--small' : '';
+---
+
+<article class={`artist-card ${sizeClass}`.trim()}>
+  <h3 class="artist-title">
+    <a href={artistPath} class="artist-title-link">
+      {stegaClean(artist.name)}
+    </a>
+  </h3>
+
+  {artist.image?.image && (
+    <img
+      src={getOptimizedImageUrl(artist.image.image, width, height, IMAGE_QUALITY.CARD)}
+      srcset={getResponsiveImageSet(artist.image.image, [320, 480, 640], aspectRatio, IMAGE_QUALITY.CARD)}
+      sizes="320px"
+      alt={stegaClean(artist.image.alt) || stegaClean(artist.name)}
+      width={width.toString()}
+      height={height.toString()}
+      loading="lazy"
+      decoding="async"
+      class="artist-card-image"
+    />
+  )}
+
+  <div class="artist-info-box">
+    <p class="artist-name">{stegaClean(artist.name)}</p>
+    {artist.instrument && (
+      <p class="artist-instrument">{stegaClean(artist.instrument)}</p>
+    )}
+  </div>
+</article>
