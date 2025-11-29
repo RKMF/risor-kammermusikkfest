@@ -17,6 +17,9 @@ body {
   line-height: var(--line-height-normal);
   color: var(--color-blue);
   background-color: var(--color-background);
+
+  /* Modern CSS typography - Optical sizing for body text */
+  font-size-adjust: var(--font-size-adjust-body);
 }
 
 /* Set default text color for all elements */
@@ -43,6 +46,11 @@ h1, h2, h3, h4, h5, h6 {
   line-height: var(--line-height-heading);
   margin-top: var(--space-6);
   margin-bottom: var(--space-3);
+
+  /* Modern CSS typography - Progressive enhancement for optical alignment */
+  font-size-adjust: var(--font-size-adjust-heading);
+  text-box-trim: both;
+  text-box-edge: cap alphabetic;
 }
 
 h1 {
@@ -108,6 +116,10 @@ p {
   margin-top: var(--space-4);
   margin-bottom: var(--space-4);
   text-wrap: pretty; /* Modern CSS: Prevents orphans and improves line breaks */
+
+  /* Modern CSS typography - Optical alignment for body text */
+  text-box-trim: both;
+  text-box-edge: cap alphabetic;
 }
 
 p:first-child {
@@ -384,4 +396,27 @@ button:focus-visible,
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+/* ============================================
+   PROGRESSIVE ENHANCEMENT FALLBACKS
+   ============================================
+
+   Fallbacks for browsers without modern CSS typography features.
+   Ensures decent appearance in older browsers while providing
+   pixel-perfect alignment in modern browsers.
+*/
+
+/* Fallback for browsers without text-box-trim support */
+@supports not (text-box-trim: both) {
+  h1, h2, h3, h4, h5, h6 {
+    /* Slightly reduce top margin to compensate for missing leading trim */
+    margin-top: calc(var(--space-6) * 0.75);
+  }
+
+  .text-display,
+  .text-hero {
+    /* Tighter margins for display text without trim */
+    margin-block-start: calc(var(--space-6) * 0.65);
+  }
 }

@@ -56,8 +56,9 @@
   text-transform: none;
   letter-spacing: -0.01em;
 
-  /* Space for Norwegian diacritics (Å, Ø, Æ) to prevent clipping */
-  padding-block-start: 0.15em;
+  /* Modern CSS typography - Replaces manual padding hack for diacritics */
+  text-box-trim: both;
+  text-box-edge: cap alphabetic;
 
   /* Clamp to max 2 lines with ellipsis */
   display: -webkit-box;

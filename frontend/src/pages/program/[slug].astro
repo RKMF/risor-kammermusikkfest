@@ -39,43 +39,42 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
   slugNo={event.slug_no?.current}
   slugEn={event.slug_en?.current}
 >
-  <div class="container">
-    <div class="event-page">
-      {/* Hidden SVG for wave clip-path definitions */}
-      <svg width="0" height="0" style="position: absolute;" aria-hidden="true">
-        <defs>
-          {/* Large cards - line 6 wave pattern with two peaks and one valley */}
-          <clipPath id="artist-wave-clip-large" clipPathUnits="objectBoundingBox">
-            <path d="M 0 0.06 C 0.08 0.06, 0.12 0.04, 0.17 0.015 C 0.22 0, 0.28 0, 0.33 0.015 C 0.38 0.03, 0.42 0.06, 0.5 0.06 C 0.58 0.06, 0.62 0.03, 0.67 0.015 C 0.72 0, 0.78 0, 0.83 0.015 C 0.88 0.04, 0.92 0.06, 1 0.06 L 1 1 L 0 1 Z"/>
-          </clipPath>
+  <article class="event-page">
+      <div class="event-info-box">
+        <header class="event-header">
+          <h1 class="event-title">{stegaClean(event.title || '')}</h1>
+          {event.excerpt && (
+            <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
+          )}
 
-          {/* Medium cards - top shallow wave pattern from logo (line 7) */}
-          <clipPath id="artist-wave-clip-medium" clipPathUnits="objectBoundingBox">
-            <path d="M 0 0.015 C 0.035 0.006, 0.077 0, 0.136 0 C 0.234 0, 0.286 0.01, 0.333 0.022 C 0.377 0.033, 0.415 0.048, 0.499 0.048 C 0.583 0.048, 0.621 0.033, 0.665 0.022 C 0.712 0.01, 0.764 0, 0.862 0 C 0.921 0, 0.963 0.006, 0.998 0.015 L 1 0.015 L 1 1 L 0 1 Z" />
-          </clipPath>
-        </defs>
-      </svg>
+          <dl class="event-meta">
+            {event.eventDate?.date && (
+              <>
+                <dt class="sr-only">Dato</dt>
+                <dd>
+                  <time datetime={event.eventDate.date}>
+                    {stegaClean(formatDateWithWeekday(event.eventDate.date, 'no'))}
+                  </time>
+                </dd>
+              </>
+            )}
+            {event.eventTime && (
+              <>
+                <dt class="sr-only">Tid</dt>
+                <dd>
+                  <time datetime={event.eventTime.startTime}>{stegaClean(event.eventTime.startTime)}</time>–<time datetime={event.eventTime.endTime}>{stegaClean(event.eventTime.endTime)}</time>
+                </dd>
+              </>
+            )}
+            {event.venue?.title && (
+              <>
+                <dt class="sr-only">Sted</dt>
+                <dd>{stegaClean(event.venue.title)}</dd>
+              </>
+            )}
+          </dl>
+        </header>
 
-      <header class="event-header">
-        <h1 class="event-title">{stegaClean(event.title || '')}</h1>
-        {event.excerpt && (
-          <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
-        )}
-      </header>
-
-      <div class="event-meta">
-        {event.eventDate?.date && (
-          <div class="event-meta-item">{stegaClean(formatDateWithWeekday(event.eventDate.date, 'no'))}</div>
-        )}
-        {event.eventTime && (
-          <div class="event-meta-item">kl. {stegaClean(event.eventTime.startTime)}–{stegaClean(event.eventTime.endTime)}</div>
-        )}
-        {event.venue?.title && (
-          <div class="event-meta-item">{stegaClean(event.venue.title)}</div>
-        )}
-      </div>
-
-      <div class="ticket-section">
         {stegaClean(event.ticketType) === 'info' ? (
           <p class="ticket-info">{stegaClean(event.ticketInfoText) || 'Gratis'}</p>
         ) : (
@@ -94,6 +93,21 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
 
       {event.artists && event.artists.length > 0 && (
         <section class="artists-section">
+          {/* Hidden SVG for wave clip-path definitions */}
+          <svg width="0" height="0" style="position: absolute;" aria-hidden="true">
+            <defs>
+              {/* Large cards - line 6 wave pattern with two peaks and one valley */}
+              <clipPath id="artist-wave-clip-large" clipPathUnits="objectBoundingBox">
+                <path d="M 0 0.06 C 0.08 0.06, 0.12 0.04, 0.17 0.015 C 0.22 0, 0.28 0, 0.33 0.015 C 0.38 0.03, 0.42 0.06, 0.5 0.06 C 0.58 0.06, 0.62 0.03, 0.67 0.015 C 0.72 0, 0.78 0, 0.83 0.015 C 0.88 0.04, 0.92 0.06, 1 0.06 L 1 1 L 0 1 Z"/>
+              </clipPath>
+
+              {/* Medium cards - top shallow wave pattern from logo (line 7) */}
+              <clipPath id="artist-wave-clip-medium" clipPathUnits="objectBoundingBox">
+                <path d="M 0 0.015 C 0.035 0.006, 0.077 0, 0.136 0 C 0.234 0, 0.286 0.01, 0.333 0.022 C 0.377 0.033, 0.415 0.048, 0.499 0.048 C 0.583 0.048, 0.621 0.033, 0.665 0.022 C 0.712 0.01, 0.764 0, 0.862 0 C 0.921 0, 0.963 0.006, 0.998 0.015 L 1 0.015 L 1 1 L 0 1 Z" />
+              </clipPath>
+            </defs>
+          </svg>
+
           <h2 class="artists-title">Artister</h2>
           <div class="artist-section scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
             {event.artists.map((artist) => (
@@ -150,7 +164,6 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
           className="event-image-bottom"
         />
       )}
-    </div>
-  </div>
+  </article>
 </Layout>
 
