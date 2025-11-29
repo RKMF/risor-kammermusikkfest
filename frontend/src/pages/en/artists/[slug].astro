@@ -101,7 +101,7 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
 
 <Layout title={`${artist.name} - Artist`}>
   <!-- Artist Card - Centered, same design as list cards -->
-  <header class="artist-detail-card">
+  <article class="artist-detail-card">
     {artist.image?.image && (
       <Image
         image={artist.image.image}
@@ -121,7 +121,7 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
         <p class="artist-instrument">{stegaClean(artist.instrument)}</p>
       )}
     </div>
-  </header>
+  </article>
 
   <!-- Excerpt -->
   {artist.excerpt_en && (
@@ -162,9 +162,9 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
     min-width: 480px;
     max-width: 480px;
     margin-inline: auto;
-    margin-block-start: var(--space-8);
     margin-block-end: var(--space-6);
-    overflow: visible;
+    background-color: rgba(27, 25, 143, 0.12); /* Light blue tint - matches listing page cards */
+    overflow: hidden; /* Clip content to card bounds */
   }
 
   /* Artist Image - Grid positioned, inset from top and left */

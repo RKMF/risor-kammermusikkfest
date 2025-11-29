@@ -96,7 +96,6 @@
 .event-info-box {
   background-color: rgba(27, 25, 143, 0.12); /* Same blue as event cards */
   padding: var(--space-l); /* 24-30px fluid */
-  border-radius: 4px;
 }
 
 /* Event header - title and excerpt */
