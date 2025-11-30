@@ -116,12 +116,11 @@ body {
 }
 
 h1 {
-  font-size: var(--step-4);  /* 37-55px - Page titles, hero headlines */
+  font-size: var(--heading-h1);  /* 37-69px - Container query-based sizing for Norwegian long words */
   font-weight: var(--font-weight-bold);
   font-family: var(--font-family-heading);
   line-height: var(--line-height-heading);  /* 1.2 - balanced for large text */
   letter-spacing: var(--tracking-tight);    /* -0.015em - optical tightening */
-  text-wrap: balance;                       /* Modern CSS: Balanced line lengths */
 }
 
 /* All event titles and artist names use serif font */
@@ -216,6 +215,28 @@ h6 {
 
 :where(li) {
   margin-bottom: var(--space-2);
+}
+
+/* ============================================
+   EXCERPT UTILITY
+   ============================================
+
+   Global .excerpt class for standardized excerpt/lead paragraph styling.
+   Used across pages and article types (excluding event cards which have
+   custom styling for truncation).
+
+   Properties:
+   - Font-size: Step 1 (22-28px fluid)
+   - Line-height: 1.5 for optimal readability
+   - Max-width: 70ch for optimal line length
+   - Text-wrap: pretty to prevent orphaned words
+*/
+.excerpt {
+  font-size: var(--step-1);
+  line-height: 1.5;
+  max-inline-size: 70ch;
+  text-wrap: pretty;
+  margin-block-end: var(--space-4);
 }
 
 /* ============================================

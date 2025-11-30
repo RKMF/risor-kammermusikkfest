@@ -240,8 +240,11 @@
   --step-2: clamp(1.62rem, 1.4837rem + 0.6057vw, 1.9531rem);       /* 26-35px - H4 */
   --step-3: clamp(1.944rem, 1.7405rem + 0.9044vw, 2.4414rem);      /* 31-44px - H3 */
   --step-4: clamp(2.3328rem, 2.0387rem + 1.3072vw, 3.0518rem);     /* 37-55px - H2 */
-  --step-5: clamp(2.7994rem, 2.384rem + 1.8461vw, 3.8147rem);      /* 45-69px - H1 */
+  --step-5: clamp(2.3125rem, 2.0387rem + 1.8461vw, 3.8147rem);     /* 37-69px - H1 */
   --step-6: clamp(3.3592rem, 2.7874rem + 2.5413vw, 4.7684rem);     /* 54-86px - Display */
+
+  /* Container query-based heading token for h1 titles */
+  --heading-h1: clamp(1.944rem, 1.5rem + 4cqi, 3.8147rem);         /* 31-69px - H1 with container sizing */
 
   /* Legacy aliases - Backward compatibility for existing components
    * These map old --fs-* naming to new --step-* system.

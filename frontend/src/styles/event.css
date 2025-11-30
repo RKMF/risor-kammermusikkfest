@@ -101,22 +101,23 @@
 /* Event header - title and excerpt */
 .event-header {
   margin: 0 0 var(--space-2xl) 0; /* 48-60px below header section */
+  container-type: inline-size; /* Enable container queries for h1 sizing */
 }
 
 .event-title {
   margin: 0 0 var(--space-6) 0; /* 24-30px - matches program page */
-  font-size: var(--step-5); /* Fluid 45-69px - matches program page h1 */
+  font-size: var(--heading-h1); /* Fluid 37-69px with cqi sizing for Norwegian long words */
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: none;
 }
 
 .event-excerpt {
-  max-inline-size: 50ch;
+  max-inline-size: 70ch;
   inline-size: 100%;
   margin-block-end: var(--space-6);
-  font-size: var(--step-2);
-  line-height: 1.4;
+  font-size: var(--step-1);
+  line-height: 1.5;
   color: var(--color-text);
   text-wrap: pretty;
 }

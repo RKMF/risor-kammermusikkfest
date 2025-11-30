@@ -148,7 +148,7 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
 
   <!-- Excerpt -->
   {artist.excerpt_en && (
-    <p class="artist-excerpt">{stegaClean(artist.excerpt_en)}</p>
+    <p class="excerpt">{stegaClean(artist.excerpt_en)}</p>
   )}
 
   <!-- Events Section -->
@@ -252,18 +252,7 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
     opacity: 0.9;
   }
 
-  /* Excerpt - centered with generous spacing from header */
-  .artist-excerpt {
-    max-inline-size: 50ch;
-    inline-size: 100%;
-    margin-inline: auto;
-    margin-block-end: var(--space-6);
-    font-size: var(--step-2);
-    line-height: 1.4;
-    color: var(--color-text);
-    text-wrap: pretty;
-    text-align: center;
-  }
+  /* Excerpt styling handled by global .excerpt class in base.css */
 
   /* Events section */
   .artist-events {
