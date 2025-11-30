@@ -135,11 +135,22 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
           credit={event.image.credit ? stegaClean(event.image.credit) : undefined}
           size="large"
           aspectRatio="4:3"
-          loading="lazy"
+          loading="eager"
           quality={IMAGE_QUALITY.CARD}
-          className="event-image-bottom"
+          className="event-image"
         />
       )}
   </article>
 </Layout>
 
+<style>
+  /* Smooth fade-in transition for event image (matches artist page pattern) */
+  :global(.event-image) {
+    animation: fadeInEventImage 1.1s ease-in-out forwards;
+  }
+
+  @keyframes fadeInEventImage {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>

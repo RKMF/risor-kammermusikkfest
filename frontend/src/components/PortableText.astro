@@ -1,48 +1,51 @@
 ---
 import { PortableText } from 'astro-portabletext';
+import type { PortableTextBlock } from '@portabletext/types';
 
+/**
+ * PortableText wrapper component for rendering Sanity rich text content.
+ *
+ * This component provides a semantic-neutral wrapper (<div>) for PortableText content.
+ * The parent component should provide semantic context (e.g., <article>, <section>).
+ *
+ * @example
+ * ```astro
+ * <!-- Parent provides semantic context -->
+ * <article class="artist-bio">
+ *   <h1>{artist.name}</h1>
+ *   <PortableText value={artist.content_no} />
+ * </article>
+ * ```
+ */
 interface Props {
-  value?: any[];
-  content?: any[];
+  /** PortableText blocks from Sanity */
+  value?: PortableTextBlock[];
+  /** Alias for 'value' (compatibility) */
+  content?: PortableTextBlock[];
+  /** Additional CSS classes */
   className?: string;
-  semantic?: 'auto' | 'div' | 'section' | 'article';
+  /** Custom component renderers (merged with defaults) */
+  components?: any;
+  /** Sanity Visual Editing field annotation */
+  'data-sanity-field'?: string;
 }
 
-const { value, content, className = '', semantic = 'auto' } = Astro.props;
+const {
+  value,
+  content,
+  className = '',
+  components: customComponents,
+  'data-sanity-field': sanityField,
+  ...restProps
+} = Astro.props;
 
-// Håndter både 'value' og 'content' props for kompatibilitet
+// Handle both 'value' and 'content' props for compatibility
 const contentToRender = value || content || [];
 
-// Smart context detection for semantic elements
-function detectSemanticElement(semanticProp: string): string {
-  if (semanticProp !== 'auto') {
-    return semanticProp;
-  }
-
-  // Heuristic detection basert på hvor komponenten brukes
-  // Hvis innholdet har overskrifter (h2-h6), er det sannsynligvis selvstendig innhold
-  const hasHeadings = contentToRender.some((block: any) =>
-    block.style && ['h2', 'h3', 'h4', 'h5', 'h6'].includes(block.style)
-  );
-
-  // Hvis innholdet er langt (mer enn 3 blokker), er det sannsynligvis selvstendig
-  const isSubstantialContent = contentToRender.length > 3;
-
-  // Hvis det har overskrifter eller er substansielt innhold, bruk <section>
-  if (hasHeadings || isSubstantialContent) {
-    return 'section';
-  }
-
-  // Ellers, bruk <div> for fragmenter
-  return 'div';
-}
-
-const semanticElement = detectSemanticElement(semantic);
-
-// Custom components for PortableText - følger Sanity's anbefalte struktur
-const components = {
+// Default components - can be overridden by parent
+const defaultComponents = {
   types: {
-    // Custom types kan legges til her
+    // Custom types can be added here or passed via components prop
   },
   marks: {
     // Custom link renderer for proper handling of openInNewTab
@@ -63,30 +66,26 @@ const components = {
     },
   },
   block: {
-    // Custom block rendering hvis nødvendig
+    // Custom block rendering if needed
   }
 };
+
+// Merge custom components with defaults
+const components = customComponents
+  ? { ...defaultComponents, ...customComponents }
+  : defaultComponents;
 ---
 
-{semanticElement === 'section' ? (
-  <section class={`portable-text content-narrow ${className}`}>
-    {contentToRender && contentToRender.length > 0 && (
-      <PortableText value={contentToRender} components={components} />
-    )}
-  </section>
-) : semanticElement === 'article' ? (
-  <article class={`portable-text content-narrow ${className}`}>
-    {contentToRender && contentToRender.length > 0 && (
-      <PortableText value={contentToRender} components={components} />
-    )}
-  </article>
-) : (
-  <div class={`portable-text content-narrow ${className}`}>
-    {contentToRender && contentToRender.length > 0 && (
-      <PortableText value={contentToRender} components={components} />
-    )}
-  </div>
-)}
+<!-- Semantic-neutral wrapper - parent component provides semantic context -->
+<div
+  class={`portable-text content-narrow ${className}`}
+  {...(sanityField && { 'data-sanity-field': sanityField })}
+  {...restProps}
+>
+  {contentToRender && contentToRender.length > 0 && (
+    <PortableText value={contentToRender} components={components} />
+  )}
+</div>
 
 <style>
   .portable-text {
