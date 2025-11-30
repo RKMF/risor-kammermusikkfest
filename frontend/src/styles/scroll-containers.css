@@ -1,0 +1,154 @@
+/* ============================================
+   SCROLL CONTAINERS - Hybrid Pattern
+   Content scrolling standardization
+   ============================================
+
+   Philosophy:
+   - Single base class (.scroll-container)
+   - Preset variants for common patterns
+   - CSS variables for fine-tuning
+   - Scrollbar styling integrated
+   - Aspect ratios managed by card components
+
+   Usage:
+   <div class="scroll-container scroll-container--event-cards scroll-container--styled-scrollbar">
+     <article class="event-card">...</article>
+   </div>
+
+   Note: Filter button scrolling (program page) is intentionally
+   separate - it's UI chrome, not content browsing pattern.
+   ============================================ */
+
+/* ============================================
+   BASE SCROLL CONTAINER
+   ============================================ */
+
+.scroll-container {
+  /* Configurable via CSS variables */
+  --scroll-gap: var(--space-m);
+  --scroll-padding: clamp(1rem, 3vw, 2rem);
+  --scroll-snap: x mandatory;
+
+  /* Base styles */
+  display: flex;
+  gap: var(--scroll-gap);
+  overflow-x: scroll;
+  overflow-y: hidden;
+  scroll-snap-type: var(--scroll-snap);
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: var(--scroll-padding);
+
+  /* Vertical padding to accommodate card hover lift effects
+   * 8px provides breathing room for transform: translateY(-4px) hover
+   * Prevents cards from being clipped at top edge when lifting
+   * Token defined in tokens.css with full documentation */
+  padding-block: var(--scroll-container-padding-block);
+}
+
+.scroll-container > * {
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  scroll-margin-inline-start: 0.5rem;
+}
+
+/* ============================================
+   PRESET VARIANTS - Common content patterns
+   ============================================ */
+
+/* Event cards pattern */
+.scroll-container--event-cards {
+  --scroll-gap: clamp(var(--space-l), 3vw, var(--space-6));
+  /* Note: width and aspect-ratio (7/11) set by .event-card component */
+}
+
+/* Artist cards pattern */
+.scroll-container--artist-cards {
+  --scroll-gap: clamp(var(--space-l), 3vw, var(--space-6));
+  /* Note: width and aspect-ratio (4/5, 1/1, or 16/9) set by .artist-card component variants */
+}
+
+/* Content items (generic) */
+.scroll-container--content {
+  --scroll-gap: var(--space-m-l);
+}
+
+/* ============================================
+   SCROLLBAR STYLING - Single source of truth
+   ============================================ */
+
+.scroll-container--styled-scrollbar {
+  /* Override base padding-block to account for visible scrollbar
+   * Top: inherit 8px from .scroll-container (hover lift room)
+   * Bottom: 12px for scrollbar visibility
+   * Total vertical padding: 8px + 12px = 20px */
+  padding-block: var(--scroll-container-padding-block) 12px;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-blue) var(--color-neutral-100);
+}
+
+.scroll-container--styled-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  -webkit-appearance: none;
+}
+
+.scroll-container--styled-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-neutral-100);
+  border-radius: 0;
+}
+
+.scroll-container--styled-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-blue);
+  border-radius: 0;
+}
+
+.scroll-container--styled-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-green);
+}
+
+/* Touch optimization */
+@media (pointer: coarse) {
+  .scroll-container--styled-scrollbar {
+    scrollbar-width: auto;
+  }
+
+  .scroll-container--styled-scrollbar::-webkit-scrollbar {
+    height: 12px;
+  }
+}
+
+/* ============================================
+   KEYBOARD FOCUS & ACCESSIBILITY
+   ============================================ */
+
+.scroll-container:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-container {
+    scroll-behavior: auto;
+  }
+}
+
+/* ============================================
+   HELPER CLASSES - Optional modifiers
+   ============================================ */
+
+/* Hide scrollbar (for cleaner aesthetic) */
+.scroll-container--hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-block-end: 0;
+}
+
+.scroll-container--hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Soft snapping instead of mandatory */
+.scroll-container--soft-snap {
+  scroll-snap-type: x proximity;
+}

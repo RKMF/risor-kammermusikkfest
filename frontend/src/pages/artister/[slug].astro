@@ -1,13 +1,16 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import DynamicComponent from "../../components/DynamicComponent.astro";
-import Image from "../../components/Image.astro";
+import ArtistCard from "../../components/ArtistCard.astro";
+import EventCard from "../../components/EventCard.astro";
 import { getMultilingualContent } from "../../lib/utils/language.js";
 import { IMAGE_QUALITY } from '../../lib/sanityImage';
 import type { SanityDocument } from '@sanity/client';
 import { loadQuery } from '../../lib/sanity/loadQuery.js';
 import { stegaClean } from '@sanity/client/stega';
 import '../../styles/event.css';
+import '../../styles/event-card.css';
+import '../../styles/artist-card.css';
 
 // Generate static paths for all artists
 export async function getStaticPaths() {
@@ -37,7 +40,6 @@ const { data: artist } = await loadQuery({
     instrument_no,
     instrument_en,
     "instrument": coalesce(instrument_no, instrument_en),
-    country,
     "image": {
       "image": image{
         asset->{
@@ -75,7 +77,66 @@ const { data: artist } = await loadQuery({
     websiteUrl,
     spotifyUrl,
     instagramUrl,
-    seo
+    seo,
+    "events": *[_type == "event" && references(^._id) && publishingStatus == "published"] | order(eventDate->date asc, eventTime.startTime asc){
+      _id,
+      _type,
+      title_no,
+      title_en,
+      "title": coalesce(title_no, title_en),
+      slug_no,
+      slug_en,
+      "slug": coalesce(slug_no.current, slug_en.current, slug.current),
+      excerpt_no,
+      excerpt_en,
+      "excerpt": coalesce(excerpt_no, excerpt_en),
+      "image": {
+        "image": image{
+          asset->{
+            _id,
+            url,
+            metadata {
+              dimensions {
+                width,
+                height,
+                aspectRatio
+              },
+              lqip,
+              blurHash,
+              palette {
+                dominant {
+                  background,
+                  foreground
+                }
+              }
+            }
+          },
+          hotspot,
+          crop
+        },
+        "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
+        "credit": coalesce(imageCredit_no, imageCredit_en)
+      },
+      eventDate->{
+        _id,
+        date,
+        title_display_no,
+        title_display_en,
+        "title": coalesce(title_display_no, title_display_en)
+      },
+      eventTime,
+      venue->{
+        _id,
+        title,
+        name,
+        address,
+        city,
+        "slug": slug.current
+      },
+      ticketType,
+      ticketUrl,
+      ticketInfoText
+    }
   }`,
   params,
 });
@@ -89,159 +150,123 @@ const content = getMultilingualContent(artist) || artist.content_no;
 ---
 
 <Layout title={`${artist.name} - Artist`}>
-  <div class="container">
-    <div class="artist-detail-page">
-      <!-- Artist Card - Centered, same design as list cards -->
-      <div class="artist-detail-card">
-        {artist.image?.image && (
-          <div class="artist-detail-image">
-            <Image
-              image={artist.image.image}
-              alt={stegaClean(artist.image.alt || artist.name)}
-              credit={artist.image.credit ? stegaClean(artist.image.credit) : undefined}
-              size="large"
-              aspectRatio="4:5"
-              loading="eager"
-              quality={IMAGE_QUALITY.HERO}
-              priority={true}
-              className="artist-detail-card-image"
-            />
-          </div>
-        )}
-
-        <div class="artist-detail-info-box">
-          <h1 class="artist-name">{stegaClean(artist.name)}</h1>
-          {artist.instrument && (
-            <p class="artist-instrument">{stegaClean(artist.instrument)}</p>
-          )}
-          {artist.country && (
-            <p class="artist-country"><strong>Land:</strong> {stegaClean(artist.country)}</p>
-          )}
-        </div>
+  <article class="artist-page">
+    <!-- Artist Card - Centered, medium size -->
+    <!-- Card is 480px wide, image displays at 85% = 408px actual -->
+    <header class="artist-header">
+      <div class="artist-detail-card-container">
+        <ArtistCard artist={artist} language="no" size="medium" isDetailPage={true} imageSizes="408px" />
       </div>
 
-      <!-- Content below card -->
-      {content && Array.isArray(content) && content.length > 0 && (
-        <div class="artist-content">
-          {content.map((block) => (
-            <DynamicComponent key={block._key || block._id} block={block} />
+      <!-- Excerpt -->
+      {artist.excerpt_no && (
+        <p class="excerpt">{stegaClean(artist.excerpt_no)}</p>
+      )}
+    </header>
+
+    <!-- Events Section -->
+    {artist.events && artist.events.length > 0 && (
+      <section class="artist-events">
+        <h2 class="artist-events-title">Konserter</h2>
+        <div class="scroll-container scroll-container--event-cards scroll-container--styled-scrollbar">
+          {artist.events.map((event) => (
+            <EventCard event={event} language="no" />
           ))}
         </div>
-      )}
-    </div>
-  </div>
+      </section>
+    )}
+
+    <!-- Content below card -->
+    {content && Array.isArray(content) && content.length > 0 && (
+      <section class="artist-content">
+        <h2 class="sr-only">Om artisten</h2>
+        {content.map((block) => (
+          <DynamicComponent key={block._key || block._id} block={block} />
+        ))}
+      </section>
+    )}
+  </article>
 </Layout>
 
 <style>
-  /* Green tint page background (like event pages) */
-  :global(.main-content:has(.artist-detail-page)) {
-    background-color: rgba(0, 179, 154, 0.08);
-  }
-
-  /* Artist Detail Page - Centered card design */
-  .artist-detail-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-6);
-    padding-block: var(--space-8);
-  }
-
-  /* Artist Detail Card - Medium centered card (480px) */
-  .artist-detail-card {
-    position: relative;
-    overflow: visible;
-    aspect-ratio: 4 / 5;
+  /* Artist Card Container - Centered with fixed width */
+  .artist-detail-card-container {
     width: 480px;
-    min-width: 480px;
-    max-width: 480px;
+    max-width: 90vw;
+    margin-inline: auto;
+    margin-block-end: var(--space-6);
   }
 
-  /* Artist Image - Inset from top and left (like list cards) */
-  .artist-detail-image {
-    position: absolute;
-    top: 1.5rem;
-    left: 1.5rem;
-    width: 85%;
-    aspect-ratio: 4/5;
-    overflow: hidden;
-    margin: 0;
+  /* Override ArtistCard hover effects on detail page */
+  .artist-detail-card-container :global(.artist-card) {
+    width: 480px;
+    max-width: 90vw;
+    cursor: default;
   }
 
-  .artist-detail-image picture {
-    display: block;
-    width: 100%;
-    height: 100%;
+  /* Allow info box to grow proportionally with larger card */
+  .artist-detail-card-container :global(.artist-info-box) {
+    max-width: 85%; /* Same proportion as listing page, but scales to 480px card */
+    padding: 1.5rem; /* Larger padding for larger card */
   }
 
-  .artist-detail-card-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  /* Smooth 1.1s transition from blur placeholder to sharp image */
+  .artist-detail-card-container :global(.artist-card-image) {
+    animation: fadeInImage 1.1s ease-in-out forwards;
   }
 
-  /* Artist Info Box - Blue overlay in bottom right (same as list cards) */
-  .artist-detail-info-box {
-    position: absolute;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    background-color: var(--color-blue);
-    color: white;
-    padding: 1.5rem;
-    display: grid;
-    gap: 0.5rem;
-    z-index: 2;
-    width: fit-content;
-    max-width: 25ch;
+  @keyframes fadeInImage {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
-  .artist-detail-info-box .artist-name {
-    margin: 0;
-    font-size: 1.25rem;
-    line-height: 1.2;
-    font-weight: 600;
-    color: white;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+  /* Increase font sizes proportionally to match 1.5x card growth */
+  .artist-detail-card-container :global(.artist-name) {
+    font-size: var(--step-3); /* 31-44px vs listing page 22-28px = ~1.5x growth */
   }
 
-  .artist-detail-info-box .artist-instrument,
-  .artist-detail-info-box .artist-country {
-    margin: 0;
-    font-size: 0.75rem;
-    line-height: 1.3;
-    font-weight: var(--font-weight-medium);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: white;
-    opacity: 0.9;
+  .artist-detail-card-container :global(.artist-instrument) {
+    font-size: var(--step-0); /* 18-23px vs listing page 13-14px = ~1.5x growth */
+  }
+
+  @media (hover: hover) {
+    .artist-detail-card-container :global(.artist-card:hover) {
+      transform: none;
+      box-shadow: none;
+      background-color: var(--color-tint-blue-medium);
+    }
+
+    .artist-detail-card-container :global(.artist-card:hover .artist-info-box) {
+      background-color: var(--color-blue-600);
+    }
+
+    .artist-detail-card-container :global(.artist-card:hover .artist-name),
+    .artist-detail-card-container :global(.artist-card:hover .artist-instrument) {
+      color: var(--color-background);
+    }
+  }
+
+  /* Excerpt styling handled by global .excerpt class in base.css */
+
+  /* Events section */
+  .artist-events {
+    margin-block-start: var(--space-8);
+    margin-block-end: var(--space-8);
+  }
+
+  .artist-events-title {
+    font-size: var(--step-3);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-block-start: 0;
+    margin-block-end: var(--space-6);
   }
 
   /* Content area below card - centered, max-width for readability */
   .artist-content {
     max-width: 65ch;
     width: 100%;
-  }
-
-  /* Responsive: Allow smaller on narrow screens */
-  @media (max-width: 520px) {
-    .artist-detail-card {
-      width: 90vw;
-      min-width: auto;
-    }
-
-    .artist-detail-image {
-      top: 1rem;
-      left: 1rem;
-    }
-
-    .artist-detail-info-box {
-      bottom: 1rem;
-      right: 1rem;
-      padding: 1rem;
-      gap: 0.25rem;
-      max-width: 20ch;
-    }
+    margin-inline: auto;
+    margin-block-end: var(--space-8);
   }
 </style>

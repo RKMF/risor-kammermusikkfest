@@ -48,7 +48,7 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
 <style>
   .section-title {
     margin-block-end: var(--space-l-xl); /* Fluid 24px → 40px */
-    font-size: var(--fs-2xl);
+    font-size: var(--step-3);
     font-weight: 600;
   }
 
@@ -80,14 +80,13 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
 
   /* Media content: Fill and crop */
   .column > :global(.image-container),
-  .column > :global(.image-wrapper),
   .column > :global([data-component="video"]) {
     width: 100%;
     height: 100%;
     flex: 1;
   }
 
-  .column > :global(.image-wrapper img),
+  .column > :global(.image-container .image),
   .column > :global(.image) {
     width: 100%;
     height: 100%;

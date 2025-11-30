@@ -37,9 +37,9 @@ const isActive = (href: string) => {
   const cleanPath = currentPath.replace(/\/$/, '') || '/';
   const cleanHref = href.replace(/\/$/, '') || '/';
 
-  // Exact match for homepage - must be exactly '/'
-  if (cleanHref === '/') {
-    return cleanPath === '/';
+  // Exact match for homepages - must be exactly '/' or '/en'
+  if (cleanHref === '/' || cleanHref === '/en') {
+    return cleanPath === cleanHref;
   }
 
   // For other pages, match exact path or if current path is a sub-path
@@ -50,11 +50,9 @@ const isActive = (href: string) => {
 
 <!-- Menu Toggle Button (Logo) -->
 <button
-  id="menu-toggle"
+  popovertarget="navigation-menu"
   class="menu-toggle"
   type="button"
-  aria-expanded="false"
-  aria-controls="navigation-menu"
   aria-label={currentLang === 'no' ? 'Åpne meny' : 'Open menu'}
 >
   <svg viewBox="0 0 850.39 850.39" class="logo-svg" aria-hidden="true">
@@ -65,20 +63,27 @@ const isActive = (href: string) => {
   </svg>
 </button>
 
-<!-- Backdrop Overlay -->
-<div id="menu-backdrop" class="menu-backdrop" aria-hidden="true"></div>
-
 <!-- Navigation Menu Panel -->
 <nav
   id="navigation-menu"
+  popover="auto"
   class="navigation-menu"
   role="navigation"
   aria-label={currentLang === 'no' ? 'Hovednavigasjon' : 'Main navigation'}
-  aria-hidden="true"
 >
   <div class="menu-content">
     <!-- Navigation Links -->
     <ul class="nav-list" role="list">
+      <!-- Homepage link at the top -->
+      <li class="nav-item">
+        <a
+          href={currentLang === 'no' ? '/' : '/en'}
+          class:list={['nav-link', { 'active': isActive(currentLang === 'no' ? '/' : '/en') }]}
+          aria-current={isActive(currentLang === 'no' ? '/' : '/en') ? 'page' : undefined}
+        >
+          {currentLang === 'no' ? 'Hjem' : 'Home'}
+        </a>
+      </li>
       {navItems.map((item) => (
         <li class="nav-item">
           <a
@@ -90,16 +95,6 @@ const isActive = (href: string) => {
           </a>
         </li>
       ))}
-      <!-- Homepage link at the bottom -->
-      <li class="nav-item">
-        <a
-          href="/"
-          class:list={['nav-link', { 'active': isActive('/') }]}
-          aria-current={isActive('/') ? 'page' : undefined}
-        >
-          {currentLang === 'no' ? 'Hjem' : 'Home'}
-        </a>
-      </li>
     </ul>
 
     <!-- Language Switcher -->
@@ -123,9 +118,16 @@ const isActive = (href: string) => {
     /* Fixed positioning in top-left */
     position: fixed;
     top: var(--space-3);
-    /* Position with extra spacing to avoid interfering with text when scrolling */
-    /* Container left edge + container padding - button width - extra gap */
-    left: calc((100% - min(100% - var(--space-4), var(--container-max-width))) / 2 + clamp(var(--space-3), 4vw, var(--space-6)) - 60px - var(--space-3));
+    /* Position left of container edge on wide screens, prevent overflow on narrow screens */
+    left: max(
+      var(--space-3),
+      calc(
+        (100% - min(100% - var(--space-4), var(--container-max-width))) / 2
+        + clamp(var(--space-3), 4vw, var(--space-6))
+        - 60px
+        - var(--space-3)
+      )
+    );
     z-index: var(--z-modal);
 
     /* Size and appearance */
@@ -154,13 +156,27 @@ const isActive = (href: string) => {
     height: 100%;
     fill: white;
     display: block;
+    transition: fill var(--transition-fast);
   }
 
   @media (hover: hover) {
     .menu-toggle:hover {
-      background-color: var(--color-blue-600);
+      background-color: var(--color-green-50);
       transform: scale(1.05);
     }
+
+    .menu-toggle:hover .logo-svg {
+      fill: var(--color-blue);
+    }
+  }
+
+  /* Keep hover appearance when menu is open */
+  .menu-toggle:has(+ #navigation-menu:popover-open) {
+    background-color: var(--color-green-50);
+  }
+
+  .menu-toggle:has(+ #navigation-menu:popover-open) .logo-svg {
+    fill: var(--color-blue);
   }
 
   .menu-toggle:focus-visible {
@@ -173,25 +189,11 @@ const isActive = (href: string) => {
   }
 
   /* ============================================
-     BACKDROP OVERLAY
+     POPOVER BACKDROP
      ============================================ */
 
-  .menu-backdrop {
-    position: fixed;
-    inset: 0;
+  #navigation-menu::backdrop {
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: calc(var(--z-modal) - 1);
-
-    /* Hidden by default */
-    opacity: 0;
-    pointer-events: none;
-
-    transition: opacity var(--transition-base);
-  }
-
-  .menu-backdrop.active {
-    opacity: 1;
-    pointer-events: auto;
   }
 
   /* ============================================
@@ -203,8 +205,16 @@ const isActive = (href: string) => {
     position: fixed;
     /* Position below and aligned with the button */
     top: calc(var(--space-3) + 60px + var(--space-2));
-    left: calc((100% - min(100% - var(--space-4), var(--container-max-width))) / 2 + clamp(var(--space-3), 4vw, var(--space-6)) - 60px - var(--space-3));
-    z-index: var(--z-modal);
+    /* Match button positioning - left of container edge, prevent overflow */
+    left: max(
+      var(--space-3),
+      calc(
+        (100% - min(100% - var(--space-4), var(--container-max-width))) / 2
+        + clamp(var(--space-3), 4vw, var(--space-6))
+        - 60px
+        - var(--space-3)
+      )
+    );
 
     /* Size determined by content */
     width: max-content;
@@ -214,20 +224,20 @@ const isActive = (href: string) => {
     /* Appearance */
     background-color: var(--color-background);
     box-shadow: var(--shadow-xl);
-
-    /* Hidden by default - completely removed from layout */
-    display: none;
-    transform-origin: top left;
+    border: none;
+    margin: 0;
+    padding: 0;
 
     /* Ensure content doesn't overflow */
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: calc(100vh - var(--space-3) - 60px - var(--space-4));
+    max-height: calc(var(--viewport-full) - var(--space-3) - 60px - var(--space-4));
   }
 
-  .navigation-menu.active {
-    /* Show and animate in */
-    display: block;
+  /* Popover uses display:none when closed (browser handles this automatically) */
+  /* When open, popover gets :popover-open pseudo-class */
+  .navigation-menu:popover-open {
+    /* Show with animation */
     animation: menuAppear var(--transition-base) ease-out;
   }
 
@@ -274,7 +284,7 @@ const isActive = (href: string) => {
   .nav-link {
     display: block;
     padding: var(--space-2) var(--space-3);
-    font-size: var(--fs-base);
+    font-size: var(--step-0);
     font-weight: var(--font-weight-medium);
     color: var(--color-blue);
     text-decoration: none;
@@ -348,7 +358,7 @@ const isActive = (href: string) => {
       transform: none;
     }
 
-    .navigation-menu.active {
+    .navigation-menu:popover-open {
       animation: none;
     }
 
@@ -359,112 +369,4 @@ const isActive = (href: string) => {
       }
     }
   }
-
-  /* ============================================
-     PREVENT BODY SCROLL WHEN MENU OPEN
-     ============================================ */
-
-  :global(body.menu-open) {
-    overflow: hidden;
-  }
 </style>
-
-<script>
-  // Self-contained menu module
-  (function() {
-    const toggleButton = document.getElementById('menu-toggle') as HTMLButtonElement;
-    const menu = document.getElementById('navigation-menu') as HTMLElement;
-    const backdrop = document.getElementById('menu-backdrop') as HTMLElement;
-    const menuLinks = menu.querySelectorAll('.nav-link');
-
-    let isOpen = false;
-
-    // Get all focusable elements in the menu
-    function getFocusableElements(): HTMLElement[] {
-      const selector = 'a[href], button:not([disabled])';
-      return Array.from(menu.querySelectorAll(selector));
-    }
-
-    // Open menu
-    function openMenu() {
-      isOpen = true;
-
-      // Update DOM
-      menu.classList.add('active');
-      backdrop.classList.add('active');
-      document.body.classList.add('menu-open');
-
-      // Update ARIA attributes
-      toggleButton.setAttribute('aria-expanded', 'true');
-      toggleButton.setAttribute('aria-label', toggleButton.getAttribute('aria-label')?.includes('Open') ? 'Close menu' : 'Lukk meny');
-      menu.setAttribute('aria-hidden', 'false');
-      backdrop.setAttribute('aria-hidden', 'false');
-
-      // Focus first menu item
-      const focusableElements = getFocusableElements();
-      if (focusableElements.length > 0) {
-        focusableElements[0].focus();
-      }
-    }
-
-    // Close menu
-    function closeMenu() {
-      isOpen = false;
-
-      // Update DOM
-      menu.classList.remove('active');
-      backdrop.classList.remove('active');
-      document.body.classList.remove('menu-open');
-
-      // Update ARIA attributes
-      toggleButton.setAttribute('aria-expanded', 'false');
-      toggleButton.setAttribute('aria-label', toggleButton.getAttribute('aria-label')?.includes('Close') || toggleButton.getAttribute('aria-label')?.includes('Lukk') ? 'Open menu' : 'Åpne meny');
-      menu.setAttribute('aria-hidden', 'true');
-      backdrop.setAttribute('aria-hidden', 'true');
-
-      // Return focus to toggle button
-      toggleButton.focus();
-    }
-
-    // Toggle menu
-    function toggleMenu() {
-      if (isOpen) {
-        closeMenu();
-      } else {
-        openMenu();
-      }
-    }
-
-    // Handle Escape key
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape' && isOpen) {
-        closeMenu();
-      }
-
-      // Focus trap
-      if (e.key === 'Tab' && isOpen) {
-        const focusableElements = getFocusableElements();
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement.focus();
-        }
-      }
-    }
-
-    // Event listeners
-    toggleButton.addEventListener('click', toggleMenu);
-    backdrop.addEventListener('click', closeMenu);
-    document.addEventListener('keydown', handleKeyDown);
-
-    // Auto-close when navigation link is clicked
-    menuLinks.forEach(link => {
-      link.addEventListener('click', closeMenu);
-    });
-  })();
-</script>

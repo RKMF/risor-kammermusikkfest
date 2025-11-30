@@ -1,0 +1,108 @@
+/* ============================================
+   WEB FONTS
+   ============================================
+
+   Self-hosted WOFF2 fonts for performance and privacy.
+
+   Fonts:
+   - Akkurat Pro (sans-serif): Body text, navigation, UI elements
+   - Domaine Text (serif): Headings, event titles, artist names
+
+   WOFF2 format benefits:
+   - Best compression (Brotli) - 30-50% smaller than WOFF
+   - Universal browser support (95%+)
+   - Optimized for web delivery
+
+   Font loading strategy:
+   - font-display: swap - Critical brand fonts (headings)
+     Shows fallback immediately, swaps when custom font loads
+   - font-display: optional - Body text for optimal Core Web Vitals
+     Only uses custom font if already cached, prevents layout shift
+
+   Performance:
+   - Total: 293KB across 9 fonts
+   - Critical fonts preloaded in Layout.astro
+   - Fallbacks: Times New Roman (serif), Arial (sans-serif)
+*/
+
+/* ============================================
+   AKKURAT PRO (Sans-serif)
+   Body text, navigation, UI elements
+   ============================================ */
+
+@font-face {
+  font-family: 'Akkurat Pro';
+  src: url('/fonts/sans-serif/AkkRg_Pro.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: optional;
+}
+
+@font-face {
+  font-family: 'Akkurat Pro';
+  src: url('/fonts/sans-serif/AkkIt_Pro.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: optional;
+}
+
+@font-face {
+  font-family: 'Akkurat Pro';
+  src: url('/fonts/sans-serif/AkkBd_Pro.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: optional;
+}
+
+@font-face {
+  font-family: 'Akkurat Pro';
+  src: url('/fonts/sans-serif/AkkBdIt_Pro.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: optional;
+}
+
+/* ============================================
+   DOMAINE TEXT (Serif)
+   Headings, event titles, artist names
+   ============================================ */
+
+@font-face {
+  font-family: 'Domaine Text';
+  src: url('/fonts/serif/DomaineText-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Domaine Text';
+  src: url('/fonts/serif/DomaineText-RegularItalic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Domaine Text';
+  src: url('/fonts/serif/DomaineText-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Domaine Text';
+  src: url('/fonts/serif/DomaineText-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Domaine Text';
+  src: url('/fonts/serif/DomaineText-BoldItalic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}

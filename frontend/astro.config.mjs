@@ -11,6 +11,15 @@ export default defineConfig({
   base: '/',
   trailingSlash: 'never',
 
+  // Internationalization configuration
+  i18n: {
+    defaultLocale: 'no',
+    locales: ['no', 'en'],
+    routing: {
+      prefixDefaultLocale: false
+    }
+  },
+
   // Enable built-in prefetch
   prefetch: {
     prefetchAll: false,

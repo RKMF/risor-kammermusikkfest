@@ -85,16 +85,23 @@ const SPOTIFY_COMPONENT = `
 
 const LINK_COMPONENT = `
   _type == "linkComponent" => {
-    ...,
-    "internalLink": select(
-      linkType == "internal" && defined(internalLink) => internalLink->{
-        _type,
-        "slug": coalesce(slug_no.current, slug_en.current, slug.current),
-        "slug_no": slug_no.current,
-        "slug_en": slug_en.current
-      },
-      defined(internalLink) => internalLink
-    )
+    _type,
+    _key,
+    links[]{
+      linkType,
+      text,
+      url,
+      description,
+      openInNewTab,
+      "internalLink": select(
+        linkType == "internal" && defined(internalLink) => internalLink->{
+          _type,
+          "slug": coalesce(slug_no.current, slug_en.current, slug.current),
+          "slug_no": slug_no.current,
+          "slug_en": slug_en.current
+        }
+      )
+    }
   }`
 
 const HEADING_COMPONENT = `
@@ -214,18 +221,19 @@ const EVENT_DATE_SELECTION = `
   }
 `
 
-const EVENT_BASE_FIELDS = `
+// Helper to build event base fields with language-aware coalescing
+const buildEventBaseFields = (language: Language = 'no'): string => `
   _id,
   _type,
   title_no,
   title_en,
-  ${createMultilingualField('title')},
+  ${createMultilingualField('title', language)},
   slug_no,
   slug_en,
   "slug": coalesce(slug_no.current, slug_en.current, slug.current),
   excerpt_no,
   excerpt_en,
-  ${createMultilingualField('excerpt')},
+  ${createMultilingualField('excerpt', language)},
   ${EVENT_IMAGE_SELECTION},
   ${EVENT_DATE_SELECTION},
   eventTime,
@@ -241,12 +249,15 @@ const EVENT_BASE_FIELDS = `
     _id,
     name,
     "slug": slug.current,
-    image,
-    "imageAlt": coalesce(imageAlt_no, imageAlt_en)
+    ${ARTIST_IMAGE_SELECTION},
+    instrument_no,
+    instrument_en,
+    "instrument": coalesce(instrument_no, instrument_en)
   },
   ticketType,
   ticketUrl,
   ticketInfoText,
+  ticketStatus,
   publishingStatus,
   scheduledPeriod,
   content_no[]{
@@ -294,14 +305,16 @@ const ARTIST_IMAGE_SELECTION = `
   }
 `
 
-const ARTIST_BASE_FIELDS = `
+// Helper to build artist base fields with language-aware coalescing
+const buildArtistBaseFields = (language: Language = 'no'): string => `
   _id,
   _type,
   name,
-  ${createMultilingualField('excerpt')},
+  cardSize,
+  ${createMultilingualField('excerpt', language)},
   instrument_no,
   instrument_en,
-  "instrument": coalesce(instrument_no, instrument_en),
+  ${createMultilingualField('instrument', language)},
   country,
   ${ARTIST_IMAGE_SELECTION},
   "slug": slug.current,
@@ -346,16 +359,17 @@ const ARTICLE_IMAGE_SELECTION = `
   }
 `
 
-const ARTICLE_BASE_FIELDS = `
+// Helper to build article base fields with language-aware coalescing
+const buildArticleBaseFields = (language: Language = 'no'): string => `
   _id,
   _type,
   title_no,
   title_en,
-  ${createMultilingualField('title')},
+  ${createMultilingualField('title', language)},
   slug_no,
   slug_en,
   "slug": coalesce(slug_no.current, slug_en.current, slug.current),
-  ${createMultilingualField('excerpt')},
+  ${createMultilingualField('excerpt', language)},
   ${ARTICLE_IMAGE_SELECTION},
   publishingStatus,
   scheduledPeriod,
@@ -417,8 +431,8 @@ const HOMEPAGE_QUERY = defineQuery(`*[_type == "homepage" && (
 const buildPageBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "page" && ${buildSlugMatch(language)}][0]{
   _id,
   _type,
-  ${createMultilingualField('title')},
-  ${createMultilingualField('excerpt')},
+  ${createMultilingualField('title', language)},
+  ${createMultilingualField('excerpt', language)},
   ${buildSlugProjection(language)},
   "slug_no": slug_no.current,
   "slug_en": slug_en.current,
@@ -432,12 +446,15 @@ const buildPageBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type
   seo
 }`)
 
-const PROGRAM_PAGE_QUERY = defineQuery(`*[_type == "programPage" && (publishingStatus != "draft" || !defined(publishingStatus))][0]{
+// Language-aware query builders for listing pages
+const buildProgramPageQuery = (language: Language = 'no') => defineQuery(`*[_type == "programPage" && (publishingStatus != "draft" || !defined(publishingStatus))][0]{
   _id,
   _type,
-  ${createMultilingualField('title')},
+  ${createMultilingualField('title', language)},
   "slug": slug.current,
-  ${createMultilingualField('excerpt')},
+  slug_no,
+  slug_en,
+  ${createMultilingualField('excerpt', language)},
   content_no[]{
     ${PAGE_CONTENT_WITH_LINKS}
   },
@@ -446,16 +463,18 @@ const PROGRAM_PAGE_QUERY = defineQuery(`*[_type == "programPage" && (publishingS
   },
   seo,
   selectedEvents[]->{
-    ${EVENT_BASE_FIELDS}
+    ${buildEventBaseFields(language)}
   }
 }`)
 
-const ARTIST_PAGE_QUERY = defineQuery(`*[_type == "artistPage" && (publishingStatus != "draft" || !defined(publishingStatus))][0]{
+const buildArtistPageQuery = (language: Language = 'no') => defineQuery(`*[_type == "artistPage" && (publishingStatus != "draft" || !defined(publishingStatus))][0]{
   _id,
   _type,
-  ${createMultilingualField('title')},
+  ${createMultilingualField('title', language)},
   "slug": slug.current,
-  ${createMultilingualField('excerpt')},
+  slug_no,
+  slug_en,
+  ${createMultilingualField('excerpt', language)},
   content_no[]{
     ${PAGE_CONTENT_WITH_LINKS}
   },
@@ -464,16 +483,18 @@ const ARTIST_PAGE_QUERY = defineQuery(`*[_type == "artistPage" && (publishingSta
   },
   seo,
   selectedArtists[]->{
-    ${ARTIST_BASE_FIELDS}
+    ${buildArtistBaseFields(language)}
   }
 }`)
 
-const ARTICLE_PAGE_QUERY = defineQuery(`*[_type == "articlePage" && (publishingStatus != "draft" || !defined(publishingStatus))][0]{
+const buildArticlePageQuery = (language: Language = 'no') => defineQuery(`*[_type == "articlePage" && (publishingStatus != "draft" || !defined(publishingStatus))][0]{
   _id,
   _type,
-  ${createMultilingualField('title')},
+  ${createMultilingualField('title', language)},
   "slug": slug.current,
-  ${createMultilingualField('excerpt')},
+  slug_no,
+  slug_en,
+  ${createMultilingualField('excerpt', language)},
   content_no[]{
     ${PAGE_CONTENT_WITH_LINKS}
   },
@@ -482,17 +503,17 @@ const ARTICLE_PAGE_QUERY = defineQuery(`*[_type == "articlePage" && (publishingS
   },
   seo,
   "articles": select(
-    count(selectedArticles) > 0 => selectedArticles[]->{${ARTICLE_BASE_FIELDS}},
-    *[_type == "article" && publishingStatus != "draft"] | order(publishedAt desc){${ARTICLE_BASE_FIELDS}}
+    count(selectedArticles) > 0 => selectedArticles[]->{${buildArticleBaseFields(language)}},
+    *[_type == "article" && publishingStatus != "draft"] | order(publishedAt desc){${buildArticleBaseFields(language)}}
   )
 }`)
 
 const buildEventBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "event" && ${buildSlugMatch(language)}][0]{
-  ${EVENT_BASE_FIELDS}
+  ${buildEventBaseFields(language)}
 }`)
 
 const buildArtistBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "artist" && slug.current == $slug && (publishingStatus != "draft" || !defined(publishingStatus))][0]{
-  ${ARTIST_BASE_FIELDS},
+  ${buildArtistBaseFields(language)},
   instagram,
   facebook,
   spotify,
@@ -503,19 +524,19 @@ const buildArtistBySlugQuery = (language: Language = 'no') => defineQuery(`*[_ty
 }`)
 
 const buildArticleBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "article" && ${buildSlugMatch(language)}][0]{
-  ${ARTICLE_BASE_FIELDS}
+  ${buildArticleBaseFields(language)}
 }`)
 
-const PUBLISHED_ARTICLES_QUERY = defineQuery(`*[_type == "article" && publishingStatus != "draft"] | order(publishedAt desc){
-  ${ARTICLE_BASE_FIELDS}
+const buildPublishedArticlesQuery = (language: Language = 'no') => defineQuery(`*[_type == "article" && publishingStatus != "draft"] | order(publishedAt desc){
+  ${buildArticleBaseFields(language)}
 }`)
 
-const PUBLISHED_ARTISTS_QUERY = defineQuery(`*[_type == "artist" && publishingStatus != "draft"] | order(name asc){
-  ${ARTIST_BASE_FIELDS}
+const buildPublishedArtistsQuery = (language: Language = 'no') => defineQuery(`*[_type == "artist" && publishingStatus != "draft"] | order(name asc){
+  ${buildArtistBaseFields(language)}
 }`)
 
-const PUBLISHED_EVENTS_QUERY = defineQuery(`*[_type == "event" && publishingStatus == "published"] | order(eventDate->date asc, eventTime.startTime asc){
-  ${EVENT_BASE_FIELDS}
+const buildPublishedEventsQuery = (language: Language = 'no') => defineQuery(`*[_type == "event" && publishingStatus == "published"] | order(eventDate->date asc, eventTime.startTime asc){
+  ${buildEventBaseFields(language)}
 }`)
 
 const EVENT_DATES_QUERY = defineQuery(`*[_type == "eventDate" && isActive == true] | order(date asc){
@@ -530,8 +551,8 @@ const EVENT_DATES_QUERY = defineQuery(`*[_type == "eventDate" && isActive == tru
   "slug_en": slug_en.current
 }`)
 
-const EVENTS_BY_DATE_QUERY = defineQuery(`*[_type == "event" && publishingStatus == "published" && eventDate._ref == $dateId] | order(eventTime.startTime asc){
-  ${EVENT_BASE_FIELDS}
+const buildEventsByDateQuery = (language: Language = 'no') => defineQuery(`*[_type == "event" && publishingStatus == "published" && eventDate._ref == $dateId] | order(eventTime.startTime asc){
+  ${buildEventBaseFields(language)}
 }`)
 
 
@@ -541,14 +562,14 @@ const SLUGS_FOR_TYPE_QUERY = defineQuery(`*[_type == $type && (defined(slug.curr
   }
 }`)
 
-const SEARCH_CONTENT_QUERY = defineQuery(`*[_type in $types && (
+const buildSearchContentQuery = (language: Language = 'no') => defineQuery(`*[_type in $types && (
   coalesce(title_no, title_en, title) match $search ||
   coalesce(excerpt_no, excerpt_en, excerpt) match $search
 )] | order(_updatedAt desc){
   _id,
   _type,
-  ${createMultilingualField('title')},
-  ${createMultilingualField('excerpt')},
+  ${createMultilingualField('title', language)},
+  ${createMultilingualField('excerpt', language)},
   "slug": coalesce(slug_no.current, slug_en.current, slug.current)
 }`)
 
@@ -583,6 +604,43 @@ const SITE_SETTINGS_MENU_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
   }
 }`)
 
+const SITE_SETTINGS_FOOTER_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
+  email,
+  phone,
+  address,
+  linkUrl,
+  openInNewTab,
+  organizationName_no,
+  organizationName_en,
+  newsletterUrl,
+  newsletterTitle_no,
+  newsletterTitle_en,
+  socialMedia[]{
+    name,
+    url
+  },
+  sponsors[]{
+    name,
+    "logo": logo{
+      asset->{
+        _id,
+        url,
+        metadata {
+          dimensions {
+            width,
+            height,
+            aspectRatio
+          },
+          lqip
+        }
+      },
+      hotspot,
+      crop
+    },
+    url
+  }
+}`)
+
 export const QueryBuilder = {
   homepage(): QueryDefinition {
     return {query: HOMEPAGE_QUERY, params: {}}
@@ -590,14 +648,14 @@ export const QueryBuilder = {
   pageBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
     return {query: buildPageBySlugQuery(language), params: {slug}}
   },
-  programPage(): QueryDefinition {
-    return {query: PROGRAM_PAGE_QUERY, params: {}}
+  programPage(language: Language = 'no'): QueryDefinition {
+    return {query: buildProgramPageQuery(language), params: {}}
   },
-  artistPage(): QueryDefinition {
-    return {query: ARTIST_PAGE_QUERY, params: {}}
+  artistPage(language: Language = 'no'): QueryDefinition {
+    return {query: buildArtistPageQuery(language), params: {}}
   },
-  articlePage(): QueryDefinition {
-    return {query: ARTICLE_PAGE_QUERY, params: {}}
+  articlePage(language: Language = 'no'): QueryDefinition {
+    return {query: buildArticlePageQuery(language), params: {}}
   },
   eventBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
     return {query: buildEventBySlugQuery(language), params: {slug}}
@@ -608,29 +666,32 @@ export const QueryBuilder = {
   articleBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
     return {query: buildArticleBySlugQuery(language), params: {slug}}
   },
-  publishedArticles(): QueryDefinition {
-    return {query: PUBLISHED_ARTICLES_QUERY, params: {}}
+  publishedArticles(language: Language = 'no'): QueryDefinition {
+    return {query: buildPublishedArticlesQuery(language), params: {}}
   },
-  publishedArtists(): QueryDefinition {
-    return {query: PUBLISHED_ARTISTS_QUERY, params: {}}
+  publishedArtists(language: Language = 'no'): QueryDefinition {
+    return {query: buildPublishedArtistsQuery(language), params: {}}
   },
-  publishedEvents(): QueryDefinition {
-    return {query: PUBLISHED_EVENTS_QUERY, params: {}}
+  publishedEvents(language: Language = 'no'): QueryDefinition {
+    return {query: buildPublishedEventsQuery(language), params: {}}
   },
   eventDates(): QueryDefinition {
     return {query: EVENT_DATES_QUERY, params: {}}
   },
-  eventsByDate(dateId: string): QueryDefinition<{dateId: string}> {
-    return {query: EVENTS_BY_DATE_QUERY, params: {dateId}}
+  eventsByDate(dateId: string, language: Language = 'no'): QueryDefinition<{dateId: string}> {
+    return {query: buildEventsByDateQuery(language), params: {dateId}}
   },
   slugsForType(type: string): QueryDefinition<{type: string}> {
     return {query: SLUGS_FOR_TYPE_QUERY, params: {type}}
   },
-  searchContent(searchTerm: string, types: string[]): QueryDefinition<{search: string; types: string[]}> {
-    return {query: SEARCH_CONTENT_QUERY, params: {search: `*${searchTerm}*`, types}}
+  searchContent(searchTerm: string, types: string[], language: Language = 'no'): QueryDefinition<{search: string; types: string[]}> {
+    return {query: buildSearchContentQuery(language), params: {search: `*${searchTerm}*`, types}}
   },
   siteSettingsMenu(): QueryDefinition {
     return {query: SITE_SETTINGS_MENU_QUERY, params: {}}
+  },
+  siteSettingsFooter(): QueryDefinition {
+    return {query: SITE_SETTINGS_FOOTER_QUERY, params: {}}
   }
 } as const
 

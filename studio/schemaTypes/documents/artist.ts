@@ -8,6 +8,8 @@ import {artistSlugValidation} from '../../lib/slugValidation'
 import type {ArtistData, ValidationRule, MultilingualDocument} from '../shared/types'
 import {getPublishingStatusText, getLanguageStatus} from '../shared/previewHelpers'
 import {publishingFields, publishingGroup} from '../shared/publishingFields'
+import {excludeAlreadySelected} from '../shared/referenceFilters'
+import {MultiSelectReferenceInput} from '../components/inputs/MultiSelectReferenceInput'
 
 export const artist = defineType({
   name: 'artist',
@@ -71,6 +73,23 @@ export const artist = defineType({
           return componentValidation.slug(Rule).validate(value, context)
         }),
       group: 'basic',
+    }),
+    defineField({
+      name: 'cardSize',
+      title: 'Kortstørrelse på artistsiden',
+      type: 'string',
+      description: 'Velg størrelse på artistkortet',
+      group: 'basic',
+      options: {
+        list: [
+          { title: 'Stor', value: 'stor' },
+          { title: 'Medium', value: 'medium' },
+          { title: 'Liten', value: 'liten' },
+        ],
+        layout: 'radio',
+      },
+      validation: (Rule) => Rule.required().error('Velg kortstørrelse'),
+      initialValue: 'stor',
     }),
 
     // NORSK INNHOLD
@@ -140,7 +159,13 @@ export const artist = defineType({
       ],
       description: 'Velg arrangementer som denne artisten opptrer på',
       group: 'basic',
+      components: {
+        input: MultiSelectReferenceInput,
+      },
       validation: (Rule) => Rule.unique(),
+      options: {
+        filter: excludeAlreadySelected(),
+      },
     }),
     ...seoFields,
   ],

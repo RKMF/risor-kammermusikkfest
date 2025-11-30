@@ -19,7 +19,7 @@
 .artists-grid {
   container-type: inline-size;
   display: grid;
-  gap: clamp(var(--space-4), 3vw, var(--space-6));
+  gap: clamp(var(--space-l), 3vw, var(--space-6));
   /* Fixed 320px cards - fits as many as possible */
   grid-template-columns: repeat(auto-fill, 320px);
   padding: 0;
@@ -28,6 +28,10 @@
   justify-content: start;
   /* Spacing from page title */
   margin-block-start: var(--space-6);
+  /* Vertical padding to accommodate card hover lift effects
+   * Required because contain: layout creates containment boundary that clips overflow
+   * Inherits same token used by .scroll-container */
+  padding-block: var(--scroll-container-padding-block);
 }
 
 /* ============================================
@@ -35,100 +39,15 @@
    ============================================
 
    Below 800px container width, switch from wrapping grid
-   to horizontal scrolling grid. Cards remain fixed at 320px width.
+   to horizontal scroll. Scroll behavior handled by
+   scroll-containers.css utility classes.
 */
 
 @container (max-width: 800px) {
   .artists-grid {
-    /* Transform grid to horizontal flow with fixed 320px cards */
-    grid-template-columns: none;
-    grid-auto-flow: column;
-    grid-auto-columns: 320px;
-    justify-content: start;
-
-    /* Enable horizontal scroll */
-    overflow-x: scroll;
-    overflow-y: hidden;
-
-    /* Smooth scrolling behavior */
-    scroll-behavior: smooth;
-    overscroll-behavior-x: contain;
-
-    /* iOS momentum scrolling */
-    -webkit-overflow-scrolling: touch;
-
-    /* Prevent vertical scroll on horizontal swipe */
-    touch-action: pan-x;
-
-    /* Scroll padding for better UX */
-    scroll-padding-inline: clamp(1rem, 3vw, 2rem);
-
-    /* Space for scrollbar underneath cards */
-    padding-block-end: 12px;
-
-    /* Scroll snap for better UX */
-    scroll-snap-type: x mandatory;
-  }
-
-  /* Fixed cards with snap points */
-  .artist-card {
-    scroll-snap-align: start;
-    scroll-margin-inline-start: 0.5rem;
-  }
-
-  /* Styled native scrollbar - always visible and functional
-   * Pattern defined in utilities.css (.scrollbar-styled)
-   * Kept inline here due to container query context */
-  .artists-grid {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-blue) var(--color-neutral-100);
-  }
-
-  .artists-grid::-webkit-scrollbar {
-    height: 6px;
-    -webkit-appearance: none;
-  }
-
-  .artists-grid::-webkit-scrollbar-track {
-    background: var(--color-neutral-100);
-    border-radius: 0;
-  }
-
-  .artists-grid::-webkit-scrollbar-thumb {
-    background: var(--color-blue);
-    border-radius: 0;
-  }
-
-  .artists-grid::-webkit-scrollbar-thumb:hover {
-    background: var(--color-green);
-  }
-
-  /* Keyboard focus indicator for scroll container */
-  .artists-grid:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: 2px;
-  }
-
-  /* Override hover effect for horizontal scroll mode */
-  @media (hover: hover) {
-    .artist-card:hover {
-      /* Use scale instead of translateY to avoid clipping in scroll container */
-      transform: scale(1.02);
-      box-shadow: rgba(0, 0, 0, 0.25) 0px 8px 24px;
-      background-color: rgba(0, 179, 154, 0.08);
-    }
-
-    .artist-card:hover .artist-info-box {
-      background-color: rgb(235, 249, 247);
-    }
-
-    .artist-card:hover .artist-name {
-      color: var(--color-blue);
-    }
-
-    .artist-card:hover .artist-instrument {
-      color: var(--color-blue);
-    }
+    /* Transform grid to horizontal flow */
+    display: flex;
+    grid-template-columns: initial;
   }
 }
 
@@ -152,14 +71,70 @@
 
 .no-artists-title {
   margin: 0 0 var(--space-2) 0;
-  font-size: var(--font-size-lg);
+  font-size: var(--step-1);
   line-height: var(--line-height-relaxed);
 }
 
 .no-artists-text {
   margin: 0;
-  font-size: var(--font-size-base);
+  font-size: var(--step-0);
   line-height: var(--line-height-relaxed);
+}
+
+/* ============================================
+   THREE DISTINCT ARTIST SECTIONS
+   ============================================
+
+   Sections for large, medium, and small cards stack
+   vertically on wide screens. Each section transforms
+   to horizontal scroll on narrow screens.
+
+   No visible section headings - visual separation only.
+*/
+
+.artist-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  /* Double spacing from excerpt since no filter section (unlike program page) */
+  /* Use --space-3xl (64-80px) instead of stack's --space-xl (32-40px) */
+  margin-block-start: var(--space-3xl);
+}
+
+.artist-section {
+  container-type: inline-size;
+  display: grid;
+  gap: clamp(var(--space-l), 3vw, var(--space-6));
+  padding: 0;
+  contain: layout style;
+  justify-content: start;
+  /* Vertical padding to accommodate card hover lift effects
+   * Required because contain: layout creates containment boundary that clips overflow
+   * Inherits same token used by .scroll-container */
+  padding-block: var(--scroll-container-padding-block);
+}
+
+/* Large section - 320px cards */
+.artist-section--large {
+  grid-template-columns: repeat(auto-fill, 320px);
+}
+
+/* Medium section - 320px cards (square aspect handled by modifier) */
+.artist-section--medium {
+  grid-template-columns: repeat(auto-fill, 320px);
+}
+
+/* Small section - 320px cards */
+.artist-section--small {
+  grid-template-columns: repeat(auto-fill, 320px);
+}
+
+/* Horizontal scroll mode for each section */
+@container (max-width: 800px) {
+  .artist-section {
+    display: flex;
+    grid-template-columns: initial;
+  }
 }
 
 /* ============================================
@@ -168,29 +143,11 @@
 
 /* Respect reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
-  .artists-grid {
-    scroll-behavior: auto;
-  }
-
   .artist-card {
     transition: none;
   }
 
   .artist-card:hover {
     transform: none;
-  }
-}
-
-/* Touch device optimizations for scroll mode */
-@media (pointer: coarse) {
-  @container (max-width: 800px) {
-    .artists-grid {
-      /* Larger scrollbar for touch devices */
-      scrollbar-width: auto;
-    }
-
-    .artists-grid::-webkit-scrollbar {
-      height: 12px;
-    }
   }
 }

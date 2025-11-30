@@ -10,6 +10,8 @@ import {eventSlugValidation} from '../../lib/slugValidation'
 import type {EventData, ValidationRule, MultilingualDocument} from '../shared/types'
 import {getLanguageStatus} from '../shared/previewHelpers'
 import {publishingFields, publishingGroup} from '../shared/publishingFields'
+import {excludeAlreadySelected} from '../shared/referenceFilters'
+import {MultiSelectReferenceInput} from '../components/inputs/MultiSelectReferenceInput'
 
 export const event = defineType({
   name: 'event',
@@ -19,10 +21,17 @@ export const event = defineType({
 
   orderings: [
     {
-      title: 'Dato og tidspunkt',
-      name: 'dateAndTime',
+      title: 'Dato og klokkeslett',
+      name: 'dateTimeAsc',
       by: [
-        { field: 'eventDate.date', direction: 'asc' },
+        { field: 'eventDateValue', direction: 'asc' },
+        { field: 'eventTime.startTime', direction: 'asc' }
+      ]
+    },
+    {
+      title: 'Klokkeslett',
+      name: 'timeAsc',
+      by: [
         { field: 'eventTime.startTime', direction: 'asc' }
       ]
     },
@@ -128,6 +137,15 @@ export const event = defineType({
       }),
     }),
     defineField({
+      name: 'eventDateValue',
+      title: 'Dato (for sortering)',
+      type: 'date',
+      description: 'Synkroniseres automatisk fra festivaldato for korrekt sortering',
+      group: 'basic',
+      readOnly: true,
+      hidden: true,
+    }),
+    defineField({
       name: 'venue',
       title: 'Spillested',
       type: 'reference',
@@ -153,6 +171,12 @@ export const event = defineType({
       ],
       description: 'Velg artister som opptrer på arrangementet',
       group: 'basic',
+      components: {
+        input: MultiSelectReferenceInput,
+      },
+      options: {
+        filter: excludeAlreadySelected(),
+      },
     }),
     defineField({
       name: 'composers',
@@ -166,6 +190,12 @@ export const event = defineType({
       ],
       description: 'Velg komponister som har skrevet musikken som spilles på arrangementet',
       group: 'basic',
+      components: {
+        input: MultiSelectReferenceInput,
+      },
+      options: {
+        filter: excludeAlreadySelected(),
+      },
     }),
     defineField({
       name: 'ticketType',
@@ -219,6 +249,31 @@ export const event = defineType({
         }).error('Billett-informasjon er påkrevd når du velger salgsinfo')
         .max(50).warning('Teksten bør være maksimum 50 tegn'),
       hidden: ({ document }) => document?.ticketType !== 'info',
+    }),
+    defineField({
+      name: 'ticketStatus',
+      title: 'Billettstatus',
+      type: 'string',
+      description: 'Viser tilgjengelighet av billetter',
+      group: 'ticketing',
+      options: {
+        list: [
+          { title: 'Billetter tilgjengelig', value: 'available' },
+          { title: 'Få billetter igjen', value: 'low_stock' },
+          { title: 'Utsolgt', value: 'sold_out' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'available',
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const ticketType = (context.document as any)?.ticketType
+          if (ticketType === 'button' && !value) {
+            return 'Billettstatus er påkrevd når du velger kjøpsknapp'
+          }
+          return true
+        }),
+      hidden: ({ document }) => document?.ticketType !== 'button',
     }),
     ...multilingualImageFields('image'),
     // NORSK INNHOLD

@@ -1,0 +1,338 @@
+---
+import type { Language } from '../lib/utils/language.js';
+
+export interface SiteSettings {
+  email?: string;
+  phone?: string;
+  address?: string;
+  linkUrl?: string;
+  openInNewTab?: boolean;
+  organizationName_no?: string;
+  organizationName_en?: string;
+  newsletterUrl?: string;
+  newsletterTitle_no?: string;
+  newsletterTitle_en?: string;
+  socialMedia?: Array<{
+    name: string;
+    url: string;
+  }>;
+}
+
+interface Props {
+  currentLang: Language;
+  siteSettings?: SiteSettings;
+}
+
+const { currentLang, siteSettings } = Astro.props;
+
+// Language-aware field access
+const organizationName = currentLang === 'no'
+  ? siteSettings?.organizationName_no
+  : siteSettings?.organizationName_en;
+
+const newsletterTitle = currentLang === 'no'
+  ? siteSettings?.newsletterTitle_no
+  : siteSettings?.newsletterTitle_en;
+
+// Get current year for copyright
+const currentYear = new Date().getFullYear();
+
+// Developer credit text based on language
+const developerCreditText = currentLang === 'no'
+  ? 'Nettsider fra Magefølelsen'
+  : 'Website developed by Magefølelsen';
+
+const newTabText = currentLang === 'no'
+  ? '(åpnes i ny fane)'
+  : '(opens in new tab)';
+const socialAriaLabel = currentLang === 'no' ? 'Sosiale medier' : 'Social media';
+
+// Format phone number for display (e.g., "+47 37 15 15 00")
+function formatPhoneNumber(phone: string): string {
+  // Remove all non-digit characters except +
+  const cleaned = phone.replace(/[^\d+]/g, '');
+
+  // Format as: +47 37 15 15 00
+  if (cleaned.startsWith('+47') && cleaned.length === 11) {
+    return `+47 ${cleaned.slice(3, 5)} ${cleaned.slice(5, 7)} ${cleaned.slice(7, 9)} ${cleaned.slice(9, 11)}`;
+  }
+
+  // Return original if format doesn't match
+  return phone;
+}
+
+const formattedPhone = siteSettings?.phone ? formatPhoneNumber(siteSettings.phone) : undefined;
+
+// Social media icon mapping
+const socialIcons: Record<string, string> = {
+  Facebook: '<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Facebook</title><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>',
+  Instagram: '<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Instagram</title><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg>',
+  YouTube: '<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>YouTube</title><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>',
+  Spotify: '<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Spotify</title><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>',
+};
+
+function getSocialIcon(name: string): string | undefined {
+  return socialIcons[name];
+}
+---
+
+<footer class="page-footer">
+
+  <!-- Newsletter Link -->
+  {siteSettings?.newsletterUrl && newsletterTitle && (
+    <a
+      href={siteSettings.newsletterUrl}
+      class="newsletter-link"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {newsletterTitle}
+      <span class="visually-hidden"> {newTabText}</span>
+    </a>
+  )}
+
+  <!-- Contact Information -->
+  {(siteSettings?.email || siteSettings?.phone || siteSettings?.address) && (
+    <address>
+      {siteSettings.email && (
+        <a href={`mailto:${siteSettings.email}`}>
+          {siteSettings.email}
+        </a>
+      )}
+
+      {siteSettings.phone && (
+        <a href={`tel:${siteSettings.phone}`}>
+          {formattedPhone}
+        </a>
+      )}
+
+      {siteSettings.address && (
+        <>
+          {siteSettings.linkUrl ? (
+            <a
+              href={siteSettings.linkUrl}
+              target={siteSettings.openInNewTab ? '_blank' : undefined}
+              rel={siteSettings.openInNewTab ? 'noopener noreferrer' : undefined}
+            >
+              {siteSettings.address}
+              {siteSettings.openInNewTab && (
+                <span class="visually-hidden"> {newTabText}</span>
+              )}
+            </a>
+          ) : (
+            <span>{siteSettings.address}</span>
+          )}
+        </>
+      )}
+    </address>
+  )}
+
+  <!-- Social Media Links -->
+  {siteSettings?.socialMedia && siteSettings.socialMedia.length > 0 && (
+    <nav aria-label={socialAriaLabel}>
+      <ul>
+        {siteSettings.socialMedia.map((social) => {
+          const icon = getSocialIcon(social.name);
+          return (
+            <li>
+              <a
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="social-link"
+              >
+                <span class="social-name">{social.name}</span>
+                {icon && (
+                  <span class="social-icon" set:html={icon} />
+                )}
+                <span class="visually-hidden"> {newTabText}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  )}
+
+  <!-- Copyright Notice -->
+  <p class="copyright">
+    © {currentYear} {organizationName || 'Risør kammermusikkfest'}
+  </p>
+
+  <!-- Developer Credit -->
+  <a
+    href="https://www.magefolelsen.no"
+    class="developer-credit"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {developerCreditText}
+    <span class="visually-hidden"> {newTabText}</span>
+  </a>
+
+</footer>
+
+<style>
+  /* Footer - Intrinsic size with centered content */
+  .page-footer {
+    margin-inline: auto;
+    width: min(80ch, 100% - 5rem);
+    background-color: var(--color-green-100);
+    margin-block-end: calc(var(--space-3xl) * 3);
+
+    /* Flexbox layout for children */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-l);
+
+    /* Centering and padding */
+    text-align: center;
+    padding-block-start: var(--space-2xl);
+    padding-block-end: var(--space-3xl);
+    padding-inline: var(--space-xl);
+  }
+
+  /* Reset margins on direct children */
+  .page-footer > * {
+    margin: 0;
+  }
+
+  /* Contact section - semantic address element */
+  .page-footer address {
+    font-style: normal;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    font-size: var(--step-0);
+    line-height: 1.5;
+    margin-block-end: var(--space-m);
+  }
+
+  /* Social navigation */
+  .page-footer nav {
+    margin-block-start: calc(var(--space-l) * -0.5);
+    margin-block-end: var(--space-m);
+  }
+
+  .page-footer nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-s);
+  }
+
+  .page-footer nav li {
+    margin: 0;
+  }
+
+  /* Social media link layout */
+  .social-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  /* Social media icon styling */
+  .social-icon {
+    display: block;
+    width: 24px;
+    height: 24px;
+  }
+
+  .social-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+  }
+
+  /* Contact & social links - simple underline on hover only */
+  .page-footer address a,
+  .social-link {
+    text-decoration: none;
+  }
+
+  @media (hover: hover) {
+    .page-footer address a:hover,
+    .social-link:hover {
+      text-decoration: underline;
+      text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
+      background-color: transparent; /* Override global green tint */
+      transform: none; /* Override global lift */
+      box-shadow: none; /* Override global shadow */
+    }
+  }
+
+  /* Remove arrows from contact/social links */
+  .page-footer address a::after,
+  .social-link::after {
+    content: none;
+  }
+
+  /* Specific elements - set first for proper cascade */
+  .copyright,
+  .developer-credit {
+    font-size: var(--step-0);
+  }
+
+  .newsletter-link {
+    font-size: var(--step-2);
+    font-weight: var(--font-weight-normal);
+    padding-block: var(--space-m);
+  }
+
+  /* Newsletter & developer credit - lift only (no green tint, no shadow) */
+  .page-footer a.newsletter-link,
+  .page-footer a.developer-credit {
+    display: inline-block;
+    text-decoration: underline;
+    text-decoration-thickness: 0.0625em; /* Default - scales with text */
+    transition: transform var(--transition-fast); /* Only transition lift - instant thickness change */
+  }
+
+  @media (hover: hover) {
+    .page-footer a.newsletter-link:hover,
+    .page-footer a.developer-credit:hover {
+      text-decoration: underline;
+      text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
+      transform: translateY(-2px); /* Only lift */
+      background-color: transparent; /* No green tint */
+      box-shadow: none; /* No shadow */
+    }
+  }
+
+  .page-footer .copyright {
+    margin-block-end: var(--space-m);
+  }
+
+  /* Arrows for external CTAs */
+  .page-footer .newsletter-link::after,
+  .page-footer .developer-credit::after {
+    content: ' →';
+  }
+
+  /* Accessibility: Visually hidden but available to screen readers */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Print styles */
+  @media print {
+    .page-footer {
+      display: none !important;
+    }
+  }
+</style>

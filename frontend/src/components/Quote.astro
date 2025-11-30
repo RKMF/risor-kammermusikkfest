@@ -16,24 +16,22 @@ const {
 } = Astro.props
 ---
 
-<blockquote
-  class={`quote-component ${className}`}
-  data-component="quote"
-  cite={cite}
->
-  <div class="quote-text">{quote}</div>
+<figure class={`quote-figure ${className}`} data-component="quote">
+  <blockquote class="quote-component" cite={cite}>
+    <p class="quote-text">{quote}</p>
+  </blockquote>
   {(author || source) && (
-    <cite class="quote-attribution">
+    <figcaption class="quote-attribution">
       {author && <span class="quote-author">{author}</span>}
-      {author && source && <span class="quote-separator"></span>}
-      {source && <span class="quote-source">{source}</span>}
-    </cite>
+      {author && source && <span class="quote-separator" aria-hidden="true"></span>}
+      {source && <cite class="quote-source">{source}</cite>}
+    </figcaption>
   )}
-</blockquote>
+</figure>
 
 <style>
   /* CSS Variable-based width control - Kevin Powell method */
-  .quote-component {
+  .quote-figure {
     width: var(--component-width, min(65ch, 100% - 4rem));
     max-width: var(--component-max-width, 100%);
     margin-inline: auto;
@@ -49,8 +47,21 @@ const {
     container-name: quote;
   }
 
+  /* Reset default figure margins */
+  .quote-figure {
+    margin-block-start: 0;
+    margin-block-end: 0;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+  }
+
+  /* Blockquote inside figure - remove default margins */
+  .quote-component {
+    margin: 0;
+  }
+
   /* When inside a layout context, fill parent space */
-  :global([data-layout-context]) .quote-component {
+  :global([data-layout-context]) .quote-figure {
     width: 100%;
     height: 100%;
     margin: 0;
@@ -64,7 +75,7 @@ const {
   }
 
   .quote-text {
-    font-size: var(--fs-lg); /* Fluid 20px → 23px */
+    font-size: var(--step-1); /* Fluid 20px → 23px */
     font-weight: var(--font-weight-medium); /* 500 */
     line-height: var(--line-height-normal); /* 1.6 */
     font-style: normal; /* Modern, not italic */
@@ -79,7 +90,7 @@ const {
     justify-content: flex-end; /* Align to right */
     gap: var(--space-xs);
     margin-block-start: var(--space-l); /* More vertical space (24-30px) */
-    font-size: var(--fs-sm); /* Fluid 13px → 14px */
+    font-size: var(--step--1); /* Fluid 13px → 14px */
     font-style: normal;
     color: var(--color-red-900); /* Match quote text color */
     text-align: right; /* Right-align text */
@@ -99,12 +110,12 @@ const {
 
   /* Container query: Adjust at narrow widths */
   @container quote (max-width: 500px) {
-    .quote-component {
+    .quote-figure {
       padding: var(--space-s-m); /* 12px → 20px */
     }
 
     .quote-text {
-      font-size: var(--fs-base); /* 16px → 18px */
+      font-size: var(--step-0); /* 16px → 18px */
     }
   }
 
@@ -119,14 +130,14 @@ const {
   /* Note: No viewport media queries needed! Quote adapts to its container size */
 
   /* Accessibility */
-  .quote-component:focus-within {
+  .quote-figure:focus-within {
     outline: 2px solid var(--color-blue);
     outline-offset: 2px;
   }
 
   /* Respect user preferences for reduced motion */
   @media (prefers-reduced-motion: reduce) {
-    .quote-component {
+    .quote-figure {
       transition: none;
     }
   }

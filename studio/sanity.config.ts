@@ -8,7 +8,21 @@ import {schemaTypes} from './schemaTypes'
 import {structure} from './deskStructure'
 import {placeholderTextPlugin} from './plugins/placeholderTextPlugin'
 import {componentGuideTool} from './plugins/componentGuideTool'
-import {addEventToProgramPageAction} from './actions/addEventToProgramPageAction'
+import {compositeArtistPublishAction} from './actions/compositeArtistPublishAction'
+import {compositeEventPublishAction} from './actions/compositeEventPublishAction'
+import {addArticleToArticlePageAction} from './actions/addArticleToArticlePageAction'
+import {createDeleteWithReferencesAction} from './actions/createDeleteWithReferencesAction'
+import {
+  articleDeleteConfig,
+  artistDeleteConfig,
+  eventDeleteConfig,
+} from './actions/deleteConfigs'
+import {rkmfTheme} from './theme'
+
+// Create delete actions using factory function
+const deleteArticleAction = createDeleteWithReferencesAction(articleDeleteConfig)
+const deleteArtistAction = createDeleteWithReferencesAction(artistDeleteConfig)
+const deleteEventAction = createDeleteWithReferencesAction(eventDeleteConfig)
 
 // Custom Norwegian i18n resources to override publish button text
 const customNorwegianResources = {
@@ -34,6 +48,8 @@ export default defineConfig({
 
   projectId: 'dnk98dp0',
   dataset: 'production',
+
+  theme: rkmfTheme,
 
   plugins: [
     structureTool({structure}),
@@ -133,12 +149,49 @@ export default defineConfig({
 
   document: {
     actions: (prev, context) => {
-      // Replace default publish action with our custom one for event documents
-      if (context.schemaType === 'event') {
-        return prev.map((action) =>
-          action.action === 'publish' ? addEventToProgramPageAction : action
-        )
+      // Replace default publish action with custom actions for different document types
+
+      // Artist documents: sync events + add to artist page + custom delete
+      if (context.schemaType === 'artist') {
+        return prev.map((action) => {
+          if (action.action === 'publish') {
+            // Use composite action which handles event sync and artist page dialog
+            return compositeArtistPublishAction
+          }
+          if (action.action === 'delete') {
+            return deleteArtistAction
+          }
+          return action
+        })
       }
+
+      // Event documents: sync date value + sync artists + add to program page + custom delete
+      if (context.schemaType === 'event') {
+        return prev.map((action) => {
+          if (action.action === 'publish') {
+            // Use composite action which handles date sync, artist sync, and program page dialog
+            return compositeEventPublishAction
+          }
+          if (action.action === 'delete') {
+            return deleteEventAction
+          }
+          return action
+        })
+      }
+
+      // Article documents: add to article page + custom delete
+      if (context.schemaType === 'article') {
+        return prev.map((action) => {
+          if (action.action === 'publish') {
+            return addArticleToArticlePageAction
+          }
+          if (action.action === 'delete') {
+            return deleteArticleAction
+          }
+          return action
+        })
+      }
+
       return prev
     },
   },

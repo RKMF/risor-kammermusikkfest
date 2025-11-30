@@ -2,6 +2,7 @@
 import Layout from './Layout.astro';
 import DynamicComponent from '../components/DynamicComponent.astro';
 import { getMultilingualContent, detectLanguage } from '../lib/utils/language.js';
+import { stegaClean } from '@sanity/client/stega';
 
 interface Props {
   title: string;
@@ -17,24 +18,27 @@ const {
   pageDocument
 } = Astro.props;
 
+// Detect language from URL to use correct content
+const language = detectLanguage(Astro.request);
+
 // Get multilingual content if pageDocument is provided, otherwise use pageContent
 const content = pageDocument
-  ? (getMultilingualContent(pageDocument) || pageDocument?.content || pageContent)
+  ? (getMultilingualContent(pageDocument, language) || pageDocument?.content || pageContent)
   : pageContent;
 
-// Extract slug information from pageDocument if available
-const slugNo = pageDocument?.slug_no;
-const slugEn = pageDocument?.slug_en;
+// Extract slug information from pageDocument if available and clean stega encoding
+const slugNo = pageDocument?.slug_no?.current ? stegaClean(pageDocument.slug_no.current) : undefined;
+const slugEn = pageDocument?.slug_en?.current ? stegaClean(pageDocument.slug_en.current) : undefined;
 ---
 
 <Layout title={`${title} - Sanity + Astro`} slugNo={slugNo} slugEn={slugEn}>
-  <div class="stack page-layout" style="--space: var(--space-m-l)">
+  <div class="stack page-layout" style="--space: var(--space-xl)">
     <header class="page-header">
       <h1 class="page-title">
         {title}
       </h1>
       {excerpt && (
-        <p class="page-excerpt">{excerpt}</p>
+        <p class="excerpt">{excerpt}</p>
       )}
     </header>
 
@@ -78,27 +82,20 @@ const slugEn = pageDocument?.slug_en;
 
   .page-header {
     margin: 0;
+    container-type: inline-size; /* Enable container queries for h1 sizing */
   }
 
   .page-title {
-    margin: 0 0 var(--space-4) 0;
-    /* Use global h1 token for consistency across all h1 elements */
-    font-size: var(--fs-3xl); /* Fluid 39-44px - matches global base.css h1 */
+    margin: 0 0 var(--space-6) 0;
+    /* Use container query-based h1 token for Norwegian long words */
+    font-size: var(--heading-h1); /* Fluid 37-69px with cqi sizing */
     /* Ensure title wraps gracefully with Norwegian/English text */
     word-wrap: break-word;
     overflow-wrap: break-word;
     hyphens: auto;
   }
 
-  .page-excerpt {
-    margin: 0 0 var(--space-3) 0;
-    /* Accessible fluid typography: combines rem + vw for zoom support (WCAG 1.4.4) */
-    font-size: clamp(1.25rem, 1.25rem + 0.25vw, 1.5rem);
-    line-height: var(--line-height-relaxed);
-    /* Better text balance for excerpts */
-    text-wrap: balance;
-    max-inline-size: 65ch; /* Optimal reading width */
-  }
+  /* Excerpt styling now handled by global .excerpt class in base.css */
 
   .page-content {
     margin: 0;

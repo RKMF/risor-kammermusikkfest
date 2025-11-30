@@ -1,18 +1,13 @@
 ---
 import { sanityClient } from "sanity:client";
-import Image from './Image.astro';
-import { IMAGE_QUALITY } from '../lib/sanityImage';
 import { detectLanguage } from "../lib/utils/language.js";
-import { stegaClean } from '@sanity/client/stega';
+import EventCard from './EventCard.astro';
+import type { EventResult } from '../lib/sanity/queries';
 
 interface Props {
   title?: string
   events?: any[]
   showScrollbar?: boolean
-  showDate?: boolean
-  showTime?: boolean
-  showVenue?: boolean
-  showArtists?: boolean
   sortBy?: 'date-asc' | 'date-desc' | 'title-asc' | 'manual'
 }
 
@@ -20,19 +15,14 @@ const {
   title,
   events = [],
   showScrollbar = false,
-  showDate = true,
-  showTime = true,
-  showVenue = true,
-  showArtists = true,
   sortBy = 'date-asc'
 } = Astro.props
 
 // Detect current language from URL
 const currentLanguage = detectLanguage(Astro.request)
-const programPath = currentLanguage === 'en' ? '/en/program' : '/program'
 
 // Hent faktiske event-data fra referansene
-let eventData = []
+let eventData: EventResult[] = []
 if (events && events.length > 0) {
   const eventIds = events.map((item: any) => item._ref).filter(Boolean)
   if (eventIds.length > 0) {
@@ -44,7 +34,6 @@ if (events && events.length > 0) {
       "title": coalesce(title_no, title_en),
       slug_no,
       slug_en,
-      "slug": coalesce(slug_no.current, slug_en.current, slug.current),
       excerpt_no,
       excerpt_en,
       "excerpt": coalesce(excerpt_no, excerpt_en),
@@ -91,16 +80,10 @@ if (events && events.length > 0) {
         city,
         "slug": slug.current
       },
-      "artists": artist[]->{
-        _id,
-        name,
-        "slug": slug.current,
-        image,
-        "imageAlt": coalesce(imageAlt_no, imageAlt_en)
-      },
       ticketType,
       ticketUrl,
       ticketInfoText,
+      ticketStatus,
       publishingStatus,
       scheduledPeriod,
       seo
@@ -142,71 +125,13 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
 <section class={`${containerClass} ${scrollbarClass}`}>
   {title && <h2 class="event-scroll-title">{title}</h2>}
-  <ul class="event-list">
+  <ul class="event-list scroll-container scroll-container--event-cards">
     {sortedEvents.map((event) => {
         if (!event) return null
 
-        const eventDate = event.eventDate?.date ? new Date(event.eventDate.date) : null
-        const dateString = eventDate ? eventDate.toLocaleDateString('nb-NO') : ''
-        const timeString = stegaClean(event.eventTime || '')
-        const venueName = stegaClean(event.venue?.title || '')
-        const artistNames = stegaClean(event.artists?.map((artist: any) => artist.name).join(', ') || '')
-        const eventSlug = stegaClean(event.slug || '')
-
-        const eventImage = event.image?.image || null
-        const imageAlt = event.image?.alt || event.title || ''
-
-        // Kombinert dato og tid for <time> element
-        const dateTimeValue = eventDate && timeString
-          ? `${eventDate.toISOString().split('T')[0]}T${timeString}:00`
-          : eventDate?.toISOString().split('T')[0]
-
         return (
           <li class="event-item">
-            <article class="event-card">
-              {eventImage && (
-                <div class="event-image">
-                  <Image
-                    image={eventImage}
-                    alt={imageAlt}
-                    size="small"
-                    aspectRatio="4:5"
-                    loading="lazy"
-                    quality={IMAGE_QUALITY.CARD}
-                    className="event-card-image"
-                  />
-                </div>
-              )}
-              <div class="event-content">
-                <h4 class="event-title">
-                  {eventSlug ? (
-                    <a href={`${programPath}/${eventSlug}`} class="event-title-link">
-                      {stegaClean(event.title || '')}
-                    </a>
-                  ) : (
-                    stegaClean(event.title || '')
-                  )}
-                </h4>
-                {(showDate || showTime) && (dateString || timeString) && (
-                  <div class="event-datetime">
-                    {showDate && dateString && <time class="event-date" dateTime={eventDate.toISOString().split('T')[0]}>{dateString}</time>}
-                    {showTime && timeString && <time class="event-time" dateTime={`${eventDate.toISOString().split('T')[0]}T${timeString}`}>{timeString}</time>}
-                  </div>
-                )}
-                {showVenue && venueName && <address class="event-venue">{venueName}</address>}
-                {showArtists && artistNames && <p class="event-artists">{artistNames}</p>}
-                {event.buttonText && (
-                  <a
-                    href={event.buttonUrl || '#'}
-                    class="event-button"
-                    target={event.buttonOpenInNewTab ? '_blank' : undefined}
-                    rel={event.buttonOpenInNewTab ? 'noopener noreferrer' : undefined}
-                  >
-                    {event.buttonText}
-                  </a>
-                )}
-              </div>
-            </article>
+            <EventCard event={event} language={currentLanguage} />
           </li>
         )
       })}
@@ -214,7 +139,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 </section>
 
 <style>
-  /* Intrinsic Scroll Container */
+  /* Scroll Container */
   .event-scroll-container {
     container-type: inline-size;
     width: min(100ch, 100% - 4rem);
@@ -223,220 +148,38 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
   }
 
   .event-scroll-title {
-    font-size: var(--fs-2xl);
+    font-size: var(--step-3);
     font-weight: 600;
     margin-block-end: var(--space-m);
   }
 
-  /* Fluid scroll list */
+  /* Scroll list - behavior from scroll-containers.css */
   .event-list {
-    display: flex;
-    gap: clamp(var(--space-3), 2.5vw, var(--space-5));
     list-style: none;
     margin: 0;
     padding-block: var(--space-2);
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x proximity;
-    -webkit-overflow-scrolling: touch;
-    touch-action: manipulation; /* Allow both horizontal and vertical scrolling, remove double-tap delay */
   }
 
   .event-item {
-    flex-shrink: 0;
-    scroll-snap-align: start;
+    /* Container for EventCard component */
+    display: contents;
   }
 
-  /* Intrinsic event cards - standardized to 4:5 */
-  .event-card {
-    position: relative; /* Required for stretched link pattern */
-    container-type: inline-size;
-    background: var(--color-background);
-    border: 1px solid var(--color-border);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-    transition: transform var(--transition-base), box-shadow var(--transition-base);
-    width: clamp(240px, 35vw, 320px);
-    aspect-ratio: 4/5;
-  }
-
-  .event-card:hover {
-    transform: translateY(clamp(-1px, -0.5vw, -3px));
-    box-shadow: var(--shadow-md);
-  }
-
-  .event-image {
-    width: 100%;
-    flex-shrink: 0;
-    overflow: hidden;
-    aspect-ratio: 4/5; /* Parent controls image height */
-  }
-
-  .event-card-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  /* Intrinsic content padding */
-  .event-content {
-    padding: clamp(var(--space-3), 4cqw, var(--space-5));
-  }
-
-  .event-title {
-    font-size: clamp(var(--font-size-base), 3.5cqw, var(--font-size-lg));
-    font-weight: var(--font-weight-semibold);
-    margin: 0 0 var(--space-2) 0;
-    line-height: var(--line-height-tight);
-  }
-
-  .event-date {
-    font-size: clamp(var(--font-size-sm), 2.8cqw, var(--font-size-base));
-    font-weight: var(--font-weight-medium);
-    margin-block-end: var(--space-1);
-  }
-
-  .event-datetime,
-  .event-time,
-  .event-venue {
-    position: relative;
-    z-index: 0; /* Below stretched link */
-    font-size: clamp(var(--font-size-sm), 2.8cqw, var(--font-size-base));
-    margin-block-end: var(--space-1);
-  }
-
-  .event-artists {
-    position: relative;
-    z-index: 0; /* Below stretched link */
-    font-size: clamp(var(--font-size-sm), 2.8cqw, var(--font-size-base));
-    margin-block-end: var(--space-4);
-    font-style: italic;
-  }
-
-  /* Secondary CTA button - elevated above stretched link */
-  .event-button {
-    position: relative; /* Creates stacking context */
-    z-index: 2; /* Above the stretched link (z-index: 1) */
-    display: inline-flex;
-    align-items: center;
-    padding: clamp(var(--space-2), 2cqw, var(--space-3))
-             clamp(var(--space-3), 3cqw, var(--space-4));
-    background: var(--color-blue);
-    color: white;
-    text-decoration: none;
-    font-size: clamp(var(--font-size-sm), 2.5cqw, var(--font-size-base));
-    font-weight: var(--font-weight-medium);
-    transition: background-color var(--transition-base);
-    margin-inline-end: var(--space-2);
-  }
-
-  .event-button::after {
-    content: none;
-  }
-
-  @media (hover: hover) {
-    .event-button:hover {
-      background: var(--color-blue-600);
-    }
-  }
-
-  .event-button:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: 2px;
-  }
-
-  /* Stretched link pattern - makes entire card clickable */
-  .event-title-link {
-    color: inherit;
-    text-decoration: none;
-    transition: color var(--transition-base);
-  }
-
-  /* Pseudo-element stretches to cover entire card */
-  .event-title-link::before {
-    content: '';
-    position: absolute;
-    inset: 0; /* Modern shorthand for top:0; right:0; bottom:0; left:0; */
-    z-index: 1;
-  }
-
-  /* No arrow indicator on card title links */
-  .event-title-link::after {
-    content: none;
-  }
-
-  /* Hover state - underline appears on title text */
-  @media (hover: hover) {
-    .event-title-link:hover {
-      text-decoration: underline;
-      text-decoration-thickness: 2px;
-    }
-  }
-
-  /* Focus state - highly visible for keyboard users */
-  .event-title-link:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: 2px;
-    text-decoration: underline;
-  }
-
-  /* Container Query Enhancements */
-  @container (min-width: 300px) {
-    .event-content {
-      padding: var(--space-4);
-    }
-    
-    .event-title {
-      font-size: var(--font-size-lg);
-    }
-  }
-
-  @container (min-width: 400px) {
-    .event-content {
-      padding: var(--space-5);
-    }
-  }
-
-  /* Scroll snap and accessibility */
-  .hide-scrollbar .event-list {
+  /* Hide scrollbar variant */
+  .hide-scrollbar .event-list.scroll-container {
     scrollbar-width: none;
     -ms-overflow-style: none;
+    padding-block-end: 0;
   }
 
-  .hide-scrollbar .event-list::-webkit-scrollbar {
+  .hide-scrollbar .event-list.scroll-container::-webkit-scrollbar {
     display: none;
   }
 
   /* Support for reduced motion */
   @media (prefers-reduced-motion: reduce) {
-    .event-card,
-    .event-title-link,
-    .event-button {
-      transition: none;
-    }
-
-    .event-card:hover {
-      transform: none; /* Disable lift effect */
-    }
-
-    .event-list {
+    .event-list.scroll-container {
       scroll-behavior: auto;
     }
   }
-
-  /* High contrast mode support */
-  @media (prefers-contrast: high) {
-    .event-card {
-      border-width: 2px;
-    }
-
-    .event-title-link:focus-visible {
-      outline-width: 3px;
-    }
-
-    .event-button:focus-visible {
-      outline-width: 3px;
-    }
-  }
-</style> 
+</style>

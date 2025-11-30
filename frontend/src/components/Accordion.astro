@@ -23,49 +23,45 @@ const {
 } = Astro.props
 ---
 
-<div class={`accordion ${className}`}>
+<section class={`accordion ${className}`}>
   {description && <p class="accordion-description">{description}</p>}
 
   {panels && panels.length > 0 ? (
     panels.map((panel) => (
-      <details class="accordion-panel">
+      <details class="accordion-panel" name="accordion-group">
         <summary class="accordion-summary">
           {panel.title}
         </summary>
-        <div class="accordion-content">
-          {panel.content && panel.content.length > 0 ? (
-            panel.content.map((item) => {
-              switch (item._type) {
-                case 'block':
-                  return <PortableText value={[item]} semantic="div" />
-                case 'imageComponent':
-                  return <Image {...item} />
-                case 'videoComponent':
-                  return <Video {...item} />
-                case 'buttonComponent':
-                  return <Button {...item} />
-                case 'title':
-                  return <Title {...item} />
-                case 'quoteComponent':
-                  return <Quote {...item} />
-                case 'heading':
-                  return <Heading {...item} />
-                default:
-                  return <div>Ukjent komponent: {item._type}</div>
-              }
-            })
-          ) : (
-            <div>Ingen innhold</div>
-          )}
-        </div>
+        {panel.content && panel.content.length > 0 ? (
+          panel.content.map((item) => {
+            switch (item._type) {
+              case 'block':
+                return <PortableText value={[item]} semantic="div" />
+              case 'imageComponent':
+                return <Image {...item} />
+              case 'videoComponent':
+                return <Video {...item} />
+              case 'buttonComponent':
+                return <Button {...item} />
+              case 'title':
+                return <Title {...item} />
+              case 'quoteComponent':
+                return <Quote {...item} />
+              case 'heading':
+                return <Heading {...item} />
+              default:
+                return <p>Ukjent komponent: {item._type}</p>
+            }
+          })
+        ) : (
+          <p>Ingen innhold</p>
+        )}
       </details>
     ))
   ) : (
-    <div class="no-panels">
-      <p>Ingen paneler tilgjengelig</p>
-    </div>
+    <p class="no-panels">Ingen paneler tilgjengelig</p>
   )}
-</div>
+</section>
 
 
 <style>
@@ -143,7 +139,13 @@ const {
     background: var(--color-yellow-50); /* Fill entire panel with yellow to prevent green flash */
   }
 
-  .accordion-content {
+  /* Progressive enhancement: Smooth accordion animation in modern browsers (Baseline 2025) */
+  .accordion-panel::details-content {
+    transition: content-visibility 0.5s ease-out, height 0.5s ease-out;
+  }
+
+  /* Style content directly within details (after summary) */
+  .accordion-panel > :not(summary) {
     padding: var(--space-m) var(--space-m-l); /* Fluid padding */
     background: var(--color-yellow-50); /* Very light yellow background */
     color: var(--color-yellow-900); /* Dark yellow text */

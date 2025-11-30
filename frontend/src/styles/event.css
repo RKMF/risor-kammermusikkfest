@@ -54,7 +54,7 @@
 
 .back-button::before {
   content: '←';
-  font-size: var(--fs-lg);
+  font-size: var(--step-1);
 }
 
 .back-button::after {
@@ -92,54 +92,87 @@
   order: 1;
 }
 
+/* Event info box - blue background container matching event cards */
+.event-info-box {
+  background-color: var(--color-tint-blue-medium); /* Same blue as event cards */
+  padding: var(--space-l); /* 24-30px fluid */
+}
+
 /* Event header - title and excerpt */
 .event-header {
-  margin: 0;
+  margin: 0 0 var(--space-2xl) 0; /* 48-60px below header section */
+  container-type: inline-size; /* Enable container queries for h1 sizing */
 }
 
 .event-title {
-  margin: 0 0 var(--space-4) 0;
-  /* Fixed: Converted pure vw to rem + vw for WCAG 1.4.4 accessibility (200% zoom support) */
-  font-size: clamp(2.5rem, 2.5rem + 0.5vw, 3.5rem);
+  margin: 0 0 var(--space-6) 0; /* 24-30px - matches program page */
+  font-size: var(--heading-h1); /* Fluid 37-69px with cqi sizing for Norwegian long words */
   word-wrap: break-word;
   overflow-wrap: break-word;
-  hyphens: auto;
+  hyphens: none;
 }
 
 .event-excerpt {
-  margin: 0;
-  /* Fixed: Converted pure vw to rem + vw for WCAG 1.4.4 accessibility (200% zoom support) */
-  /* Consider using --fs-lg for consistency: clamp(1.25rem, 1.18rem + 0.33vw, 1.41rem) */
-  font-size: clamp(1.25rem, 1.25rem + 0.125vw, 1.5rem);
-  line-height: var(--line-height-normal);
-  text-wrap: balance;
-  max-inline-size: 65ch;
+  max-inline-size: 70ch;
+  inline-size: 100%;
+  margin-block-end: var(--space-6);
+  font-size: var(--step-1);
+  line-height: 1.5;
+  color: var(--color-text);
+  text-wrap: pretty;
 }
 
-/* Event metadata (date, time, venue) - vertical stack */
-.event-meta {
+/* Event metadata (date, time, venue) - definition list */
+dl.event-meta {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-1); /* 2-3px between metadata items */
   margin: 0;
-  font-size: var(--fs-base);
+  font-size: var(--step-1); /* Fluid 22-28px - larger, more prominent */
+  font-weight: var(--font-weight-normal); /* 400 - matches excerpt (Akkurat Pro has no 500 weight) */
   line-height: var(--line-height-tight);
 }
 
-.event-meta-item {
-  display: block;
+/* Screen reader only labels for dt elements */
+.event-meta dt {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.event-meta dd {
+  margin: 0;
+}
+
+/* Extra space before venue (last dd) - scoped to event detail pages only */
+.event-info-box .event-meta dd:last-of-type {
+  margin-block-start: var(--space-s); /* 12-15px additional space before venue */
 }
 
 /* Ticket section */
 .ticket-section {
-  margin-block-start: var(--space-2);
+  margin: 0;
 }
 
 .ticket-info {
-  font-size: var(--fs-base);
-  font-style: italic;
-  color: var(--color-blue);
-  opacity: 0.85;
+  margin: 0;
+  margin-block-end: var(--space-xl); /* 32-40px - matches excerpt spacing */
+  font-size: var(--step-1); /* Fluid 22-28px - matches excerpt */
+  line-height: var(--line-height-subhead); /* 1.3 - matches excerpt */
+  text-wrap: balance;
+  max-inline-size: 70ch; /* Optimal readability - matches excerpt */
+}
+
+/* Larger ticket button on event pages */
+.event-info-box .btn-primary {
+  padding: var(--space-m) var(--space-xl); /* 16-20px vertical, 32-40px horizontal */
+  font-size: var(--step-1); /* 22-28px - larger text */
 }
 
 /* Right column - event image */
@@ -185,9 +218,9 @@
    ARTIST SCROLLBAR SECTION
    ============================================
 
-   Horizontal scroll container for artist names.
-   Simple, text-focused design to avoid competing
-   with main content. Similar to program page filters.
+   Horizontal scroll container for artist cards.
+   Scroll behavior handled by scroll-containers.css utility classes.
+   Simple, text-focused design to avoid competing with main content.
 */
 
 .artists-section {
@@ -199,71 +232,25 @@
 
 .artists-title {
   margin: 0 0 var(--space-4) 0;
-  font-size: var(--fs-2xl);
+  font-size: var(--step-3);
   font-weight: var(--font-weight-semibold);
   color: var(--color-blue);
 }
 
-.artists-scroll-wrapper {
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-behavior: smooth;
-  overscroll-behavior-x: contain;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
-  scroll-padding-inline: var(--space-3);
-  padding-block-end: 12px;
-  scroll-snap-type: x proximity;
-}
-
 .artists-list {
-  display: flex;
-  gap: var(--space-3);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.artist-item {
-  flex-shrink: 0;
-  scroll-snap-align: start;
-  scroll-margin-inline-start: var(--space-2);
-}
-
 /* Artist card component styles now centralized in:
    /src/styles/artist-card.css
 
-   This file only contains event page-specific layout and scrolling behavior.
+   This file only contains event page-specific layout.
+   Scroll behavior is handled by scroll-containers.css.
    The card component itself (overlay design, hover states, accessibility)
    is shared with artist overview pages.
 */
-
-/* Styled scrollbar - always visible for discoverability
- * Pattern defined in utilities.css (.scrollbar-styled)
- * Kept inline here due to specific context */
-.artists-scroll-wrapper {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-blue) var(--color-neutral-100);
-}
-
-.artists-scroll-wrapper::-webkit-scrollbar {
-  height: 4px;
-  -webkit-appearance: none;
-}
-
-.artists-scroll-wrapper::-webkit-scrollbar-track {
-  background: var(--color-neutral-100);
-  border-radius: 0;
-}
-
-.artists-scroll-wrapper::-webkit-scrollbar-thumb {
-  background: var(--color-blue);
-  border-radius: 0;
-}
-
-.artists-scroll-wrapper::-webkit-scrollbar-thumb:hover {
-  background: var(--color-green);
-}
 
 /* ============================================
    MAIN CONTENT AREA
@@ -280,14 +267,14 @@
 
 .section-title {
   margin: 0 0 var(--space-3) 0;
-  font-size: var(--fs-2xl);
+  font-size: var(--step-3);
   font-weight: var(--font-weight-semibold);
   color: var(--color-blue);
 }
 
 .description-text {
   margin: 0;
-  font-size: var(--fs-base);
+  font-size: var(--step-0);
   line-height: var(--line-height-relaxed);
 }
 
@@ -306,10 +293,6 @@
    ============================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  .artists-scroll-wrapper {
-    scroll-behavior: auto;
-  }
-
   .artist-card,
   .back-button {
     transition: none;
@@ -327,12 +310,5 @@
 
   .artist-card-link:focus-visible {
     outline-width: 3px;
-  }
-}
-
-/* Touch device optimizations */
-@media (pointer: coarse) {
-  .artists-scroll-wrapper::-webkit-scrollbar {
-    height: 8px;
   }
 }

@@ -15,7 +15,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-3) var(--space-5);
+  padding: var(--space-4) var(--space-6);
   font-size: var(--fs-base);
   font-weight: var(--font-weight-medium);
   line-height: 1;
@@ -48,9 +48,11 @@ a.btn-primary:visited {
 @media (hover: hover) {
   .btn-primary:hover,
   a.btn-primary:hover {
-    background-color: rgba(0, 179, 154, 0.08);
+    background-color: var(--color-green-50);
     color: var(--color-blue);
     border-color: var(--color-blue);
+    transform: none;
+    box-shadow: none;
   }
 }
 
@@ -78,6 +80,49 @@ a.btn-primary:active {
 @media (hover: hover) {
   .btn-ghost:hover {
     background-color: var(--color-neutral-100);
+  }
+}
+
+/* Warning variant - for low stock/few tickets */
+.btn-warning,
+a.btn-warning:link,
+a.btn-warning:visited {
+  background-color: var(--color-yellow-400);
+  color: var(--color-blue);
+  border-color: transparent;
+}
+
+@media (hover: hover) {
+  .btn-warning:hover,
+  a.btn-warning:hover {
+    background-color: var(--color-yellow-300);
+    color: var(--color-blue);
+    border-color: var(--color-yellow-500);
+  }
+}
+
+.btn-warning:active,
+a.btn-warning:active {
+  color: var(--color-blue);
+}
+
+/* Disabled variant - for sold out tickets */
+.btn-disabled,
+[aria-disabled="true"].btn-disabled {
+  background-color: var(--color-red-200);
+  color: var(--color-blue);
+  border-color: transparent;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Prevent hover effects on disabled buttons */
+@media (hover: hover) {
+  .btn-disabled:hover,
+  [aria-disabled="true"].btn-disabled:hover {
+    background-color: var(--color-red-200);
+    color: var(--color-blue);
+    border-color: transparent;
   }
 }
 

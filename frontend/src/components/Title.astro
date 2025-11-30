@@ -20,8 +20,8 @@ const { mainTitle, subtitle, className = '' } = Astro.props;
    * Font sizes automatically scale fluidly across all viewport sizes
    * without needing media queries.
    *
-   * Main title uses --fs-3xl for page-level prominence.
-   * Subtitle uses --fs-lg for clear differentiation while maintaining harmony.
+   * Main title uses --step-4 for page-level prominence.
+   * Subtitle uses --step-1 for clear differentiation while maintaining harmony.
    */
   .title-component {
     width: min(100ch, 100% - 4rem);
@@ -30,14 +30,14 @@ const { mainTitle, subtitle, className = '' } = Astro.props;
   }
 
   .main-title {
-    font-size: var(--fs-3xl);  /* 39-44px - Scales fluidly */
+    font-size: var(--step-4);  /* 37-55px - Scales fluidly */
     font-weight: var(--font-weight-bold);
     margin-bottom: 0.5rem;
     line-height: var(--line-height-tight);
   }
 
   .subtitle {
-    font-size: var(--fs-lg);  /* 20-23px - Scales fluidly */
+    font-size: var(--step-1);  /* 22-28px - Scales fluidly */
     font-weight: var(--font-weight-normal);
     line-height: var(--line-height-normal);
     margin: 0;

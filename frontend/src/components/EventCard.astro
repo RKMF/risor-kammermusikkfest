@@ -1,0 +1,95 @@
+---
+import { formatDateWithWeekday } from '../lib/utils/dates';
+import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../lib/sanityImage';
+import { stegaClean } from '@sanity/client/stega';
+import type { EventResult } from '../lib/sanity/queries';
+
+export interface Props {
+  event: EventResult;
+  language?: 'no' | 'en';
+}
+
+const { event, language = 'no' } = Astro.props;
+
+// Determine event link based on language
+const eventSlug = language === 'en'
+  ? stegaClean(event.slug_en?.current || event.slug_no?.current)
+  : stegaClean(event.slug_no?.current || event.slug_en?.current);
+
+const eventPath = language === 'en' ? `/en/program/${eventSlug}` : `/program/${eventSlug}`;
+
+// Translation strings
+const dateLabel = language === 'en' ? 'Date and time' : 'Dato og tid';
+const venueLabel = language === 'en' ? 'Venue' : 'Sted';
+const ticketButtonText = language === 'en' ? 'Buy tickets' : 'Kjøp billetter her';
+const fewTicketsText = language === 'en' ? 'Few tickets' : 'Få billetter igjen';
+const soldOutText = language === 'en' ? 'Sold out' : 'Utsolgt';
+const freeText = language === 'en' ? 'Free' : 'Gratis';
+---
+
+<article class="event-card card" data-event-date={event.eventDate?.date}>
+  <h3 class="event-title">
+    <a href={eventPath} class="event-title-link card-link">
+      {stegaClean(event.title)}
+    </a>
+  </h3>
+
+  {event.excerpt && (
+    <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
+  )}
+
+  {event.image?.image && (
+    <div class="event-image">
+      <img
+        src={getOptimizedImageUrl(event.image.image, 320, 180, IMAGE_QUALITY.CARD)}
+        srcset={getResponsiveImageSet(event.image.image, [320, 640, 960], 16/9, IMAGE_QUALITY.CARD)}
+        sizes="320px"
+        alt={stegaClean(event.image.alt || event.title || '')}
+        width="320"
+        height="180"
+        loading="lazy"
+        decoding="async"
+        class="event-card-image"
+      />
+    </div>
+  )}
+
+  <dl class="event-meta">
+    {event.eventDate?.date && (
+      <>
+        <dt class="visually-hidden">{dateLabel}</dt>
+        <dd class="event-datetime">
+          <time datetime={event.eventDate.date}>
+            {formatDateWithWeekday(event.eventDate.date, language)}{event.eventTime && (
+              <>, kl. {stegaClean(event.eventTime.startTime)}</>
+            )}
+          </time>
+        </dd>
+      </>
+    )}
+    {event.venue?.title && (
+      <>
+        <dt class="visually-hidden">{venueLabel}</dt>
+        <dd class="event-venue">
+          {stegaClean(event.venue.title)}
+        </dd>
+      </>
+    )}
+  </dl>
+
+  {stegaClean(event.ticketType) === 'info' ? (
+    <span class="ticket-badge">{stegaClean(event.ticketInfoText) || freeText}</span>
+  ) : stegaClean(event.ticketStatus) === 'sold_out' ? (
+    <span class="btn btn-disabled" role="button" aria-disabled="true">
+      {soldOutText}
+    </span>
+  ) : stegaClean(event.ticketStatus) === 'low_stock' ? (
+    <a href={stegaClean(event.ticketUrl)} class="btn btn-warning" target="_blank" rel="noopener noreferrer">
+      {fewTicketsText}
+    </a>
+  ) : (
+    <a href={stegaClean(event.ticketUrl)} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+      {ticketButtonText}
+    </a>
+  )}
+</article>

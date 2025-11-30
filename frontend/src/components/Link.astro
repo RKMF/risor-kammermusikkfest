@@ -1,51 +1,79 @@
 ---
+import {buildInternalUrl, detectLanguageFromPath} from '../lib/buildInternalUrl'
+
+interface InternalLinkReference {
+  _type: string
+  slug?: string
+  slug_no?: string
+  slug_en?: string
+}
+
 interface LinkItem {
-  text: string;
-  url: string;
-  description?: string;
-  openInNewTab?: boolean;
+  linkType?: 'external' | 'internal'
+  text: string
+  url?: string
+  internalLink?: InternalLinkReference
+  description?: string
+  openInNewTab?: boolean
 }
 
 interface Props {
-  links: LinkItem[];
+  links: LinkItem[]
 }
 
-const {
-  links = []
-} = Astro.props;
+const {links = []} = Astro.props
+
+// Detect current language from URL
+const currentLanguage = detectLanguageFromPath(Astro.url.pathname)
 
 // Don't render if no links
 if (!links || links.length === 0) {
-  return null;
+  return null
 }
+
+// Process links to resolve internal references to URLs
+const processedLinks = links.map((link) => {
+  let finalUrl: string | undefined
+
+  if (link.linkType === 'internal' && link.internalLink) {
+    // Build URL from internal reference
+    finalUrl = buildInternalUrl(link.internalLink, currentLanguage)
+  } else if (link.url) {
+    // Use external URL directly
+    finalUrl = link.url
+  } else {
+    // Fallback for legacy links without linkType
+    finalUrl = link.url
+  }
+
+  return {
+    ...link,
+    url: finalUrl,
+  }
+})
 ---
 
 <div class="link-component content-media-narrow">
   <nav aria-label="Lenker">
     <ul class="link-list" role="list">
-      {links.map((link) => {
-        const target = link.openInNewTab ? '_blank' : undefined;
-        const rel = link.openInNewTab ? 'noopener noreferrer' : undefined;
+      {
+        processedLinks.map((link) => {
+          const target = link.openInNewTab ? '_blank' : undefined
+          const rel = link.openInNewTab ? 'noopener noreferrer' : undefined
 
-        return (
-          <li class="link-item">
-            <a
-              href={link.url}
-              class="link"
-              target={target}
-              rel={rel}
-            >
-              {link.text}
-              {link.openInNewTab && (
-                <span class="visually-hidden"> (åpnes i ny fane)</span>
-              )}
-            </a>
-            {link.description && (
-              <p class="link-description">{link.description}</p>
-            )}
-          </li>
-        );
-      })}
+          return (
+            <li class="link-item">
+              <a href={link.url} class="link" target={target} rel={rel}>
+                {link.text}
+                {link.openInNewTab && (
+                  <span class="visually-hidden"> (åpnes i ny fane)</span>
+                )}
+              </a>
+              {link.description && <p class="link-description">{link.description}</p>}
+            </li>
+          )
+        })
+      }
     </ul>
   </nav>
 </div>
@@ -75,43 +103,30 @@ if (!links || links.length === 0) {
     display: inline-flex;
     align-items: center;
     padding: var(--space-2xs) var(--space-xs);
-    color: var(--color-blue);
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.2em;
-    transition: all var(--transition-fast);
+    /* Color inherited from global --color-link (blue) */
     font-weight: var(--font-weight-medium);
-    font-size: var(--fs-2xl);
+    font-size: var(--step-3);
+    /* Arrow handled by global .link-list a::after */
+    transition: var(--transition-link-standard);
   }
 
-  .link::after {
-    content: '\00a0→';
+  @media (hover: hover) {
+    .link:hover {
+      color: var(--color-link);
+      background-color: var(--color-tint-green-light);
+      transform: translateY(-4px);
+      box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    }
   }
 
-  .link:hover {
-    color: var(--color-blue);
-    text-decoration-thickness: 2px;
-    background-color: rgba(0, 179, 154, 0.08);
-  }
-
+  /* Focus state uses global styles, just add background */
   .link:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: 2px;
-    text-decoration: none;
-  }
-
-  /* Visited state - slightly different color to indicate visited links */
-  .link:visited {
-    color: rgb(0, 100, 87);
-  }
-
-  .link:visited:hover {
-    color: var(--color-blue);
+    background-color: var(--color-tint-blue-light);
   }
 
   .link-description {
     margin: 0;
-    font-size: var(--fs-base);
+    font-size: var(--step-0);
     color: var(--color-text-secondary);
     line-height: 1.5;
     padding-inline-start: calc(var(--space-xs) + var(--space-s));

@@ -72,7 +72,7 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
   }
 
   .grid-title {
-    font-size: var(--fs-2xl);
+    font-size: var(--step-3);
     font-weight: 600;
     margin-block-end: var(--space-l-xl); /* Fluid 24px → 40px */
   }
@@ -136,14 +136,13 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
 
   /* Media content: Fill and crop */
   .grid-item > :global(.image-container),
-  .grid-item > :global(.image-wrapper),
   .grid-item > :global([data-component="video"]) {
     width: 100%;
     height: 100%;
     flex: 1;
   }
 
-  .grid-item > :global(.image-wrapper img),
+  .grid-item > :global(.image-container .image),
   .grid-item > :global(.image) {
     width: 100%;
     height: 100%;

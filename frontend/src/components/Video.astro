@@ -75,70 +75,89 @@ switch (videoType) {
 }
 ---
 
-<figure class={`video-component ${className}`} data-component="video">
-  {videoType === 'sanity' && videoSource ? (
-    <video
-      controls={controls}
-      autoplay={autoplay}
-      muted={muted}
-      loop={loop}
-      preload="none"
-      playsinline
-      class="video-element"
-      title={title}
-      style={`aspect-ratio: ${aspectRatioValue};`}
-    >
-      <source src={videoSource} type="video/mp4" />
-      Din nettleser støtter ikke HTML5 video.
-    </video>
-  ) : videoType === 'youtube' && videoSource ? (
-    <iframe
-      loading="lazy"
-      src={`${videoSource}?autoplay=${autoplay ? 1 : 0}&mute=${muted ? 1 : 0}&controls=${controls ? 1 : 0}&loop=${loop ? 1 : 0}&rel=0`}
-      title={title || 'YouTube video'}
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowfullscreen
-      class="video-element"
-      style={`aspect-ratio: ${aspectRatioValue};`}
-    ></iframe>
-  ) : videoType === 'vimeo' && videoSource ? (
-    <iframe
-      loading="lazy"
-      src={`${videoSource}?autoplay=${autoplay ? 1 : 0}&muted=${muted ? 1 : 0}&controls=${controls ? 1 : 0}&loop=${loop ? 1 : 0}&dnt=1`}
-      title={title || 'Vimeo video'}
-      allow="autoplay; fullscreen; picture-in-picture"
-      allowfullscreen
-      class="video-element"
-      style={`aspect-ratio: ${aspectRatioValue};`}
-    ></iframe>
-  ) : videoType === 'external' && videoSource ? (
-    <video
-      controls={controls}
-      autoplay={autoplay}
-      muted={muted}
-      loop={loop}
-      preload="none"
-      playsinline
-      class="video-element"
-      title={title}
-      style={`aspect-ratio: ${aspectRatioValue};`}
-    >
-      <source src={videoSource} type="video/mp4" />
-      Din nettleser støtter ikke HTML5 video.
-    </video>
-  ) : (
-    <div class="video-error">
-      <p>Kunne ikke laste video</p>
-    </div>
-  )}
+{videoType && videoSource ? (
+  <figure class={`video-component ${className}`} data-component="video">
+    {videoType === 'sanity' && (
+      <video
+        controls={controls}
+        autoplay={autoplay}
+        muted={muted}
+        loop={loop}
+        preload="none"
+        playsinline
+        class="video-element"
+        aria-label={title || 'Video'}
+        style={`aspect-ratio: ${aspectRatioValue};`}
+      >
+        <source src={videoSource} type="video/mp4" />
+        {/* Future: Add <track> elements for captions/subtitles */}
+        Din nettleser støtter ikke HTML5 video.
+      </video>
+    )}
 
-  {(title || description) && (
-    <figcaption class="video-caption">
-      {title && <span class="video-caption-title">{title}</span>}
-      {description && <span class="video-caption-description">{description}</span>}
-    </figcaption>
-  )}
-</figure>
+    {videoType === 'youtube' && (
+      <iframe
+        loading="lazy"
+        src={`${videoSource}?autoplay=${autoplay ? 1 : 0}&mute=${muted ? 1 : 0}&controls=${controls ? 1 : 0}&loop=${loop ? 1 : 0}&rel=0`}
+        title={title || 'Innebygd YouTube-video'}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullscreen
+        class="video-element"
+        style={`aspect-ratio: ${aspectRatioValue};`}
+      ></iframe>
+    )}
+
+    {videoType === 'vimeo' && (
+      <iframe
+        loading="lazy"
+        src={`${videoSource}?autoplay=${autoplay ? 1 : 0}&muted=${muted ? 1 : 0}&controls=${controls ? 1 : 0}&loop=${loop ? 1 : 0}&dnt=1`}
+        title={title || 'Innebygd Vimeo-video'}
+        allow="autoplay; fullscreen; picture-in-picture"
+        allowFullscreen
+        class="video-element"
+        style={`aspect-ratio: ${aspectRatioValue};`}
+      ></iframe>
+    )}
+
+    {videoType === 'external' && (
+      <video
+        controls={controls}
+        autoplay={autoplay}
+        muted={muted}
+        loop={loop}
+        preload="none"
+        playsinline
+        class="video-element"
+        aria-label={title || 'Video'}
+        style={`aspect-ratio: ${aspectRatioValue};`}
+      >
+        <source src={videoSource} type="video/mp4" />
+        {/* Future: Add <track> elements for captions/subtitles */}
+        Din nettleser støtter ikke HTML5 video.
+      </video>
+    )}
+
+    {(title || description) && (
+      <figcaption class="video-caption">
+        {title && description ? (
+          <>
+            <strong class="video-caption-title">{title}</strong>
+            {' — '}
+            {description}
+          </>
+        ) : title ? (
+          title
+        ) : (
+          description
+        )}
+      </figcaption>
+    )}
+  </figure>
+) : (
+  <div class="video-error" role="alert">
+    <p>Kunne ikke laste video</p>
+  </div>
+)}
 
 <style>
   /* CSS Variable-based width control - Kevin Powell method */
@@ -170,8 +189,8 @@ switch (videoType) {
   }
 
   .video-title {
-    /* Migrated to fluid token: --fs-lg (20-23px responsive) */
-    font-size: var(--fs-lg);
+    /* Migrated to fluid token: --step-1 (20-23px responsive) */
+    font-size: var(--step-1);
     font-weight: 600;
     margin-bottom: 0.5rem;
   }
@@ -200,35 +219,26 @@ switch (videoType) {
   }
 
   .video-error {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f8f9fa;
+    padding: var(--space-l);
+    background: var(--color-yellow-50);
+    border: 2px solid var(--color-yellow-200);
+    text-align: center;
   }
 
   /* Note: Removed viewport media query for margin - now uses fluid spacing token that adapts automatically */
 
   .video-caption {
     margin-top: 0.75rem;
-    /* Migrated to fluid token: --fs-sm (13-14px responsive) */
-    font-size: var(--fs-sm);
+    /* Migrated to fluid token: --step--1 (13-14px responsive) */
+    font-size: var(--step--1);
     line-height: 1.5;
   }
 
   .video-caption-title {
-    display: block;
     font-weight: 600;
-    margin-bottom: 0.25rem;
-  }
-
-  .video-caption-description {
-    display: block;
-    font-style: italic;
   }
 
   /* Tilgjengelighet */

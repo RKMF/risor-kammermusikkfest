@@ -1,9 +1,9 @@
 ---
 import ContentPageLayout from '../../layouts/ContentPageLayout.astro';
+import ArtistCard from '../../components/ArtistCard.astro';
 import { createDataService } from '../../lib/sanity/dataService.js';
-import { IMAGE_QUALITY } from '../../lib/sanityImage';
-import Image from '../../components/Image.astro';
 import { stegaClean } from '@sanity/client/stega';
+import '../../styles/artist-card.css';
 import '../../styles/artists.css';
 
 // Create data service with Visual Editing support
@@ -13,13 +13,18 @@ const dataService = createDataService(Astro.request);
 const artistsPage = await dataService.getArtistPage();
 
 // Use only selected artists from artistPage
-const artists = artistsPage?.selectedArtists || [];
+const allArtists = artistsPage?.selectedArtists || [];
+
+// Group artists by cardSize - maintains selectedArtists array order
+const largeArtists = allArtists.filter((artist) => stegaClean(artist.cardSize) === 'stor');
+const mediumArtists = allArtists.filter((artist) => stegaClean(artist.cardSize) === 'medium');
+const smallArtists = allArtists.filter((artist) => stegaClean(artist.cardSize) === 'liten');
 
 // Fallback values
 const pageTitle = artistsPage?.title || 'Artists';
 
 // Check if we have any artists
-const hasArtists = artists.length > 0;
+const hasArtists = allArtists.length > 0;
 ---
 
 <ContentPageLayout
@@ -28,37 +33,48 @@ const hasArtists = artists.length > 0;
   pageDocument={artistsPage}
 >
   {hasArtists ? (
-    <div class="artists-grid">
-      {artists.map((artist) => (
-        <article class="artist-card">
-          <h3 class="artist-title">
-            <a href={`/en/artists/${stegaClean(artist.slug)}`} class="artist-title-link">
-              {stegaClean(artist.name)}
-            </a>
-          </h3>
+    <div class="artist-sections">
+      {/* Hidden SVG for wave clip-path definitions */}
+      <svg width="0" height="0" style="position: absolute;" aria-hidden="true">
+        <defs>
+          {/* Large cards - line 6 wave pattern with two peaks and one valley */}
+          <clipPath id="artist-wave-clip-large" clipPathUnits="objectBoundingBox">
+            <path d="M 0 0.06 C 0.08 0.06, 0.12 0.04, 0.17 0.015 C 0.22 0, 0.28 0, 0.33 0.015 C 0.38 0.03, 0.42 0.06, 0.5 0.06 C 0.58 0.06, 0.62 0.03, 0.67 0.015 C 0.72 0, 0.78 0, 0.83 0.015 C 0.88 0.04, 0.92 0.06, 1 0.06 L 1 1 L 0 1 Z"/>
+          </clipPath>
 
-          {artist.image?.image && (
-            <div class="artist-image">
-              <Image
-                image={artist.image.image}
-                alt={artist.image.alt || artist.name}
-                size="small"
-                aspectRatio="4:5"
-                loading="lazy"
-                quality={IMAGE_QUALITY.CARD}
-                class="artist-card-image"
-              />
-            </div>
-          )}
+          {/* Medium cards - top shallow wave pattern from logo (line 7) */}
+          <clipPath id="artist-wave-clip-medium" clipPathUnits="objectBoundingBox">
+            <path d="M 0 0.015 C 0.035 0.006, 0.077 0, 0.136 0 C 0.234 0, 0.286 0.01, 0.333 0.022 C 0.377 0.033, 0.415 0.048, 0.499 0.048 C 0.583 0.048, 0.621 0.033, 0.665 0.022 C 0.712 0.01, 0.764 0, 0.862 0 C 0.921 0, 0.963 0.006, 0.998 0.015 L 1 0.015 L 1 1 L 0 1 Z" />
+          </clipPath>
+        </defs>
+      </svg>
 
-          <div class="artist-info-box">
-            <p class="artist-name">{stegaClean(artist.name)}</p>
-            {artist.instrument && (
-              <p class="artist-instrument">{stegaClean(artist.instrument)}</p>
-            )}
-          </div>
-        </article>
-      ))}
+      {/* Large Artists Section */}
+      {largeArtists.length > 0 && (
+        <div class="artist-section artist-section--large scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
+          {largeArtists.map((artist) => (
+            <ArtistCard artist={artist} language="en" size="large" />
+          ))}
+        </div>
+      )}
+
+      {/* Medium Artists Section */}
+      {mediumArtists.length > 0 && (
+        <div class="artist-section artist-section--medium scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
+          {mediumArtists.map((artist) => (
+            <ArtistCard artist={artist} language="en" size="medium" />
+          ))}
+        </div>
+      )}
+
+      {/* Small Artists Section */}
+      {smallArtists.length > 0 && (
+        <div class="artist-section artist-section--small scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
+          {smallArtists.map((artist) => (
+            <ArtistCard artist={artist} language="en" size="small" />
+          ))}
+        </div>
+      )}
     </div>
   ) : (
     <div class="no-artists">

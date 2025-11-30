@@ -1,77 +1,91 @@
 ---
 import { PortableText } from 'astro-portabletext';
+import type { PortableTextBlock } from '@portabletext/types';
 
+/**
+ * PortableText wrapper component for rendering Sanity rich text content.
+ *
+ * This component provides a semantic-neutral wrapper (<div>) for PortableText content.
+ * The parent component should provide semantic context (e.g., <article>, <section>).
+ *
+ * @example
+ * ```astro
+ * <!-- Parent provides semantic context -->
+ * <article class="artist-bio">
+ *   <h1>{artist.name}</h1>
+ *   <PortableText value={artist.content_no} />
+ * </article>
+ * ```
+ */
 interface Props {
-  value?: any[];
-  content?: any[];
+  /** PortableText blocks from Sanity */
+  value?: PortableTextBlock[];
+  /** Alias for 'value' (compatibility) */
+  content?: PortableTextBlock[];
+  /** Additional CSS classes */
   className?: string;
-  semantic?: 'auto' | 'div' | 'section' | 'article';
+  /** Custom component renderers (merged with defaults) */
+  components?: any;
+  /** Sanity Visual Editing field annotation */
+  'data-sanity-field'?: string;
 }
 
-const { value, content, className = '', semantic = 'auto' } = Astro.props;
+const {
+  value,
+  content,
+  className = '',
+  components: customComponents,
+  'data-sanity-field': sanityField,
+  ...restProps
+} = Astro.props;
 
-// Håndter både 'value' og 'content' props for kompatibilitet
+// Handle both 'value' and 'content' props for compatibility
 const contentToRender = value || content || [];
 
-// Smart context detection for semantic elements
-function detectSemanticElement(semanticProp: string): string {
-  if (semanticProp !== 'auto') {
-    return semanticProp;
-  }
-
-  // Heuristic detection basert på hvor komponenten brukes
-  // Hvis innholdet har overskrifter (h2-h6), er det sannsynligvis selvstendig innhold
-  const hasHeadings = contentToRender.some((block: any) =>
-    block.style && ['h2', 'h3', 'h4', 'h5', 'h6'].includes(block.style)
-  );
-
-  // Hvis innholdet er langt (mer enn 3 blokker), er det sannsynligvis selvstendig
-  const isSubstantialContent = contentToRender.length > 3;
-
-  // Hvis det har overskrifter eller er substansielt innhold, bruk <section>
-  if (hasHeadings || isSubstantialContent) {
-    return 'section';
-  }
-
-  // Ellers, bruk <div> for fragmenter
-  return 'div';
-}
-
-const semanticElement = detectSemanticElement(semantic);
-
-// Custom components for PortableText - følger Sanity's anbefalte struktur
-const components = {
+// Default components - can be overridden by parent
+const defaultComponents = {
   types: {
-    // Custom types kan legges til her
+    // Custom types can be added here or passed via components prop
   },
   marks: {
-    // Custom marks hvis nødvendig
+    // Custom link renderer for proper handling of openInNewTab
+    link: ({ value, children }: any) => {
+      const { href, openInNewTab } = value || {};
+      const target = openInNewTab ? '_blank' : undefined;
+      const rel = openInNewTab ? 'noopener noreferrer' : undefined;
+
+      return {
+        tag: 'a',
+        attrs: {
+          href,
+          target,
+          rel,
+        },
+        children,
+      };
+    },
   },
   block: {
-    // Custom block rendering hvis nødvendig
+    // Custom block rendering if needed
   }
 };
+
+// Merge custom components with defaults
+const components = customComponents
+  ? { ...defaultComponents, ...customComponents }
+  : defaultComponents;
 ---
 
-{semanticElement === 'section' ? (
-  <section class={`portable-text content-narrow ${className}`}>
-    {contentToRender && contentToRender.length > 0 && (
-      <PortableText value={contentToRender} components={components} />
-    )}
-  </section>
-) : semanticElement === 'article' ? (
-  <article class={`portable-text content-narrow ${className}`}>
-    {contentToRender && contentToRender.length > 0 && (
-      <PortableText value={contentToRender} components={components} />
-    )}
-  </article>
-) : (
-  <div class={`portable-text content-narrow ${className}`}>
-    {contentToRender && contentToRender.length > 0 && (
-      <PortableText value={contentToRender} components={components} />
-    )}
-  </div>
-)}
+<!-- Semantic-neutral wrapper - parent component provides semantic context -->
+<div
+  class={`portable-text content-narrow ${className}`}
+  {...(sanityField && { 'data-sanity-field': sanityField })}
+  {...restProps}
+>
+  {contentToRender && contentToRender.length > 0 && (
+    <PortableText value={contentToRender} components={components} />
+  )}
+</div>
 
 <style>
   .portable-text {
@@ -79,22 +93,22 @@ const components = {
   }
   
   .portable-text h2 {
-    /* Aligned with base.css: --fs-2xl (31-35px responsive) */
-    font-size: var(--fs-2xl);
+    /* Aligned with base.css: --step-3 (31-35px responsive) */
+    font-size: var(--step-3);
     font-weight: 600;
     margin-block: var(--space-l) var(--space-m); /* Fluid spacing */
   }
 
   .portable-text h3 {
-    /* Aligned with base.css: --fs-xl (25-28px responsive) */
-    font-size: var(--fs-xl);
+    /* Aligned with base.css: --step-2 (25-28px responsive) */
+    font-size: var(--step-2);
     font-weight: 600;
     margin-block: var(--space-m-l) var(--space-s-m); /* Fluid spacing */
   }
 
   .portable-text h4 {
-    /* Aligned with base.css: --fs-lg (20-23px responsive) */
-    font-size: var(--fs-lg);
+    /* Aligned with base.css: --step-1 (20-23px responsive) */
+    font-size: var(--step-1);
     font-weight: 600;
     margin-block: var(--space-s-m) var(--space-xs-s); /* Fluid spacing */
   }

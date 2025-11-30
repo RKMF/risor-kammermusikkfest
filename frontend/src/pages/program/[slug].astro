@@ -2,103 +2,30 @@
 import Layout from '../../layouts/Layout.astro';
 import DynamicComponent from '../../components/DynamicComponent.astro';
 import Image from '../../components/Image.astro';
+import ArtistCard from '../../components/ArtistCard.astro';
 import { formatDateWithWeekday } from '../../lib/utils/dates';
 import { getMultilingualContent } from "../../lib/utils/language.js";
-import { IMAGE_QUALITY } from '../../lib/sanityImage';
-import type { SanityDocument } from '@sanity/client';
-import { loadQuery } from '../../lib/sanity/loadQuery.js';
+import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../../lib/sanityImage';
+import { createDataService } from '../../lib/sanity/dataService.js';
 import { stegaClean } from '@sanity/client/stega';
 import '../../styles/event.css';
+import '../../styles/artist-card.css';
 
 // Generate static paths for all events
 export async function getStaticPaths() {
-  const { data: events } = await loadQuery<SanityDocument[]>({
-    query: `*[_type == "event" && (defined(slug_no.current) || defined(slug_en.current))]`,
-  });
+  const dataService = createDataService();
+  const events = await dataService.getSlugsForType('event');
 
-  return events.map((event) => {
-    // Use Norwegian slug, fallback to English slug
-    const slug = event.slug_no?.current || event.slug_en?.current;
-    return {
-      params: { slug },
-    };
-  });
+  return events.map((event: any) => ({
+    params: event.params
+  }));
 }
 
 const { params } = Astro;
 
-// Fetch the specific event based on the slug parameter (Norwegian priority)
-const { data: event } = await loadQuery({
-  query: `*[_type == "event" && $slug in [slug_no.current, slug_en.current, slug.current]][0]{
-    _id,
-    _type,
-    title_no,
-    "title": title_no,
-    slug_no,
-    excerpt_no,
-    "excerpt": excerpt_no,
-    description_no,
-    "description": description_no,
-    "image": {
-      "image": image{
-        asset->,
-        hotspot,
-        crop
-      },
-      "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
-      "credit": coalesce(imageCredit_no, imageCredit_en)
-    },
-    eventDate->{
-      _id,
-      date,
-      title_display_no,
-      "title": title_display_no
-    },
-    eventTime,
-    venue->{
-      _id,
-      title,
-      name,
-      address,
-      city,
-      "slug": slug.current
-    },
-    "artists": artist[]-> {
-      _id,
-      name,
-      "slug": slug.current,
-      "image": {
-        "image": image{
-          asset->{
-            _id,
-            url,
-            metadata {
-              dimensions {
-                width,
-                height,
-                aspectRatio
-              },
-              lqip
-            }
-          },
-          hotspot,
-          crop
-        },
-        "alt": coalesce(imageAlt_no, imageAlt_en, image.alt)
-      },
-      instrument_no,
-      "instrument": instrument_no,
-      country
-    },
-    ticketType,
-    ticketUrl,
-    ticketInfoText,
-    extraContent_no,
-    extraContent_en,
-    seo
-  }`,
-  params,
-});
+// Fetch event using DataService with language awareness
+const dataService = createDataService(Astro.request);
+const event = await dataService.getEventBySlug(params.slug);
 
 if (!event) {
   return Astro.redirect('/404');
@@ -111,31 +38,45 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
 
 <Layout
   title={`${stegaClean(event.title || '')} - Sanity + Astro`}
-  slugNo={event.slug_no}
-  slugEn={event.slug_en}
+  slugNo={event.slug_no?.current}
+  slugEn={event.slug_en?.current}
 >
-  <div class="container">
-    <div class="event-page">
-      <header class="event-header">
-        <h1 class="event-title">{stegaClean(event.title || '')}</h1>
-        {event.excerpt && (
-          <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
-        )}
-      </header>
+  <article class="event-page">
+      <div class="event-info-box">
+        <header class="event-header">
+          <h1 class="event-title">{stegaClean(event.title || '')}</h1>
+          {event.excerpt && (
+            <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
+          )}
 
-      <div class="event-meta">
-        {event.eventDate?.date && (
-          <div class="event-meta-item">{stegaClean(formatDateWithWeekday(event.eventDate.date, 'no'))}</div>
-        )}
-        {event.eventTime && (
-          <div class="event-meta-item">kl. {stegaClean(event.eventTime.startTime)}–{stegaClean(event.eventTime.endTime)}</div>
-        )}
-        {event.venue?.title && (
-          <div class="event-meta-item">{stegaClean(event.venue.title)}</div>
-        )}
-      </div>
+          <dl class="event-meta">
+            {event.eventDate?.date && (
+              <>
+                <dt class="sr-only">Dato</dt>
+                <dd>
+                  <time datetime={event.eventDate.date}>
+                    {stegaClean(formatDateWithWeekday(event.eventDate.date, 'no'))}
+                  </time>
+                </dd>
+              </>
+            )}
+            {event.eventTime && (
+              <>
+                <dt class="sr-only">Tid</dt>
+                <dd>
+                  <time datetime={event.eventTime.startTime}>{stegaClean(event.eventTime.startTime)}</time>–<time datetime={event.eventTime.endTime}>{stegaClean(event.eventTime.endTime)}</time>
+                </dd>
+              </>
+            )}
+            {event.venue?.title && (
+              <>
+                <dt class="sr-only">Sted</dt>
+                <dd>{stegaClean(event.venue.title)}</dd>
+              </>
+            )}
+          </dl>
+        </header>
 
-      <div class="ticket-section">
         {stegaClean(event.ticketType) === 'info' ? (
           <p class="ticket-info">{stegaClean(event.ticketInfoText) || 'Gratis'}</p>
         ) : (
@@ -154,52 +95,37 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
 
       {event.artists && event.artists.length > 0 && (
         <section class="artists-section">
+          {/* Hidden SVG for wave clip-path definitions */}
+          <svg width="0" height="0" style="position: absolute;" aria-hidden="true">
+            <defs>
+              {/* Large cards - line 6 wave pattern with two peaks and one valley */}
+              <clipPath id="artist-wave-clip-large" clipPathUnits="objectBoundingBox">
+                <path d="M 0 0.06 C 0.08 0.06, 0.12 0.04, 0.17 0.015 C 0.22 0, 0.28 0, 0.33 0.015 C 0.38 0.03, 0.42 0.06, 0.5 0.06 C 0.58 0.06, 0.62 0.03, 0.67 0.015 C 0.72 0, 0.78 0, 0.83 0.015 C 0.88 0.04, 0.92 0.06, 1 0.06 L 1 1 L 0 1 Z"/>
+              </clipPath>
+
+              {/* Medium cards - top shallow wave pattern from logo (line 7) */}
+              <clipPath id="artist-wave-clip-medium" clipPathUnits="objectBoundingBox">
+                <path d="M 0 0.015 C 0.035 0.006, 0.077 0, 0.136 0 C 0.234 0, 0.286 0.01, 0.333 0.022 C 0.377 0.033, 0.415 0.048, 0.499 0.048 C 0.583 0.048, 0.621 0.033, 0.665 0.022 C 0.712 0.01, 0.764 0, 0.862 0 C 0.921 0, 0.963 0.006, 0.998 0.015 L 1 0.015 L 1 1 L 0 1 Z" />
+              </clipPath>
+            </defs>
+          </svg>
+
           <h2 class="artists-title">Artister</h2>
-          <div class="artists-scroll-wrapper">
-            <ul class="artists-list">
-              {event.artists.map((artist) => (
-                <li class="artist-item">
-                  <article class="artist-card">
-                    <h3 class="artist-title">
-                      <a href={`/artister/${stegaClean(artist.slug)}`} class="artist-title-link">
-                        {stegaClean(artist.name)}
-                      </a>
-                    </h3>
-
-                    {artist.image?.image?.asset && (
-                      <div class="artist-image">
-                        <Image
-                          image={artist.image.image}
-                          alt={stegaClean(artist.image.alt || artist.name || '')}
-                          size="small"
-                          aspectRatio="4:5"
-                          loading="lazy"
-                          quality={IMAGE_QUALITY.CARD}
-                          className="artist-card-image"
-                        />
-                      </div>
-                    )}
-
-                    <div class="artist-info-box">
-                      <p class="artist-name">{stegaClean(artist.name)}</p>
-                      {artist.instrument && (
-                        <p class="artist-instrument">{stegaClean(artist.instrument)}</p>
-                      )}
-                    </div>
-                  </article>
-                </li>
-              ))}
-            </ul>
+          <div class="artist-section scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
+            {event.artists.map((artist) => (
+              <ArtistCard artist={artist} language="no" size="medium" />
+            ))}
           </div>
         </section>
       )}
 
       {extraContent && Array.isArray(extraContent) && extraContent.length > 0 && (
-        <div class="event-extra-content">
+        <section class="extra-content">
+          <h2 class="sr-only">Tilleggsinnhold</h2>
           {extraContent.map((block) => (
             <DynamicComponent key={block._key || block._id} block={block} />
           ))}
-        </div>
+        </section>
       )}
 
       {event.image?.image?.asset && (
@@ -209,12 +135,22 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
           credit={event.image.credit ? stegaClean(event.image.credit) : undefined}
           size="large"
           aspectRatio="4:3"
-          loading="lazy"
+          loading="eager"
           quality={IMAGE_QUALITY.CARD}
-          className="event-image-bottom"
+          className="event-image"
         />
       )}
-    </div>
-  </div>
+  </article>
 </Layout>
 
+<style>
+  /* Smooth fade-in transition for event image (matches artist page pattern) */
+  :global(.event-image) {
+    animation: fadeInEventImage 1.1s ease-in-out forwards;
+  }
+
+  @keyframes fadeInEventImage {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>
