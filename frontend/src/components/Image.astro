@@ -275,7 +275,7 @@ const fetchPriority = priority ? 'high' : 'auto';
   /* Caption styling */
   .image-caption {
     margin-top: 0.5rem;
-    font-size: 0.9rem;
+    font-size: var(--step--1); /* 15px → 18px - fluid captions & labels */
   }
 
   .caption-text {
@@ -284,7 +284,6 @@ const fetchPriority = priority ? 'high' : 'auto';
 
   .credit-text {
     display: block;
-    font-style: italic;
     margin-top: 0.25rem;
   }
 

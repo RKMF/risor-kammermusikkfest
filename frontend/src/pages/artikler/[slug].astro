@@ -32,60 +32,41 @@ const content = getMultilingualContent(article, 'no') || article.content_no;
 ---
 
 <Layout title={stegaClean(article.title || '')}>
-  <main>
-    <article>
-      <header>
-        <h1>{stegaClean(article.title || '')}</h1>
-        {article.excerpt && <p class="excerpt">{stegaClean(article.excerpt)}</p>}
-        {article.publishedAt && (
-          <time datetime={new Date(article.publishedAt).toISOString()}>
-            {new Intl.DateTimeFormat('no-NO', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            }).format(new Date(article.publishedAt))}
-          </time>
-        )}
-        {article.author && (
-          <p class="author">Av {stegaClean(article.author.name)}</p>
-        )}
-      </header>
+  <article class="article-page">
+    <header class="article-header">
+      <h1>{stegaClean(article.title || '')}</h1>
+      {article.excerpt && <p class="excerpt">{stegaClean(article.excerpt)}</p>}
+    </header>
 
-      {article.image?.image && (
-        <Image
-          image={article.image.image}
-          alt={stegaClean(article.image.alt || article.title || '')}
-          credit={article.image.credit ? stegaClean(article.image.credit) : undefined}
-          size="large"
-          aspectRatio="16:9"
-          loading="eager"
-          priority={true}
-          quality={IMAGE_QUALITY.HERO}
-          className="article-image"
-        />
-      )}
+    {article.image?.image && (
+      <Image
+        image={article.image.image}
+        alt={stegaClean(article.image.alt || article.title || '')}
+        credit={article.image.credit ? stegaClean(article.image.credit) : undefined}
+        alignment="left"
+        size="large"
+        aspectRatio="16:9"
+        loading="eager"
+        priority={true}
+        quality={IMAGE_QUALITY.HERO}
+        className="article-image"
+      />
+    )}
 
-      {content && Array.isArray(content) && (
-        <div class="article-content">
-          {content.map((block) => (
-            <DynamicComponent key={block._key || block._id} block={block} />
-          ))}
-        </div>
-      )}
-    </article>
-  </main>
+    {content && Array.isArray(content) && (
+      <section class="article-content">
+        <h2 class="sr-only">Artikkelinnhold</h2>
+        {content.map((block) => (
+          <DynamicComponent key={block._key || block._id} block={block} />
+        ))}
+      </section>
+    )}
+  </article>
 </Layout>
 
 <style>
-  main {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem;
-  }
-
-  article header {
-    margin-bottom: 3rem;
-    padding-bottom: 2rem;
+  .article-header {
+    margin-bottom: var(--space-2xl); /* 48-60px - matches event page */
     container-type: inline-size; /* Enable container queries for h1 sizing */
   }
 
@@ -93,24 +74,16 @@ const content = getMultilingualContent(article, 'no') || article.content_no;
     font-size: var(--heading-h1); /* Fluid 37-69px with cqi sizing for Norwegian long words */
     font-weight: bold;
     line-height: 1.2;
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-6); /* 24-30px - matches event page h1 spacing */
   }
 
   /* Excerpt styling handled by global .excerpt class in base.css */
-
-  time {
-    font-size: var(--step--1);
-  }
-
-  .author {
-    font-style: italic;
-    margin-top: 0.5rem;
-  }
 
   /* Image component with className */
   :global(figure.article-image) {
     width: 100%;
     margin: 0 0 2rem 0;
+    margin-inline: 0; /* Override Image component's margin-inline: auto */
   }
 
   :global(.article-image .image) {
@@ -124,9 +97,4 @@ const content = getMultilingualContent(article, 'no') || article.content_no;
     line-height: 1.6;
   }
 
-  @media (max-width: 768px) {
-    main {
-      padding: 1rem;
-    }
-  }
 </style>

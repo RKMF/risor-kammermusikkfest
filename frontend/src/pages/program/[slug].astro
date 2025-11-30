@@ -120,11 +120,12 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
       )}
 
       {extraContent && Array.isArray(extraContent) && extraContent.length > 0 && (
-        <div class="event-extra-content">
+        <section class="extra-content">
+          <h2 class="sr-only">Tilleggsinnhold</h2>
           {extraContent.map((block) => (
             <DynamicComponent key={block._key || block._id} block={block} />
           ))}
-        </div>
+        </section>
       )}
 
       {event.image?.image?.asset && (
