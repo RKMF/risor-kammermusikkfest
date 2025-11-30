@@ -206,7 +206,7 @@ const content = getMultilingualContent(artist) || artist.content_no;
 
   /* Smooth 1.1s transition from blur placeholder to sharp image */
   .artist-detail-card-container :global(.artist-card-image) {
-    animation: fadeInImage 1.1s ease-out forwards;
+    animation: fadeInImage 1.1s ease-in-out forwards;
   }
 
   @keyframes fadeInImage {
