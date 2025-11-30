@@ -160,6 +160,11 @@
   --color-card-text: var(--color-blue);
   --color-card-text-hover: var(--color-blue-600);
 
+  /* Hover tint colors - transparent overlays for interactive elements */
+  --color-tint-blue-light: rgba(27, 25, 143, 0.08);   /* 8% blue - for buttons/links */
+  --color-tint-blue-medium: rgba(27, 25, 143, 0.12);  /* 12% blue - for card backgrounds */
+  --color-tint-green-light: rgba(0, 179, 154, 0.08);  /* 8% green - for hover states */
+
   /* Link component specific colors */
   --color-link: var(--color-red);
   --color-link-hover: var(--color-green);

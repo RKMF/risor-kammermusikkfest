@@ -335,7 +335,7 @@ a.link-button {
   align-items: center;
   justify-content: center;
   padding: var(--space-3) var(--space-5);
-  background-color: rgba(27, 25, 143, 0.08);
+  background-color: var(--color-tint-blue-light);
   color: var(--color-blue);
   border: 1px solid var(--color-blue);
   text-decoration: none;
@@ -383,7 +383,7 @@ nav a::after,
 
 @media (hover: hover) {
   a.link-button:hover {
-    background-color: rgba(0, 179, 154, 0.08);
+    background-color: var(--color-tint-green-light);
     color: var(--color-blue);
     text-decoration: none;
   }

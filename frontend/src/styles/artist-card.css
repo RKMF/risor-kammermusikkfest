@@ -33,7 +33,7 @@
   container-type: inline-size;
   overflow: hidden;
   border: none;
-  background-color: rgba(27, 25, 143, 0.12);
+  background-color: var(--color-tint-blue-medium);
   box-shadow: none;
   transition: transform 200ms var(--ease-standard),
               box-shadow 200ms var(--ease-standard);
@@ -54,11 +54,11 @@
   .artist-card:hover {
     transform: translateY(-4px);
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-    background-color: rgba(0, 179, 154, 0.08);
+    background-color: var(--color-tint-green-light);
   }
 
   .artist-card:hover .artist-info-box {
-    background-color: rgb(235, 249, 247);
+    background-color: var(--color-green-50);
   }
 
   .artist-card:hover .artist-name {
@@ -239,7 +239,7 @@
   aspect-ratio: 1 / 1;
 
   /* Light blue tint background - matches large/medium cards */
-  background-color: rgba(27, 25, 143, 0.12);
+  background-color: var(--color-tint-blue-medium);
 
   /* Grid layout inherited from .artist-card - keeps overlay pattern consistent */
 }
@@ -272,11 +272,11 @@
   .artist-card--small:hover {
     transform: translateY(-4px);
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-    background-color: rgba(0, 179, 154, 0.08);
+    background-color: var(--color-tint-green-light);
   }
 
   .artist-card--small:hover .artist-info-box {
-    background-color: rgb(235, 249, 247);
+    background-color: var(--color-green-50);
   }
 
   .artist-card--small:hover .artist-name,

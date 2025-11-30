@@ -38,7 +38,7 @@
   .event-card:hover {
     transform: translateY(-4px);
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-    background-color: rgba(0, 179, 154, 0.08);
+    background-color: var(--color-tint-green-light);
   }
 
   .event-card:hover .event-title-link {
