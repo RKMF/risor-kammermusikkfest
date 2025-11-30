@@ -153,7 +153,7 @@ const fetchPriority = priority ? 'high' : 'auto';
       decoding="async"
       fetchpriority={fetchPriority}
       sizes={imageSizes}
-      class="image"
+      class:list={['image', imageLoading === 'eager' && 'image-loaded']}
       style={`aspect-ratio: ${aspectValue}; ${placeholderUrl ? `background-image: url(${placeholderUrl}); background-size: cover; background-position: center;` : 'background-color: var(--color-gray-100, #f5f5f5);'}`}
     />
   ) : (
@@ -171,11 +171,12 @@ const fetchPriority = priority ? 'high' : 'auto';
 </figure>
 
 <script>
-  // Client-side image load detection
+  // Client-side image load detection (only for lazy-loaded images)
   function initImageLoading() {
-    const images = document.querySelectorAll('.image-container .image');
+    // Only target lazy-loaded images (eager images have 'image-loaded' class pre-applied)
+    const lazyImages = document.querySelectorAll('.image-container .image[loading="lazy"]');
 
-    images.forEach((img) => {
+    lazyImages.forEach((img) => {
       // Check if already loaded
       if ((img as HTMLImageElement).complete) {
         img.classList.add('image-loaded');
@@ -195,7 +196,7 @@ const fetchPriority = priority ? 'high' : 'auto';
     initImageLoading();
   }
 
-  // Run on Astro page transitions
+  // Run on Astro page transitions (if using View Transitions)
   document.addEventListener('astro:page-load', initImageLoading);
 </script>
 
@@ -239,25 +240,28 @@ const fetchPriority = priority ? 'high' : 'auto';
   .image {
     display: block;
     width: 100%;
-    height: 350px; /* Fixed height matching ContentScrollContainer */
+    max-height: 350px; /* Optional constraint - prevents excessively tall images */
     object-fit: cover;
     object-position: center;
 
+    /* aspect-ratio set via inline style (from component props) */
     /* Placeholder shows as background during load */
     /* background-image and background-color set via inline style */
+  }
 
-    /* Blur effect for LQIP background */
+  /* Blur effect only for lazy-loaded images */
+  .image[loading="lazy"] {
     filter: blur(0);
     transition: filter 400ms ease-out, opacity 400ms ease-out;
   }
 
-  /* Before image loads, show blurred placeholder */
-  .image:not(.image-loaded) {
+  /* Before lazy image loads, show blurred placeholder */
+  .image[loading="lazy"]:not(.image-loaded) {
     filter: blur(20px);
   }
 
-  /* Ensure smooth fade-in */
-  .image-loaded {
+  /* Ensure smooth fade-in for lazy images */
+  .image[loading="lazy"].image-loaded {
     filter: blur(0);
   }
 

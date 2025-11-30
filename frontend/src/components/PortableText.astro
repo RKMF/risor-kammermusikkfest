@@ -45,7 +45,22 @@ const components = {
     // Custom types kan legges til her
   },
   marks: {
-    // Custom marks hvis nødvendig
+    // Custom link renderer for proper handling of openInNewTab
+    link: ({ value, children }: any) => {
+      const { href, openInNewTab } = value || {};
+      const target = openInNewTab ? '_blank' : undefined;
+      const rel = openInNewTab ? 'noopener noreferrer' : undefined;
+
+      return {
+        tag: 'a',
+        attrs: {
+          href,
+          target,
+          rel,
+        },
+        children,
+      };
+    },
   },
   block: {
     // Custom block rendering hvis nødvendig

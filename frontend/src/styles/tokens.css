@@ -160,13 +160,26 @@
   --color-card-text: var(--color-blue);
   --color-card-text-hover: var(--color-blue-600);
 
+  /* Hover tint colors - transparent overlays for interactive elements */
+  --color-tint-blue-light: rgba(27, 25, 143, 0.08);   /* 8% blue - for buttons/links */
+  --color-tint-blue-medium: rgba(27, 25, 143, 0.12);  /* 12% blue - for card backgrounds */
+  --color-tint-green-light: rgba(0, 179, 154, 0.08);  /* 8% green - for hover states */
+
   /* Link component specific colors */
-  --color-link: var(--color-red);
+  --color-link: var(--color-blue);
   --color-link-hover: var(--color-green);
   --color-link-active: var(--color-green-600);
-  --color-link-visited: var(--color-red-700);
+  --color-link-visited: var(--color-blue-700);
   --color-link-visited-hover: var(--color-green);
-  --color-link-focus-bg: rgba(251, 83, 75, 0.1);
+  --color-link-focus-bg: rgba(27, 25, 143, 0.1);
+
+  /* Link transitions - shared across all link patterns */
+  --transition-link-standard:
+    color var(--transition-fast),
+    text-decoration-thickness var(--transition-fast),
+    background-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
 
   /* Success/Info/Warning/Error */
   --color-success: #28a745;
@@ -235,8 +248,11 @@
   --step-2: clamp(1.62rem, 1.4837rem + 0.6057vw, 1.9531rem);       /* 26-35px - H4 */
   --step-3: clamp(1.944rem, 1.7405rem + 0.9044vw, 2.4414rem);      /* 31-44px - H3 */
   --step-4: clamp(2.3328rem, 2.0387rem + 1.3072vw, 3.0518rem);     /* 37-55px - H2 */
-  --step-5: clamp(2.7994rem, 2.384rem + 1.8461vw, 3.8147rem);      /* 45-69px - H1 */
+  --step-5: clamp(2.3125rem, 2.0387rem + 1.8461vw, 3.8147rem);     /* 37-69px - H1 */
   --step-6: clamp(3.3592rem, 2.7874rem + 2.5413vw, 4.7684rem);     /* 54-86px - Display */
+
+  /* Container query-based heading token for h1 titles */
+  --heading-h1: clamp(1.944rem, 1.5rem + 4cqi, 3.8147rem);         /* 31-69px - H1 with container sizing */
 
   /* Legacy aliases - Backward compatibility for existing components
    * These map old --fs-* naming to new --step-* system.
@@ -294,16 +310,46 @@
    * All values are unitless to scale proportionally with font-size changes.
    */
   --line-height-display: 1.1;    /* Display headings (--step-5, --step-6) - tight for impact */
-  --line-height-heading: 1.2;    /* Regular headings (--step-3, --step-4) - balanced */
+  --line-height-heading: 1.25;   /* Regular headings (--step-3, --step-4) - balanced, prevents clipping Norwegian Å, Æ, Ø */
   --line-height-subhead: 1.3;    /* Subheadings (--step-1, --step-2) - opening up */
   --line-height-body: 1.6;       /* Body text (--step-0) - optimal reading comfort */
   --line-height-compact: 1.5;    /* Small text (--step--1, --step--2) - readable but tight */
 
   /* Legacy line-height aliases - Backward compatibility */
-  --line-height-tight: var(--line-height-heading);     /* Maps to 1.2 */
+  --line-height-tight: var(--line-height-heading);     /* Maps to 1.25 */
   --line-height-normal: var(--line-height-body);       /* Maps to 1.6 */
   --line-height-relaxed: 1.8;                          /* Preserved for extra-relaxed layouts */
-  
+
+  /* ============================================
+     MODERN CSS TYPOGRAPHY METRICS
+     ============================================
+
+     Optical alignment using leading-trim and cap units.
+     Eliminates visual spacing from font metrics for pixel-perfect alignment.
+
+     BROWSER SUPPORT (Progressive Enhancement):
+     - text-box-trim: Chrome 120+, Edge 120+ (2024+) - Bleeding edge
+     - text-box-edge: Chrome 120+, Edge 120+ (2024+) - Part of text-box-trim spec
+     - cap unit: Chrome 105+, Firefox 97+, Safari 15.4+ (2022+) - Wide support
+     - font-size-adjust: Firefox 3+, Chrome 127+, Safari 16.4+ (2023+) - Good support
+     - leading-trim: Legacy property, replaced by text-box-trim
+
+     PROGRESSIVE ENHANCEMENT STRATEGY:
+     - Base design works without these features (standard line-heights)
+     - Modern browsers get pixel-perfect optical alignment
+     - Fallbacks provided via @supports queries in base.css
+
+     These properties solve the "gap above capital letters" problem by trimming
+     the extra leading space that fonts include in their vertical metrics.
+  */
+
+  /* Font size adjustments - Normalizes optical sizing across different fonts
+   * Values are cap-height/font-size ratios for each typeface
+   * Ensures consistent visual sizing even when mixing serif/sans-serif
+   */
+  --font-size-adjust-heading: 0.49; /* Domaine Text cap-height ratio */
+  --font-size-adjust-body: 0.48;    /* Akkurat Pro cap-height ratio */
+
   /* ============================================
      SPACING SYSTEM - Utopia-inspired Fluid Scale
      ============================================
@@ -370,6 +416,73 @@
   --space-10: var(--space-3xl);           /* 64-80px - Maps to largest fluid value */
   --space-fluid-md: var(--space-m-l);     /* 16px → 30px - Moderate fluid scaling */
   --space-fluid-lg: var(--space-l-xl);    /* 24px → 40px - Large fluid scaling */
+
+  /* Scroll Container - Vertical padding to accommodate hover lift effects
+   * Value: 8px (fixed) - Provides breathing room for card hover transforms
+   * Usage: Applied to .scroll-container base class
+   * Rationale: Cards use transform: translateY(-4px) on hover
+   *            8px = 2× transform distance (industry standard buffer)
+   *            Accommodates both the lift and shadow blur (4px 12px)
+   * Browser Support: Universal (fixed px value, not fluid)
+   */
+  --scroll-container-padding-block: 0.5rem; /* 8px - Room for card hover lift + shadow */
+
+  /* ============================================
+     VIEWPORT UNITS - Mobile-Safe Height Values
+     ============================================
+
+     Addresses the "100vh problem on mobile" where browser UI (address bars,
+     toolbars) causes content to overflow when sized with traditional viewport
+     height units.
+
+     THE PROBLEM:
+     On mobile browsers, traditional 100vh assumes the address bar is hidden.
+     When the address bar is visible (initial page load), content sized to 100vh
+     extends beyond the visible viewport, requiring awkward scrolling.
+
+     THE SOLUTION:
+     New viewport units (2022+) provide granular control:
+     - svh (Small Viewport Height): Viewport when browser UI is expanded (visible)
+     - lvh (Large Viewport Height): Viewport when browser UI is retracted (hidden)
+     - dvh (Dynamic Viewport Height): Adjusts dynamically during scroll
+
+     BROWSER SUPPORT:
+     - Chrome/Edge 108+, Firefox 101+, Safari 15.4+ (92.59% global coverage)
+     - Fallback: Traditional vh units for older browsers (automatic via cascade)
+
+     IMPLEMENTATION STRATEGY:
+     Progressive enhancement - declare vh first as fallback, then svh which
+     modern browsers will override. The CSS cascade handles this automatically.
+
+     USAGE GUIDELINES:
+     - Use --viewport-full for sticky footer patterns, full-height layouts
+     - Use --viewport-partial for sections needing substantial but not full height
+     - Default to svh for ~90% of cases (predictable, no layout shifts)
+     - Avoid dvh except in rare, tested cases (causes performance issues)
+
+     WHY SVH (SMALL VIEWPORT)?
+     svh guarantees content fits when address bar is visible, which is the most
+     common state on initial page load. This prevents content from being cut off
+     below the fold and eliminates the jarring "scroll to see more" experience.
+
+     EXPERT CONSENSUS:
+     Ahmad Shadeed, Kevin Powell, and Chrome's web.dev team all recommend svh
+     as the default choice for full-height layouts on mobile devices.
+
+     REFERENCES:
+     - MDN: https://developer.mozilla.org/en-US/docs/Web/CSS/length
+     - Ahmad Shadeed: https://ishadeed.com/article/new-viewport-units/
+     - web.dev: https://web.dev/blog/viewport-units
+     - Can I Use: https://caniuse.com/viewport-unit-variants
+  */
+
+  /* Full viewport height - Use for sticky footer, full-screen layouts, modals */
+  --viewport-full: 100vh;          /* Fallback for older browsers (< 92% support) */
+  --viewport-full: 100svh;         /* Modern: fits when address bar visible (recommended) */
+
+  /* Partial viewport height - Use for error pages, sections needing substantial height */
+  --viewport-partial: 60vh;        /* Fallback for older browsers (< 92% support) */
+  --viewport-partial: 60svh;       /* Modern: fits when address bar visible (recommended) */
 
   /* Shadows */
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);

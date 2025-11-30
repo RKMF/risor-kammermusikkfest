@@ -38,7 +38,7 @@ const slugEn = pageDocument?.slug_en?.current ? stegaClean(pageDocument.slug_en.
         {title}
       </h1>
       {excerpt && (
-        <p class="page-excerpt">{excerpt}</p>
+        <p class="excerpt">{excerpt}</p>
       )}
     </header>
 
@@ -82,27 +82,20 @@ const slugEn = pageDocument?.slug_en?.current ? stegaClean(pageDocument.slug_en.
 
   .page-header {
     margin: 0;
+    container-type: inline-size; /* Enable container queries for h1 sizing */
   }
 
   .page-title {
     margin: 0 0 var(--space-6) 0;
-    /* Use global h1 token for consistency across all h1 elements */
-    font-size: var(--step-5); /* Fluid 45-69px - increased for better hierarchy */
+    /* Use container query-based h1 token for Norwegian long words */
+    font-size: var(--heading-h1); /* Fluid 37-69px with cqi sizing */
     /* Ensure title wraps gracefully with Norwegian/English text */
     word-wrap: break-word;
     overflow-wrap: break-word;
     hyphens: auto;
   }
 
-  .page-excerpt {
-    margin: 0;
-    font-size: var(--step-1); /* Fluid 22-28px - Utopia token system */
-    line-height: var(--line-height-subhead); /* 1.3 - industry standard for 22-28px */
-    /* Better text balance for excerpts */
-    text-wrap: balance;
-    max-inline-size: 70ch; /* Max 70ch on desktop, 100% on mobile */
-    /* Bottom spacing handled by .stack primitive (--space-xl = 32-40px) */
-  }
+  /* Excerpt styling now handled by global .excerpt class in base.css */
 
   .page-content {
     margin: 0;

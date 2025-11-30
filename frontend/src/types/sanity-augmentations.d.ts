@@ -3,20 +3,15 @@
  */
 
 import type {SanityClient} from '@sanity/client'
-import type {
-  Event,
-  Artist,
-  Article,
-  Homepage,
-} from '../../shared/types/sanity'
+import type { EventResult, ArtistResult, ArticleResult } from '../lib/sanity/queries'
 
 declare global {
   namespace Astro {
     interface Props {
-      event?: Event
-      artist?: Artist
-      article?: Article
-      homepage?: Homepage
+      event?: EventResult
+      artist?: ArtistResult
+      article?: ArticleResult
+      homepage?: any // Homepage type not commonly used in props
       content_no?: any[]
       content_en?: any[]
     }

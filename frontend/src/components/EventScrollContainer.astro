@@ -1,17 +1,13 @@
 ---
 import { sanityClient } from "sanity:client";
-import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../lib/sanityImage';
 import { detectLanguage } from "../lib/utils/language.js";
-import { stegaClean } from '@sanity/client/stega';
+import EventCard from './EventCard.astro';
+import type { EventResult } from '../lib/sanity/queries';
 
 interface Props {
   title?: string
   events?: any[]
   showScrollbar?: boolean
-  showDate?: boolean
-  showTime?: boolean
-  showVenue?: boolean
-  showArtists?: boolean
   sortBy?: 'date-asc' | 'date-desc' | 'title-asc' | 'manual'
 }
 
@@ -19,19 +15,14 @@ const {
   title,
   events = [],
   showScrollbar = false,
-  showDate = true,
-  showTime = true,
-  showVenue = true,
-  showArtists = true,
   sortBy = 'date-asc'
 } = Astro.props
 
 // Detect current language from URL
 const currentLanguage = detectLanguage(Astro.request)
-const programPath = currentLanguage === 'en' ? '/en/program' : '/program'
 
 // Hent faktiske event-data fra referansene
-let eventData = []
+let eventData: EventResult[] = []
 if (events && events.length > 0) {
   const eventIds = events.map((item: any) => item._ref).filter(Boolean)
   if (eventIds.length > 0) {
@@ -43,7 +34,6 @@ if (events && events.length > 0) {
       "title": coalesce(title_no, title_en),
       slug_no,
       slug_en,
-      "slug": coalesce(slug_no.current, slug_en.current, slug.current),
       excerpt_no,
       excerpt_en,
       "excerpt": coalesce(excerpt_no, excerpt_en),
@@ -89,13 +79,6 @@ if (events && events.length > 0) {
         address,
         city,
         "slug": slug.current
-      },
-      "artists": artist[]->{
-        _id,
-        name,
-        "slug": slug.current,
-        image,
-        "imageAlt": coalesce(imageAlt_no, imageAlt_en)
       },
       ticketType,
       ticketUrl,
@@ -146,67 +129,9 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     {sortedEvents.map((event) => {
         if (!event) return null
 
-        const eventDate = event.eventDate?.date ? new Date(event.eventDate.date) : null
-        const dateString = eventDate ? eventDate.toLocaleDateString('nb-NO') : ''
-        const timeString = stegaClean(event.eventTime || '')
-        const venueName = stegaClean(event.venue?.title || '')
-        const artistNames = stegaClean(event.artists?.map((artist: any) => artist.name).join(', ') || '')
-        const eventSlug = stegaClean(event.slug || '')
-
-        const eventImage = event.image?.image || null
-        const imageAlt = event.image?.alt || event.title || ''
-
-        // Kombinert dato og tid for <time> element
-        const dateTimeValue = eventDate && timeString
-          ? `${eventDate.toISOString().split('T')[0]}T${timeString}:00`
-          : eventDate?.toISOString().split('T')[0]
-
         return (
           <li class="event-item">
-            <article class="event-scroll-card">
-              {eventImage && (
-                <img
-                  src={getOptimizedImageUrl(eventImage, 320, 180, IMAGE_QUALITY.CARD)}
-                  srcset={getResponsiveImageSet(eventImage, [320, 640, 960], 16/9, IMAGE_QUALITY.CARD)}
-                  sizes="320px"
-                  alt={stegaClean(imageAlt)}
-                  width="320"
-                  height="180"
-                  loading="lazy"
-                  decoding="async"
-                  class="event-scroll-card-image"
-                />
-              )}
-              <div class="event-scroll-content">
-                <h4 class="event-title">
-                  {eventSlug ? (
-                    <a href={`${programPath}/${eventSlug}`} class="event-title-link">
-                      {stegaClean(event.title || '')}
-                    </a>
-                  ) : (
-                    stegaClean(event.title || '')
-                  )}
-                </h4>
-                {(showDate || showTime) && (dateString || timeString) && (
-                  <div class="event-datetime">
-                    {showDate && dateString && <time class="event-date" dateTime={eventDate.toISOString().split('T')[0]}>{dateString}</time>}
-                    {showTime && timeString && <time class="event-time" dateTime={`${eventDate.toISOString().split('T')[0]}T${timeString}`}>{timeString}</time>}
-                  </div>
-                )}
-                {showVenue && venueName && <address class="event-venue">{venueName}</address>}
-                {showArtists && artistNames && <p class="event-artists">{artistNames}</p>}
-                {event.buttonText && (
-                  <a
-                    href={event.buttonUrl || '#'}
-                    class="event-button"
-                    target={event.buttonOpenInNewTab ? '_blank' : undefined}
-                    rel={event.buttonOpenInNewTab ? 'noopener noreferrer' : undefined}
-                  >
-                    {event.buttonText}
-                  </a>
-                )}
-              </div>
-            </article>
+            <EventCard event={event} language={currentLanguage} />
           </li>
         )
       })}
@@ -214,7 +139,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 </section>
 
 <style>
-  /* Intrinsic Scroll Container */
+  /* Scroll Container */
   .event-scroll-container {
     container-type: inline-size;
     width: min(100ch, 100% - 4rem);
@@ -235,149 +160,9 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     padding-block: var(--space-2);
   }
 
-  /* Intrinsic event cards - standardized to 16:9 for events */
-  .event-scroll-card {
-    position: relative; /* Required for stretched link pattern */
-    container-type: inline-size;
-    background: var(--color-background);
-    border: 1px solid var(--color-border);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-    transition: transform var(--transition-base), box-shadow var(--transition-base);
-    aspect-ratio: 16/9;
-  }
-
-  .event-scroll-card:hover {
-    transform: translateY(clamp(-1px, -0.5vw, -3px));
-    box-shadow: var(--shadow-md);
-  }
-
-  /* Image - direct img tag */
-  .event-scroll-card-image {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16/9;
-    object-fit: cover;
-    margin: 0;
-  }
-
-  /* Intrinsic content padding */
-  .event-scroll-content {
-    padding: clamp(0.875rem, 3.5cqi, 1rem);
-  }
-
-  .event-title {
-    font-size: clamp(var(--step-0), 3.5cqw, var(--step-1));
-    font-weight: var(--font-weight-semibold);
-    margin: 0 0 var(--space-2) 0;
-    line-height: var(--line-height-tight);
-  }
-
-  .event-date {
-    font-size: clamp(var(--step--1), 2.8cqw, var(--step-0));
-    font-weight: var(--font-weight-medium);
-    margin-block-end: var(--space-1);
-  }
-
-  .event-datetime,
-  .event-time,
-  .event-venue {
-    position: relative;
-    z-index: 0; /* Below stretched link */
-    font-size: clamp(var(--step--1), 2.8cqw, var(--step-0));
-    margin-block-end: var(--space-1);
-  }
-
-  .event-artists {
-    position: relative;
-    z-index: 0; /* Below stretched link */
-    font-size: clamp(var(--step--1), 2.8cqw, var(--step-0));
-    margin-block-end: var(--space-4);
-    font-style: italic;
-  }
-
-  /* Secondary CTA button - elevated above stretched link */
-  .event-button {
-    position: relative; /* Creates stacking context */
-    z-index: 2; /* Above the stretched link (z-index: 1) */
-    display: inline-flex;
-    align-items: center;
-    padding: clamp(var(--space-2), 2cqw, var(--space-3))
-             clamp(var(--space-3), 3cqw, var(--space-4));
-    background: var(--color-blue);
-    color: white;
-    text-decoration: none;
-    font-size: clamp(var(--step--1), 2.5cqw, var(--step-0));
-    font-weight: var(--font-weight-medium);
-    transition: background-color var(--transition-base);
-    margin-inline-end: var(--space-2);
-  }
-
-  .event-button::after {
-    content: none;
-  }
-
-  @media (hover: hover) {
-    .event-button:hover {
-      background: var(--color-blue-600);
-    }
-  }
-
-  .event-button:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: 2px;
-  }
-
-  /* Stretched link pattern - makes entire card clickable */
-  .event-title-link {
-    color: inherit;
-    text-decoration: none;
-    transition: color var(--transition-base);
-  }
-
-  /* Pseudo-element stretches to cover entire card */
-  .event-title-link::before {
-    content: '';
-    position: absolute;
-    inset: 0; /* Modern shorthand for top:0; right:0; bottom:0; left:0; */
-    z-index: 1;
-  }
-
-  /* No arrow indicator on card title links */
-  .event-title-link::after {
-    content: none;
-  }
-
-  /* Hover state - underline appears on title text */
-  @media (hover: hover) {
-    .event-title-link:hover {
-      text-decoration: underline;
-      text-decoration-thickness: 2px;
-    }
-  }
-
-  /* Focus state - highly visible for keyboard users */
-  .event-title-link:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: 2px;
-    text-decoration: underline;
-  }
-
-  /* Container Query Enhancements */
-  @container (min-width: 300px) {
-    .event-scroll-content {
-      padding: var(--space-4);
-    }
-
-    .event-title {
-      font-size: var(--step-1);
-    }
-  }
-
-  @container (min-width: 400px) {
-    .event-scroll-content {
-      padding: var(--space-5);
-    }
+  .event-item {
+    /* Container for EventCard component */
+    display: contents;
   }
 
   /* Hide scrollbar variant */
@@ -393,33 +178,8 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
   /* Support for reduced motion */
   @media (prefers-reduced-motion: reduce) {
-    .event-scroll-card,
-    .event-title-link,
-    .event-button {
-      transition: none;
-    }
-
-    .event-scroll-card:hover {
-      transform: none; /* Disable lift effect */
-    }
-
     .event-list.scroll-container {
       scroll-behavior: auto;
     }
   }
-
-  /* High contrast mode support */
-  @media (prefers-contrast: high) {
-    .event-scroll-card {
-      border-width: 2px;
-    }
-
-    .event-title-link:focus-visible {
-      outline-width: 3px;
-    }
-
-    .event-button:focus-visible {
-      outline-width: 3px;
-    }
-  }
-</style> 
+</style>

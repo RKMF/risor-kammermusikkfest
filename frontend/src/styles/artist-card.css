@@ -33,10 +33,11 @@
   container-type: inline-size;
   overflow: hidden;
   border: none;
-  background-color: rgba(27, 25, 143, 0.12);
+  background-color: var(--color-tint-blue-medium);
   box-shadow: none;
   transition: transform 200ms var(--ease-standard),
-              box-shadow 200ms var(--ease-standard);
+              box-shadow 200ms var(--ease-standard),
+              background-color 200ms var(--ease-standard);
 
   /* Grid layout for stacking image and info box */
   display: grid;
@@ -53,12 +54,12 @@
 @media (hover: hover) {
   .artist-card:hover {
     transform: translateY(-4px);
-    box-shadow: rgba(0, 0, 0, 0.25) 0px 8px 24px;
-    background-color: rgba(0, 179, 154, 0.08);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    background-color: var(--color-tint-green-light);
   }
 
   .artist-card:hover .artist-info-box {
-    background-color: rgb(235, 249, 247);
+    background-color: #ebf9f7; /* Matches card's rgba(0, 179, 154, 0.08) over white */
   }
 
   .artist-card:hover .artist-name {
@@ -130,7 +131,7 @@
   display: grid;
   gap: 0.25rem;
   z-index: 2; /* Above image layer */
-  transition: background-color var(--transition-base);
+  transition: background-color 200ms var(--ease-standard);
 
   /* Dynamic width based on content with constraints */
   width: auto;
@@ -150,39 +151,19 @@
   transition: color var(--transition-base);
 }
 
-/* Stretched link pattern - makes entire card clickable */
+/* Stretched link pattern - uses global .card-link from base.css */
 .artist-card .artist-title-link {
   color: var(--color-background);
-  text-decoration: none;
-  transition: color var(--transition-base);
 }
 
-/* Pseudo-element stretches to cover entire card */
+/* Elevate stretched link above info box */
 .artist-title-link::before {
-  content: '';
-  position: absolute;
-  inset: 0;
   z-index: 3; /* Above info box (z-index: 2) to make entire card clickable */
-  cursor: pointer;
 }
 
-/* No arrow indicator on card title links */
-.artist-title-link::after {
-  content: none;
-}
-
-/* Hover state - no underline on stretched link */
-@media (hover: hover) {
-  .artist-card .artist-title-link:hover {
-    text-decoration: none;
-  }
-}
-
-/* Focus state - highly visible for keyboard users */
+/* Customize focus outline color for artist cards */
 .artist-card .artist-title-link:focus-visible {
-  outline: 2px solid var(--color-background);
-  outline-offset: 2px;
-  text-decoration: underline;
+  outline-color: var(--color-background);
 }
 
 /* ============================================
@@ -239,7 +220,7 @@
   aspect-ratio: 1 / 1;
 
   /* Light blue tint background - matches large/medium cards */
-  background-color: rgba(27, 25, 143, 0.12);
+  background-color: var(--color-tint-blue-medium);
 
   /* Grid layout inherited from .artist-card - keeps overlay pattern consistent */
 }
@@ -271,12 +252,12 @@
 @media (hover: hover) {
   .artist-card--small:hover {
     transform: translateY(-4px);
-    box-shadow: rgba(0, 0, 0, 0.25) 0px 8px 24px;
-    background-color: rgba(0, 179, 154, 0.08);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    background-color: var(--color-tint-green-light);
   }
 
   .artist-card--small:hover .artist-info-box {
-    background-color: rgb(235, 249, 247);
+    background-color: var(--color-green-50);
   }
 
   .artist-card--small:hover .artist-name,

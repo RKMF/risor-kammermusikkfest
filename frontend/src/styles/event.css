@@ -92,50 +92,87 @@
   order: 1;
 }
 
+/* Event info box - blue background container matching event cards */
+.event-info-box {
+  background-color: var(--color-tint-blue-medium); /* Same blue as event cards */
+  padding: var(--space-l); /* 24-30px fluid */
+}
+
 /* Event header - title and excerpt */
 .event-header {
-  margin: 0;
+  margin: 0 0 var(--space-2xl) 0; /* 48-60px below header section */
+  container-type: inline-size; /* Enable container queries for h1 sizing */
 }
 
 .event-title {
-  margin: 0 0 var(--space-4) 0;
-  font-size: var(--step-4); /* Fluid 37-55px - Utopia token system */
+  margin: 0 0 var(--space-6) 0; /* 24-30px - matches program page */
+  font-size: var(--heading-h1); /* Fluid 37-69px with cqi sizing for Norwegian long words */
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: none;
 }
 
 .event-excerpt {
-  margin: 0;
-  font-size: var(--step-1); /* Fluid 22-28px - Utopia token system */
-  line-height: var(--line-height-normal);
-  text-wrap: balance;
-  max-inline-size: 65ch;
+  max-inline-size: 70ch;
+  inline-size: 100%;
+  margin-block-end: var(--space-6);
+  font-size: var(--step-1);
+  line-height: 1.5;
+  color: var(--color-text);
+  text-wrap: pretty;
 }
 
-/* Event metadata (date, time, venue) - vertical stack */
-.event-meta {
+/* Event metadata (date, time, venue) - definition list */
+dl.event-meta {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-1); /* 2-3px between metadata items */
   margin: 0;
-  font-size: var(--step-0);
+  font-size: var(--step-1); /* Fluid 22-28px - larger, more prominent */
+  font-weight: var(--font-weight-normal); /* 400 - matches excerpt (Akkurat Pro has no 500 weight) */
   line-height: var(--line-height-tight);
 }
 
-.event-meta-item {
-  display: block;
+/* Screen reader only labels for dt elements */
+.event-meta dt {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.event-meta dd {
+  margin: 0;
+}
+
+/* Extra space before venue (last dd) - scoped to event detail pages only */
+.event-info-box .event-meta dd:last-of-type {
+  margin-block-start: var(--space-s); /* 12-15px additional space before venue */
 }
 
 /* Ticket section */
 .ticket-section {
-  margin-block-start: var(--space-2);
+  margin: 0;
 }
 
 .ticket-info {
-  font-size: var(--step-0);
-  font-style: italic;
-  color: var(--color-blue-300);
+  margin: 0;
+  margin-block-end: var(--space-xl); /* 32-40px - matches excerpt spacing */
+  font-size: var(--step-1); /* Fluid 22-28px - matches excerpt */
+  line-height: var(--line-height-subhead); /* 1.3 - matches excerpt */
+  text-wrap: balance;
+  max-inline-size: 70ch; /* Optimal readability - matches excerpt */
+}
+
+/* Larger ticket button on event pages */
+.event-info-box .btn-primary {
+  padding: var(--space-m) var(--space-xl); /* 16-20px vertical, 32-40px horizontal */
+  font-size: var(--step-1); /* 22-28px - larger text */
 }
 
 /* Right column - event image */

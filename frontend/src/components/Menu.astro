@@ -156,12 +156,17 @@ const isActive = (href: string) => {
     height: 100%;
     fill: white;
     display: block;
+    transition: fill var(--transition-fast);
   }
 
   @media (hover: hover) {
     .menu-toggle:hover {
-      background-color: var(--color-blue-600);
+      background-color: var(--color-green-50);
       transform: scale(1.05);
+    }
+
+    .menu-toggle:hover .logo-svg {
+      fill: var(--color-blue);
     }
   }
 
@@ -217,7 +222,7 @@ const isActive = (href: string) => {
     /* Ensure content doesn't overflow */
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: calc(100vh - var(--space-3) - 60px - var(--space-4));
+    max-height: calc(var(--viewport-full) - var(--space-3) - 60px - var(--space-4));
   }
 
   /* Popover uses display:none when closed (browser handles this automatically) */

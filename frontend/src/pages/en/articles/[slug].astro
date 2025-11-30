@@ -86,20 +86,17 @@ const content = getMultilingualContent(article, 'en') || article.content_en;
   article header {
     margin-bottom: 3rem;
     padding-bottom: 2rem;
+    container-type: inline-size; /* Enable container queries for h1 sizing */
   }
 
   h1 {
-    font-size: var(--step-4);
+    font-size: var(--heading-h1); /* Fluid 37-69px with cqi sizing */
     font-weight: bold;
     line-height: 1.2;
     margin-bottom: 1rem;
   }
 
-  .excerpt {
-    font-size: var(--step-1);
-    line-height: 1.5;
-    margin-bottom: 1rem;
-  }
+  /* Excerpt styling handled by global .excerpt class in base.css */
 
   time {
     font-size: var(--step--1);
@@ -132,14 +129,6 @@ const content = getMultilingualContent(article, 'en') || article.content_en;
   @media (max-width: 768px) {
     main {
       padding: 1rem;
-    }
-
-    h1 {
-      font-size: 2rem;
-    }
-
-    .excerpt {
-      font-size: 1.1rem;
     }
   }
 </style>

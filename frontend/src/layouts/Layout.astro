@@ -3,6 +3,8 @@ import { VisualEditing } from "@sanity/astro/visual-editing";
 import { sanityClient } from "sanity:client";
 import Menu from '../components/Menu.astro';
 import type { MenuItem } from '../components/Menu.astro';
+import Footer from '../components/Footer.astro';
+import type { SiteSettings } from '../components/Footer.astro';
 import HreflangTags from '../components/HreflangTags.astro';
 import { detectLanguage, type Language } from '../lib/utils/language.js';
 import { QueryBuilder } from '../lib/sanity/queryBuilder.js';
@@ -41,6 +43,10 @@ const currentPath = new URL(Astro.request.url).pathname;
 const { query: menuQuery, params: menuParams } = QueryBuilder.siteSettingsMenu();
 const menuData = await sanityClient.fetch<{ menuItems: MenuItem[] }>(menuQuery, menuParams);
 const menuItems = menuData?.menuItems || [];
+
+// Fetch footer settings from Sanity
+const { query: footerQuery, params: footerParams } = QueryBuilder.siteSettingsFooter();
+const siteSettings = await sanityClient.fetch<SiteSettings>(footerQuery, footerParams);
 
 // Check if Visual Editing should be enabled
 const visualEditingEnabled = import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ENABLED === 'true';
@@ -104,7 +110,7 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
         display: grid;
         grid-template-rows: auto 1fr auto;
         grid-template-columns: 100%;
-        min-block-size: 100vh; /* Logical property for height */
+        min-block-size: var(--viewport-full); /* Mobile-safe viewport height (svh with vh fallback) */
         /* Pure white background */
         background-color: #ffffff;
       }
@@ -118,27 +124,12 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
         margin-inline: auto;
         /* Intrinsic padding using fluid values */
         padding-block-start: var(--page-top-spacing);
-        padding-block-end: clamp(var(--space-6), 6vw, var(--space-10));
+        /* Generous margin to footer */
+        margin-block-end: calc(var(--space-3xl) * 2);
 
         /* Enable container queries for child components */
         container-type: inline-size;
         container-name: content;
-      }
-
-      /* Footer - Intrinsic size with centered content */
-      .page-footer {
-        margin-inline: auto;
-        /* Fluid sizing instead of fixed */
-        width: clamp(var(--space-10), 12vw, var(--space-12));
-        aspect-ratio: 1 / 1;
-        background-color: var(--color-green-100);
-      }
-
-      .page-footer .container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        block-size: 100%; /* Logical property for height */
       }
 
       /* ============================================
@@ -154,7 +145,6 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
       @media print {
         /* Hide non-essential elements */
         header,
-        .page-footer,
         nav,
         [role="navigation"],
         .no-print {
@@ -308,11 +298,7 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
     </main>
 
     <!-- Footer -->
-    <footer class="page-footer">
-      <div class="container">
-        <!-- Footer content can be added here or via slot -->
-      </div>
-    </footer>
+    <Footer currentLang={currentLang} siteSettings={siteSettings} />
 
     <!-- Visual Editing Component -->
     {enableVisualEditing && <VisualEditing enabled={true} zIndex={1000} />}

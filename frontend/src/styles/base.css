@@ -8,7 +8,59 @@
 
 /* ============================================
    BASE TYPOGRAPHY
-   ============================================ */
+   ============================================
+
+   GLOBAL SPACING PHILOSOPHY:
+
+   This project uses a hybrid spacing approach combining:
+   1. Global element margins (headings, paragraphs, lists)
+   2. Composition utilities (.stack, .cluster from primitives.css)
+   3. Utility classes (logical properties from utilities.css)
+
+   KEY PRINCIPLES:
+
+   1. ZERO SPECIFICITY (:where() wrapper)
+      - All global margins wrapped in :where() for zero specificity
+      - Components can override without specificity battles
+      - Simple class beats global default: .card p { margin: 0; }
+
+   2. PROXIMITY PRINCIPLE (different top/bottom margins)
+      - Headings: MORE space above (24-30px), LESS below (8-10px)
+      - Rationale: Headings "belong" to content below them
+      - Creates natural visual grouping and section separation
+      - This is standard typographic best practice
+
+   3. VERTICAL RHYTHM (consistent spacing scale)
+      - Paragraphs & lists: Equal top/bottom (12-15px fluid)
+      - Based on Utopia fluid spacing system (tokens.css)
+      - WCAG compliant: max ≤ 2.5× min for zoom accessibility
+
+   4. EDGE HANDLING (first/last-child resets)
+      - :first-child { margin-top: 0; } prevents double-spacing
+      - :last-child { margin-bottom: 0; } prevents unwanted gaps
+      - Works at any nesting level
+
+   WHEN TO USE WHAT:
+
+   - Global margins (current): Automatic spacing, works out of the box
+   - .stack utilities: Explicit spacing via parent container
+   - Margin utilities: One-off adjustments (.mbs-4, .mbe-2)
+
+   MIGRATION PATH (for future):
+   When you find components frequently overriding global margins,
+   consider using composition patterns instead:
+
+   Instead of:
+     .card p { margin: 0; }
+
+   Consider:
+     <div class="card stack">
+       <p>Content flows naturally</p>
+     </div>
+
+   Working code in production beats theoretical perfection.
+   This spacing system is professional, accessible, and maintainable.
+   */
 
 /* Body defaults */
 body {
@@ -17,6 +69,9 @@ body {
   line-height: var(--line-height-normal);
   color: var(--color-blue);
   background-color: var(--color-background);
+
+  /* Modern CSS typography - Optical sizing for body text */
+  font-size-adjust: var(--font-size-adjust-body);
 }
 
 /* Set default text color for all elements */
@@ -36,22 +91,36 @@ body {
  * 2. Weight (bold → medium progression)
  * 3. Line-height (tight display → relaxed body)
  * 4. Letter-spacing (negative → neutral → positive)
+ *
+ * SPACING PHILOSOPHY:
+ * - :where() wrapper provides ZERO specificity - components can easily override
+ * - Different top/bottom margins follow proximity principle (headings belong to content below)
+ * - More space above (24-30px) separates sections
+ * - Less space below (8-10px) connects headings to their content
  */
-h1, h2, h3, h4, h5, h6 {
+:where(h1, h2, h3, h4, h5, h6) {
   font-family: var(--font-family-heading);
   font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-heading);
+  line-height: 1.25;  /* Slightly generous spacing prevents clipping of Norwegian characters (Å, Æ, Ø) */
   margin-top: var(--space-6);
   margin-bottom: var(--space-3);
+
+  /* Modern CSS typography - Optical sizing for headings */
+  font-size-adjust: var(--font-size-adjust-heading);
+
+  /* REMOVED: text-box-trim (clips Norwegian characters Å, Æ, Ø)
+   * Browser support: 28% (Chrome/Edge 120+, no Firefox/Safari as of 2025)
+   * Issue: Clips tall glyphs and diacritics with no workaround
+   * Decision: Revisit when browser support improves and bugs are fixed
+   */
 }
 
 h1 {
-  font-size: var(--step-4);  /* 37-55px - Page titles, hero headlines */
+  font-size: var(--heading-h1);  /* 37-69px - Container query-based sizing for Norwegian long words */
   font-weight: var(--font-weight-bold);
   font-family: var(--font-family-heading);
   line-height: var(--line-height-heading);  /* 1.2 - balanced for large text */
   letter-spacing: var(--tracking-tight);    /* -0.015em - optical tightening */
-  text-wrap: balance;                       /* Modern CSS: Balanced line lengths */
 }
 
 /* All event titles and artist names use serif font */
@@ -98,40 +167,76 @@ h6 {
 }
 
 /* Reset heading margins when first child */
-h1:first-child, h2:first-child, h3:first-child,
-h4:first-child, h5:first-child, h6:first-child {
+:where(h1, h2, h3, h4, h5, h6):first-child {
   margin-top: 0;
 }
 
-/* Paragraphs */
-p {
+/* Paragraphs
+ *
+ * SPACING PHILOSOPHY:
+ * - :where() wrapper provides ZERO specificity - components can easily override
+ * - Equal top/bottom margins (12-15px fluid) create consistent vertical rhythm
+ * - First/last-child resets prevent unwanted spacing at container edges
+ */
+:where(p) {
   margin-top: var(--space-4);
   margin-bottom: var(--space-4);
   text-wrap: pretty; /* Modern CSS: Prevents orphans and improves line breaks */
+
+  /* text-box-trim removed - see heading styles above for rationale */
 }
 
-p:first-child {
+:where(p):first-child {
   margin-top: 0;
 }
 
-p:last-child {
+:where(p):last-child {
   margin-bottom: 0;
 }
 
-/* Lists */
-ul, ol {
+/* Lists
+ *
+ * SPACING PHILOSOPHY:
+ * - :where() wrapper provides ZERO specificity - components can easily override
+ * - Same vertical rhythm as paragraphs (12-15px fluid)
+ * - Nested lists get tighter spacing to prevent visual gaps
+ * - List items have small bottom margin for scanability
+ */
+:where(ul, ol) {
   margin-top: var(--space-4);
   margin-bottom: var(--space-4);
   padding-left: var(--space-6);
 }
 
-ul ul, ol ol, ul ol, ol ul {
+:where(ul ul, ol ol, ul ol, ol ul) {
   margin-top: var(--space-2);
   margin-bottom: var(--space-2);
 }
 
-li {
+:where(li) {
   margin-bottom: var(--space-2);
+}
+
+/* ============================================
+   EXCERPT UTILITY
+   ============================================
+
+   Global .excerpt class for standardized excerpt/lead paragraph styling.
+   Used across pages and article types (excluding event cards which have
+   custom styling for truncation).
+
+   Properties:
+   - Font-size: Step 1 (22-28px fluid)
+   - Line-height: 1.5 for optimal readability
+   - Max-width: 70ch for optimal line length
+   - Text-wrap: pretty to prevent orphaned words
+*/
+.excerpt {
+  font-size: var(--step-1);
+  line-height: 1.5;
+  max-inline-size: 70ch;
+  text-wrap: pretty;
+  margin-block-end: var(--space-4);
 }
 
 /* ============================================
@@ -172,31 +277,41 @@ li {
 */
 
 /* ============================================
-   LINKS - ACCESSIBILITY-FIRST APPROACH
+   LINKS - THREE PATTERN SYSTEM
+   ============================================
+
+   1. INLINE BODY LINKS (default)
+      - Blue color, underline, NO arrow
+      - Use in: Article content, descriptions, portable text
+
+   2. STANDALONE LINKS (.link-list a, .link-standalone)
+      - Blue color, underline, arrow ALWAYS visible (→)
+      - Use in: Link component, "Read more" CTAs
+
+   3. NAVIGATION LINKS (nav a)
+      - Blue color, NO underline, NO arrow
+      - Underline appears on hover
+      - Use in: Menu, footer navigation
    ============================================ */
 
+/* Default: Inline body links */
 a {
   color: var(--color-link);
   text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-  transition:
-    color var(--transition-fast),
-    text-decoration-thickness var(--transition-fast);
+  text-decoration-thickness: 0.0625em; /* 1/16 of font size - scales with text */
+  text-underline-offset: 0.3em;
+  display: inline-block; /* Required for transform to work */
+  transition: var(--transition-link-standard);
 }
 
-/* Arrow indicator */
-a::after {
-  content: ' →';
-  display: inline;
-  text-decoration: none;
-}
-
-/* Hover state - Multiple visual cues */
+/* Hover state - Same as standalone links (blue text, green tint, lift, shadow) but NO arrow */
 @media (hover: hover) {
   a:hover {
-    color: var(--color-link-hover);
-    text-decoration-thickness: 2px;
+    color: var(--color-link);
+    background-color: var(--color-tint-green-light);
+    text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
+    transform: translateY(-2px);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 8px;
   }
 }
 
@@ -212,28 +327,62 @@ a:active {
   color: var(--color-link-active);
 }
 
-/* Visited state - User orientation */
+/* Visited state - Same color as unvisited */
 a:visited {
-  color: var(--color-link-visited);
+  color: var(--color-link);
 }
 
 @media (hover: hover) {
   a:visited:hover {
-    color: var(--color-link-visited-hover);
-    text-decoration-thickness: 2px;
+    color: var(--color-link);
+    background-color: var(--color-tint-green-light);
+    text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
+    transform: translateY(-2px);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 8px;
   }
 }
 
-/* External links get special indicator */
-a[target="_blank"]::after,
-a[rel~="external"]::after {
-  content: ' ↗';
+/* Standalone links - Arrow always visible */
+.link-list a::after,
+.link-standalone::after {
+  content: ' →';
+  display: inline;
+  text-decoration: none;
+}
+
+/* Standalone links - Always dark blue with underline (no visited state color change) */
+.link-list a,
+.link-standalone {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-decoration-color: var(--color-link);
+  text-decoration-thickness: 0.0625em; /* 1/16 of font size - scales with text */
+  text-underline-offset: 0.3em;
+}
+
+.link-list a:visited,
+.link-standalone:visited {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-decoration-color: var(--color-link);
+  text-underline-offset: 0.3em;
+}
+
+@media (hover: hover) {
+  .link-list a:hover,
+  .link-standalone:hover,
+  .link-list a:visited:hover,
+  .link-standalone:visited:hover {
+    color: var(--color-link);
+    text-decoration-color: var(--color-link);
+    text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
+  }
 }
 
 /* High contrast mode */
 @media (prefers-contrast: high) {
   a {
-    text-decoration-thickness: 2px;
+    text-decoration-thickness: 0.1em; /* Thicker for better contrast - scales with text */
     font-weight: var(--font-weight-medium);
   }
 }
@@ -251,7 +400,7 @@ a.link-button {
   align-items: center;
   justify-content: center;
   padding: var(--space-3) var(--space-5);
-  background-color: rgba(27, 25, 143, 0.08);
+  background-color: var(--color-tint-blue-light);
   color: var(--color-blue);
   border: 1px solid var(--color-blue);
   text-decoration: none;
@@ -259,7 +408,7 @@ a.link-button {
   transition: all var(--transition-base);
 }
 
-/* Remove underlines and arrows from non-text links */
+/* Remove underlines from button-styled and navigation links */
 a.link-button,
 a.btn,
 a.btn-primary,
@@ -274,6 +423,8 @@ nav a,
   text-decoration: none;
 }
 
+/* Remove arrows from button-styled, card, and navigation links
+   Note: Standalone links (.link-list a) are NOT in this list */
 a.link-button::after,
 a.btn::after,
 a.btn-primary::after,
@@ -288,20 +439,40 @@ nav a::after,
   content: none;
 }
 
-/* Navigation hovers get underline */
+/* Navigation hovers get underline only - no lift/shadow/tint */
 @media (hover: hover) {
   nav a:hover,
   [role="navigation"] a:hover {
     text-decoration: underline;
-    text-decoration-thickness: 2px;
+    text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
+    background-color: transparent;
+    transform: none;
+    box-shadow: none;
   }
 }
 
+/* Card link hover overrides - cards provide container-level hover feedback */
+@media (hover: hover) {
+  .event-card a:hover,
+  .artist-card a:hover,
+  .card-grid a:hover,
+  .event-card .btn:hover,
+  .event-card .btn-primary:hover {
+    background-color: transparent;
+    transform: none;
+    box-shadow: none;
+    text-decoration: none;
+  }
+}
+
+/* Link button hover - background change only, no lift/shadow */
 @media (hover: hover) {
   a.link-button:hover {
-    background-color: rgba(0, 179, 154, 0.08);
+    background-color: var(--color-tint-green-light);
     color: var(--color-blue);
     text-decoration: none;
+    transform: none;
+    box-shadow: none;
   }
 }
 
@@ -314,6 +485,53 @@ a.link-button.active {
   background-color: var(--color-blue);
   color: white;
   border-color: var(--color-blue);
+}
+
+/* ============================================
+   PATTERN 4: STRETCHED LINKS (Clickable Cards)
+   ============================================
+
+   CATEGORY 4: STRETCHED LINKS (Clickable Containers)
+   - Semantic: Links that make entire card/container clickable
+   - Default: ::before pseudo-element creates clickable overlay
+   - Hover: Card lifts/highlights, link text remains unstyled
+   - Examples: Event cards, artist cards
+   - Rule: .card-link::before { position: absolute; inset: 0; }
+
+   Usage in components:
+   - Event cards: Use with color: var(--color-blue)
+   - Artist cards: Use with color: var(--color-background), z-index: 3
+   ============================================ */
+
+/* Base stretched link pattern */
+.card-link {
+  position: static; /* Required for ::before positioning context */
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+
+.card-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.card-link::after {
+  content: none; /* Remove arrow from stretched links */
+}
+
+@media (hover: hover) {
+  .card-link:hover {
+    text-decoration: none; /* Keep text clean, card provides hover feedback */
+  }
+}
+
+.card-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  text-decoration: underline;
 }
 
 /* ============================================
@@ -385,3 +603,12 @@ button:focus-visible,
   white-space: nowrap;
   border-width: 0;
 }
+
+/* ============================================
+   PROGRESSIVE ENHANCEMENT FALLBACKS
+   ============================================
+
+   Fallbacks for browsers without modern CSS typography features.
+   Ensures decent appearance in older browsers while providing
+   pixel-perfect alignment in modern browsers.
+*/
