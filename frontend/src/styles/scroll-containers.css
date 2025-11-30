@@ -38,6 +38,12 @@
   scroll-behavior: smooth;
   overscroll-behavior-x: contain;
   scroll-padding-inline: var(--scroll-padding);
+
+  /* Vertical padding to accommodate card hover lift effects
+   * 8px provides breathing room for transform: translateY(-4px) hover
+   * Prevents cards from being clipped at top edge when lifting
+   * Token defined in tokens.css with full documentation */
+  padding-block: var(--scroll-container-padding-block);
 }
 
 .scroll-container > * {
@@ -72,7 +78,12 @@
    ============================================ */
 
 .scroll-container--styled-scrollbar {
-  padding-block-end: 12px;
+  /* Override base padding-block to account for visible scrollbar
+   * Top: inherit 8px from .scroll-container (hover lift room)
+   * Bottom: 12px for scrollbar visibility
+   * Total vertical padding: 8px + 12px = 20px */
+  padding-block: var(--scroll-container-padding-block) 12px;
+
   scrollbar-width: thin;
   scrollbar-color: var(--color-blue) var(--color-neutral-100);
 }

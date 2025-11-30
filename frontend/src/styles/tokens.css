@@ -401,6 +401,16 @@
   --space-fluid-md: var(--space-m-l);     /* 16px → 30px - Moderate fluid scaling */
   --space-fluid-lg: var(--space-l-xl);    /* 24px → 40px - Large fluid scaling */
 
+  /* Scroll Container - Vertical padding to accommodate hover lift effects
+   * Value: 8px (fixed) - Provides breathing room for card hover transforms
+   * Usage: Applied to .scroll-container base class
+   * Rationale: Cards use transform: translateY(-4px) on hover
+   *            8px = 2× transform distance (industry standard buffer)
+   *            Accommodates both the lift and shadow blur (4px 12px)
+   * Browser Support: Universal (fixed px value, not fluid)
+   */
+  --scroll-container-padding-block: 0.5rem; /* 8px - Room for card hover lift + shadow */
+
   /* Shadows */
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);

@@ -445,6 +445,10 @@
   contain: layout style;
   /* Left-align cards to match date titles */
   justify-content: start;
+  /* Vertical padding to accommodate card hover lift effects
+   * Required because contain: layout creates containment boundary that clips overflow
+   * Inherits same token used by .scroll-container */
+  padding-block: var(--scroll-container-padding-block);
 }
 
 /* ============================================
@@ -467,16 +471,6 @@
     display: flex;
     /* Clear grid properties */
     grid-template-columns: initial;
-  }
-
-  /* Override hover effect for horizontal scroll mode */
-  @media (hover: hover) {
-    .event-card:hover {
-      /* Use scale instead of translateY to avoid clipping in scroll container */
-      transform: scale(1.02);
-      box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-      background-color: rgba(0, 179, 154, 0.08);
-    }
   }
 }
 
