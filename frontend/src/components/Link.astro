@@ -103,38 +103,25 @@ const processedLinks = links.map((link) => {
     display: inline-flex;
     align-items: center;
     padding: var(--space-2xs) var(--space-xs);
-    color: var(--color-blue);
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.2em;
-    transition: all var(--transition-fast);
+    /* Color inherited from global --color-link (blue) */
     font-weight: var(--font-weight-medium);
     font-size: var(--step-3);
+    /* Arrow handled by global .link-list a::after */
+    transition: var(--transition-link-standard);
   }
 
-  .link::after {
-    content: '\00a0→';
+  @media (hover: hover) {
+    .link:hover {
+      color: var(--color-link);
+      background-color: var(--color-tint-green-light);
+      transform: translateY(-4px);
+      box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    }
   }
 
-  .link:hover {
-    color: var(--color-blue);
-    text-decoration-thickness: 2px;
-    background-color: rgba(0, 179, 154, 0.08);
-  }
-
+  /* Focus state uses global styles, just add background */
   .link:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: 2px;
-    text-decoration: none;
-  }
-
-  /* Visited state - slightly different color to indicate visited links */
-  .link:visited {
-    color: rgb(0, 100, 87);
-  }
-
-  .link:visited:hover {
-    color: var(--color-blue);
+    background-color: var(--color-tint-blue-light);
   }
 
   .link-description {

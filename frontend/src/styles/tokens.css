@@ -166,12 +166,20 @@
   --color-tint-green-light: rgba(0, 179, 154, 0.08);  /* 8% green - for hover states */
 
   /* Link component specific colors */
-  --color-link: var(--color-red);
+  --color-link: var(--color-blue);
   --color-link-hover: var(--color-green);
   --color-link-active: var(--color-green-600);
-  --color-link-visited: var(--color-red-700);
+  --color-link-visited: var(--color-blue-700);
   --color-link-visited-hover: var(--color-green);
-  --color-link-focus-bg: rgba(251, 83, 75, 0.1);
+  --color-link-focus-bg: rgba(27, 25, 143, 0.1);
+
+  /* Link transitions - shared across all link patterns */
+  --transition-link-standard:
+    color var(--transition-fast),
+    text-decoration-thickness var(--transition-fast),
+    background-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
 
   /* Success/Info/Warning/Error */
   --color-success: #28a745;

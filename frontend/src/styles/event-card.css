@@ -167,38 +167,14 @@ dl.event-meta dd {
   display: flex;
 }
 
-/* Stretched link pattern - makes entire card clickable (accessibility win) */
+/* Stretched link pattern - uses global .card-link from base.css */
 .event-card .event-title-link {
   color: var(--color-blue);
-  text-decoration: none;
-  transition: color var(--transition-base);
 }
 
-/* Pseudo-element stretches to cover entire card */
-.event-title-link::before {
-  content: '';
-  position: absolute;
-  inset: 0; /* Modern shorthand for top/right/bottom/left: 0 */
-  z-index: 1;
-}
-
-/* No arrow indicator on card title links */
-.event-title-link::after {
-  content: none;
-}
-
-/* Hover state - no underline, color change handled above */
-@media (hover: hover) {
-  .event-card .event-title-link:hover {
-    text-decoration: none;
-  }
-}
-
-/* Focus state - highly visible for keyboard users (WCAG AA compliant) */
+/* Customize focus outline color for event cards */
 .event-card .event-title-link:focus-visible {
-  outline: 2px solid var(--color-blue);
-  outline-offset: 2px;
-  text-decoration: underline;
+  outline-color: var(--color-blue);
 }
 
 /* Elevate buttons above stretched link */

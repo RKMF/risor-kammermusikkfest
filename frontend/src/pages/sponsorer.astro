@@ -1,0 +1,171 @@
+---
+import ContentPageLayout from '../layouts/ContentPageLayout.astro';
+import { sanityClient } from 'sanity:client';
+import { QueryBuilder } from '../lib/sanity/queryBuilder.js';
+import type { SiteSettings } from '../components/Footer.astro';
+import { fetchAndSanitizeSvg } from '../lib/utils/sanitizeSvg.js';
+
+// Fetch sponsors from siteSettings
+const { query: footerQuery, params: footerParams } = QueryBuilder.siteSettingsFooter();
+const siteSettings = await sanityClient.fetch<SiteSettings>(footerQuery, footerParams);
+
+// Get sponsors and filter out null/undefined
+const sponsors = (siteSettings?.sponsors || []).filter(sponsor => sponsor != null);
+
+// Fetch and sanitize sponsor SVGs at build time for exact color control
+const sponsorSvgs = await Promise.all(
+  sponsors.map(async (sponsor) => ({
+    name: sponsor.name,
+    url: sponsor.url,
+    svg: await fetchAndSanitizeSvg(sponsor.logo.asset.url)
+  }))
+);
+
+// Check if we have any sponsors
+const hasSponsors = sponsorSvgs.length > 0;
+
+// Page metadata
+const pageTitle = 'Våre støttespillere';
+const pageExcerpt = 'Takk til alle våre støttespillere som gjør festivalen mulig';
+---
+
+<ContentPageLayout
+  title={pageTitle}
+  excerpt={pageExcerpt}
+>
+  {hasSponsors ? (
+    <div class="sponsors-grid">
+      {sponsorSvgs.map((sponsor) => (
+        sponsor.svg && (
+          <div class="sponsor-card">
+            {sponsor.url ? (
+              <a
+                href={sponsor.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="sponsor-link"
+                aria-label={sponsor.name}
+              >
+                <div class="sponsor-logo-wrapper" set:html={sponsor.svg} />
+                <span class="sponsor-name">{sponsor.name}</span>
+              </a>
+            ) : (
+              <div class="sponsor-content">
+                <div class="sponsor-logo-wrapper" set:html={sponsor.svg} />
+                <span class="sponsor-name">{sponsor.name}</span>
+              </div>
+            )}
+          </div>
+        )
+      ))}
+    </div>
+  ) : (
+    <div class="no-sponsors">
+      <h3 class="no-sponsors-title">Ingen støttespillere å vise</h3>
+      <p class="no-sponsors-text">Kom tilbake senere for å se våre støttespillere.</p>
+    </div>
+  )}
+
+  <style>
+    /* Sponsors Grid - Intrinsic responsive layout */
+    .sponsors-grid {
+      margin-block-start: var(--space-3xl);
+      container-type: inline-size;
+      display: grid;
+      column-gap: var(--space-xl);
+      row-gap: var(--space-xl);
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+      justify-items: center;
+      align-items: start;
+    }
+
+    @container (min-width: 700px) {
+      .sponsors-grid {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+      }
+    }
+
+    /* Sponsor Card */
+    .sponsor-card {
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .sponsor-link,
+    .sponsor-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-5);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      background-color: #ffffff;
+      transition: transform 200ms var(--ease-standard),
+                  box-shadow 200ms var(--ease-standard),
+                  border-color 200ms var(--ease-standard);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .sponsor-link {
+      cursor: pointer;
+    }
+
+    /* Hover effect only for linked sponsors */
+    @media (hover: hover) {
+      .sponsor-link:hover {
+        transform: translateY(-4px);
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+        border-color: var(--color-green);
+      }
+    }
+
+    .sponsor-link:focus-visible {
+      outline: 2px solid var(--color-blue);
+      outline-offset: 2px;
+    }
+
+    /* Inlined SVG logos - exact color control with fill */
+    .sponsor-logo-wrapper :global(svg) {
+      max-width: clamp(120px, 40vw, 200px); /* Responsive: 120px → 200px based on viewport */
+      max-height: clamp(60px, 20vw, 100px);  /* Maintains 2:1 aspect ratio */
+      width: 100%;
+      height: auto;
+      display: block;
+      /* Exact color match with text and nav logo */
+      fill: var(--color-blue);
+    }
+
+    /* Ensure all SVG paths/shapes inherit the fill color */
+    .sponsor-logo-wrapper :global(svg path),
+    .sponsor-logo-wrapper :global(svg polygon),
+    .sponsor-logo-wrapper :global(svg circle),
+    .sponsor-logo-wrapper :global(svg rect) {
+      fill: currentColor; /* Inherits from parent SVG */
+    }
+
+    .sponsor-name {
+      font-size: var(--step-0);
+      font-weight: 500;
+      text-align: center;
+      color: var(--color-text);
+    }
+
+    /* No Sponsors Empty State */
+    .no-sponsors {
+      text-align: center;
+      padding: clamp(var(--space-6), 8vw, var(--space-9));
+    }
+
+    .no-sponsors-title {
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .no-sponsors-text {
+      margin: 0;
+      font-size: var(--step-1);
+    }
+  </style>
+
+</ContentPageLayout>

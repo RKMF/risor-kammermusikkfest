@@ -48,9 +48,11 @@ a.btn-primary:visited {
 @media (hover: hover) {
   .btn-primary:hover,
   a.btn-primary:hover {
-    background-color: var(--color-tint-green-light);
+    background-color: var(--color-green-50);
     color: var(--color-blue);
     border-color: var(--color-blue);
+    transform: none;
+    box-shadow: none;
   }
 }
 

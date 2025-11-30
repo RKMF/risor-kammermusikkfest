@@ -277,31 +277,41 @@ h6 {
 */
 
 /* ============================================
-   LINKS - ACCESSIBILITY-FIRST APPROACH
+   LINKS - THREE PATTERN SYSTEM
+   ============================================
+
+   1. INLINE BODY LINKS (default)
+      - Blue color, underline, NO arrow
+      - Use in: Article content, descriptions, portable text
+
+   2. STANDALONE LINKS (.link-list a, .link-standalone)
+      - Blue color, underline, arrow ALWAYS visible (→)
+      - Use in: Link component, "Read more" CTAs
+
+   3. NAVIGATION LINKS (nav a)
+      - Blue color, NO underline, NO arrow
+      - Underline appears on hover
+      - Use in: Menu, footer navigation
    ============================================ */
 
+/* Default: Inline body links */
 a {
   color: var(--color-link);
   text-decoration: underline;
   text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-  transition:
-    color var(--transition-fast),
-    text-decoration-thickness var(--transition-fast);
+  text-underline-offset: 0.3em;
+  display: inline-block; /* Required for transform to work */
+  transition: var(--transition-link-standard);
 }
 
-/* Arrow indicator */
-a::after {
-  content: ' →';
-  display: inline;
-  text-decoration: none;
-}
-
-/* Hover state - Multiple visual cues */
+/* Hover state - Same as standalone links (blue text, green tint, lift, shadow) but NO arrow */
 @media (hover: hover) {
   a:hover {
-    color: var(--color-link-hover);
+    color: var(--color-link);
+    background-color: var(--color-tint-green-light);
     text-decoration-thickness: 2px;
+    transform: translateY(-2px);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 8px;
   }
 }
 
@@ -317,22 +327,56 @@ a:active {
   color: var(--color-link-active);
 }
 
-/* Visited state - User orientation */
+/* Visited state - Same color as unvisited */
 a:visited {
-  color: var(--color-link-visited);
+  color: var(--color-link);
 }
 
 @media (hover: hover) {
   a:visited:hover {
-    color: var(--color-link-visited-hover);
+    color: var(--color-link);
+    background-color: var(--color-tint-green-light);
     text-decoration-thickness: 2px;
+    transform: translateY(-2px);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 8px;
   }
 }
 
-/* External links get special indicator */
-a[target="_blank"]::after,
-a[rel~="external"]::after {
-  content: ' ↗';
+/* Standalone links - Arrow always visible */
+.link-list a::after,
+.link-standalone::after {
+  content: ' →';
+  display: inline;
+  text-decoration: none;
+}
+
+/* Standalone links - Always dark blue with underline (no visited state color change) */
+.link-list a,
+.link-standalone {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-decoration-color: var(--color-link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
+.link-list a:visited,
+.link-standalone:visited {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-decoration-color: var(--color-link);
+  text-underline-offset: 0.3em;
+}
+
+@media (hover: hover) {
+  .link-list a:hover,
+  .link-standalone:hover,
+  .link-list a:visited:hover,
+  .link-standalone:visited:hover {
+    color: var(--color-link);
+    text-decoration-color: var(--color-link);
+    text-decoration-thickness: 2px;
+  }
 }
 
 /* High contrast mode */
@@ -364,7 +408,7 @@ a.link-button {
   transition: all var(--transition-base);
 }
 
-/* Remove underlines and arrows from non-text links */
+/* Remove underlines from button-styled and navigation links */
 a.link-button,
 a.btn,
 a.btn-primary,
@@ -379,6 +423,8 @@ nav a,
   text-decoration: none;
 }
 
+/* Remove arrows from button-styled, card, and navigation links
+   Note: Standalone links (.link-list a) are NOT in this list */
 a.link-button::after,
 a.btn::after,
 a.btn-primary::after,
@@ -393,20 +439,40 @@ nav a::after,
   content: none;
 }
 
-/* Navigation hovers get underline */
+/* Navigation hovers get underline only - no lift/shadow/tint */
 @media (hover: hover) {
   nav a:hover,
   [role="navigation"] a:hover {
     text-decoration: underline;
     text-decoration-thickness: 2px;
+    background-color: transparent;
+    transform: none;
+    box-shadow: none;
   }
 }
 
+/* Card link hover overrides - cards provide container-level hover feedback */
+@media (hover: hover) {
+  .event-card a:hover,
+  .artist-card a:hover,
+  .card-grid a:hover,
+  .event-card .btn:hover,
+  .event-card .btn-primary:hover {
+    background-color: transparent;
+    transform: none;
+    box-shadow: none;
+    text-decoration: none;
+  }
+}
+
+/* Link button hover - background change only, no lift/shadow */
 @media (hover: hover) {
   a.link-button:hover {
     background-color: var(--color-tint-green-light);
     color: var(--color-blue);
     text-decoration: none;
+    transform: none;
+    box-shadow: none;
   }
 }
 
@@ -419,6 +485,53 @@ a.link-button.active {
   background-color: var(--color-blue);
   color: white;
   border-color: var(--color-blue);
+}
+
+/* ============================================
+   PATTERN 4: STRETCHED LINKS (Clickable Cards)
+   ============================================
+
+   CATEGORY 4: STRETCHED LINKS (Clickable Containers)
+   - Semantic: Links that make entire card/container clickable
+   - Default: ::before pseudo-element creates clickable overlay
+   - Hover: Card lifts/highlights, link text remains unstyled
+   - Examples: Event cards, artist cards
+   - Rule: .card-link::before { position: absolute; inset: 0; }
+
+   Usage in components:
+   - Event cards: Use with color: var(--color-blue)
+   - Artist cards: Use with color: var(--color-background), z-index: 3
+   ============================================ */
+
+/* Base stretched link pattern */
+.card-link {
+  position: static; /* Required for ::before positioning context */
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+
+.card-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.card-link::after {
+  content: none; /* Remove arrow from stretched links */
+}
+
+@media (hover: hover) {
+  .card-link:hover {
+    text-decoration: none; /* Keep text clean, card provides hover feedback */
+  }
+}
+
+.card-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  text-decoration: underline;
 }
 
 /* ============================================

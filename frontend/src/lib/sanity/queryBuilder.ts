@@ -604,6 +604,43 @@ const SITE_SETTINGS_MENU_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
   }
 }`)
 
+const SITE_SETTINGS_FOOTER_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
+  email,
+  phone,
+  address,
+  linkUrl,
+  openInNewTab,
+  organizationName_no,
+  organizationName_en,
+  newsletterUrl,
+  newsletterTitle_no,
+  newsletterTitle_en,
+  socialMedia[]{
+    name,
+    url
+  },
+  sponsors[]{
+    name,
+    "logo": logo{
+      asset->{
+        _id,
+        url,
+        metadata {
+          dimensions {
+            width,
+            height,
+            aspectRatio
+          },
+          lqip
+        }
+      },
+      hotspot,
+      crop
+    },
+    url
+  }
+}`)
+
 export const QueryBuilder = {
   homepage(): QueryDefinition {
     return {query: HOMEPAGE_QUERY, params: {}}
@@ -652,6 +689,9 @@ export const QueryBuilder = {
   },
   siteSettingsMenu(): QueryDefinition {
     return {query: SITE_SETTINGS_MENU_QUERY, params: {}}
+  },
+  siteSettingsFooter(): QueryDefinition {
+    return {query: SITE_SETTINGS_FOOTER_QUERY, params: {}}
   }
 } as const
 

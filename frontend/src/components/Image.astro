@@ -240,10 +240,11 @@ const fetchPriority = priority ? 'high' : 'auto';
   .image {
     display: block;
     width: 100%;
-    height: 350px; /* Fixed height matching ContentScrollContainer */
+    max-height: 350px; /* Optional constraint - prevents excessively tall images */
     object-fit: cover;
     object-position: center;
 
+    /* aspect-ratio set via inline style (from component props) */
     /* Placeholder shows as background during load */
     /* background-image and background-color set via inline style */
   }

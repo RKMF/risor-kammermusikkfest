@@ -150,39 +150,19 @@
   transition: color var(--transition-base);
 }
 
-/* Stretched link pattern - makes entire card clickable */
+/* Stretched link pattern - uses global .card-link from base.css */
 .artist-card .artist-title-link {
   color: var(--color-background);
-  text-decoration: none;
-  transition: color var(--transition-base);
 }
 
-/* Pseudo-element stretches to cover entire card */
+/* Elevate stretched link above info box */
 .artist-title-link::before {
-  content: '';
-  position: absolute;
-  inset: 0;
   z-index: 3; /* Above info box (z-index: 2) to make entire card clickable */
-  cursor: pointer;
 }
 
-/* No arrow indicator on card title links */
-.artist-title-link::after {
-  content: none;
-}
-
-/* Hover state - no underline on stretched link */
-@media (hover: hover) {
-  .artist-card .artist-title-link:hover {
-    text-decoration: none;
-  }
-}
-
-/* Focus state - highly visible for keyboard users */
+/* Customize focus outline color for artist cards */
 .artist-card .artist-title-link:focus-visible {
-  outline: 2px solid var(--color-background);
-  outline-offset: 2px;
-  text-decoration: underline;
+  outline-color: var(--color-background);
 }
 
 /* ============================================
