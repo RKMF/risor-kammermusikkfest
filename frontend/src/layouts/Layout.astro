@@ -104,7 +104,7 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
         display: grid;
         grid-template-rows: auto 1fr auto;
         grid-template-columns: 100%;
-        min-block-size: 100vh; /* Logical property for height */
+        min-block-size: var(--viewport-full); /* Mobile-safe viewport height (svh with vh fallback) */
         /* Pure white background */
         background-color: #ffffff;
       }

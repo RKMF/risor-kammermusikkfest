@@ -419,6 +419,63 @@
    */
   --scroll-container-padding-block: 0.5rem; /* 8px - Room for card hover lift + shadow */
 
+  /* ============================================
+     VIEWPORT UNITS - Mobile-Safe Height Values
+     ============================================
+
+     Addresses the "100vh problem on mobile" where browser UI (address bars,
+     toolbars) causes content to overflow when sized with traditional viewport
+     height units.
+
+     THE PROBLEM:
+     On mobile browsers, traditional 100vh assumes the address bar is hidden.
+     When the address bar is visible (initial page load), content sized to 100vh
+     extends beyond the visible viewport, requiring awkward scrolling.
+
+     THE SOLUTION:
+     New viewport units (2022+) provide granular control:
+     - svh (Small Viewport Height): Viewport when browser UI is expanded (visible)
+     - lvh (Large Viewport Height): Viewport when browser UI is retracted (hidden)
+     - dvh (Dynamic Viewport Height): Adjusts dynamically during scroll
+
+     BROWSER SUPPORT:
+     - Chrome/Edge 108+, Firefox 101+, Safari 15.4+ (92.59% global coverage)
+     - Fallback: Traditional vh units for older browsers (automatic via cascade)
+
+     IMPLEMENTATION STRATEGY:
+     Progressive enhancement - declare vh first as fallback, then svh which
+     modern browsers will override. The CSS cascade handles this automatically.
+
+     USAGE GUIDELINES:
+     - Use --viewport-full for sticky footer patterns, full-height layouts
+     - Use --viewport-partial for sections needing substantial but not full height
+     - Default to svh for ~90% of cases (predictable, no layout shifts)
+     - Avoid dvh except in rare, tested cases (causes performance issues)
+
+     WHY SVH (SMALL VIEWPORT)?
+     svh guarantees content fits when address bar is visible, which is the most
+     common state on initial page load. This prevents content from being cut off
+     below the fold and eliminates the jarring "scroll to see more" experience.
+
+     EXPERT CONSENSUS:
+     Ahmad Shadeed, Kevin Powell, and Chrome's web.dev team all recommend svh
+     as the default choice for full-height layouts on mobile devices.
+
+     REFERENCES:
+     - MDN: https://developer.mozilla.org/en-US/docs/Web/CSS/length
+     - Ahmad Shadeed: https://ishadeed.com/article/new-viewport-units/
+     - web.dev: https://web.dev/blog/viewport-units
+     - Can I Use: https://caniuse.com/viewport-unit-variants
+  */
+
+  /* Full viewport height - Use for sticky footer, full-screen layouts, modals */
+  --viewport-full: 100vh;          /* Fallback for older browsers (< 92% support) */
+  --viewport-full: 100svh;         /* Modern: fits when address bar visible (recommended) */
+
+  /* Partial viewport height - Use for error pages, sections needing substantial height */
+  --viewport-partial: 60vh;        /* Fallback for older browsers (< 92% support) */
+  --viewport-partial: 60svh;       /* Modern: fits when address bar visible (recommended) */
+
   /* Shadows */
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);

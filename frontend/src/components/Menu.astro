@@ -222,7 +222,7 @@ const isActive = (href: string) => {
     /* Ensure content doesn't overflow */
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: calc(100vh - var(--space-3) - 60px - var(--space-4));
+    max-height: calc(var(--viewport-full) - var(--space-3) - 60px - var(--space-4));
   }
 
   /* Popover uses display:none when closed (browser handles this automatically) */
