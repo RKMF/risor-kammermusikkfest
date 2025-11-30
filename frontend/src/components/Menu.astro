@@ -170,6 +170,15 @@ const isActive = (href: string) => {
     }
   }
 
+  /* Keep hover appearance when menu is open */
+  .menu-toggle:has(+ #navigation-menu:popover-open) {
+    background-color: var(--color-green-50);
+  }
+
+  .menu-toggle:has(+ #navigation-menu:popover-open) .logo-svg {
+    fill: var(--color-blue);
+  }
+
   .menu-toggle:focus-visible {
     outline: 3px solid var(--color-green);
     outline-offset: 3px;

@@ -114,37 +114,42 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
 ---
 
 <Layout title={`${artist.name} - Artist`}>
-  <!-- Artist Card - Centered, medium size -->
-  <!-- Card is 480px wide, image displays at 85% = 408px actual -->
-  <div class="artist-detail-card-container">
-    <ArtistCard artist={artist} language="en" size="medium" isDetailPage={true} imageSizes="408px" />
-  </div>
-
-  <!-- Excerpt -->
-  {artist.excerpt_en && (
-    <p class="excerpt">{stegaClean(artist.excerpt_en)}</p>
-  )}
-
-  <!-- Events Section -->
-  {artist.events && artist.events.length > 0 && (
-    <section class="artist-events">
-      <h2 class="artist-events-title">Concerts</h2>
-      <div class="scroll-container scroll-container--event-cards scroll-container--styled-scrollbar">
-        {artist.events.map((event) => (
-          <EventCard event={event} language="en" />
-        ))}
+  <article class="artist-page">
+    <!-- Artist Card - Centered, medium size -->
+    <!-- Card is 480px wide, image displays at 85% = 408px actual -->
+    <header class="artist-header">
+      <div class="artist-detail-card-container">
+        <ArtistCard artist={artist} language="en" size="medium" isDetailPage={true} imageSizes="408px" />
       </div>
-    </section>
-  )}
 
-  <!-- Content below card -->
-  {content && Array.isArray(content) && content.length > 0 && (
-    <article class="artist-content">
-      {content.map((block) => (
-        <DynamicComponent key={block._key || block._id} block={block} />
-      ))}
-    </article>
-  )}
+      <!-- Excerpt -->
+      {artist.excerpt_en && (
+        <p class="excerpt">{stegaClean(artist.excerpt_en)}</p>
+      )}
+    </header>
+
+    <!-- Events Section -->
+    {artist.events && artist.events.length > 0 && (
+      <section class="artist-events">
+        <h2 class="artist-events-title">Concerts</h2>
+        <div class="scroll-container scroll-container--event-cards scroll-container--styled-scrollbar">
+          {artist.events.map((event) => (
+            <EventCard event={event} language="en" />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Content below card -->
+    {content && Array.isArray(content) && content.length > 0 && (
+      <section class="artist-content">
+        <h2 class="sr-only">About the Artist</h2>
+        {content.map((block) => (
+          <DynamicComponent key={block._key || block._id} block={block} />
+        ))}
+      </section>
+    )}
+  </article>
 </Layout>
 
 <style>

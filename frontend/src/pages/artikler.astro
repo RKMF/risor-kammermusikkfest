@@ -31,7 +31,7 @@ const hasArticles = articles.length > 0;
       {articles.map((article) => (
         <article class="article-card card">
           <h3 class="article-title">
-            <a href={`/artikler/${stegaClean(article.slug_no?.current || article.slug_en?.current)}`} class="article-title-link">
+            <a href={`/artikler/${stegaClean(article.slug_no?.current || article.slug_en?.current)}`} class="article-title-link card-link">
               {stegaClean(article.title)}
             </a>
           </h3>
@@ -208,45 +208,6 @@ const hasArticles = articles.length > 0;
       height: 100%;
       object-fit: cover;
       display: block;
-    }
-
-    /* Stretched link pattern - makes entire card clickable */
-    .article-card .article-title-link {
-      color: var(--color-blue);
-      text-decoration: none;
-      transition: color var(--transition-base);
-    }
-
-    /* Pseudo-element stretches to cover entire card */
-    .article-title-link::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-    }
-
-    /* Remove arrow indicator from card title links */
-    .article-title-link::after {
-      content: none;
-    }
-
-    /* Remove arrow from all links inside article cards */
-    .article-card a::after {
-      content: none;
-    }
-
-    /* Hover state - no underline, color change handled above */
-    @media (hover: hover) {
-      .article-card .article-title-link:hover {
-        text-decoration: none;
-      }
-    }
-
-    /* Focus state - highly visible for keyboard users */
-    .article-card .article-title-link:focus-visible {
-      outline: 2px solid var(--color-blue);
-      outline-offset: 2px;
-      text-decoration: underline;
     }
 
     .article-meta {
