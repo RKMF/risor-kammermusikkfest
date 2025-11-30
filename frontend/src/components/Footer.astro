@@ -261,7 +261,7 @@ function getSocialIcon(name: string): string | undefined {
     .page-footer address a:hover,
     .social-link:hover {
       text-decoration: underline;
-      text-decoration-thickness: 2px;
+      text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
       background-color: transparent; /* Override global green tint */
       transform: none; /* Override global lift */
       box-shadow: none; /* Override global shadow */
@@ -274,22 +274,7 @@ function getSocialIcon(name: string): string | undefined {
     content: none;
   }
 
-  /* Newsletter & developer credit - lift only (no green tint, no shadow) */
-  .page-footer .newsletter-link,
-  .page-footer .developer-credit {
-    display: inline-block;
-  }
-
-  @media (hover: hover) {
-    .page-footer .newsletter-link:hover,
-    .page-footer .developer-credit:hover {
-      transform: translateY(-2px); /* Only lift */
-      background-color: transparent; /* No green tint */
-      box-shadow: none; /* No shadow */
-    }
-  }
-
-  /* Specific elements */
+  /* Specific elements - set first for proper cascade */
   .copyright,
   .developer-credit {
     font-size: var(--step-0);
@@ -299,6 +284,26 @@ function getSocialIcon(name: string): string | undefined {
     font-size: var(--step-2);
     font-weight: var(--font-weight-normal);
     padding-block: var(--space-m);
+  }
+
+  /* Newsletter & developer credit - lift only (no green tint, no shadow) */
+  .page-footer a.newsletter-link,
+  .page-footer a.developer-credit {
+    display: inline-block;
+    text-decoration: underline;
+    text-decoration-thickness: 0.0625em; /* Default - scales with text */
+    transition: transform var(--transition-fast); /* Only transition lift - instant thickness change */
+  }
+
+  @media (hover: hover) {
+    .page-footer a.newsletter-link:hover,
+    .page-footer a.developer-credit:hover {
+      text-decoration: underline;
+      text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
+      transform: translateY(-2px); /* Only lift */
+      background-color: transparent; /* No green tint */
+      box-shadow: none; /* No shadow */
+    }
   }
 
   .page-footer .copyright {

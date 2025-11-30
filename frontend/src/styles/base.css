@@ -298,7 +298,7 @@ h6 {
 a {
   color: var(--color-link);
   text-decoration: underline;
-  text-decoration-thickness: 1px;
+  text-decoration-thickness: 0.0625em; /* 1/16 of font size - scales with text */
   text-underline-offset: 0.3em;
   display: inline-block; /* Required for transform to work */
   transition: var(--transition-link-standard);
@@ -309,7 +309,7 @@ a {
   a:hover {
     color: var(--color-link);
     background-color: var(--color-tint-green-light);
-    text-decoration-thickness: 2px;
+    text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
     transform: translateY(-2px);
     box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 8px;
   }
@@ -336,7 +336,7 @@ a:visited {
   a:visited:hover {
     color: var(--color-link);
     background-color: var(--color-tint-green-light);
-    text-decoration-thickness: 2px;
+    text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
     transform: translateY(-2px);
     box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 8px;
   }
@@ -356,7 +356,7 @@ a:visited {
   color: var(--color-link);
   text-decoration: underline;
   text-decoration-color: var(--color-link);
-  text-decoration-thickness: 1px;
+  text-decoration-thickness: 0.0625em; /* 1/16 of font size - scales with text */
   text-underline-offset: 0.3em;
 }
 
@@ -375,14 +375,14 @@ a:visited {
   .link-standalone:visited:hover {
     color: var(--color-link);
     text-decoration-color: var(--color-link);
-    text-decoration-thickness: 2px;
+    text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
   }
 }
 
 /* High contrast mode */
 @media (prefers-contrast: high) {
   a {
-    text-decoration-thickness: 2px;
+    text-decoration-thickness: 0.1em; /* Thicker for better contrast - scales with text */
     font-weight: var(--font-weight-medium);
   }
 }
@@ -444,7 +444,7 @@ nav a::after,
   nav a:hover,
   [role="navigation"] a:hover {
     text-decoration: underline;
-    text-decoration-thickness: 2px;
+    text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
     background-color: transparent;
     transform: none;
     box-shadow: none;
