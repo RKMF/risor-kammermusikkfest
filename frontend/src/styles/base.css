@@ -525,6 +525,9 @@ a.link-button.active {
 @media (hover: hover) {
   .card-link:hover {
     text-decoration: none; /* Keep text clean, card provides hover feedback */
+    transform: none; /* Override global a:hover lift */
+    box-shadow: none; /* Override global a:hover shadow */
+    background-color: transparent; /* Override global a:hover tint */
   }
 }
 
