@@ -19,10 +19,12 @@ const artistPath = language === 'en'
   : `/artister/${stegaClean(artist.slug)}`;
 
 // Size-specific image dimensions and aspect ratios
+// Image is displayed at 85% of card width in CSS (artist-card.css line 111)
+// So for 320px card, actual image display is 272px (320 * 0.85)
 const sizeConfig = {
-  large: { width: 320, height: 569, aspectRatio: 9/16 },   // 9:16
-  medium: { width: 320, height: 400, aspectRatio: 4/5 },   // 4:5
-  small: { width: 320, height: 320, aspectRatio: 1/1 }     // 1:1
+  large: { width: 272, height: 484, aspectRatio: 9/16 },   // 9:16 (272÷(9/16)=484)
+  medium: { width: 272, height: 340, aspectRatio: 4/5 },   // 4:5 (272÷(4/5)=340)
+  small: { width: 272, height: 272, aspectRatio: 1/1 }     // 1:1
 };
 
 const { width, height, aspectRatio } = sizeConfig[size];
@@ -58,7 +60,7 @@ const sizeClass = size === 'medium' ? 'artist-card--medium' : size === 'small' ?
   {artist.image?.image && (
     <img
       src={getOptimizedImageUrl(artist.image.image, width, height, IMAGE_QUALITY.CARD)}
-      srcset={getResponsiveImageSet(artist.image.image, [320, 480, 640], aspectRatio, IMAGE_QUALITY.CARD)}
+      srcset={getResponsiveImageSet(artist.image.image, [272, 408, 544], aspectRatio, IMAGE_QUALITY.CARD)}
       sizes={imageSizes}
       alt={stegaClean(artist.image.alt) || stegaClean(artist.name)}
       width={width.toString()}

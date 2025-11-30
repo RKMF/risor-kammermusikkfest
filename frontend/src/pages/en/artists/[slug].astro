@@ -115,8 +115,9 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
 
 <Layout title={`${artist.name} - Artist`}>
   <!-- Artist Card - Centered, medium size -->
+  <!-- Card is 480px wide, image displays at 85% = 408px actual -->
   <div class="artist-detail-card-container">
-    <ArtistCard artist={artist} language="en" size="medium" isDetailPage={true} imageSizes="480px" />
+    <ArtistCard artist={artist} language="en" size="medium" isDetailPage={true} imageSizes="408px" />
   </div>
 
   <!-- Excerpt -->
