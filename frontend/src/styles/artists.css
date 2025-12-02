@@ -132,6 +132,7 @@
 /* Horizontal scroll mode for each section */
 @container (max-width: 800px) {
   .artist-section {
+    /* Switch from grid to flex for horizontal scrolling */
     display: flex;
     grid-template-columns: initial;
   }
