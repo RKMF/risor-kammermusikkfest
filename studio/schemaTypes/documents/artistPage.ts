@@ -5,6 +5,7 @@ import {componentValidation} from '../shared/validation'
 import type {ArtistPageData} from '../shared/types'
 import {excludeAlreadySelected} from '../shared/referenceFilters'
 import {MultiSelectReferenceInput} from '../components/inputs/MultiSelectReferenceInput'
+import {getLanguageStatus} from '../shared/previewHelpers'
 
 export const artistPage = defineType({
   name: 'artistPage',
@@ -142,11 +143,8 @@ export const artistPage = defineType({
       hasEnglish: 'content_en',
     },
     prepare({title_no, title_en, slug_no, slug_en, hasNorwegian, hasEnglish}) {
-      // Language status
-      const languages: string[] = [];
-      if (hasNorwegian || title_no) languages.push('NO');
-      if (hasEnglish || title_en) languages.push('EN');
-      const langStatus = languages.length > 0 ? languages.join(' ') : 'Ingen språk valgt';
+      // Language status using shared helper
+      const langStatus = getLanguageStatus({title_no, title_en, hasNorwegian, hasEnglish});
 
       const title = title_no || title_en || 'Artistoversikt';
       const slug = slug_no || slug_en || 'artister';

@@ -467,9 +467,8 @@
 
 @container (max-width: 800px) {
   .events-grid {
-    /* Transform from grid to flex for scroll mode */
+    /* Switch from grid to flex for horizontal scrolling */
     display: flex;
-    /* Clear grid properties */
     grid-template-columns: initial;
   }
 }
