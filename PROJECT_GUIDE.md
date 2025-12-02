@@ -533,6 +533,150 @@ git push origin --delete feature/new-feature
 - Make meaningful commit messages that explain what was accomplished
 - Push when it makes sense based on user's workflow
 
+### Deployment Workflow
+
+**⚠️ CRITICAL: Two Separate Deployment Systems**
+
+This project has **TWO independent deployment paths** - understand the difference to avoid confusion:
+
+#### Frontend Deployment (Automatic via Vercel)
+
+**What it deploys:**
+- Astro website code
+- Page components, layouts, styles
+- Client-side JavaScript
+- API routes
+
+**How it works:**
+```bash
+# 1. Commit and push changes
+git add frontend/
+git commit -m "Update frontend"
+git push origin feature/branch-name
+
+# 2. Automatic deployment happens
+# - Vercel detects push to GitHub
+# - Builds frontend automatically
+# - Creates preview URL for feature branches
+# - Deploys to production when merged to main
+```
+
+**Deployment targets:**
+- `feature/*` branches → Auto preview URLs (e.g., `project-branch-hash.vercel.app`)
+- `staging` branch → `testing.kammermusikkfest.no`
+- `main` branch → `kammermusikkfest.no` (production)
+
+**Key points:**
+- ✅ Automatic - no manual deployment needed
+- ✅ Git commit/push triggers deployment
+- ✅ Preview URLs for every branch
+- ✅ See deployment status in Vercel dashboard
+
+#### Studio Deployment (Manual via npm)
+
+**What it deploys:**
+- Sanity Studio CMS interface
+- Content schemas and document types
+- Custom actions and plugins
+- Studio configuration
+
+**How it works:**
+```bash
+# 1. Make changes to studio code
+# Edit files in studio/ directory
+
+# 2. MANUALLY deploy to Sanity hosting
+cd studio
+npm run deploy
+
+# 3. Studio updates live immediately
+# - Deployed to: https://rkmf-cms.sanity.studio/
+# - No GitHub push required
+# - Version control separate from deployment
+```
+
+**Deployment target:**
+- Always deploys to: `https://rkmf-cms.sanity.studio/`
+- Single production environment (no preview URLs)
+
+**Key points:**
+- ❌ NOT automatic - requires manual `npm run deploy`
+- ❌ Git commit/push does NOT deploy studio
+- ⚠️ Can deploy without committing (not recommended)
+- ✅ Changes go live immediately after deployment
+
+#### Why Two Systems?
+
+**Historical context:**
+- **Frontend**: Modern CI/CD via Vercel (automatic deployment from git)
+- **Studio**: Traditional Sanity hosting (manual deployment to Sanity.io)
+
+**Different hosting providers:**
+- **Frontend**: Hosted on Vercel's edge network
+- **Studio**: Hosted on Sanity's infrastructure
+
+#### Best Practice Workflow
+
+**For Studio Changes:**
+```bash
+# 1. Make changes to studio files
+# 2. Test locally (http://localhost:3333)
+# 3. Deploy to production
+cd studio
+npm run deploy
+
+# 4. THEN commit to git (for version control)
+git add studio/
+git commit -m "Fix event preview display"
+git push origin feature/branch-name
+```
+
+**Why deploy before committing?**
+- Studio changes are live immediately after `npm run deploy`
+- Committing to git is for version control, not deployment
+- You can test in production before committing
+- Hot fixes can be deployed quickly without PR workflow
+
+**For Frontend Changes:**
+```bash
+# 1. Make changes to frontend files
+# 2. Test locally (http://localhost:4321)
+# 3. Commit and push (triggers automatic deployment)
+git add frontend/
+git commit -m "Update homepage layout"
+git push origin feature/branch-name
+
+# 4. Vercel automatically builds and deploys
+# 5. Test on preview URL before merging
+```
+
+**For Changes to Both:**
+```bash
+# 1. Make changes to both studio and frontend
+# 2. Deploy studio FIRST
+cd studio
+npm run deploy
+
+# 3. Test studio changes in production
+# 4. Commit everything together
+git add .
+git commit -m "Update studio schemas and frontend display"
+git push origin feature/branch-name
+
+# 5. Frontend deploys automatically via Vercel
+```
+
+#### Common Pitfall
+
+❌ **Mistake**: "I committed studio changes to git, why isn't the deployed studio updated?"
+
+✅ **Solution**: Git commits are for version control. Studio deployment requires `npm run deploy`.
+
+**Remember:**
+- **Frontend**: `git push` = deployment ✅
+- **Studio**: `git push` = version control only ❌
+- **Studio**: `npm run deploy` = deployment ✅
+
 ### Git Tracking Best Practices
 
 Understanding **what files we track** and **why** is crucial for security, collaboration, and repository cleanliness.
@@ -714,6 +858,10 @@ Before every commit, verify:
 # Start servers (must run in separate terminals)
 npm run dev:studio     # Terminal 1 - Studio on :3333
 npm run dev:frontend   # Terminal 2 - Frontend on :4321
+
+# Deployment
+cd studio && npm run deploy  # Deploy studio to https://rkmf-cms.sanity.studio/
+# Frontend deploys automatically via Vercel when pushing to GitHub
 
 # Sanity TypeGen operations (run from studio folder)
 npm run extract-schema  # Extract schema to frontend

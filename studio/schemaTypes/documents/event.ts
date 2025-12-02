@@ -408,25 +408,33 @@ export const event = defineType({
       title_no: 'title_no',
       title_en: 'title_en',
       media: 'image',
-      eventDate: 'eventDate.title',
+      eventDate_no: 'eventDate.title_display_no',
+      eventDate_en: 'eventDate.title_display_en',
       eventDateDate: 'eventDate.date',
       startTime: 'eventTime.startTime',
       _id: '_id',
     },
     prepare(selection) {
-      const {title_no, title_en, media, eventDate, eventDateDate, startTime, _id} = selection
+      const {title_no, title_en, media, eventDate_no, eventDate_en, eventDateDate, startTime, _id} = selection
 
       const isPublished = _id && !_id.startsWith('drafts.')
       const statusText = isPublished ? 'Publisert' : 'Utkast'
       const title = title_no || title_en || 'Uten navn'
 
-      // Date and time info
-      const dateString = eventDateDate
-        ? new Date(eventDateDate).toLocaleDateString('nb-NO')
-        : null
-      const dateLabel = eventDate && dateString ? `${eventDate} (${dateString})` : (dateString || 'Ingen dato')
+      // Date with multi-level fallback chain
+      const eventDateLabel = (title_no ? eventDate_no : eventDate_en)
+                           || eventDate_no
+                           || eventDate_en
+                           || (eventDateDate
+                               ? new Date(eventDateDate).toLocaleDateString('nb-NO', {
+                                   weekday: 'long',
+                                   day: 'numeric',
+                                   month: 'long'
+                                 })
+                               : 'Ingen dato')
+
       const timeText = startTime ? ` kl. ${startTime}` : ''
-      const dateTimeText = `${dateLabel}${timeText}`
+      const dateTimeText = `${eventDateLabel}${timeText}`
 
       // Language flags based on which languages have content
       const langStatus = getLanguageStatus({title_no, title_en})
