@@ -1,7 +1,7 @@
 import {useCallback, useState} from 'react'
 import {type DocumentActionComponent, useClient, useDocumentOperation} from 'sanity'
 import {PublishIcon, CheckmarkIcon} from '@sanity/icons'
-import {Button, Flex, Stack, Text} from '@sanity/ui'
+import {Button, Flex, Stack, Text, Spinner} from '@sanity/ui'
 import {
   findMissingReciprocalReferences,
   syncReciprocalReferences,
@@ -25,6 +25,7 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
   const {patch, publish} = useDocumentOperation(id, type)
 
   // Dialog states
+  const [loadingDialogOpen, setLoadingDialogOpen] = useState(false)
   const [artistDialogOpen, setArtistDialogOpen] = useState(false)
   const [orphanedArtistDialogOpen, setOrphanedArtistDialogOpen] = useState(false)
   const [programDialogOpen, setProgramDialogOpen] = useState(false)
@@ -73,6 +74,9 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
 
   // Step 2 & 3 & 4: Check for missing artist references, sync date, publish, check for orphaned references
   const handlePublish = useCallback(async () => {
+    // Show loading dialog immediately
+    setLoadingDialogOpen(true)
+
     // Check for missing reciprocal artist references BEFORE publishing
     // This ensures we query the draft document which has the current data
     let missing: string[] = []
@@ -110,6 +114,9 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
 
     setOrphanedArtistRefs(orphaned)
     setOrphanedArtistCount(orphaned.length)
+
+    // Close loading dialog before showing other dialogs
+    setLoadingDialogOpen(false)
 
     // Show artist sync dialog if needed (additions)
     if (missing.length > 0) {
@@ -188,7 +195,11 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
       } catch (error) {
         console.error('Error syncing reciprocal references:', error)
         setArtistDialogOpen(false)
-        onComplete()
+        if (isNewPublish) {
+          setProgramDialogOpen(true)
+        } else {
+          onComplete()
+        }
       } finally {
         setIsSyncing(false)
       }
@@ -303,12 +314,29 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
     disabled: publish.disabled,
     title: publish.disabled ? 'Ingen endringer å lagre' : undefined,
     onHandle: handlePublish,
-    dialog: artistDialogOpen
+    dialog: loadingDialogOpen
+      ? {
+          type: 'dialog',
+          header: 'Lagrer arrangement',
+          content: (
+            <Stack space={4} padding={4}>
+              <Flex justify="center" align="center" direction="column" gap={3} style={{minHeight: '100px'}}>
+                <Spinner />
+                <Text>Lagrer arrangement...</Text>
+              </Flex>
+            </Stack>
+          ),
+        }
+      : artistDialogOpen
       ? {
           type: 'dialog',
           onClose: () => {
             setArtistDialogOpen(false)
-            onComplete()
+            if (isNewPublish) {
+              setProgramDialogOpen(true)
+            } else {
+              onComplete()
+            }
           },
           header: 'Synkroniser artister?',
           content: (
@@ -352,7 +380,11 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
             type: 'dialog',
             onClose: () => {
               setOrphanedArtistDialogOpen(false)
-              onComplete()
+              if (isNewPublish) {
+                setProgramDialogOpen(true)
+              } else {
+                onComplete()
+              }
             },
             header: 'Fjern arrangementet fra artister?',
             content: (
