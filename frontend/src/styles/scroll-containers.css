@@ -25,6 +25,9 @@
    ============================================ */
 
 .scroll-container {
+  /* Self-contained container context - enables @container queries */
+  container-type: inline-size;
+
   /* Configurable via CSS variables */
   --scroll-gap: var(--space-m);
   --scroll-padding: clamp(1rem, 3vw, 2rem);
@@ -132,6 +135,80 @@
     }
   }
 } /* End @container (max-width: 800px) */
+
+/* ============================================
+   ALWAYS-ACTIVE SCROLL CONTAINERS
+   ============================================
+
+   For contexts where scrolling should be active at ALL widths,
+   not just narrow containers. Used for:
+   - Event detail page artist cards
+   - Artist detail page event cards
+   - Dedicated scroll container components
+
+   These containers bypass the @container query and always
+   display as horizontal scrollers.
+   ============================================ */
+
+.scroll-container--always {
+  /* Layout */
+  display: flex;
+  gap: var(--scroll-gap);
+
+  /* Scroll behavior */
+  overflow-x: scroll;
+  overflow-y: hidden;
+  scroll-snap-type: var(--scroll-snap);
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: var(--scroll-padding);
+
+  /* Vertical padding - same as conditional scrollers */
+  padding-block: var(--scroll-container-padding-block);
+}
+
+.scroll-container--always > * {
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  scroll-margin-inline-start: 0.5rem;
+}
+
+/* Scrollbar styling for always-active containers */
+.scroll-container--always.scroll-container--styled-scrollbar {
+  padding-block: var(--scroll-container-padding-block) 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-blue) var(--color-neutral-100);
+}
+
+.scroll-container--always.scroll-container--styled-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  -webkit-appearance: none;
+}
+
+.scroll-container--always.scroll-container--styled-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-neutral-100);
+  border-radius: 0;
+}
+
+.scroll-container--always.scroll-container--styled-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-blue);
+  border-radius: 0;
+}
+
+.scroll-container--always.scroll-container--styled-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-green);
+}
+
+/* Touch optimization for always-active scrollers */
+@media (pointer: coarse) {
+  .scroll-container--always.scroll-container--styled-scrollbar {
+    scrollbar-width: auto;
+  }
+
+  .scroll-container--always.scroll-container--styled-scrollbar::-webkit-scrollbar {
+    height: 12px;
+  }
+}
 
 /* ============================================
    KEYBOARD FOCUS & ACCESSIBILITY

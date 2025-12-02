@@ -103,7 +103,7 @@ const content = getMultilingualContent(event, 'en') || event.content_en;
           </svg>
 
           <h2 class="artists-title">Artists</h2>
-          <div class="artist-section scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
+          <div class="artist-section scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar">
             {event.artists.map((artist) => (
               <ArtistCard artist={artist} language="en" size="medium" />
             ))}
