@@ -2,7 +2,7 @@
 import ContentPageLayout from '../../layouts/ContentPageLayout.astro';
 import { createDataService } from '../../lib/sanity/dataService.js';
 import { formatDateForLanguage } from '../../lib/utils/dates';
-import { getOptimizedImageUrl, getResponsiveSrcSet, IMAGE_QUALITY, RESPONSIVE_WIDTHS } from '../../lib/sanityImage';
+import { getOptimizedImageUrl, getResponsiveImageSet, IMAGE_QUALITY } from '../../lib/sanityImage';
 import { stegaClean } from '@sanity/client/stega';
 
 // Create data service with Visual Editing support
@@ -42,20 +42,17 @@ const hasArticles = articles.length > 0;
 
           {article.image?.image && (
             <figure class="article-image">
-              <picture>
-                <source
-                  srcset={getResponsiveSrcSet(article.image.image, RESPONSIVE_WIDTHS.MEDIUM, IMAGE_QUALITY.CARD)}
-                  type="image/webp"
-                  sizes="(max-width: 768px) 100vw, 400px"
-                />
-                <img
-                  src={getOptimizedImageUrl(article.image.image, 400, 225, IMAGE_QUALITY.CARD)}
-                  alt={article.image.alt || article.title}
-                  loading="lazy"
-                  decoding="async"
-                  class="article-card-image"
-                />
-              </picture>
+              <img
+                src={getOptimizedImageUrl(article.image.image, 320, 180, IMAGE_QUALITY.CARD)}
+                srcset={getResponsiveImageSet(article.image.image, [320, 640, 960], 16/9, IMAGE_QUALITY.CARD)}
+                sizes="320px"
+                alt={stegaClean(article.image.alt || article.title)}
+                width="320"
+                height="180"
+                loading="lazy"
+                decoding="async"
+                class="article-card-image"
+              />
             </figure>
           )}
 
