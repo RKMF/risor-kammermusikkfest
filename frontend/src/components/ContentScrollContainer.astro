@@ -32,7 +32,7 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
 <section class={`content-scroll-container ${scrollbarClass} ${className}`} {...sanityAttributes}>
   {title && <h2 class="scroll-container-title">{title}</h2>}
 
-  <ul class="scroll-list scroll-container scroll-container--content scroll-container--hide-scrollbar">
+  <ul class="scroll-list scroll-container scroll-container--always scroll-container--content scroll-container--hide-scrollbar">
     {items.map((item) => {
       if (!item) return null
 

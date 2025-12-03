@@ -84,7 +84,6 @@ export const artist = defineType({
         list: [
           { title: 'Stor', value: 'stor' },
           { title: 'Medium', value: 'medium' },
-          { title: 'Liten', value: 'liten' },
         ],
         layout: 'radio',
       },

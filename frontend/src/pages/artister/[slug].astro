@@ -168,7 +168,7 @@ const content = getMultilingualContent(artist) || artist.content_no;
     {artist.events && artist.events.length > 0 && (
       <section class="artist-events">
         <h2 class="artist-events-title">Konserter</h2>
-        <div class="scroll-container scroll-container--event-cards scroll-container--styled-scrollbar">
+        <div class="scroll-container scroll-container--always scroll-container--event-cards scroll-container--styled-scrollbar">
           {artist.events.map((event) => (
             <EventCard event={event} language="no" />
           ))}

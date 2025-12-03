@@ -55,14 +55,14 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
 ---
 
 <!DOCTYPE html>
-<html lang={currentLang}>
+<html lang={currentLang} id="top">
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
+    <title>{title} - Risør kammermusikkfest</title>
 
     <!-- Hreflang tags for SEO -->
     <HreflangTags
@@ -297,6 +297,13 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
       <slot />
     </main>
 
+    <!-- Back to top link -->
+    <div class="back-to-top-container">
+      <a href="#top" class="back-to-top-link">
+        {currentLang === 'no' ? 'Tilbake til toppen' : 'Back to the top'} ↑
+      </a>
+    </div>
+
     <!-- Footer -->
     <Footer currentLang={currentLang} siteSettings={siteSettings} />
 
@@ -311,4 +318,56 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
     </script>
   </body>
 </html>
+
+<style>
+  /* ============================================
+     BACK TO TOP LINK
+     ============================================
+
+     Global navigation element for returning to page top.
+     Appears before footer on all pages.
+  */
+
+  .back-to-top-container {
+    /* Spacing above and large spacing below */
+    margin-block-start: var(--space-l);
+    margin-block-end: calc(var(--space-3xl) * 2);
+
+    /* Center the link */
+    text-align: center;
+  }
+
+  .back-to-top-link {
+    display: inline-block;
+    text-decoration: underline;
+    text-decoration-thickness: 0.0625em;
+    text-underline-offset: 0.3em;
+    font-size: var(--step-1);
+    font-weight: var(--font-weight-medium);
+
+    /* Transition for hover effects */
+    transition: transform var(--transition-fast);
+  }
+
+  @media (hover: hover) {
+    .back-to-top-link:hover {
+      text-decoration-thickness: 0.08em;
+      transform: translateY(-2px);
+    }
+  }
+
+  /* Accessibility: Disable smooth scroll for reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top-link {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* Print styles - hide back to top link */
+  @media print {
+    .back-to-top-container {
+      display: none !important;
+    }
+  }
+</style>
 

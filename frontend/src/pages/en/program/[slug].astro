@@ -1,7 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import DynamicComponent from '../../../components/DynamicComponent.astro';
-import Image from '../../../components/Image.astro';
+import HeaderImage from '../../../components/HeaderImage.astro';
 import ArtistCard from '../../../components/ArtistCard.astro';
 import { formatDateForLanguage } from '../../../lib/utils/dates';
 import { getMultilingualContent } from "../../../lib/utils/language.js";
@@ -36,7 +36,7 @@ const content = getMultilingualContent(event, 'en') || event.content_en;
 ---
 
 <Layout
-  title={`${stegaClean(event.title || '')} - Sanity + Astro`}
+  title={stegaClean(event.title || '')}
   slugNo={event.slug_no?.current}
   slugEn={event.slug_en?.current}
 >
@@ -103,7 +103,7 @@ const content = getMultilingualContent(event, 'en') || event.content_en;
           </svg>
 
           <h2 class="artists-title">Artists</h2>
-          <div class="artist-section scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
+          <div class="artist-section scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar">
             {event.artists.map((artist) => (
               <ArtistCard artist={artist} language="en" size="medium" />
             ))}
@@ -121,28 +121,16 @@ const content = getMultilingualContent(event, 'en') || event.content_en;
       )}
 
       {event.image?.image?.asset && (
-        <Image
+        <HeaderImage
           image={event.image.image}
           alt={stegaClean(event.image.alt || event.title || '')}
           credit={event.image.credit ? stegaClean(event.image.credit) : undefined}
-          size="large"
           aspectRatio="4:3"
           loading="eager"
           quality={IMAGE_QUALITY.CARD}
-          className="event-image"
+          width="min(60ch, 100%)"
         />
       )}
   </article>
 </Layout>
 
-<style>
-  /* Smooth fade-in transition for event image (matches artist page pattern) */
-  :global(.event-image) {
-    animation: fadeInEventImage 1.1s ease-in-out forwards;
-  }
-
-  @keyframes fadeInEventImage {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-</style>

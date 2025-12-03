@@ -84,7 +84,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
 <section class={`${containerClass} ${scrollbarClass}`}>
   {title && <h2 class="artist-scroll-title">{title}</h2>}
-  <ul class="artist-list scroll-container scroll-container--artist-cards">
+  <ul class="artist-list scroll-container scroll-container--always scroll-container--artist-cards">
     {artistData.map((artist) => {
         if (!artist) return null
 

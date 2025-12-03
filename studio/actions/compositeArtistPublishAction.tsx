@@ -1,7 +1,7 @@
 import {useCallback, useState} from 'react'
 import {type DocumentActionComponent, useClient, useDocumentOperation} from 'sanity'
 import {PublishIcon, CheckmarkIcon} from '@sanity/icons'
-import {Button, Flex, Stack, Text} from '@sanity/ui'
+import {Button, Flex, Stack, Text, Spinner} from '@sanity/ui'
 import {
   findMissingReciprocalReferences,
   syncReciprocalReferences,
@@ -24,6 +24,7 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
   const {publish} = useDocumentOperation(id, type)
 
   // Dialog states
+  const [loadingDialogOpen, setLoadingDialogOpen] = useState(false)
   const [eventDialogOpen, setEventDialogOpen] = useState(false)
   const [orphanedEventDialogOpen, setOrphanedEventDialogOpen] = useState(false)
   const [artistPageDialogOpen, setArtistPageDialogOpen] = useState(false)
@@ -50,6 +51,9 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
 
   // Step 1: Check for missing event references, publish, then check for orphaned references
   const handlePublish = useCallback(async () => {
+    // Show loading dialog immediately
+    setLoadingDialogOpen(true)
+
     // Check for missing reciprocal event references BEFORE publishing
     // This ensures we query the draft document which has the current data
     let missing: string[] = []
@@ -84,6 +88,9 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
 
     setOrphanedEventRefs(orphaned)
     setOrphanedEventCount(orphaned.length)
+
+    // Close loading dialog before showing other dialogs
+    setLoadingDialogOpen(false)
 
     // Show event sync dialog if needed (additions)
     if (missing.length > 0) {
@@ -162,7 +169,11 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
       } catch (error) {
         console.error('Error syncing reciprocal references:', error)
         setEventDialogOpen(false)
-        onComplete()
+        if (isNewPublish) {
+          setArtistPageDialogOpen(true)
+        } else {
+          onComplete()
+        }
       } finally {
         setIsSyncing(false)
       }
@@ -205,7 +216,11 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
       } catch (error) {
         console.error('Error removing orphaned references:', error)
         setOrphanedEventDialogOpen(false)
-        onComplete()
+        if (isNewPublish) {
+          setArtistPageDialogOpen(true)
+        } else {
+          onComplete()
+        }
       } finally {
         setIsRemoving(false)
       }
@@ -277,12 +292,29 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
     disabled: publish.disabled,
     title: publish.disabled ? 'Ingen endringer å lagre' : undefined,
     onHandle: handlePublish,
-    dialog: eventDialogOpen
+    dialog: loadingDialogOpen
+      ? {
+          type: 'dialog',
+          header: 'Lagrer artist',
+          content: (
+            <Stack space={4} padding={4}>
+              <Flex justify="center" align="center" direction="column" gap={3} style={{minHeight: '100px'}}>
+                <Spinner />
+                <Text>Lagrer artist...</Text>
+              </Flex>
+            </Stack>
+          ),
+        }
+      : eventDialogOpen
       ? {
           type: 'dialog',
           onClose: () => {
             setEventDialogOpen(false)
-            onComplete()
+            if (isNewPublish) {
+              setArtistPageDialogOpen(true)
+            } else {
+              onComplete()
+            }
           },
           header: 'Synkroniser arrangementer?',
           content: (
@@ -326,7 +358,11 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
             type: 'dialog',
             onClose: () => {
               setOrphanedEventDialogOpen(false)
-              onComplete()
+              if (isNewPublish) {
+                setArtistPageDialogOpen(true)
+              } else {
+                onComplete()
+              }
             },
             header: 'Fjern artisten fra arrangementer?',
             content: (

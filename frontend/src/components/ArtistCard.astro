@@ -6,7 +6,7 @@ import type { ArtistResult } from '../lib/sanity/queries';
 export interface Props {
   artist: ArtistResult;
   language?: 'no' | 'en';
-  size?: 'large' | 'medium' | 'small';
+  size?: 'large' | 'medium';
   isDetailPage?: boolean;
   imageSizes?: string;
 }
@@ -24,13 +24,12 @@ const artistPath = language === 'en'
 const sizeConfig = {
   large: { width: 272, height: 484, aspectRatio: 9/16 },   // 9:16 (272÷(9/16)=484)
   medium: { width: 272, height: 340, aspectRatio: 4/5 },   // 4:5 (272÷(4/5)=340)
-  small: { width: 272, height: 272, aspectRatio: 1/1 }     // 1:1
 };
 
 const { width, height, aspectRatio } = sizeConfig[size];
 
 // CSS class based on size variant
-const sizeClass = size === 'medium' ? 'artist-card--medium' : size === 'small' ? 'artist-card--small' : '';
+const sizeClass = size === 'medium' ? 'artist-card--medium' : '';
 ---
 
 <!-- Hidden SVG for wave clip-path definitions -->
