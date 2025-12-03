@@ -8,7 +8,7 @@
  *
  * Design: Fixed 320px cards with images anchored top-left
  * and info box overlaid in bottom-right corner.
- * Three sizes: Large (9:16), Medium (4:5), Small (1:1)
+ * Two sizes: Large (9:16), Medium (4:5)
  *
  * Note: Global CSS required for HTMX compatibility.
  * See program.css lines 1-36 for explanation of why we use global CSS.
@@ -198,7 +198,7 @@
 /* Already defined above: 320px width, 9:16 aspect ratio, overlay pattern */
 
 /* Force two-line name wrap on large cards for consistent layout */
-.artist-card:not(.artist-card--medium):not(.artist-card--small) .artist-info-box {
+.artist-card:not(.artist-card--medium) .artist-info-box {
   max-width: 85%; /* Matches image width for visual alignment */
 }
 
@@ -214,54 +214,3 @@
   clip-path: url(#artist-wave-clip-medium);
 }
 
-/* SMALL (liten) - Square 1:1 cards with overlay pattern */
-.artist-card--small {
-  /* Square aspect ratio for small cards */
-  aspect-ratio: 1 / 1;
-
-  /* Light blue tint background - matches large/medium cards */
-  background-color: var(--color-tint-blue-medium);
-
-  /* Grid layout inherited from .artist-card - keeps overlay pattern consistent */
-}
-
-/* Small card image - square format */
-.artist-card--small .artist-card-image {
-  aspect-ratio: 1/1; /* Match card aspect ratio */
-
-  /* Small cards - no wave pattern, straight edge */
-  clip-path: none;
-}
-
-/* Info box overlay for small cards - matches large/medium pattern */
-.artist-card--small .artist-info-box {
-  /* Keep overlay positioning from parent .artist-info-box */
-  /* grid-area: content, place-self: end, margin: 1rem all inherited */
-
-  /* Restore dark blue background - same as large/medium cards */
-  background-color: var(--color-blue-600);
-  padding: 1rem;
-
-  /* Dynamic width - same as large/medium cards */
-  width: auto;
-  min-width: 12ch;
-  max-width: 85%;
-}
-
-/* Small card hover effect - matches large/medium pattern */
-@media (hover: hover) {
-  .artist-card--small:hover {
-    transform: translateY(-4px);
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-    background-color: var(--color-tint-green-light);
-  }
-
-  .artist-card--small:hover .artist-info-box {
-    background-color: var(--color-green-50);
-  }
-
-  .artist-card--small:hover .artist-name,
-  .artist-card--small:hover .artist-instrument {
-    color: var(--color-blue);
-  }
-}

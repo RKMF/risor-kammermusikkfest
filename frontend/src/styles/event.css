@@ -77,6 +77,7 @@
 .event-info-box {
   background-color: var(--color-tint-blue-medium); /* Same blue as event cards */
   padding: var(--space-l); /* 24-30px fluid */
+  margin-block-end: var(--space-2xl); /* 48-60px spacing below */
 }
 
 /* Event header - title and excerpt */
@@ -110,7 +111,7 @@ dl.event-meta {
   gap: var(--space-1); /* 2-3px between metadata items */
   margin: 0;
   font-size: var(--step-1); /* Fluid 22-28px - larger, more prominent */
-  font-weight: var(--font-weight-normal); /* 400 - matches excerpt (Akkurat Pro has no 500 weight) */
+  font-weight: var(--font-weight-semibold); /* 600 - more emphasis on metadata */
   line-height: var(--line-height-tight);
 }
 

@@ -124,11 +124,6 @@
   grid-template-columns: repeat(auto-fill, 320px);
 }
 
-/* Small section - 320px cards */
-.artist-section--small {
-  grid-template-columns: repeat(auto-fill, 320px);
-}
-
 /* Horizontal scroll mode for each section */
 @container (max-width: 800px) {
   .artist-section {

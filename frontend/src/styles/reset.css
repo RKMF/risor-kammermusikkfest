@@ -44,9 +44,8 @@ html {
     Improves perceived performance across all interactive elements
   */
   touch-action: manipulation;
-}
 
-html:focus-within {
+  /* Smooth scrolling for all anchor links and programmatic scrolling */
   scroll-behavior: smooth;
 }
 
@@ -72,8 +71,8 @@ select {
 
 /* Remove all animations and transitions for people that prefer not to see them */
 @media (prefers-reduced-motion: reduce) {
-  html:focus-within {
-   scroll-behavior: auto;
+  html {
+    scroll-behavior: auto;
   }
   
   *,

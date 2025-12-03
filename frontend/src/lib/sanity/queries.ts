@@ -70,7 +70,7 @@ export interface ArtistResult {
   _type: 'artist';
   name: string;
   slug: string;
-  cardSize?: 'stor' | 'medium' | 'liten';
+  cardSize?: 'stor' | 'medium';
   excerpt?: string;
   excerpt_no?: string;
   excerpt_en?: string;

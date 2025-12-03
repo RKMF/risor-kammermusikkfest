@@ -18,7 +18,6 @@ const allArtists = artistsPage?.selectedArtists || [];
 // Group artists by cardSize - maintains selectedArtists array order
 const largeArtists = allArtists.filter((artist) => stegaClean(artist.cardSize) === 'stor');
 const mediumArtists = allArtists.filter((artist) => stegaClean(artist.cardSize) === 'medium');
-const smallArtists = allArtists.filter((artist) => stegaClean(artist.cardSize) === 'liten');
 
 // Fallback values
 const pageTitle = artistsPage?.title || 'Artists';
@@ -63,15 +62,6 @@ const hasArtists = allArtists.length > 0;
         <div class="artist-section artist-section--medium scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
           {mediumArtists.map((artist) => (
             <ArtistCard artist={artist} language="en" size="medium" />
-          ))}
-        </div>
-      )}
-
-      {/* Small Artists Section */}
-      {smallArtists.length > 0 && (
-        <div class="artist-section artist-section--small scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
-          {smallArtists.map((artist) => (
-            <ArtistCard artist={artist} language="en" size="small" />
           ))}
         </div>
       )}

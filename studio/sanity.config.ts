@@ -18,6 +18,7 @@ import {
   eventDeleteConfig,
 } from './actions/deleteConfigs'
 import {rkmfTheme} from './theme'
+import {RKMFLogo} from './components/RKMFLogo'
 
 // Create delete actions using factory function
 const deleteArticleAction = createDeleteWithReferencesAction(articleDeleteConfig)
@@ -44,7 +45,8 @@ const customNorwegianResources = {
 
 export default defineConfig({
   name: 'default',
-  title: 'studio',
+  title: 'RKMF CMS',
+  icon: RKMFLogo,
 
   projectId: 'dnk98dp0',
   dataset: 'production',
