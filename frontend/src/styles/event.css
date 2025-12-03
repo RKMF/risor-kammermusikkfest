@@ -73,25 +73,6 @@
   outline-offset: 2px;
 }
 
-/* Two-column grid container */
-.event-info-grid {
-  container-type: inline-size;
-  container-name: event-info-grid;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-6);
-  align-items: start;
-  margin-block-end: var(--space-8);
-}
-
-/* Left column - title, excerpt, metadata + ticket button */
-.event-info-column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-  order: 1;
-}
-
 /* Event info box - blue background container matching event cards */
 .event-info-box {
   background-color: var(--color-tint-blue-medium); /* Same blue as event cards */
@@ -175,44 +156,8 @@ dl.event-meta {
   font-size: var(--step-1); /* 22-28px - larger text */
 }
 
-/* Right column - event image */
-.event-image-column {
-  display: flex;
-  align-items: start;
-  order: 2;
-}
-
-.event-image {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  background: var(--color-neutral-100);
-  margin: 0;
-}
-
-.event-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* Container query - stack on narrow viewports */
-@container event-info-grid (max-width: 700px) {
-  .event-info-grid {
-    grid-template-columns: 1fr;
-    gap: var(--space-5);
-  }
-
-  /* Keep order: text first, then image on mobile */
-  .event-info-column {
-    order: 1;
-  }
-
-  .event-image-column {
-    order: 2;
-  }
-}
+/* Event header images now use HeaderImage.astro component */
+/* Image sizing is handled by the component itself */
 
 /* ============================================
    ARTIST SCROLLBAR SECTION
@@ -226,7 +171,6 @@ dl.event-meta {
 .artists-section {
   container-type: inline-size;
   container-name: artists-section;
-  margin-block-end: var(--space-8);
   padding-block: var(--space-5);
 }
 

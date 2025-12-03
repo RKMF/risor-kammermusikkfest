@@ -1,7 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import DynamicComponent from "../../components/DynamicComponent.astro";
-import Image from "../../components/Image.astro";
+import HeaderImage from "../../components/HeaderImage.astro";
 import { createDataService } from "../../lib/sanity/dataService.js";
 import { getMultilingualContent } from "../../lib/utils/language.js";
 import { IMAGE_QUALITY } from '../../lib/sanityImage';
@@ -39,17 +39,14 @@ const content = getMultilingualContent(article, 'no') || article.content_no;
     </header>
 
     {article.image?.image && (
-      <Image
+      <HeaderImage
         image={article.image.image}
         alt={stegaClean(article.image.alt || article.title || '')}
         credit={article.image.credit ? stegaClean(article.image.credit) : undefined}
-        alignment="left"
-        size="large"
         aspectRatio="16:9"
         loading="eager"
-        priority={true}
         quality={IMAGE_QUALITY.HERO}
-        className="article-image"
+        width="100%"
       />
     )}
 
@@ -78,20 +75,6 @@ const content = getMultilingualContent(article, 'no') || article.content_no;
   }
 
   /* Excerpt styling handled by global .excerpt class in base.css */
-
-  /* Image component with className */
-  :global(figure.article-image) {
-    width: 100%;
-    margin: 0 0 2rem 0;
-    margin-inline: 0; /* Override Image component's margin-inline: auto */
-  }
-
-  :global(.article-image .image) {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16/9;
-    object-fit: cover;
-  }
 
   .article-content {
     line-height: 1.6;

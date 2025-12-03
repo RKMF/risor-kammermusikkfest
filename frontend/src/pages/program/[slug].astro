@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import DynamicComponent from '../../components/DynamicComponent.astro';
-import Image from '../../components/Image.astro';
+import HeaderImage from '../../components/HeaderImage.astro';
 import ArtistCard from '../../components/ArtistCard.astro';
 import { formatDateWithWeekday } from '../../lib/utils/dates';
 import { getMultilingualContent } from "../../lib/utils/language.js";
@@ -86,10 +86,31 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
         )}
       </div>
 
+      {event.image?.image?.asset && (
+        <HeaderImage
+          image={event.image.image}
+          alt={stegaClean(event.image.alt || event.title || '')}
+          credit={event.image.credit ? stegaClean(event.image.credit) : undefined}
+          aspectRatio="4:3"
+          loading="eager"
+          quality={IMAGE_QUALITY.CARD}
+          width="min(30ch, 100%)"
+        />
+      )}
+
       {description && (
         <section class="event-description content-narrow">
           <h2 class="section-title">Om konserten</h2>
           <p class="description-text">{stegaClean(description)}</p>
+        </section>
+      )}
+
+      {extraContent && Array.isArray(extraContent) && extraContent.length > 0 && (
+        <section class="extra-content">
+          <h2 class="sr-only">Tilleggsinnhold</h2>
+          {extraContent.map((block) => (
+            <DynamicComponent key={block._key || block._id} block={block} />
+          ))}
         </section>
       )}
 
@@ -118,39 +139,6 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
           </div>
         </section>
       )}
-
-      {extraContent && Array.isArray(extraContent) && extraContent.length > 0 && (
-        <section class="extra-content">
-          <h2 class="sr-only">Tilleggsinnhold</h2>
-          {extraContent.map((block) => (
-            <DynamicComponent key={block._key || block._id} block={block} />
-          ))}
-        </section>
-      )}
-
-      {event.image?.image?.asset && (
-        <Image
-          image={event.image.image}
-          alt={stegaClean(event.image.alt || event.title || '')}
-          credit={event.image.credit ? stegaClean(event.image.credit) : undefined}
-          size="large"
-          aspectRatio="4:3"
-          loading="eager"
-          quality={IMAGE_QUALITY.CARD}
-          className="event-image"
-        />
-      )}
   </article>
 </Layout>
 
-<style>
-  /* Smooth fade-in transition for event image (matches artist page pattern) */
-  :global(.event-image) {
-    animation: fadeInEventImage 1.1s ease-in-out forwards;
-  }
-
-  @keyframes fadeInEventImage {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-</style>
