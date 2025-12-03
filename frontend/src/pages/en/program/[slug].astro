@@ -36,7 +36,7 @@ const content = getMultilingualContent(event, 'en') || event.content_en;
 ---
 
 <Layout
-  title={`${stegaClean(event.title || '')} - Sanity + Astro`}
+  title={stegaClean(event.title || '')}
   slugNo={event.slug_no?.current}
   slugEn={event.slug_en?.current}
 >

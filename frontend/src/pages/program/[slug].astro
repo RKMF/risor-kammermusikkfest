@@ -37,7 +37,7 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
 ---
 
 <Layout
-  title={`${stegaClean(event.title || '')} - Sanity + Astro`}
+  title={stegaClean(event.title || '')}
   slugNo={event.slug_no?.current}
   slugEn={event.slug_en?.current}
 >
