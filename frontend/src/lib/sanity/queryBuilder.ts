@@ -523,7 +523,14 @@ const buildArtistBySlugQuery = (language: Language = 'no') => defineQuery(`*[_ty
   youtube,
   websiteUrl,
   spotifyUrl,
-  instagramUrl
+  instagramUrl,
+  "events": *[_type == "event" && references(^._id) && publishingStatus == "published"] | order(eventDate->date asc, eventTime.startTime asc){
+    ${buildEventBaseFields(language)},
+    ticketType,
+    ticketUrl,
+    ticketInfoText,
+    ticketStatus
+  }
 }`)
 
 const buildArticleBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "article" && ${buildSlugMatch(language)}][0]{

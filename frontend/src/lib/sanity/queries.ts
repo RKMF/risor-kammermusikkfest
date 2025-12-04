@@ -95,6 +95,8 @@ export interface ArtistResult {
   spotifyUrl?: string;
   instagramUrl?: string;
   seo?: any;
+  // Events where this artist performs (only in detail view)
+  events?: EventResult[];
 }
 
 /**

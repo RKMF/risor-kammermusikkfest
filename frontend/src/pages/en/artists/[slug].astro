@@ -4,9 +4,8 @@ import DynamicComponent from "../../../components/DynamicComponent.astro";
 import ArtistCard from "../../../components/ArtistCard.astro";
 import EventCard from "../../../components/EventCard.astro";
 import { getMultilingualContent } from "../../../lib/utils/language.js";
-import { IMAGE_QUALITY } from '../../../lib/sanityImage';
-import type { SanityDocument } from '@sanity/client';
-import { loadQuery } from '../../../lib/sanity/loadQuery.js';
+import { createDataService } from '../../../lib/sanity/dataService.js';
+import type { ArtistResult } from '../../../lib/sanity/queries';
 import { stegaClean } from '@sanity/client/stega';
 import '../../../styles/event.css';
 import '../../../styles/event-card.css';
@@ -14,99 +13,47 @@ import '../../../styles/artist-card.css';
 
 // Generate static paths for all artists
 export async function getStaticPaths() {
-  const { data: artists } = await loadQuery<SanityDocument[]>({
-    query: `*[_type == "artist" && defined(slug.current)]`,
-  });
+  // In development, return empty array for on-demand rendering
+  if (import.meta.env.DEV) {
+    return [];
+  }
+
+  // In production, pre-generate paths for all published artists
+  const dataService = createDataService();
+  const artists = await dataService.getArtistPage('en');
 
   return artists.map((artist) => {
     return {
       params: {
-        slug: artist.slug.current,
+        slug: stegaClean(artist.slug),
       },
     };
   });
 }
 
-const { params } = Astro;
+const { slug } = Astro.params;
 
-// Fetch the specific artist based on the slug parameter
-const { data: artist } = await loadQuery({
-  query: `*[_type == "artist" && slug.current == $slug][0]{
-    _id,
-    _type,
-    name,
-    excerpt_no,
-    excerpt_en,
-    instrument_no,
-    instrument_en,
-    "instrument": coalesce(instrument_en, instrument_no),
-    "image": {
-      "image": image{
-        asset->,
-        hotspot,
-        crop
-      },
-      "alt": coalesce(imageAlt_en, imageAlt_no, image.alt),
-      "credit": coalesce(imageCredit_en, imageCredit_no)
-    },
-    "slug": slug.current,
-    content_no,
-    content_en,
-    instagram,
-    facebook,
-    spotify,
-    youtube,
-    websiteUrl,
-    spotifyUrl,
-    instagramUrl,
-    seo,
-    "events": *[_type == "event" && references(^._id) && publishingStatus == "published"] | order(eventDate->date asc, eventTime.startTime asc){
-      _id,
-      _type,
-      title_no,
-      title_en,
-      "title": coalesce(title_en, title_no),
-      slug_no,
-      slug_en,
-      excerpt_no,
-      excerpt_en,
-      "excerpt": coalesce(excerpt_en, excerpt_no),
-      "image": {
-        "image": image{
-          asset->,
-          hotspot,
-          crop
-        },
-        "alt": coalesce(imageAlt_en, imageAlt_no, image.alt),
-        "credit": coalesce(imageCredit_en, imageCredit_no)
-      },
-      eventDate->{
-        _id,
-        date,
-        title_display_no,
-        title_display_en,
-        "title": coalesce(title_display_en, title_display_no)
-      },
-      eventTime,
-      venue->{
-        _id,
-        title,
-        name,
-        address,
-        city,
-        "slug": slug.current
-      },
-      ticketType,
-      ticketUrl,
-      ticketInfoText,
-      ticketStatus
-    }
-  }`,
-  params,
-});
+if (!slug) {
+  return Astro.redirect('/en/404');
+}
 
-if (!artist) {
-  return Astro.redirect('/404');
+// Create data service with Visual Editing support
+const dataService = createDataService(Astro.request);
+
+let artist: ArtistResult | null = null;
+
+try {
+  console.log(`[artists/slug].astro (EN): Fetching artist with slug: "${slug}"`);
+  artist = await dataService.getArtistBySlug(slug);
+  console.log(`[artists/slug].astro (EN): Query returned:`, artist ? `Found artist "${artist.name}"` : 'NULL');
+
+  if (!artist) {
+    console.log(`[artists/slug].astro (EN): Artist is null, redirecting to 404`);
+    return Astro.redirect('/en/404');
+  }
+} catch (error) {
+  console.error(`[artists/slug].astro (EN): Error loading artist "${slug}":`, error);
+  return Astro.redirect('/en/404');
 }
 
 // Get English content
@@ -232,25 +179,5 @@ const content = getMultilingualContent(artist, 'en') || artist.content_en;
     width: 100%;
     margin-inline: auto;
     margin-block-end: var(--space-8);
-  }
-
-  /* Responsive: Allow smaller on narrow screens */
-  @media (max-width: 520px) {
-    .artist-detail-card {
-      width: 90vw;
-      min-width: auto;
-    }
-
-    :global(.artist-detail-card-image) {
-      margin-block-start: 1rem;
-      margin-inline-start: 1rem;
-    }
-
-    .artist-detail-info-box {
-      margin: 1rem;
-      padding: 1rem;
-      gap: 0.25rem;
-      max-width: 20ch;
-    }
   }
 </style>
