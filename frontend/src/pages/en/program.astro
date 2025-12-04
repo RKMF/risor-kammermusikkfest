@@ -143,10 +143,10 @@ if (dateFilter && venueFilter) {
       <section class="content-section">
         <div class="no-results">
           <h3 class="no-results-title">{emptyStateMessage}</h3>
-          <p class="no-results-text">Choose a different date or venue, or:</p>
+          <p class="no-results-text">Choose a different combination, or:</p>
           <a
             href="/en/program"
-            class="btn btn-primary"
+            class="link-button"
             hx-get="/api/filter-program"
             hx-vals='{"lang": "en", "date": "", "venue": ""}'
             hx-target="#event-results"
@@ -154,7 +154,7 @@ if (dateFilter && venueFilter) {
             hx-push-url="true"
             hx-indicator="#filter-loading"
           >
-            Click here to reset all filters
+            Reset filters
           </a>
         </div>
       </section>

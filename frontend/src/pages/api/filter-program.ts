@@ -233,10 +233,10 @@ export const GET: APIRoute = async ({ request, url }) => {
     } else {
       const emptyStateText = language === 'no'
         ? 'Prøv en annen kombinasjon, eller:'
-        : 'Choose a different date or venue, or:';
+        : 'Choose a different combination, or:';
       const resetButtonText = language === 'no'
         ? 'Nullstill filtre'
-        : 'Click here to reset all filters';
+        : 'Reset filters';
       const resetHref = language === 'no' ? '/program' : '/en/program';
 
       html = `
@@ -246,7 +246,7 @@ export const GET: APIRoute = async ({ request, url }) => {
             <p class="no-results-text">${emptyStateText}</p>
             <a
               href="${resetHref}"
-              class="btn btn-primary"
+              class="link-button"
               hx-get="/api/filter-program"
               hx-vals='{"lang": "${language}", "date": "", "venue": ""}'
               hx-target="#event-results"
