@@ -1,9 +1,13 @@
 import {defineQuery} from 'groq'
 import {createMultilingualField, type Language} from '../utils/language.js'
+import type { ArtistResult, EventResult, ArticleResult } from './queries'
 
-export interface QueryDefinition<P extends Record<string, unknown> = Record<string, unknown>> {
+export interface QueryDefinition<
+  TResult = unknown,
+  TParams extends Record<string, unknown> = Record<string, unknown>
+> {
   query: ReturnType<typeof defineQuery>
-  params: P
+  params: TParams
 }
 
 // ============================================================================
@@ -658,31 +662,31 @@ export const QueryBuilder = {
   pageBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
     return {query: buildPageBySlugQuery(language), params: {slug}}
   },
-  programPage(language: Language = 'no'): QueryDefinition {
+  programPage(language: Language = 'no'): QueryDefinition<EventResult[]> {
     return {query: buildProgramPageQuery(language), params: {}}
   },
-  artistPage(language: Language = 'no'): QueryDefinition {
+  artistPage(language: Language = 'no'): QueryDefinition<ArtistResult[]> {
     return {query: buildArtistPageQuery(language), params: {}}
   },
-  articlePage(language: Language = 'no'): QueryDefinition {
+  articlePage(language: Language = 'no'): QueryDefinition<ArticleResult[]> {
     return {query: buildArticlePageQuery(language), params: {}}
   },
-  eventBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
+  eventBySlug(slug: string, language: Language = 'no'): QueryDefinition<EventResult, {slug: string}> {
     return {query: buildEventBySlugQuery(language), params: {slug}}
   },
-  artistBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
+  artistBySlug(slug: string, language: Language = 'no'): QueryDefinition<ArtistResult, {slug: string}> {
     return {query: buildArtistBySlugQuery(language), params: {slug}}
   },
-  articleBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
+  articleBySlug(slug: string, language: Language = 'no'): QueryDefinition<ArticleResult, {slug: string}> {
     return {query: buildArticleBySlugQuery(language), params: {slug}}
   },
-  publishedArticles(language: Language = 'no'): QueryDefinition {
+  publishedArticles(language: Language = 'no'): QueryDefinition<ArticleResult[]> {
     return {query: buildPublishedArticlesQuery(language), params: {}}
   },
-  publishedArtists(language: Language = 'no'): QueryDefinition {
+  publishedArtists(language: Language = 'no'): QueryDefinition<ArtistResult[]> {
     return {query: buildPublishedArtistsQuery(language), params: {}}
   },
-  publishedEvents(language: Language = 'no'): QueryDefinition {
+  publishedEvents(language: Language = 'no'): QueryDefinition<EventResult[]> {
     return {query: buildPublishedEventsQuery(language), params: {}}
   },
   eventDates(): QueryDefinition {

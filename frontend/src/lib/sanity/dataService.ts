@@ -66,8 +66,8 @@ export class SanityDataService {
   }
 
   // Execute query with caching and multilingual transformation
-  async fetch<T = any>(
-    definition: QueryDefinition,
+  async fetch<T = unknown>(
+    definition: QueryDefinition<T>,
     options: QueryOptions = {},
     cacheKey?: string,
     cacheDuration?: number,
