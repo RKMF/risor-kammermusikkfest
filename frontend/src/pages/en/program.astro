@@ -11,6 +11,11 @@ import '../../styles/event-card.css';
 // Create data service with Visual Editing support
 const dataService = createDataService(Astro.request);
 
+// Clear cache in development to ensure fresh data
+if (import.meta.env.DEV) {
+  dataService.clearCache();
+}
+
 // Fetch program page content for metadata
 const programPage = await dataService.getProgramPage();
 
@@ -94,6 +99,20 @@ if (venueFilter) {
 
 // Check if we have any events after filtering
 const hasEvents = filteredDates.length > 0 && filteredDates.some(d => d.events.length > 0);
+
+// Build contextual message for empty state
+let emptyStateMessage = 'No events found';
+if (dateFilter && venueFilter) {
+  const dateDisplay = availableDates.find(d => d.date === dateFilter)?.title || formatDateWithWeekday(dateFilter, 'en');
+  const venueDisplay = availableVenues.find(v => v.slug === venueFilter)?.title || venueFilter;
+  emptyStateMessage = `No events on ${dateDisplay} at ${venueDisplay}`;
+} else if (dateFilter) {
+  const dateDisplay = availableDates.find(d => d.date === dateFilter)?.title || formatDateWithWeekday(dateFilter, 'en');
+  emptyStateMessage = `No events on ${dateDisplay}`;
+} else if (venueFilter) {
+  const venueDisplay = availableVenues.find(v => v.slug === venueFilter)?.title || venueFilter;
+  emptyStateMessage = `No events at ${venueDisplay}`;
+}
 ---
 
 <ContentPageLayout
@@ -123,11 +142,11 @@ const hasEvents = filteredDates.length > 0 && filteredDates.some(d => d.events.l
     ) : (
       <section class="content-section">
         <div class="no-results">
-          <h3 class="no-results-title">No events found</h3>
+          <h3 class="no-results-title">{emptyStateMessage}</h3>
           <p class="no-results-text">Choose a different date or venue, or:</p>
           <a
             href="/en/program"
-            class="btn-primary"
+            class="btn btn-primary"
             hx-get="/api/filter-program"
             hx-vals='{"lang": "en", "date": "", "venue": ""}'
             hx-target="#event-results"
