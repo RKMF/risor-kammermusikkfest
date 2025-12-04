@@ -1,4 +1,5 @@
 import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
+import type { PageBuilder } from '../../sanity/sanity.types';
 
 // Import all components that can be used in content blocks
 import PortableText from '../components/PortableText.astro';
@@ -51,10 +52,5 @@ export function getComponent(type: string): AstroComponentFactory | null {
   return componentRegistry[type] || null;
 }
 
-// Type for content blocks
-export interface ContentBlock {
-  _type: string;
-  _key?: string;
-  _id?: string;
-  [key: string]: any;
-}
+// Type for content blocks - extracts discriminated union element type from PageBuilder array
+export type ContentBlock = PageBuilder extends Array<infer T> ? T : never;
