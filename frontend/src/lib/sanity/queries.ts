@@ -7,6 +7,7 @@
  */
 
 import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
+import type { PageBuilder, Seo } from '../../sanity/sanity.types';
 
 /**
  * Image object structure returned by Sanity queries
@@ -79,8 +80,8 @@ export interface ArtistResult {
   instrument_en?: string;
   country?: string;
   image?: SanityImageObject;
-  content_no?: any[];
-  content_en?: any[];
+  content_no?: PageBuilder;
+  content_en?: PageBuilder;
   publishingStatus?: 'published' | 'draft' | 'scheduled';
   scheduledPeriod?: {
     startDate?: string;
@@ -94,7 +95,7 @@ export interface ArtistResult {
   websiteUrl?: string;
   spotifyUrl?: string;
   instagramUrl?: string;
-  seo?: any;
+  seo?: Seo;
   // Events where this artist performs (only in detail view)
   events?: EventResult[];
 }
@@ -129,13 +130,13 @@ export interface EventResult {
     startDate?: string;
     endDate?: string;
   };
-  content_no?: any[];
-  content_en?: any[];
-  extraContent_no?: any[];
-  extraContent_en?: any[];
+  content_no?: PageBuilder;
+  content_en?: PageBuilder;
+  extraContent_no?: PageBuilder;
+  extraContent_en?: PageBuilder;
   description_no?: string;
   description_en?: string;
-  seo?: any;
+  seo?: Seo;
 }
 
 /**
@@ -165,7 +166,7 @@ export interface ArticleResult {
     name?: string;
     slug?: string;
   };
-  content_no?: any[];
-  content_en?: any[];
-  seo?: any;
+  content_no?: PageBuilder;
+  content_en?: PageBuilder;
+  seo?: Seo;
 }
