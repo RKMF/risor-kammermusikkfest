@@ -134,6 +134,7 @@ export interface EventResult {
   content_en?: PageBuilder;
   extraContent_no?: PageBuilder;
   extraContent_en?: PageBuilder;
+  description?: string;  // Coalesced from description_no/description_en
   description_no?: string;
   description_en?: string;
   seo?: Seo;
