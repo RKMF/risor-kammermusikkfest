@@ -3,7 +3,7 @@ import Layout from '../../../layouts/Layout.astro';
 import DynamicComponent from '../../../components/DynamicComponent.astro';
 import HeaderImage from '../../../components/HeaderImage.astro';
 import ArtistCard from '../../../components/ArtistCard.astro';
-import { formatDateForLanguage } from '../../../lib/utils/dates';
+import { formatDateWithWeekday } from '../../../lib/utils/dates';
 import { getMultilingualContent } from "../../../lib/utils/language.js";
 import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../../../lib/sanityImage';
 import { createDataService } from '../../../lib/sanity/dataService.js';
@@ -28,11 +28,12 @@ const dataService = createDataService(Astro.request);
 const event = await dataService.getEventBySlug(params.slug);
 
 if (!event) {
-  return Astro.redirect('/404');
+  return Astro.redirect('/en/404');
 }
 
-// Get English content
-const content = getMultilingualContent(event, 'en') || event.content_en;
+// Get appropriate content arrays
+const description = getMultilingualContent(event, 'en', 'description') || event.description_en;
+const extraContent = getMultilingualContent(event, 'en', 'extraContent') || event.extraContent_en;
 ---
 
 <Layout
@@ -54,7 +55,7 @@ const content = getMultilingualContent(event, 'en') || event.content_en;
                 <dt class="sr-only">Date</dt>
                 <dd>
                   <time datetime={event.eventDate.date}>
-                    {stegaClean(formatDateForLanguage(event.eventDate.date, 'en'))}
+                    {stegaClean(formatDateWithWeekday(event.eventDate.date, 'en'))}
                   </time>
                 </dd>
               </>
@@ -85,6 +86,34 @@ const content = getMultilingualContent(event, 'en') || event.content_en;
         )}
       </div>
 
+      {event.image?.image?.asset && (
+        <HeaderImage
+          image={event.image.image}
+          alt={stegaClean(event.image.alt || event.title || '')}
+          credit={event.image.credit ? stegaClean(event.image.credit) : undefined}
+          aspectRatio="4:3"
+          loading="eager"
+          quality={IMAGE_QUALITY.CARD}
+          width="min(60ch, 100%)"
+        />
+      )}
+
+      {description && (
+        <section class="event-description content-narrow">
+          <h2 class="section-title">About the concert</h2>
+          <p class="description-text">{stegaClean(description)}</p>
+        </section>
+      )}
+
+      {extraContent && Array.isArray(extraContent) && extraContent.length > 0 && (
+        <section class="extra-content">
+          <h2 class="sr-only">Additional Content</h2>
+          {extraContent.map((block) => (
+            <DynamicComponent key={block._key || block._id} block={block} />
+          ))}
+        </section>
+      )}
+
       {event.artists && event.artists.length > 0 && (
         <section class="artists-section">
           {/* Hidden SVG for wave clip-path definitions */}
@@ -109,27 +138,6 @@ const content = getMultilingualContent(event, 'en') || event.content_en;
             ))}
           </div>
         </section>
-      )}
-
-      {content && Array.isArray(content) && content.length > 0 && (
-        <section class="extra-content">
-          <h2 class="sr-only">Additional Content</h2>
-          {content.map((block) => (
-            <DynamicComponent key={block._key || block._id} block={block} />
-          ))}
-        </section>
-      )}
-
-      {event.image?.image?.asset && (
-        <HeaderImage
-          image={event.image.image}
-          alt={stegaClean(event.image.alt || event.title || '')}
-          credit={event.image.credit ? stegaClean(event.image.credit) : undefined}
-          aspectRatio="4:3"
-          loading="eager"
-          quality={IMAGE_QUALITY.CARD}
-          width="min(60ch, 100%)"
-        />
       )}
   </article>
 </Layout>
