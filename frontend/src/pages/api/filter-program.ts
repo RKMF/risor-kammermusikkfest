@@ -231,21 +231,30 @@ export const GET: APIRoute = async ({ request, url }) => {
         </section>
       `).join('');
     } else {
+      const emptyStateText = language === 'no'
+        ? 'Prøv en annen kombinasjon, eller:'
+        : 'Choose a different date or venue, or:';
+      const resetButtonText = language === 'no'
+        ? 'Nullstill filtre'
+        : 'Click here to reset all filters';
+      const resetHref = language === 'no' ? '/program' : '/en/program';
+
       html = `
         <section class="content-section">
           <div class="no-results">
             <h3 class="no-results-title">${emptyStateMessage}</h3>
-            <p class="no-results-text">Prøv en annen kombinasjon, eller:</p>
+            <p class="no-results-text">${emptyStateText}</p>
             <a
-              href="/program"
-              class="link-button"
+              href="${resetHref}"
+              class="btn btn-primary"
               hx-get="/api/filter-program"
-              hx-vals='{"lang": "no", "date": "", "venue": ""}'
+              hx-vals='{"lang": "${language}", "date": "", "venue": ""}'
               hx-target="#event-results"
               hx-swap="innerHTML show:none"
+              hx-push-url="true"
               hx-indicator="#filter-loading"
             >
-              Nullstill filtre
+              ${resetButtonText}
             </a>
           </div>
         </section>
