@@ -39,10 +39,11 @@ const {
 const currentLang: Language = detectLanguage(Astro.request);
 const currentPath = new URL(Astro.request.url).pathname;
 
-// Fetch menu items from Sanity
+// Fetch menu items and logo from Sanity
 const { query: menuQuery, params: menuParams } = QueryBuilder.siteSettingsMenu();
-const menuData = await sanityClient.fetch<{ menuItems: MenuItem[] }>(menuQuery, menuParams);
+const menuData = await sanityClient.fetch<{ menuItems: MenuItem[]; symbolLogo?: { name: string; image: any } }>(menuQuery, menuParams);
 const menuItems = menuData?.menuItems || [];
+const symbolLogo = menuData?.symbolLogo;
 
 // Fetch footer settings from Sanity
 const { query: footerQuery, params: footerParams } = QueryBuilder.siteSettingsFooter();
@@ -291,6 +292,7 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
       slugNo={slugNo}
       slugEn={slugEn}
       menuItems={menuItems}
+      symbolLogo={symbolLogo}
     />
 
     <main id="main-content" class="main-content" tabindex="-1">

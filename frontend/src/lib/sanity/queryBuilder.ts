@@ -615,6 +615,18 @@ const SITE_SETTINGS_MENU_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
       _type == "articlePage" => "/en/articles",
       _type == "page" => "/en/" + coalesce(slug_en.current, slug_no.current, "")
     )
+  },
+  "symbolLogo": logos[name == "Symbol"][0]{
+    name,
+    "image": image{
+      asset->{
+        _id,
+        url,
+        mimeType
+      },
+      hotspot,
+      crop
+    }
   }
 }`)
 
@@ -652,6 +664,33 @@ const SITE_SETTINGS_FOOTER_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
       crop
     },
     url
+  },
+  "symbolLogo": logos[name == "Symbol"][0]{
+    name,
+    "image": image{
+      asset->{
+        _id,
+        url,
+        mimeType
+      },
+      hotspot,
+      crop
+    }
+  }
+}`)
+
+const SITE_SETTINGS_TEKST_LOGO_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
+  "tekstLogo": logos[name == "Tekst-logo"][0]{
+    name,
+    "image": image{
+      asset->{
+        _id,
+        url,
+        mimeType
+      },
+      hotspot,
+      crop
+    }
   }
 }`)
 
@@ -706,6 +745,9 @@ export const QueryBuilder = {
   },
   siteSettingsFooter(): QueryDefinition {
     return {query: SITE_SETTINGS_FOOTER_QUERY, params: {}}
+  },
+  siteSettingsTekstLogo(): QueryDefinition {
+    return {query: SITE_SETTINGS_TEKST_LOGO_QUERY, params: {}}
   }
 } as const
 
