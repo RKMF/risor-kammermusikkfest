@@ -141,9 +141,9 @@ export function transformMultilingualDocument<T extends BilingualDocument>(
   doc: T | null | undefined,
   language: Language = DEFAULT_LANGUAGE
 ): T | null {
-  if (!doc) return doc;
+  if (!doc) return null;
 
-  const transformed = { ...doc };
+  const transformed: BilingualDocument = { ...doc };
 
   // Add convenience fields with language-aware fallbacks
   const multilingualFields = ['title', 'content', 'excerpt', 'description'];
@@ -169,7 +169,7 @@ export function transformMultilingualDocument<T extends BilingualDocument>(
     }
   }
 
-  return transformed;
+  return transformed as T;
 }
 
 /**

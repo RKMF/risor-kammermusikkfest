@@ -67,7 +67,7 @@ export const GET: APIRoute = async ({ request, url }) => {
 
     // Get program page data
     const programPage = await dataService.getProgramPage();
-    const events = (programPage?.selectedEvents || []).filter((event: any) => event != null);
+    const events = ((programPage as any)?.selectedEvents || []).filter((event: any) => event != null);
 
     // Group events by date (same logic as program.astro)
     const eventsByDate = events.reduce((acc: any, event: any) => {

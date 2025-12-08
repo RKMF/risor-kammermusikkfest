@@ -7,7 +7,7 @@
  */
 
 import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
-import type { PageBuilder, Seo } from '../../sanity/sanity.types';
+import type { PageBuilder, Seo } from '../../../sanity/sanity.types';
 
 /**
  * Image object structure returned by Sanity queries
