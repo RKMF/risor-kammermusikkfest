@@ -80,6 +80,8 @@ const processedLinks = links.map((link) => {
 
 <style>
   .link-component {
+    background-color: var(--color-tint-blue-medium);
+    padding: var(--space-l);
     margin-block: var(--space-m-l);
   }
 
@@ -113,7 +115,7 @@ const processedLinks = links.map((link) => {
   @media (hover: hover) {
     .link:hover {
       color: var(--color-link);
-      background-color: var(--color-tint-green-light);
+      background-color: #ebf9f7; /* Solid green tint - prevents bleed through from blue background */
       transform: translateY(-4px);
       box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
     }

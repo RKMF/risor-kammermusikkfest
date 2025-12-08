@@ -67,7 +67,7 @@ export const GET: APIRoute = async ({ request, url }) => {
 
     // Get program page data
     const programPage = await dataService.getProgramPage();
-    const events = (programPage?.selectedEvents || []).filter((event: any) => event != null);
+    const events = ((programPage as any)?.selectedEvents || []).filter((event: any) => event != null);
 
     // Group events by date (same logic as program.astro)
     const eventsByDate = events.reduce((acc: any, event: any) => {
@@ -231,21 +231,30 @@ export const GET: APIRoute = async ({ request, url }) => {
         </section>
       `).join('');
     } else {
+      const emptyStateText = language === 'no'
+        ? 'Prøv en annen kombinasjon, eller:'
+        : 'Choose a different combination, or:';
+      const resetButtonText = language === 'no'
+        ? 'Nullstill filtre'
+        : 'Reset filters';
+      const resetHref = language === 'no' ? '/program' : '/en/program';
+
       html = `
         <section class="content-section">
           <div class="no-results">
             <h3 class="no-results-title">${emptyStateMessage}</h3>
-            <p class="no-results-text">Prøv en annen kombinasjon, eller:</p>
+            <p class="no-results-text">${emptyStateText}</p>
             <a
-              href="/program"
+              href="${resetHref}"
               class="link-button"
               hx-get="/api/filter-program"
-              hx-vals='{"lang": "no", "date": "", "venue": ""}'
+              hx-vals='{"lang": "${language}", "date": "", "venue": ""}'
               hx-target="#event-results"
               hx-swap="innerHTML show:none"
+              hx-push-url="true"
               hx-indicator="#filter-loading"
             >
-              Nullstill filtre
+              ${resetButtonText}
             </a>
           </div>
         </section>

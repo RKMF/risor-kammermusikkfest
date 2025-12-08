@@ -1,12 +1,22 @@
 ---
-import ContentPageLayout from '../layouts/ContentPageLayout.astro';
+import Layout from '../layouts/Layout.astro';
+import DynamicComponent from '../components/DynamicComponent.astro';
 import { createDataService } from '../lib/sanity/dataService.js';
+import { sanityClient } from "sanity:client";
+import { QueryBuilder } from '../lib/sanity/queryBuilder.js';
+import { getMultilingualContent, detectLanguage } from '../lib/utils/language.js';
+import { stegaClean } from '@sanity/client/stega';
 
 // Create data service with Visual Editing support
 const dataService = createDataService(Astro.request);
 
 // Load homepage using data service
 const homepage = await dataService.getHomepage();
+
+// Fetch Tekst-logo from site settings
+const { query: logoQuery, params: logoParams } = QueryBuilder.siteSettingsTekstLogo();
+const logoData = await sanityClient.fetch<{ tekstLogo?: { name: string; image: any } }>(logoQuery, logoParams);
+const tekstLogo = logoData?.tekstLogo;
 
 const homepageTitle = homepage?.title || 'Forside';
 
@@ -20,20 +30,132 @@ if (homepage?.scheduledPeriod) {
   Astro.response.headers.set('Cache-Control', 'public, max-age=3600'); // 1 time
 }
 
+// Detect language and get content
+const language = detectLanguage(Astro.request);
+const content = homepage ? (getMultilingualContent(homepage, language) || homepage?.content || []) : [];
+
+// Extract slug information
+const slugNo = homepage?.slug_no?.current ? stegaClean(homepage.slug_no.current) : undefined;
+const slugEn = homepage?.slug_en?.current ? stegaClean(homepage.slug_en.current) : undefined;
+
 console.log('Aktiv forside:', homepage);
 ---
 
-<ContentPageLayout title={homepageTitle} pageDocument={homepage}>
-  {!homepage && (
-    <div class="no-content">
-      <h1>Velkommen til forsiden</h1>
-      <p>Ingen forside er konfigurert ennå. Gå til Sanity Studio for å opprette en forside.</p>
-    </div>
-  )}
-</ContentPageLayout>
+<Layout title={homepageTitle} slugNo={slugNo} slugEn={slugEn}>
+  <div class="stack page-layout" style="--space: var(--space-xl)">
+    {!homepage && (
+      <div class="no-content">
+        <h1>Velkommen til forsiden</h1>
+        <p>Ingen forside er konfigurert ennå. Gå til Sanity Studio for å opprette en forside.</p>
+      </div>
+    )}
+
+    {tekstLogo?.image?.asset?.url && content && Array.isArray(content) && content.length > 0 && (
+      <div class="homepage-grid">
+        <!-- Blue box on the left - FIRST in source order (should appear behind) -->
+        <div class="homepage-content">
+          {content.map((block) => (
+            <DynamicComponent key={block._key || block._id} block={block} />
+          ))}
+        </div>
+
+        <!-- Logo on the right - SECOND in source order (should appear on top) -->
+        <div class="tekst-logo-container">
+          <span
+            class="tekst-logo logo-mask"
+            style={`mask-image: url(${tekstLogo.image.asset.url}); -webkit-mask-image: url(${tekstLogo.image.asset.url});`}
+            role="img"
+            aria-label="Risør Kammermusikkfest"
+          ></span>
+        </div>
+      </div>
+    )}
+  </div>
+</Layout>
 
 <style>
   .no-content {
     margin: 0;
+  }
+
+  /* Page layout styling */
+  .page-layout {
+    container-type: inline-size;
+    container-name: page-layout;
+    min-inline-size: min(100%, 280px);
+  }
+
+  .page-header {
+    margin: 0;
+    container-type: inline-size;
+  }
+
+  .page-title {
+    margin: 0 0 var(--space-6) 0;
+    font-size: var(--heading-h1);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  /* Homepage grid layout - stacked on mobile */
+  .homepage-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-m);
+    align-items: start;
+    margin-block: var(--space-l);
+  }
+
+  /* On desktop, create explicit grid with natural overlap (Jen Simmons technique) */
+  @media (min-width: 769px) {
+    .homepage-grid {
+      grid-template-columns: repeat(8, 1fr);
+      gap: 0;
+      align-items: start;
+    }
+
+    /* Blue box on the left */
+    .homepage-content {
+      grid-column: 1 / 5;
+      grid-row: 1;
+    }
+
+    /* Logo on the right, overlapping blue box */
+    .tekst-logo-container {
+      grid-column: 5 / 9;
+      grid-row: 1;
+    }
+  }
+
+  .homepage-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+  }
+
+  .tekst-logo-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tekst-logo {
+    display: block;
+    width: 100%;
+    max-width: 600px;
+    aspect-ratio: 4 / 5; /* 4500 / 5625 = 0.8 */
+  }
+
+  /* Mask technique for exact color control */
+  span.logo-mask {
+    background-color: var(--color-blue);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
   }
 </style>

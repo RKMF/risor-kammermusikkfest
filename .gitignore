@@ -101,9 +101,9 @@ vitest-report/
 .sanity/
 *.sanity/
 
-# Generated Sanity types (regenerate with: npm run typegen)
+# Generated Sanity schema extraction (regenerate with: npm run extract-schema in studio)
 frontend/sanity/extract.json
-frontend/sanity/sanity.types.ts
+# Note: sanity.types.ts IS tracked because Vercel build needs it
 
 # ============================================
 # Astro Framework Specific

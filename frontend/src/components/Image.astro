@@ -9,7 +9,8 @@ import {
   type ImageMetadata
 } from '../lib/sanityImage';
 
-interface Props {
+// Direct props structure (when component is used directly)
+interface DirectImageProps {
   image: SanityImageSource;
   alt: string;
   caption?: string;
@@ -24,28 +25,52 @@ interface Props {
   sizes?: string;
   placeholder?: 'blur' | 'color' | 'empty';
   priority?: boolean;
-  // Visual editing props
   _key?: string;
   _type?: string;
 }
 
-// Extract props - handle both direct image prop and imageComponent structure
+// ImageComponent structure (from Sanity CMS)
+interface ImageComponentProps {
+  image: {
+    image: SanityImageSource;
+    alt?: string;
+    caption?: string;
+    credit?: string;
+  };
+  aspectRatio?: '4:5' | '1:1' | '16:9' | '9:16' | number;
+  size?: 'small' | 'medium' | 'large' | 'full';
+  alignment?: 'left' | 'center' | 'right';
+  _key?: string;
+  _type?: string;
+}
+
+type Props = DirectImageProps | ImageComponentProps;
+
+// Type guard to check if props is ImageComponent structure
+function isImageComponent(props: Props): props is ImageComponentProps {
+  return 'image' in props &&
+         props.image !== null &&
+         typeof props.image === 'object' &&
+         'image' in props.image;
+}
+
+// Extract props with type safety
 const props = Astro.props;
-const image = (props as any).image?.image || (props as any).image; // Extract nested .image if exists
-const alt = (props as any).alt || '';
-const caption = (props as any).caption;
-const credit = (props as any).credit;
-const alignment = (props as any).alignment || 'center';
-const size = (props as any).size || 'medium';
-const aspectRatio = (props as any).aspectRatio || '4:5'; // Use CMS value, fallback to 4:5
-const className = (props as any).className || '';
-const loading = (props as any).loading || 'lazy';
-const quality = (props as any).quality || IMAGE_QUALITY.CARD;
-const sizes = (props as any).sizes;
-const placeholder = (props as any).placeholder || 'blur';
-const priority = (props as any).priority || false;
-const _key = (props as any)._key;
-const _type = (props as any)._type;
+const image = isImageComponent(props) ? props.image.image : props.image;
+const alt = isImageComponent(props) ? (props.image.alt || '') : props.alt;
+const caption = isImageComponent(props) ? props.image.caption : props.caption;
+const credit = isImageComponent(props) ? props.image.credit : props.credit;
+const alignment = props.alignment || 'center';
+const size = props.size || 'medium';
+const aspectRatio = props.aspectRatio || '4:5';
+const className = 'className' in props ? props.className || '' : '';
+const loading = 'loading' in props ? props.loading || 'lazy' : 'lazy';
+const quality = 'quality' in props ? props.quality || IMAGE_QUALITY.CARD : IMAGE_QUALITY.CARD;
+const sizes = 'sizes' in props ? props.sizes : undefined;
+const placeholder = 'placeholder' in props ? props.placeholder || 'blur' : 'blur';
+const priority = 'priority' in props ? props.priority || false : false;
+const _key = props._key;
+const _type = props._type;
 
 // Convert aspect ratio to numeric value
 const getAspectRatioValue = (ratio: string | number): number => {
