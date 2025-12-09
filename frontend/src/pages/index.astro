@@ -28,6 +28,45 @@ if (homepage?.scheduledPeriod) {
 const language = detectLanguage(Astro.request);
 const content = homepage ? (getMultilingualContent(homepage, language) || homepage?.content || []) : [];
 
+// Extract header links (separate from pageBuilder content)
+const headerLinks = homepage?.headerLinks || [];
+const hasHeaderLinks = headerLinks.length > 0;
+
+// Helper to resolve internal link URLs
+function resolveInternalLinkUrl(link: any): string {
+  if (link.linkType === 'external' && link.url) {
+    return link.url;
+  }
+  if (link.linkType === 'internal' && link.internalLink) {
+    const ref = link.internalLink;
+    const slug = language === 'en'
+      ? (ref.slug_en || ref.slug_no || ref.slug)
+      : (ref.slug_no || ref.slug_en || ref.slug);
+
+    // Build URL based on document type
+    const prefix = language === 'en' ? '/en' : '';
+    switch (ref._type) {
+      case 'programPage':
+        return `${prefix}/program`;
+      case 'artistPage':
+        return `${prefix}/${language === 'en' ? 'artists' : 'artister'}`;
+      case 'articlePage':
+        return `${prefix}/${language === 'en' ? 'articles' : 'artikler'}`;
+      case 'event':
+        return `${prefix}/program/${slug}`;
+      case 'artist':
+        return `${prefix}/${language === 'en' ? 'artists' : 'artister'}/${slug}`;
+      case 'article':
+        return `${prefix}/${language === 'en' ? 'articles' : 'artikler'}/${slug}`;
+      case 'page':
+        return `${prefix}/${slug}`;
+      default:
+        return slug ? `${prefix}/${slug}` : prefix || '/';
+    }
+  }
+  return '/';
+}
+
 // Extract slug information
 const slugNo = homepage?.slug_no?.current ? stegaClean(homepage.slug_no.current) : undefined;
 const slugEn = homepage?.slug_en?.current ? stegaClean(homepage.slug_en.current) : undefined;
@@ -44,9 +83,9 @@ console.log('Aktiv forside:', homepage);
       </div>
     )}
 
-    {tekstLogoSvg && content && Array.isArray(content) && content.length > 0 && (
-      <div class="homepage-grid">
-        <!-- Logo on the left - FIRST in source order -->
+    {/* Hero section - logo always shown, links conditional */}
+    {tekstLogoSvg && (
+      <div class={`homepage-hero ${hasHeaderLinks ? 'homepage-hero--with-links' : ''}`}>
         <div class="tekst-logo-container">
           <div
             class="tekst-logo"
@@ -56,12 +95,32 @@ console.log('Aktiv forside:', homepage);
           />
         </div>
 
-        <!-- Blue box on the right - SECOND in source order -->
-        <div class="homepage-content">
-          {content.map((block) => (
-            <DynamicComponent key={block._key || block._id} block={block} />
-          ))}
-        </div>
+        {hasHeaderLinks && (
+          <nav class="header-links" aria-label="Hovedlenker">
+            {headerLinks.map((link) => (
+              <div class="header-link-item">
+                <a
+                  href={resolveInternalLinkUrl(link)}
+                  class="header-link"
+                >
+                  <span class="header-link__text">{link.text}</span>
+                </a>
+                {link.description && (
+                  <p class="header-link__description">{link.description}</p>
+                )}
+              </div>
+            ))}
+          </nav>
+        )}
+      </div>
+    )}
+
+    {/* PageBuilder content - rendered below hero */}
+    {content && Array.isArray(content) && content.length > 0 && (
+      <div class="homepage-content">
+        {content.map((block) => (
+          <DynamicComponent key={block._key || block._id} block={block} />
+        ))}
       </div>
     )}
   </div>
@@ -79,43 +138,25 @@ console.log('Aktiv forside:', homepage);
     min-inline-size: min(100%, 280px);
   }
 
-  .page-header {
-    margin: 0;
-    container-type: inline-size;
-  }
-
-  .page-title {
-    margin: 0 0 var(--space-6) 0;
-    font-size: var(--heading-h1);
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
-  }
-
-  /* Homepage grid layout - stacked on mobile */
-  .homepage-grid {
+  /* Hero section - blue box with logo and CTA links */
+  .homepage-hero {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-m);
     align-items: start;
-    margin-block: var(--space-l);
+    margin-block-start: var(--space-s);
+    margin-block-end: var(--space-l);
     background-color: var(--color-tint-blue-medium);
     padding: var(--space-l);
   }
 
-  /* On desktop, logo and content side by side */
+  /* On desktop with links, logo and links side by side */
   @media (min-width: 769px) {
-    .homepage-grid {
+    .homepage-hero--with-links {
       grid-template-columns: 1fr 1fr;
       gap: var(--space-l);
       align-items: center;
     }
-  }
-
-  .homepage-content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-l);
   }
 
   .tekst-logo-container {
@@ -139,4 +180,80 @@ console.log('Aktiv forside:', homepage);
     display: block;
   }
 
+  /* Header links - matching Link.astro styling */
+  .header-links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s-m);
+    padding-inline-start: var(--space-s);
+  }
+
+  .header-link-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .header-link {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-2xs) var(--space-xs);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--step-3);
+    text-decoration: none;
+    background-image: none;
+  }
+
+  .header-link::after {
+    content: ' →';
+    margin-inline-start: 0.25em;
+  }
+
+  .header-link__text {
+    position: relative;
+  }
+
+  .header-link__text::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-end: 0;
+    inline-size: 100%;
+    block-size: 0.08em;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform var(--transition-fast);
+  }
+
+  @media (hover: hover) {
+    .header-link:hover .header-link__text::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+
+  .header-link:focus-visible .header-link__text::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  .header-link:focus-visible {
+    background-color: var(--color-tint-blue-light);
+  }
+
+  .header-link__description {
+    margin: 0;
+    font-size: var(--step-0);
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+    padding-inline-start: calc(var(--space-xs) + var(--space-s));
+  }
+
+  /* PageBuilder content below hero */
+  .homepage-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+  }
 </style>

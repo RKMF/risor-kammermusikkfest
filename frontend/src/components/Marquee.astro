@@ -11,40 +11,39 @@ const { text } = Astro.props
 <div class="marquee" aria-label="Rullende tekst">
   <div class="marquee__content">
     <span>{text}</span>
-    <span aria-hidden="true">{text}</span>
-    <span aria-hidden="true">{text}</span>
+  </div>
+  <div class="marquee__content" aria-hidden="true">
+    <span>{text}</span>
   </div>
 </div>
 
 <style>
   .marquee {
     --marquee-gap: 4rem;
-    --marquee-duration: 20s;
+    --marquee-duration: 12s;
 
+    display: flex;
+    gap: var(--marquee-gap);
     overflow: hidden;
     width: 100%;
     padding-block: var(--space-s);
   }
 
   .marquee__content {
-    display: flex;
-    gap: var(--marquee-gap);
-    white-space: nowrap;
+    flex-shrink: 0;
     animation: marquee-scroll var(--marquee-duration) linear infinite;
   }
 
   .marquee__content span {
-    flex-shrink: 0;
-    font-size: var(--step-1);
+    font-family: var(--font-family-heading);
+    font-size: var(--step-4);
     font-weight: 500;
+    white-space: nowrap;
   }
 
   @keyframes marquee-scroll {
-    from {
-      transform: translateX(0);
-    }
     to {
-      transform: translateX(calc(-33.333% - var(--marquee-gap) / 3));
+      transform: translateX(calc(-100% - var(--marquee-gap)));
     }
   }
 

@@ -121,9 +121,8 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
         /* Kevin Powell pattern: Fluid on mobile, capped on desktop */
         width: min(100ch, 100% - 3rem);
         margin-inline: auto;
-        /* Intrinsic padding using fluid values */
-        padding-block-start: var(--page-top-spacing);
-        /* Generous margin to footer */
+        /* Spacing from header and footer */
+        margin-block-start: var(--page-top-spacing);
         margin-block-end: calc(var(--space-3xl) * 2);
 
         /* Enable container queries for child components */
