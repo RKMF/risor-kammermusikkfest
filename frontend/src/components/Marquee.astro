@@ -1,0 +1,62 @@
+---
+interface Props {
+  text: string
+  _key?: string
+  _type?: string
+}
+
+const { text } = Astro.props
+---
+
+<div class="marquee" aria-label="Rullende tekst">
+  <div class="marquee__content">
+    <span>{text}</span>
+    <span aria-hidden="true">{text}</span>
+    <span aria-hidden="true">{text}</span>
+  </div>
+</div>
+
+<style>
+  .marquee {
+    --marquee-gap: 4rem;
+    --marquee-duration: 20s;
+
+    overflow: hidden;
+    width: 100%;
+    padding-block: var(--space-s);
+  }
+
+  .marquee__content {
+    display: flex;
+    gap: var(--marquee-gap);
+    white-space: nowrap;
+    animation: marquee-scroll var(--marquee-duration) linear infinite;
+  }
+
+  .marquee__content span {
+    flex-shrink: 0;
+    font-size: var(--step-1);
+    font-weight: 500;
+  }
+
+  @keyframes marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-33.333% - var(--marquee-gap) / 3));
+    }
+  }
+
+  /* Pause on hover for readability */
+  .marquee:hover .marquee__content {
+    animation-play-state: paused;
+  }
+
+  /* Accessibility: respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__content {
+      animation: none;
+    }
+  }
+</style>

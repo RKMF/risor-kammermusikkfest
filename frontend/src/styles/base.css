@@ -297,21 +297,18 @@ h6 {
 /* Default: Inline body links */
 a {
   color: var(--color-link);
-  text-decoration: underline;
-  text-decoration-thickness: 0.0625em; /* 1/16 of font size - scales with text */
-  text-underline-offset: 0.3em;
-  display: inline-block; /* Required for transform to work */
-  transition: var(--transition-link-standard);
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0% 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 0.08em;
+  transition: background-size var(--transition-fast);
 }
 
-/* Hover state - Same as standalone links (blue text, green tint, lift, shadow) but NO arrow */
+/* Hover state - underline animates in from left */
 @media (hover: hover) {
   a:hover {
-    color: var(--color-link);
-    background-color: var(--color-tint-green-light);
-    text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
-    transform: translateY(-2px);
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 8px;
+    background-size: 100% 0.08em;
   }
 }
 
@@ -334,11 +331,7 @@ a:visited {
 
 @media (hover: hover) {
   a:visited:hover {
-    color: var(--color-link);
-    background-color: var(--color-tint-green-light);
-    text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
-    transform: translateY(-2px);
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 8px;
+    background-size: 100% 0.08em;
   }
 }
 
@@ -350,22 +343,21 @@ a:visited {
   text-decoration: none;
 }
 
-/* Standalone links - Always dark blue with underline (no visited state color change) */
+/* Standalone links - Always dark blue, animated underline on hover */
 .link-list a,
 .link-standalone {
   color: var(--color-link);
-  text-decoration: underline;
-  text-decoration-color: var(--color-link);
-  text-decoration-thickness: 0.0625em; /* 1/16 of font size - scales with text */
-  text-underline-offset: 0.3em;
+  text-decoration: none;
+  background-image: linear-gradient(var(--color-link), var(--color-link));
+  background-position: 0% 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 0.08em;
+  transition: background-size var(--transition-fast);
 }
 
 .link-list a:visited,
 .link-standalone:visited {
   color: var(--color-link);
-  text-decoration: underline;
-  text-decoration-color: var(--color-link);
-  text-underline-offset: 0.3em;
 }
 
 @media (hover: hover) {
@@ -373,9 +365,7 @@ a:visited {
   .link-standalone:hover,
   .link-list a:visited:hover,
   .link-standalone:visited:hover {
-    color: var(--color-link);
-    text-decoration-color: var(--color-link);
-    text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
+    background-size: 100% 0.08em;
   }
 }
 

@@ -112,8 +112,6 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
         grid-template-rows: auto 1fr auto;
         grid-template-columns: 100%;
         min-block-size: var(--viewport-full); /* Mobile-safe viewport height (svh with vh fallback) */
-        /* Pure white background */
-        background-color: #ffffff;
       }
 
       /* Main content - Flexible, fills available space */
@@ -302,7 +300,7 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
     <!-- Back to top link -->
     <div class="back-to-top-container">
       <a href="#top" class="back-to-top-link">
-        {currentLang === 'no' ? 'Tilbake til toppen' : 'Back to the top'} ↑
+        <span class="back-to-top-text">{currentLang === 'no' ? 'Tilbake til toppen' : 'Back to the top'} ↑</span>
       </a>
     </div>
 
@@ -341,21 +339,39 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
 
   .back-to-top-link {
     display: inline-block;
-    text-decoration: underline;
-    text-decoration-thickness: 0.0625em;
-    text-underline-offset: 0.3em;
+    text-decoration: none;
+    background-image: none; /* Override base.css */
     font-size: var(--step-1);
     font-weight: var(--font-weight-medium);
+  }
 
-    /* Transition for hover effects */
+  .back-to-top-text {
+    position: relative;
+  }
+
+  .back-to-top-text::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-end: 0;
+    inline-size: 100%;
+    block-size: 0.08em;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
     transition: transform var(--transition-fast);
   }
 
   @media (hover: hover) {
-    .back-to-top-link:hover {
-      text-decoration-thickness: 0.08em;
-      transform: translateY(-2px);
+    .back-to-top-link:hover .back-to-top-text::after {
+      transform: scaleX(1);
+      transform-origin: left;
     }
+  }
+
+  .back-to-top-link:focus-visible .back-to-top-text::after {
+    transform: scaleX(1);
+    transform-origin: left;
   }
 
   /* Accessibility: Disable smooth scroll for reduced motion */
