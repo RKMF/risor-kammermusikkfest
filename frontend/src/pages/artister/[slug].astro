@@ -115,10 +115,9 @@ const content = getMultilingualContent(artist) || artist.content_no;
     cursor: default;
   }
 
-  /* Allow info box to grow proportionally with larger card */
+  /* Larger padding for larger card */
   .artist-detail-card-container :global(.artist-info-box) {
-    max-width: 85%; /* Same proportion as listing page, but scales to 480px card */
-    padding: 1.5rem; /* Larger padding for larger card */
+    padding: 1.5rem;
   }
 
   /* Smooth 1.1s transition from blur placeholder to sharp image */
@@ -140,6 +139,7 @@ const content = getMultilingualContent(artist) || artist.content_no;
     font-size: var(--step-0); /* 18-23px vs listing page 13-14px = ~1.5x growth */
   }
 
+  /* Disable hover effects on detail page - card doesn't link anywhere */
   @media (hover: hover) {
     .artist-detail-card-container :global(.artist-card:hover) {
       transform: none;
@@ -148,12 +148,12 @@ const content = getMultilingualContent(artist) || artist.content_no;
     }
 
     .artist-detail-card-container :global(.artist-card:hover .artist-info-box) {
-      background-color: var(--color-blue-600);
+      background-color: var(--color-card-surface);
     }
 
     .artist-detail-card-container :global(.artist-card:hover .artist-name),
     .artist-detail-card-container :global(.artist-card:hover .artist-instrument) {
-      color: var(--color-background);
+      color: var(--color-blue);
     }
   }
 

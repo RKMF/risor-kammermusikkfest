@@ -40,16 +40,6 @@ function formatNameForCard(name: string): string {
 }
 ---
 
-<!-- Hidden SVG for wave clip-path definitions -->
-<svg width="0" height="0" style="position: absolute;" aria-hidden="true">
-  <defs>
-    <!-- Medium cards - top shallow wave pattern from logo (line 7) -->
-    <clipPath id="artist-wave-clip-medium" clipPathUnits="objectBoundingBox">
-      <path d="M 0 0.015 C 0.035 0.006, 0.077 0, 0.136 0 C 0.234 0, 0.286 0.01, 0.333 0.022 C 0.377 0.033, 0.415 0.048, 0.499 0.048 C 0.583 0.048, 0.621 0.033, 0.665 0.022 C 0.712 0.01, 0.764 0, 0.862 0 C 0.921 0, 0.963 0.006, 0.998 0.015 L 1 0.015 L 1 1 L 0 1 Z" />
-    </clipPath>
-  </defs>
-</svg>
-
 <article class={`artist-card ${sizeClass}`.trim()}>
   {!isDetailPage && (
     <h3 class="artist-title">
@@ -83,10 +73,4 @@ function formatNameForCard(name: string): string {
     )}
   </div>
 
-  {/* Wave ribbon bottom border - exact path from Symbol_RKMF.svg line 7 (shallow wave) */}
-  {size === 'large' && (
-    <svg class="artist-card-wave" viewBox="132 104 586 106" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M738.52,117.1c-21.88-7.53-48.47-13.07-85.36-13.07-61.15,0-94.08,15.17-123.95,29.5-27.38,13.14-51.19,24.71-104.02,24.71s-76.64-11.57-104.02-24.71c-29.86-14.33-62.8-29.5-123.95-29.5-36.9,0-63.49,5.54-85.36,13.07v45.14c21.15-9.19,44.42-16.03,85.36-16.03,52.83,0,76.25,11.37,103.63,24.51,29.86,14.33,63.18,29.7,124.33,29.7s94.47-15.37,124.33-29.7c27.38-13.14,50.8-24.51,103.63-24.51,40.94,0,64.22,6.84,85.36,16.03v-45.14h.02Z" fill="currentColor"/>
-    </svg>
-  )}
 </article>

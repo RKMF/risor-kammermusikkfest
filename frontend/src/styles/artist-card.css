@@ -1,13 +1,13 @@
 /* Artist Card Component - Shared Global CSS
  *
- * Overlay design pattern used across:
+ * Stacked layout pattern used across:
  * - /pages/artister.astro (Norwegian)
  * - /pages/en/artists.astro (English)
  * - /pages/program/[slug].astro (Event detail pages)
  * - /pages/en/program/[slug].astro (English event detail pages)
  *
- * Design: Fixed 320px cards with images anchored top-left
- * and info box overlaid in bottom-right corner.
+ * Design: Fixed 320px cards with stacked layout
+ * (image on top, info box below).
  * Two sizes: Large (9:16), Medium (4:5)
  *
  * Note: Global CSS required for HTMX compatibility.
@@ -15,15 +15,15 @@
  */
 
 /* ============================================
-   ARTIST CARD - IMAGE WITH OVERLAY DESIGN
+   ARTIST CARD - STACKED LAYOUT
    ============================================
 
-   320px fixed width cards using CSS Grid for overlay layout.
-   Image and info box stack in the same grid area using grid-area: content.
+   320px fixed width cards using CSS Grid for stacked layout.
+   Image on top, info box below.
 
    Layout:
-   - Image: anchored top-left with 1rem margin (85% width, aspect ratio varies by size)
-   - Info box: anchored bottom-right with 1rem margins, dynamic width
+   - Image: full width in first grid row
+   - Info box: full width in second grid row
 
    Modern Grid approach following CSS best practices (Ahmad Shadeed, CSS-Tricks).
 */
@@ -32,8 +32,8 @@
   position: relative; /* Required for stretched link pattern */
   container-type: inline-size;
   overflow: hidden;
-  border: calc(var(--space-fixed-1) * 0.75) solid var(--color-blue);
-  border-bottom: none; /* Wave pattern handles bottom */
+  border: none;
+  border-bottom: calc(var(--space-fixed-1) * 2) solid var(--color-blue);
   background-color: var(--color-tint-blue-medium);
   box-shadow: none;
   transition: transform 200ms var(--ease-standard),
@@ -54,10 +54,6 @@
   cursor: pointer;
 }
 
-/* Large cards: allow wave to extend past card boundary */
-.artist-card:not(.artist-card--medium) {
-  overflow: visible;
-}
 
 /* Hover effect only for devices with hover capability */
 @media (hover: hover) {
@@ -68,7 +64,7 @@
   }
 
   .artist-card:hover .artist-info-box {
-    background-color: #ebf9f7; /* Matches card's rgba(0, 179, 154, 0.08) over white */
+    background-color: var(--color-tint-green-light); /* Match card hover background */
   }
 
   .artist-card:hover .artist-name {
@@ -112,7 +108,7 @@
   min-height: calc(2 * 1.1em);
 }
 
-/* Artist Image - Full width in first row (large cards) */
+/* Artist Image - Full width in first row */
 .artist-card-image {
   grid-row: 1; /* First row */
   width: 100%;
@@ -122,10 +118,10 @@
   object-position: center;
 }
 
-/* Artist Info Box - Full width in second row (large cards) */
+/* Artist Info Box - Full width in second row */
 .artist-info-box {
   grid-row: 2; /* Second row */
-  background-color: var(--color-background);
+  background-color: var(--color-card-surface);
   color: var(--color-blue);
   padding: 1rem 1rem 1rem 1.5rem;
   display: grid;
@@ -162,16 +158,6 @@
   outline-color: var(--color-background);
 }
 
-/* Wave ribbon bottom border (large cards only) - extends past card edge */
-.artist-card-wave {
-  position: absolute;
-  bottom: -8px; /* Extend past card boundary to become visual edge */
-  left: 0;
-  width: 100%;
-  height: 16px; /* Ribbon with wave amplitude */
-  color: var(--color-blue);
-  z-index: 4; /* Above info box and stretched link */
-}
 
 /* ============================================
    ACCESSIBILITY & MOTION PREFERENCES
@@ -208,7 +194,6 @@
 .artist-card--medium {
   aspect-ratio: 4 / 5;
   grid-template-rows: 2fr 1fr; /* More space for info box than large cards */
-  border: none;
 }
 
 .artist-card--medium .artist-card-image {
