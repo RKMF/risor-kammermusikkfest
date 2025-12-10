@@ -32,7 +32,8 @@
   position: relative; /* Required for stretched link pattern */
   container-type: inline-size;
   overflow: hidden;
-  border: none;
+  border: calc(var(--space-fixed-1) * 0.75) solid var(--color-blue);
+  border-bottom: none; /* Wave pattern handles bottom */
   background-color: var(--color-tint-blue-medium);
   box-shadow: none;
   transition: transform 200ms var(--ease-standard),
@@ -48,6 +49,14 @@
 
   /* Fluid width for scroll affordance - shows partial next card */
   width: clamp(300px, 35vw, 320px);
+
+  /* Indicate clickable */
+  cursor: pointer;
+}
+
+/* Large cards: allow wave to extend past card boundary */
+.artist-card:not(.artist-card--medium) {
+  overflow: visible;
 }
 
 /* Hover effect only for devices with hover capability */
@@ -73,8 +82,7 @@
 
 /* Artist Title - Hidden but contains the stretched link */
 .artist-title {
-  /* Remove from grid flow so it doesn't affect 2-row layout */
-  position: absolute;
+  /* NO position property - must stay static for ::before to work */
   width: 0;
   height: 0;
   overflow: hidden;
@@ -85,14 +93,14 @@
 /* Artist Name - Visible name in info box */
 .artist-name {
   margin: 0;
-  /* Fluid font size using Utopia token: 22-28px responsive */
-  font-size: var(--step-1);
-  line-height: 1.3;
-  font-weight: 600;
+  /* Fluid font size using Utopia token: 26-35px responsive */
+  font-size: var(--step-2);
+  line-height: 1.1;
+  font-weight: 500;
   font-family: var(--font-family-heading);
   text-transform: none;
   letter-spacing: 0.01em;
-  color: var(--color-background);
+  color: var(--color-blue);
   transition: color var(--transition-base);
 
   /* Natural wrapping for long names */
@@ -100,7 +108,8 @@
   hyphens: none;
   text-wrap: wrap; /* Changed from balance for more consistent box widths */
 
-  /* Full name display - no truncation */
+  /* Reserve space for 2 lines to prevent layout shift */
+  min-height: calc(2 * 1.1em);
 }
 
 /* Artist Image - Full width in first row (large cards) */
@@ -116,12 +125,11 @@
 /* Artist Info Box - Full width in second row (large cards) */
 .artist-info-box {
   grid-row: 2; /* Second row */
-  /* Using --color-blue-600 for WCAG AA compliance (4.5:1 contrast with white) */
-  background-color: var(--color-blue-600);
-  color: var(--color-background);
-  padding: 1rem;
+  background-color: var(--color-background);
+  color: var(--color-blue);
+  padding: 1rem 1rem 1rem 1.5rem;
   display: grid;
-  gap: 0.25rem;
+  gap: 0;
   z-index: 2;
   transition: background-color 200ms var(--ease-standard);
   width: 100%;
@@ -129,13 +137,13 @@
 
 .artist-instrument {
   margin: 0;
-  /* Fluid font size using Utopia token: 13-14px responsive */
-  font-size: var(--step--2);
+  /* Fluid font size using Utopia token: 16-18px responsive */
+  font-size: var(--step--1);
   line-height: 1.3;
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: rgba(255, 255, 255, 0.9); /* Semi-transparent white on dark background */
+  color: var(--color-blue);
   transition: color var(--transition-base);
 }
 
@@ -152,6 +160,17 @@
 /* Customize focus outline color for artist cards */
 .artist-card .artist-title-link:focus-visible {
   outline-color: var(--color-background);
+}
+
+/* Wave ribbon bottom border (large cards only) - extends past card edge */
+.artist-card-wave {
+  position: absolute;
+  bottom: -8px; /* Extend past card boundary to become visual edge */
+  left: 0;
+  width: 100%;
+  height: 16px; /* Ribbon with wave amplitude */
+  color: var(--color-blue);
+  z-index: 4; /* Above info box and stretched link */
 }
 
 /* ============================================
@@ -185,33 +204,28 @@
 /* LARGE (stor) - Default, stacked layout defined above */
 /* 320px width, 9:16 aspect ratio, image 2/3 + info box 1/3 */
 
-/* MEDIUM (medium) - Portrait 4:5 cards with OVERLAY pattern */
+/* MEDIUM (medium) - Stacked layout like large, but 4:5 aspect ratio */
 .artist-card--medium {
   aspect-ratio: 4 / 5;
-  /* Override to overlay grid layout */
-  grid-template: "content" 1fr / 1fr;
+  grid-template-rows: 2fr 1fr; /* More space for info box than large cards */
+  border: none;
 }
 
 .artist-card--medium .artist-card-image {
-  grid-area: content;
-  grid-row: auto; /* Reset from large card row */
-  justify-self: start;
-  align-self: start;
-  margin: 1rem;
-  width: 85%;
-  height: auto;
-  aspect-ratio: 4/5;
-  /* Medium cards - top shallow wave pattern from logo */
-  clip-path: url(#artist-wave-clip-medium);
+  /* Stacked layout - inherits grid-row: 1 from base */
+  clip-path: none;
 }
 
 .artist-card--medium .artist-info-box {
-  grid-area: content;
-  grid-row: auto; /* Reset from large card row */
-  place-self: end;
-  margin: 1rem;
-  width: auto;
-  min-width: 12ch;
-  max-width: 85%;
+  /* Stacked layout - inherits grid-row: 2 from base */
+}
+
+/* Font sizes for medium cards - same as large cards */
+.artist-card--medium .artist-name {
+  font-size: var(--step-2);
+}
+
+.artist-card--medium .artist-instrument {
+  font-size: var(--step--1);
 }
 

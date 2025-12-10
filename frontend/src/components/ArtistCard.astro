@@ -20,16 +20,24 @@ const artistPath = language === 'en'
 
 // Size-specific image dimensions and aspect ratios
 // Large cards: full width image (320px), 3:4 aspect ratio (takes 3/4 of 9:16 card)
-// Medium cards: 85% width image (272px), 4:5 aspect ratio (overlay pattern)
+// Medium cards: full width image (320px), takes 2/3 of 4:5 card (2fr:1fr grid)
 const sizeConfig = {
-  large: { width: 320, height: 427, aspectRatio: 3/4 },    // 3:4 (320÷0.75=427)
-  medium: { width: 272, height: 340, aspectRatio: 4/5 },   // 4:5 (272÷0.8=340)
+  large: { width: 320, height: 427, aspectRatio: 3/4 },      // 3:4 (320÷0.75=427)
+  medium: { width: 320, height: 267, aspectRatio: 320/267 }, // 2/3 of 400px height
 };
 
 const { width, height, aspectRatio } = sizeConfig[size];
 
 // CSS class based on size variant
 const sizeClass = size === 'medium' ? 'artist-card--medium' : '';
+
+// Split name for two-line display (first name(s) on line 1, surname on line 2)
+function formatNameForCard(name: string): string {
+  const cleanName = stegaClean(name);
+  const lastSpaceIndex = cleanName.lastIndexOf(' ');
+  if (lastSpaceIndex === -1) return cleanName; // Single name, no split
+  return cleanName.slice(0, lastSpaceIndex) + '<br>' + cleanName.slice(lastSpaceIndex + 1);
+}
 ---
 
 <!-- Hidden SVG for wave clip-path definitions -->
@@ -69,9 +77,16 @@ const sizeClass = size === 'medium' ? 'artist-card--medium' : '';
   )}
 
   <div class="artist-info-box">
-    <p class="artist-name">{stegaClean(artist.name)}</p>
+    <p class="artist-name" set:html={formatNameForCard(artist.name)} />
     {artist.instrument && (
       <p class="artist-instrument">{stegaClean(artist.instrument)}</p>
     )}
   </div>
+
+  {/* Wave ribbon bottom border - exact path from Symbol_RKMF.svg line 7 (shallow wave) */}
+  {size === 'large' && (
+    <svg class="artist-card-wave" viewBox="132 104 586 106" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M738.52,117.1c-21.88-7.53-48.47-13.07-85.36-13.07-61.15,0-94.08,15.17-123.95,29.5-27.38,13.14-51.19,24.71-104.02,24.71s-76.64-11.57-104.02-24.71c-29.86-14.33-62.8-29.5-123.95-29.5-36.9,0-63.49,5.54-85.36,13.07v45.14c21.15-9.19,44.42-16.03,85.36-16.03,52.83,0,76.25,11.37,103.63,24.51,29.86,14.33,63.18,29.7,124.33,29.7s94.47-15.37,124.33-29.7c27.38-13.14,50.8-24.51,103.63-24.51,40.94,0,64.22,6.84,85.36,16.03v-45.14h.02Z" fill="currentColor"/>
+    </svg>
+  )}
 </article>
