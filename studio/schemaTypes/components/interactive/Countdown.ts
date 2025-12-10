@@ -1,6 +1,5 @@
 import {defineField, defineType} from 'sanity'
 import {ClockIcon} from '@sanity/icons'
-import {componentValidation} from '../../shared/validation'
 
 export const countdownComponent = defineType({
   name: 'countdownComponent',
@@ -9,12 +8,22 @@ export const countdownComponent = defineType({
   icon: ClockIcon,
   fields: [
     defineField({
-      name: 'targetEvent',
-      title: 'Arrangement',
-      type: 'reference',
-      to: [{type: 'event'}],
-      description: 'Velg hvilket arrangement det skal telles ned til',
-      validation: (Rule) => Rule.required().error('Arrangement må velges'),
+      name: 'title',
+      title: 'Innledende tekst',
+      type: 'string',
+      description: 'Tekst som vises foran nedtellingen, f.eks. "Festivalen starter om"',
+    }),
+    defineField({
+      name: 'targetDate',
+      title: 'Dato og tid',
+      type: 'datetime',
+      description: 'Velg dato og tidspunkt for nedtellingen',
+      validation: (Rule) => Rule.required().error('Dato og tid må velges'),
+      options: {
+        dateFormat: 'DD.MM.YYYY',
+        timeFormat: 'HH:mm',
+        timeStep: 15,
+      },
     }),
     defineField({
       name: 'style',
@@ -34,8 +43,8 @@ export const countdownComponent = defineType({
       name: 'completedMessage',
       title: 'Melding når nedtelling er ferdig',
       type: 'string',
-      description: 'Tekst som vises når arrangementet har startet',
-      initialValue: 'Arrangementet har startet!',
+      description: 'Tekst som vises når tiden er ute',
+      initialValue: 'Tiden er ute!',
     }),
     defineField({
       name: 'hideWhenComplete',
@@ -47,19 +56,24 @@ export const countdownComponent = defineType({
   ],
   preview: {
     select: {
-      eventTitle: 'targetEvent.title',
-      eventDate: 'targetEvent.eventDate.date',
-      eventTime: 'targetEvent.eventTime.startTime',
+      title: 'title',
+      targetDate: 'targetDate',
       style: 'style',
     },
-    prepare({eventTitle, eventDate, eventTime, style}) {
-      const eventInfo = eventTitle
-        ? `til ${eventTitle} (${new Date(eventDate).toLocaleDateString('nb-NO')} kl. ${eventTime})`
-        : 'Ingen arrangement valgt'
+    prepare({title, targetDate, style}) {
+      const dateStr = targetDate
+        ? new Date(targetDate).toLocaleString('nb-NO', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          })
+        : 'Ingen dato valgt'
 
       return {
-        title: 'Nedtelling',
-        subtitle: `${eventInfo} • ${style} stil`,
+        title: title || 'Nedtelling',
+        subtitle: `${dateStr} • ${style || 'compact'} stil`,
         media: ClockIcon,
       }
     },
