@@ -3,7 +3,7 @@ import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../l
 import { stegaClean } from '@sanity/client/stega';
 import type { ArtistResult } from '../lib/sanity/queries';
 
-export interface Props {
+interface Props {
   artist: ArtistResult;
   language?: 'no' | 'en';
   size?: 'large' | 'medium';
@@ -19,11 +19,11 @@ const artistPath = language === 'en'
   : `/artister/${stegaClean(artist.slug)}`;
 
 // Size-specific image dimensions and aspect ratios
-// Image is displayed at 85% of card width in CSS (artist-card.css line 111)
-// So for 320px card, actual image display is 272px (320 * 0.85)
+// Large cards: full width image (320px), 3:4 aspect ratio (takes 3/4 of 9:16 card)
+// Medium cards: 85% width image (272px), 4:5 aspect ratio (overlay pattern)
 const sizeConfig = {
-  large: { width: 272, height: 484, aspectRatio: 9/16 },   // 9:16 (272÷(9/16)=484)
-  medium: { width: 272, height: 340, aspectRatio: 4/5 },   // 4:5 (272÷(4/5)=340)
+  large: { width: 320, height: 427, aspectRatio: 3/4 },    // 3:4 (320÷0.75=427)
+  medium: { width: 272, height: 340, aspectRatio: 4/5 },   // 4:5 (272÷0.8=340)
 };
 
 const { width, height, aspectRatio } = sizeConfig[size];
@@ -35,12 +35,7 @@ const sizeClass = size === 'medium' ? 'artist-card--medium' : '';
 <!-- Hidden SVG for wave clip-path definitions -->
 <svg width="0" height="0" style="position: absolute;" aria-hidden="true">
   <defs>
-    {/* Large cards - bottom deep wave pattern from logo (line 3) */}
-    <clipPath id="artist-wave-clip-large" clipPathUnits="objectBoundingBox">
-      <path d="M 0 0 L 1 0 L 1 0.985 C 0.965 0.994, 0.923 1, 0.864 1 C 0.766 1, 0.714 0.99, 0.667 0.978 C 0.623 0.967, 0.585 0.952, 0.501 0.952 C 0.417 0.952, 0.379 0.967, 0.335 0.978 C 0.288 0.99, 0.236 1, 0.138 1 C 0.079 1, 0.037 0.994, 0.002 0.985 L 0 0.985 Z" />
-    </clipPath>
-
-    {/* Medium cards - top shallow wave pattern from logo (line 7) */}
+    <!-- Medium cards - top shallow wave pattern from logo (line 7) -->
     <clipPath id="artist-wave-clip-medium" clipPathUnits="objectBoundingBox">
       <path d="M 0 0.015 C 0.035 0.006, 0.077 0, 0.136 0 C 0.234 0, 0.286 0.01, 0.333 0.022 C 0.377 0.033, 0.415 0.048, 0.499 0.048 C 0.583 0.048, 0.621 0.033, 0.665 0.022 C 0.712 0.01, 0.764 0, 0.862 0 C 0.921 0, 0.963 0.006, 0.998 0.015 L 1 0.015 L 1 1 L 0 1 Z" />
     </clipPath>
@@ -59,7 +54,7 @@ const sizeClass = size === 'medium' ? 'artist-card--medium' : '';
   {artist.image?.image && (
     <img
       src={getOptimizedImageUrl(artist.image.image, width, height, IMAGE_QUALITY.CARD)}
-      srcset={getResponsiveImageSet(artist.image.image, [272, 408, 544], aspectRatio, IMAGE_QUALITY.CARD)}
+      srcset={getResponsiveImageSet(artist.image.image, [320, 480, 640], aspectRatio, IMAGE_QUALITY.CARD)}
       sizes={imageSizes}
       alt={stegaClean(artist.image.alt) || stegaClean(artist.name)}
       width={width.toString()}
