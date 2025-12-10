@@ -171,6 +171,8 @@ dl.event-meta dd {
 /* Stretched link pattern - uses global .card-link from base.css */
 .event-card .event-title-link {
   color: var(--color-blue);
+  /* Remove global link underline animation */
+  background-image: none;
 }
 
 /* Customize focus outline color for event cards */

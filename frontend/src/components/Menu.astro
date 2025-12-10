@@ -67,21 +67,12 @@ const isActive = (href: string) => {
   type="button"
   aria-label={currentLang === 'no' ? 'Åpne meny' : 'Open menu'}
 >
-  {symbolLogo?.image?.asset?.url ? (
-    <span
-      class="logo-svg logo-mask"
-      style={`mask-image: url(${symbolLogo.image.asset.url}); -webkit-mask-image: url(${symbolLogo.image.asset.url});`}
-      role="img"
-      aria-label="Risør Kammermusikkfest"
-    ></span>
-  ) : (
-    <svg viewBox="0 0 850.39 850.39" class="logo-svg" aria-hidden="true">
-      <polygon points="738.52 358.88 635.73 256.09 530.46 361.36 425.2 256.09 319.93 361.36 214.66 256.09 111.87 358.89 111.87 419.14 214.66 316.35 319.93 421.62 425.2 316.35 530.46 421.62 635.73 316.35 738.52 419.14 738.52 358.88"/>
-      <rect x="111.87" y="498.81" width="626.65" height="41.61"/>
-      <path d="M425.2,704.18c28.67,0,41.16-13.69,63.86-36.41,21.3-21.32,45.85-43.82,92.8-43.82s71.5,22.5,92.8,43.82c22.7,22.72,35.19,36.41,63.86,36.41v42.18c-47.09,0-69.74-24.29-89.61-43.89-22.84-22.51-35.01-36.34-67.05-36.34s-44.2,13.83-67.05,36.34c-19.88,19.59-42.53,43.89-89.61,43.89s-69.74-24.29-89.61-43.89c-22.84-22.51-35.01-36.34-67.05-36.34s-44.2,13.83-67.05,36.34c-19.88,19.59-42.53,43.89-89.61,43.89v-42.18c28.67,0,41.16-13.69,63.86-36.41,21.3-21.32,45.85-43.82,92.8-43.82s71.5,22.5,92.8,43.82c22.7,22.72,35.19,36.41,63.86,36.41Z"/>
-      <path d="M738.52,117.1c-21.88-7.53-48.47-13.07-85.36-13.07-61.15,0-94.08,15.17-123.95,29.5-27.38,13.14-51.19,24.71-104.02,24.71s-76.64-11.57-104.02-24.71c-29.86-14.33-62.8-29.5-123.95-29.5-36.9,0-63.49,5.54-85.36,13.07v45.14c21.15-9.19,44.42-16.03,85.36-16.03,52.83,0,76.25,11.37,103.63,24.51,29.86,14.33,63.18,29.7,124.33,29.7s94.47-15.37,124.33-29.7c27.38-13.14,50.8-24.51,103.63-24.51,40.94,0,64.22,6.84,85.36,16.03v-45.14h.02Z"/>
-    </svg>
-  )}
+  <svg viewBox="0 0 850.39 850.39" class="logo-svg" aria-hidden="true">
+    <polygon points="738.52 358.88 635.73 256.09 530.46 361.36 425.2 256.09 319.93 361.36 214.66 256.09 111.87 358.89 111.87 419.14 214.66 316.35 319.93 421.62 425.2 316.35 530.46 421.62 635.73 316.35 738.52 419.14 738.52 358.88"/>
+    <rect x="111.87" y="498.81" width="626.65" height="41.61"/>
+    <path d="M425.2,704.18c28.67,0,41.16-13.69,63.86-36.41,21.3-21.32,45.85-43.82,92.8-43.82s71.5,22.5,92.8,43.82c22.7,22.72,35.19,36.41,63.86,36.41v42.18c-47.09,0-69.74-24.29-89.61-43.89-22.84-22.51-35.01-36.34-67.05-36.34s-44.2,13.83-67.05,36.34c-19.88,19.59-42.53,43.89-89.61,43.89s-69.74-24.29-89.61-43.89c-22.84-22.51-35.01-36.34-67.05-36.34s-44.2,13.83-67.05,36.34c-19.88,19.59-42.53,43.89-89.61,43.89v-42.18c28.67,0,41.16-13.69,63.86-36.41,21.3-21.32,45.85-43.82,92.8-43.82s71.5,22.5,92.8,43.82c22.7,22.72,35.19,36.41,63.86,36.41Z"/>
+    <path d="M738.52,117.1c-21.88-7.53-48.47-13.07-85.36-13.07-61.15,0-94.08,15.17-123.95,29.5-27.38,13.14-51.19,24.71-104.02,24.71s-76.64-11.57-104.02-24.71c-29.86-14.33-62.8-29.5-123.95-29.5-36.9,0-63.49,5.54-85.36,13.07v45.14c21.15-9.19,44.42-16.03,85.36-16.03,52.83,0,76.25,11.37,103.63,24.51,29.86,14.33,63.18,29.7,124.33,29.7s94.47-15.37,124.33-29.7c27.38-13.14,50.8-24.51,103.63-24.51,40.94,0,64.22,6.84,85.36,16.03v-45.14h.02Z"/>
+  </svg>
 </button>
 
 <!-- Navigation Menu Panel -->
@@ -102,7 +93,7 @@ const isActive = (href: string) => {
           class:list={['nav-link', { 'active': isActive(currentLang === 'no' ? '/' : '/en') }]}
           aria-current={isActive(currentLang === 'no' ? '/' : '/en') ? 'page' : undefined}
         >
-          {currentLang === 'no' ? 'Hjem' : 'Home'}
+          <span class="nav-link-text">{currentLang === 'no' ? 'Hjem' : 'Home'}</span>
         </a>
       </li>
       {navItems.map((item) => (
@@ -112,7 +103,7 @@ const isActive = (href: string) => {
             class:list={['nav-link', { 'active': isActive(item.href) }]}
             aria-current={isActive(item.href) ? 'page' : undefined}
           >
-            {currentLang === 'no' ? item.labelNo : item.labelEn}
+            <span class="nav-link-text">{currentLang === 'no' ? item.labelNo : item.labelEn}</span>
           </a>
         </li>
       ))}
@@ -178,22 +169,10 @@ const isActive = (href: string) => {
     display: block;
   }
 
-  /* For inline SVG - use fill */
+  /* SVG fill styling */
   svg.logo-svg {
     fill: white;
     transition: fill var(--transition-fast);
-  }
-
-  /* For masked span (Sanity SVG) - use mask technique for exact color control */
-  span.logo-mask {
-    background-color: white;
-    mask-size: contain;
-    mask-repeat: no-repeat;
-    mask-position: center;
-    -webkit-mask-size: contain;
-    -webkit-mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    transition: background-color var(--transition-fast);
   }
 
   @media (hover: hover) {
@@ -202,14 +181,8 @@ const isActive = (href: string) => {
       transform: scale(1.05);
     }
 
-    /* Hover state for inline SVG */
     .menu-toggle:hover svg.logo-svg {
       fill: var(--color-blue);
-    }
-
-    /* Hover state for masked span - use exact token color */
-    .menu-toggle:hover span.logo-mask {
-      background-color: var(--color-blue);
     }
   }
 
@@ -220,10 +193,6 @@ const isActive = (href: string) => {
 
   .menu-toggle:has(+ #navigation-menu:popover-open) svg.logo-svg {
     fill: var(--color-blue);
-  }
-
-  .menu-toggle:has(+ #navigation-menu:popover-open) span.logo-mask {
-    background-color: var(--color-blue);
   }
 
   .menu-toggle:focus-visible {
@@ -329,39 +298,74 @@ const isActive = (href: string) => {
   }
 
   .nav-link {
-    display: block;
+    display: flex;
+    align-items: center;
     padding: var(--space-2) var(--space-3);
     font-size: var(--step-0);
     font-weight: var(--font-weight-medium);
     color: var(--color-blue);
-    text-decoration: none;
-    transition:
-      background-color var(--transition-fast),
-      color var(--transition-fast);
+    transition: color var(--transition-fast);
 
     /* Minimum touch target */
     min-height: 44px;
-    display: flex;
-    align-items: center;
+
+    /* Reset global link styles - we use custom underline animation */
+    text-decoration: none !important;
+    background-image: none !important;
+    background-size: 0 !important;
+  }
+
+  .nav-link-text {
+    position: relative;
+  }
+
+  .nav-link-text::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-end: 0;
+    inline-size: 100%;
+    block-size: 0.08em;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform var(--transition-fast);
   }
 
   @media (hover: hover) {
     .nav-link:hover {
-      background-color: rgba(0, 179, 154, 0.08);
-      color: var(--color-blue);
+      /* Override base.css nav a:hover which adds text-decoration */
+      text-decoration: none !important;
     }
+
+    .nav-link:hover .nav-link-text::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+
+  .nav-link:focus-visible .nav-link-text::after {
+    transform: scaleX(1);
+    transform-origin: left;
   }
 
   .nav-link:focus-visible {
     outline: 2px solid var(--color-blue);
     outline-offset: 2px;
+    /* Override base.css focus styles that might add background */
+    background-color: transparent;
   }
 
   /* Active page indicator */
   .nav-link.active {
-    background-color: var(--color-blue);
+    background-color: var(--color-blue) !important;
     color: white;
     font-weight: var(--font-weight-bold);
+  }
+
+  /* No underline animation on active link */
+  .nav-link.active .nav-link-text::after {
+    display: none;
   }
 
   /* ============================================

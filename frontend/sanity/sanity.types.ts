@@ -142,6 +142,8 @@ export type PageBuilder = Array<{
   _key: string;
 } & QuoteComponent | {
   _key: string;
+} & MarqueeComponent | {
+  _key: string;
 } & ImageComponent | {
   _key: string;
 } & VideoComponent | {
@@ -418,6 +420,11 @@ export type HeadingComponent = {
   level?: "h2" | "h3" | "h4";
   text?: string;
   id?: Slug;
+};
+
+export type MarqueeComponent = {
+  _type: "marqueeComponent";
+  text?: string;
 };
 
 export type QuoteComponent = {
@@ -791,7 +798,7 @@ export type Artist = {
   _rev: string;
   name?: string;
   slug?: Slug;
-  cardSize?: "stor" | "medium" | "liten";
+  cardSize?: "stor" | "medium";
   excerpt_no?: string;
   instrument_no?: string;
   content_no?: PageBuilder;
@@ -1019,7 +1026,7 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
-export type AllSanitySchemaTypes = EventScrollContainer | ArtistScrollContainer | ContentScrollContainer | ThreeColumnLayout | TwoColumnLayout | GridComponent | PageBuilder | CountdownComponent | AccordionComponent | LinkComponent | ButtonComponent | SpotifyComponent | VideoComponent | ImageComponent | PortableTextBlock | PortableText | HeadingComponent | QuoteComponent | Title | SiteSettings | Composer | Homepage | ProgramPage | ArtistPage | ArticlePage | Page | Event | Artist | Article | Seo | Venue | EventDate | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export type AllSanitySchemaTypes = EventScrollContainer | ArtistScrollContainer | ContentScrollContainer | ThreeColumnLayout | TwoColumnLayout | GridComponent | PageBuilder | CountdownComponent | AccordionComponent | LinkComponent | ButtonComponent | SpotifyComponent | VideoComponent | ImageComponent | PortableTextBlock | PortableText | HeadingComponent | MarqueeComponent | QuoteComponent | Title | SiteSettings | Composer | Homepage | ProgramPage | ArtistPage | ArticlePage | Page | Event | Artist | Article | Seo | Venue | EventDate | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./src/pages/api/countdown.ts
 // Variable: EVENT_COUNTDOWN_QUERY

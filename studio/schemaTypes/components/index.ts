@@ -1,6 +1,7 @@
 // Content Components
 export {title, escapeHtml} from './content/Title'
 export {quoteComponent} from './content/Quote'
+export {marqueeComponent} from './content/Marquee'
 export {
   heading as headingComponent,
   generateHeadingId,

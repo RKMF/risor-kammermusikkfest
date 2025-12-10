@@ -34,6 +34,7 @@ export const schemaTypes = [
   // Komponenter - sørg for at alle er registrert
   components.title,
   components.quoteComponent,
+  components.marqueeComponent,
   components.headingComponent,
   components.portableText,
   components.portableTextBlock,

@@ -10,6 +10,7 @@ import Spotify from '../components/Spotify.astro';
 import Button from '../components/Button.astro';
 import Link from '../components/Link.astro';
 import Quote from '../components/Quote.astro';
+import Marquee from '../components/Marquee.astro';
 import Accordion from '../components/Accordion.astro';
 import ContentScrollContainer from '../components/ContentScrollContainer.astro';
 import ArtistScrollContainer from '../components/ArtistScrollContainer.astro';
@@ -29,6 +30,7 @@ export const componentRegistry: Record<string, AstroComponentFactory> = {
   buttonComponent: Button,
   linkComponent: Link,
   quoteComponent: Quote,
+  marqueeComponent: Marquee,
   accordionComponent: Accordion,
   contentScrollContainer: ContentScrollContainer,
   artistScrollContainer: ArtistScrollContainer,

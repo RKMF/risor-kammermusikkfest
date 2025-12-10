@@ -14,6 +14,7 @@ import {
   CalendarIcon,
   ExpandIcon,
   ClockIcon,
+  MenuIcon,
 } from '@sanity/icons'
 
 export const pageBuilder = defineType({
@@ -29,7 +30,7 @@ export const pageBuilder = defineType({
         {
           name: 'content',
           title: 'Innhold',
-          of: ['headingComponent', 'portableTextBlock', 'quoteComponent'],
+          of: ['headingComponent', 'portableTextBlock', 'quoteComponent', 'marqueeComponent'],
         },
         {
           name: 'media',
@@ -123,6 +124,23 @@ export const pageBuilder = defineType({
             title: quote || 'Sitat',
             subtitle: author ? `– ${author}` : '',
             media: AddCommentIcon,
+          }
+        },
+      },
+    },
+    {
+      type: 'marqueeComponent',
+      title: 'Rullende tekst',
+      icon: MenuIcon,
+      preview: {
+        select: {
+          text: 'text',
+        },
+        prepare({text}) {
+          return {
+            title: 'Rullende tekst',
+            subtitle: text ? (text.length > 40 ? `${text.substring(0, 40)}...` : text) : 'Ingen tekst',
+            media: MenuIcon,
           }
         },
       },
