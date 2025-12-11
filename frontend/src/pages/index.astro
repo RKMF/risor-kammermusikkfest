@@ -29,7 +29,7 @@ const language = detectLanguage(Astro.request);
 const content = homepage ? (getMultilingualContent(homepage, language) || homepage?.content || []) : [];
 
 // Extract header links (separate from pageBuilder content)
-const headerLinks = homepage?.headerLinks || [];
+const headerLinks = homepage?.headerLinks_no || [];
 const hasHeaderLinks = headerLinks.length > 0;
 
 // Helper to resolve internal link URLs
@@ -74,7 +74,7 @@ const slugEn = homepage?.slug_en?.current ? stegaClean(homepage.slug_en.current)
 console.log('Aktiv forside:', homepage);
 ---
 
-<Layout title={homepageTitle} slugNo={slugNo} slugEn={slugEn}>
+<Layout title={homepageTitle} slugNo={slugNo} slugEn={slugEn} frontpage>
   <div class="stack page-layout" style="--space: var(--space-xl)">
     {!homepage && (
       <div class="no-content">

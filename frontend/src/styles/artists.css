@@ -104,7 +104,8 @@
 .artist-section {
   container-type: inline-size;
   display: grid;
-  gap: clamp(var(--space-l), 3vw, var(--space-6));
+  row-gap: var(--space-2xl);
+  column-gap: clamp(var(--space-l), 3vw, var(--space-6));
   padding: 0;
   contain: layout style;
   justify-content: start;
