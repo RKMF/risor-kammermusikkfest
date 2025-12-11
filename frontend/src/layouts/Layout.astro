@@ -26,13 +26,15 @@ export interface Props {
   description?: string;
   slugNo?: string;
   slugEn?: string;
+  frontpage?: boolean;
 }
 
 const {
   title,
   description = "Moderne web-applikasjon med Sanity CMS og Astro frontend",
   slugNo,
-  slugEn
+  slugEn,
+  frontpage = false
 } = Astro.props;
 
 // Detect current language from URL
@@ -128,6 +130,13 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
         /* Enable container queries for child components */
         container-type: inline-size;
         container-name: content;
+      }
+
+      /* Frontpage: reduced top spacing on desktop */
+      @media (min-width: 768px) {
+        .main-content--frontpage {
+          margin-block-start: calc(var(--page-top-spacing) * 0.75);
+        }
       }
 
       /* ============================================
@@ -292,7 +301,7 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
       symbolLogo={symbolLogo}
     />
 
-    <main id="main-content" class="main-content" tabindex="-1">
+    <main id="main-content" class:list={['main-content', { 'main-content--frontpage': frontpage }]} tabindex="-1">
       <slot />
     </main>
 

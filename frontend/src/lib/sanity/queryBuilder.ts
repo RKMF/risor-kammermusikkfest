@@ -423,7 +423,22 @@ const HOMEPAGE_QUERY = defineQuery(`*[_type == "homepage" && (
   ${createMultilingualField('title')},
   title_no,
   title_en,
-  headerLinks[]{
+  headerLinks_no[]{
+    _key,
+    linkType,
+    text,
+    description,
+    url,
+    "internalLink": select(
+      linkType == "internal" && defined(internalLink) => internalLink->{
+        _type,
+        "slug": coalesce(slug_no.current, slug_en.current, slug.current),
+        "slug_no": slug_no.current,
+        "slug_en": slug_en.current
+      }
+    )
+  },
+  headerLinks_en[]{
     _key,
     linkType,
     text,

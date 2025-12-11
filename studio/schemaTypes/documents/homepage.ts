@@ -43,9 +43,9 @@ export const homepage = defineType({
       group: 'admin',
     }),
 
-    // HEADER-LENKER (vises i blå boks med logo)
+    // HEADER-LENKER NORSK (vises i blå boks med logo)
     defineField({
-      name: 'headerLinks',
+      name: 'headerLinks_no',
       title: 'Header-lenker',
       type: 'array',
       description: 'Opptil 4 CTA-lenker som vises i header-boksen ved siden av logoen. Hvis tom, vises ingen header-boks.',
@@ -152,6 +152,108 @@ export const homepage = defineType({
       type: 'pageBuilder',
       description: 'Innhold som vises under header-boksen (marquee, seksjoner, etc.)',
       group: 'no',
+    }),
+
+    // HEADER-LENKER ENGELSK (displayed in blue box with logo)
+    defineField({
+      name: 'headerLinks_en',
+      title: 'Header links',
+      type: 'array',
+      description: 'Up to 4 CTA links displayed in the header box next to the logo. If empty, no header box is shown.',
+      group: 'en',
+      validation: (Rule) => Rule.max(4).error('Max 4 header links'),
+      of: [
+        {
+          type: 'object',
+          name: 'headerLinkEn',
+          title: 'Link',
+          icon: LinkIcon,
+          fields: [
+            defineField({
+              name: 'linkType',
+              title: 'Link type',
+              type: 'string',
+              options: {
+                list: [
+                  {title: 'External link', value: 'external'},
+                  {title: 'Internal page', value: 'internal'},
+                ],
+                layout: 'radio',
+              },
+              initialValue: 'internal',
+            }),
+            defineField({
+              name: 'text',
+              title: 'Link text',
+              type: 'string',
+              description: 'The text displayed on the link',
+              validation: (Rule) => Rule.required().error('Link text is required'),
+            }),
+            defineField({
+              name: 'description',
+              title: 'Description',
+              type: 'string',
+              description: 'Optional subtitle displayed below the link',
+            }),
+            defineField({
+              name: 'url',
+              title: 'URL',
+              type: 'url',
+              description: 'External URL (https://...)',
+              hidden: ({parent}) => parent?.linkType === 'internal',
+              validation: (Rule) =>
+                Rule.custom((value, context) => {
+                  const parent = context.parent as {linkType?: string}
+                  if (parent?.linkType === 'external' && !value) {
+                    return 'URL is required for external links'
+                  }
+                  return true
+                }),
+            }),
+            defineField({
+              name: 'internalLink',
+              title: 'Internal page',
+              type: 'reference',
+              description: 'Select which page the link should go to',
+              to: [
+                {type: 'programPage'},
+                {type: 'artistPage'},
+                {type: 'articlePage'},
+                {type: 'page'},
+                {type: 'event'},
+                {type: 'artist'},
+                {type: 'article'},
+              ],
+              weak: true,
+              hidden: ({parent}) => parent?.linkType !== 'internal',
+              validation: (Rule) =>
+                Rule.custom((value, context) => {
+                  const parent = context.parent as {linkType?: string}
+                  if (parent?.linkType === 'internal' && !value) {
+                    return 'You must select an internal page'
+                  }
+                  return true
+                }),
+            }),
+          ],
+          preview: {
+            select: {
+              title: 'text',
+              description: 'description',
+              linkType: 'linkType',
+              url: 'url',
+            },
+            prepare({title, description, linkType, url}) {
+              const linkInfo = linkType === 'internal' ? 'Internal link' : url || 'No URL'
+              return {
+                title: title || 'No text',
+                subtitle: description ? `${description} • ${linkInfo}` : linkInfo,
+                media: LinkIcon,
+              }
+            },
+          },
+        },
+      ],
     }),
 
     // ENGELSK INNHOLD
