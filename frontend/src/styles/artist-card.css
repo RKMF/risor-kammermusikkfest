@@ -89,8 +89,8 @@
 /* Artist Name - Visible name in info box */
 .artist-name {
   margin: 0;
-  /* Fluid font size using Utopia token: 26-35px responsive */
-  font-size: var(--step-2);
+  /* Fluid font size scaling with container width (cqi units) */
+  font-size: clamp(var(--step-2), 10cqi, var(--step-3));
   line-height: 1.1;
   font-weight: 500;
   font-family: var(--font-family-heading);
@@ -104,8 +104,6 @@
   hyphens: none;
   text-wrap: wrap; /* Changed from balance for more consistent box widths */
 
-  /* Reserve space for 2 lines to prevent layout shift */
-  min-height: calc(2 * 1.1em);
 }
 
 /* Artist Image - Full width in first row */
@@ -125,7 +123,9 @@
   color: var(--color-blue);
   padding: 1rem 1rem 1rem 1.5rem;
   display: grid;
-  gap: 0;
+  grid-template-rows: auto auto 1fr;
+  align-content: start;
+  gap: var(--space-3xs, 0.25rem);
   z-index: 2;
   transition: background-color 200ms var(--ease-standard);
   width: 100%;
@@ -205,12 +205,5 @@
   /* Stacked layout - inherits grid-row: 2 from base */
 }
 
-/* Font sizes for medium cards - same as large cards */
-.artist-card--medium .artist-name {
-  font-size: var(--step-2);
-}
-
-.artist-card--medium .artist-instrument {
-  font-size: var(--step--1);
-}
+/* Medium cards inherit font sizes from base rules */
 

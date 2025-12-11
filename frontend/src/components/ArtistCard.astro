@@ -31,12 +31,9 @@ const { width, height, aspectRatio } = sizeConfig[size];
 // CSS class based on size variant
 const sizeClass = size === 'medium' ? 'artist-card--medium' : '';
 
-// Split name for two-line display (first name(s) on line 1, surname on line 2)
+// Clean name for display (natural wrapping based on container width)
 function formatNameForCard(name: string): string {
-  const cleanName = stegaClean(name);
-  const lastSpaceIndex = cleanName.lastIndexOf(' ');
-  if (lastSpaceIndex === -1) return cleanName; // Single name, no split
-  return cleanName.slice(0, lastSpaceIndex) + '<br>' + cleanName.slice(lastSpaceIndex + 1);
+  return stegaClean(name);
 }
 ---
 
