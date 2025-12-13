@@ -1,0 +1,292 @@
+/* Composer Card Component - Global CSS
+ *
+ * Used on event detail pages to display composers.
+ * Similar to artist cards but simpler (no detail page links).
+ *
+ * Two variants:
+ * - With image: Image with blue tint overlay, name at bottom
+ * - Text only: Blue background with centered serif name
+ */
+
+.composer-card {
+  position: relative;
+  container-type: inline-size;
+  overflow: hidden;
+  border: none;
+  background-color: var(--color-tint-blue-medium);
+  box-shadow: none;
+  transition: transform 200ms var(--ease-standard),
+              box-shadow 200ms var(--ease-standard);
+
+  /* Fixed aspect ratio - 4:5 like medium artist cards */
+  aspect-ratio: 4 / 5;
+
+  /* Fluid width for scroll affordance */
+  width: clamp(280px, 30vw, 300px);
+
+  /* Stack image and overlay */
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr;
+}
+
+/* ============================================
+   WITH IMAGE VARIANT
+   ============================================ */
+
+.composer-card--has-image .composer-card-image {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Hide name overlay for image cards - just show the image */
+.composer-card--has-image .composer-card-overlay {
+  display: none;
+}
+
+/* ============================================
+   TEXT ONLY VARIANT
+   ============================================ */
+
+.composer-card--text-only {
+  background-color: var(--color-tint-blue-medium);
+}
+
+.composer-card--text-only .composer-card-overlay {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-m);
+  text-align: center;
+}
+
+.composer-card--text-only .composer-name {
+  color: var(--color-blue);
+}
+
+/* ============================================
+   SHARED NAME STYLING
+   ============================================ */
+
+.composer-name {
+  margin: 0;
+  font-family: var(--font-family-serif);
+  font-size: clamp(var(--step-1), 8cqi, var(--step-2));
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* ============================================
+   HOVER EFFECTS
+   ============================================ */
+
+@media (hover: hover) {
+  .composer-card:hover {
+    transform: translateY(-4px);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    background-color: var(--color-tint-green-light);
+  }
+
+  .composer-card--text-only:hover {
+    background-color: var(--color-tint-green-light);
+  }
+
+  .composer-card--text-only:hover .composer-name {
+    color: var(--color-blue);
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY & MOTION PREFERENCES
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .composer-card {
+    transition: none;
+  }
+
+  .composer-card:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .composer-card {
+    border: 2px solid currentColor;
+  }
+}
+
+/* ============================================
+   CLICKABLE CARD (has description)
+   ============================================ */
+
+.composer-card--clickable {
+  cursor: pointer;
+}
+
+.composer-card--clickable:focus-visible {
+  outline: none;
+}
+
+/* ============================================
+   COMPOSER MODAL DIALOG
+   ============================================ */
+
+.composer-modal {
+  position: fixed;
+  margin: auto;
+  inline-size: min(90vw, 600px);
+  max-block-size: 90vh;
+  max-block-size: 90svh;
+  padding: 0;
+  border: none;
+  background: var(--color-background);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+
+  /* Animation base state */
+  opacity: 0;
+  transform: translateY(-16px) scale(0.98);
+  transition:
+    opacity 0.25s var(--ease-standard),
+    transform 0.25s var(--ease-standard),
+    overlay 0.25s var(--ease-standard) allow-discrete,
+    display 0.25s var(--ease-standard) allow-discrete;
+}
+
+/* Open state */
+.composer-modal[open] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Entry animation */
+@starting-style {
+  .composer-modal[open] {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.98);
+  }
+}
+
+/* Blue-tinted backdrop overlay */
+.composer-modal::backdrop {
+  background-color: transparent;
+  transition:
+    background-color 0.25s var(--ease-standard),
+    overlay 0.25s var(--ease-standard) allow-discrete,
+    display 0.25s var(--ease-standard) allow-discrete;
+}
+
+.composer-modal[open]::backdrop {
+  background-color: oklch(25% 0.10 265 / 55%);
+}
+
+@starting-style {
+  .composer-modal[open]::backdrop {
+    background-color: transparent;
+  }
+}
+
+/* Close button - text in top-right */
+.composer-modal-close {
+  position: absolute;
+  inset-block-start: var(--space-s);
+  inset-inline-end: var(--space-s);
+  z-index: 1;
+  min-block-size: 44px;
+  padding: var(--space-xs) var(--space-s);
+  background-color: var(--color-tint-blue-light);
+  border: none;
+  color: var(--color-blue);
+  font-family: var(--font-family-sans);
+  font-size: var(--step--1);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.composer-modal-close:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+/* Modal content area */
+.composer-modal-content {
+  padding: var(--space-l);
+  padding-block-start: var(--space-xl);
+  max-block-size: calc(90svh - var(--space-xl));
+  overflow-y: auto;
+}
+
+.composer-modal-title {
+  margin: 0 0 var(--space-m) 0;
+  padding-inline-end: var(--space-2xl);
+  font-family: var(--font-family-serif);
+  font-size: var(--step-2);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-blue);
+  line-height: var(--line-height-heading);
+}
+
+.composer-modal-body {
+  font-size: var(--step-0);
+  line-height: var(--line-height-body);
+  color: var(--color-text-primary);
+}
+
+.composer-modal-body .content-narrow {
+  width: 100%;
+  padding-inline: 0;
+  margin-inline: 0;
+  max-inline-size: none;
+}
+
+/* Mobile: inset modal with visible backdrop */
+@media (max-width: 767px) {
+  .composer-modal {
+    inline-size: calc(100% - var(--space-m) * 2);
+    max-inline-size: calc(100% - var(--space-m) * 2);
+    max-block-size: calc(100svh - var(--space-l) * 2);
+    margin: auto;
+  }
+
+  .composer-modal-content {
+    padding: var(--space-m);
+    padding-inline-start: var(--space-l);
+    padding-inline-end: var(--space-s);
+    padding-block-start: var(--space-l);
+    max-block-size: calc(100svh - var(--space-l) * 2 - var(--space-l));
+  }
+
+  .composer-modal-close {
+    min-block-size: 48px;
+    inset-block-start: var(--space-xs);
+    inset-inline-end: var(--space-xs);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .composer-modal,
+  .composer-modal::backdrop,
+  .composer-modal-close {
+    transition: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .composer-modal {
+    border: 2px solid currentColor;
+  }
+
+  .composer-modal-close:focus-visible {
+    outline-width: 3px;
+  }
+}

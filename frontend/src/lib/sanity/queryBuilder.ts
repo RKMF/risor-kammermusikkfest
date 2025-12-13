@@ -261,6 +261,13 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
     instrument_en,
     "instrument": coalesce(instrument_no, instrument_en)
   },
+  "composers": composers[]->{
+    _id,
+    name,
+    description_no,
+    description_en,
+    ${ARTIST_IMAGE_SELECTION}
+  },
   ticketType,
   ticketUrl,
   ticketInfoText,

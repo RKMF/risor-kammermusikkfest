@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import DynamicComponent from '../../components/DynamicComponent.astro';
 import HeaderImage from '../../components/HeaderImage.astro';
 import ArtistCard from '../../components/ArtistCard.astro';
+import ComposerCard from '../../components/ComposerCard.astro';
 import { formatDateWithWeekday } from '../../lib/utils/dates';
 import { getMultilingualContent } from "../../lib/utils/language.js";
 import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../../lib/sanityImage';
@@ -10,6 +11,7 @@ import { createDataService } from '../../lib/sanity/dataService.js';
 import { stegaClean } from '@sanity/client/stega';
 import '../../styles/event.css';
 import '../../styles/artist-card.css';
+import '../../styles/composer-card.css';
 
 // Generate static paths for all events
 export async function getStaticPaths() {
@@ -135,6 +137,17 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
           <div class="artist-section scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar">
             {event.artists.map((artist) => (
               <ArtistCard artist={artist} language="no" size="medium" />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {event.composers && event.composers.length > 0 && (
+        <section class="composers-section">
+          <h2 class="composers-title">Komponister</h2>
+          <div class="composer-section scroll-container scroll-container--always scroll-container--styled-scrollbar">
+            {event.composers.map((composer) => (
+              <ComposerCard composer={composer} lang="no" />
             ))}
           </div>
         </section>

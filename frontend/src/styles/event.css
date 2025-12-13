@@ -198,6 +198,31 @@ dl.event-meta {
 */
 
 /* ============================================
+   COMPOSER SCROLLBAR SECTION
+   ============================================
+
+   Horizontal scroll container for composer cards.
+   Similar to artists section.
+*/
+
+.composers-section {
+  container-type: inline-size;
+  container-name: composers-section;
+  padding-block: var(--space-5);
+}
+
+.composers-title {
+  margin: 0 0 var(--space-4) 0;
+  font-size: var(--step-3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-blue);
+}
+
+/* Composer card component styles in:
+   /src/styles/composer-card.css
+*/
+
+/* ============================================
    MAIN CONTENT AREA
    ============================================
 

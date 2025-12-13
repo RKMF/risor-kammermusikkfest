@@ -53,4 +53,5 @@ export const schemaTypes = [
   components.contentScrollContainer,
   components.artistScrollContainer,
   components.eventScrollContainer,
+  components.composerScrollContainer,
 ]

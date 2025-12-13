@@ -15,6 +15,7 @@ import {
   ExpandIcon,
   ClockIcon,
   MenuIcon,
+  ComposeIcon,
 } from '@sanity/icons'
 
 export const pageBuilder = defineType({
@@ -50,7 +51,7 @@ export const pageBuilder = defineType({
         {
           name: 'sections',
           title: 'Seksjoner',
-          of: ['artistScrollContainer', 'eventScrollContainer', 'contentScrollContainer'],
+          of: ['artistScrollContainer', 'eventScrollContainer', 'contentScrollContainer', 'composerScrollContainer'],
         },
       ],
       views: [
@@ -348,6 +349,25 @@ export const pageBuilder = defineType({
             title: title || 'Event Scroll Container',
             subtitle: `${eventCount} arrangementer (4:5 kort)`,
             media: CalendarIcon,
+          }
+        },
+      },
+    },
+    {
+      type: 'composerScrollContainer',
+      title: 'Composer Scroll Container',
+      icon: ComposeIcon,
+      preview: {
+        select: {
+          title: 'title',
+          items: 'items',
+        },
+        prepare({title, items}) {
+          const composerCount = items?.length || 0
+          return {
+            title: title || 'Composer Scroll Container',
+            subtitle: `${composerCount} komponister`,
+            media: ComposeIcon,
           }
         },
       },
