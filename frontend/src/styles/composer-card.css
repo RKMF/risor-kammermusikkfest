@@ -23,6 +23,7 @@
 
   /* Fluid width for scroll affordance - matches artist cards */
   width: clamp(300px, 35vw, 320px);
+  min-width: 300px; /* Prevent squashing in flex containers */
 
   /* Stack image and overlay */
   display: grid;
@@ -37,7 +38,9 @@
 .composer-card--has-image .composer-card-image {
   grid-area: 1 / 1;
   width: 100%;
-  height: 100%;
+  height: auto;
+  min-height: 0; /* Allow shrinking below intrinsic size in grid */
+  aspect-ratio: 4 / 5; /* Match card aspect ratio - fixes mobile browser height calculation */
   object-fit: cover;
   object-position: center;
 }
