@@ -122,23 +122,66 @@ function syncFilterButtonsWithCurrentUrl() {
 }
 
 /**
+ * Updates aria-busy attribute on the loading indicator.
+ * Helps screen readers announce loading state changes.
+ */
+function setLoadingAriaState(isBusy) {
+  const loading = document.getElementById('filter-loading');
+  if (loading) {
+    loading.setAttribute('aria-busy', isBusy ? 'true' : 'false');
+  }
+}
+
+/**
+ * Updates aria-pressed attribute on filter buttons after htmx swap.
+ * Ensures screen readers announce correct active state.
+ */
+function syncAriaPressed() {
+  const currentFilters = extractCurrentFilterParametersFromUrl();
+  const allFilterButtons = document.querySelectorAll('[data-filter-type][data-filter-value]');
+
+  allFilterButtons.forEach((button) => {
+    const filterType = button.dataset.filterType;
+    const filterValue = button.dataset.filterValue;
+
+    let isPressed = false;
+    if (filterType === 'date') {
+      isPressed = filterValue === currentFilters.date;
+    } else if (filterType === 'venue') {
+      isPressed = filterValue === currentFilters.venue;
+    }
+
+    button.setAttribute('aria-pressed', isPressed ? 'true' : 'false');
+  });
+}
+
+/**
  * Initializes filter button state synchronization.
  *
  * Sets up event listeners for:
  * - htmx history restoration (back/forward navigation)
  * - htmx content swaps (filter button clicks)
+ * - htmx request lifecycle (loading states)
  * - initial page load (bookmarked/shared URLs)
  */
 export function initializeFilterButtonStateSynchronization() {
   // Listen for htmx history restoration events (browser back/forward buttons)
   document.body.addEventListener('htmx:historyRestore', () => {
     syncFilterButtonsWithCurrentUrl();
+    syncAriaPressed();
+  });
+
+  // Listen for htmx request start (show loading state)
+  document.body.addEventListener('htmx:request', () => {
+    setLoadingAriaState(true);
   });
 
   // Listen for htmx content swaps (filter button clicks)
   // This fires after htmx updates the URL and completes the swap
   document.body.addEventListener('htmx:afterSettle', () => {
     syncFilterButtonsWithCurrentUrl();
+    syncAriaPressed();
+    setLoadingAriaState(false);
   });
 
   // Perform initial sync on page load
