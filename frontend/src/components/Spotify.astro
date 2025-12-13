@@ -74,7 +74,7 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
         frameborder="0"
         allowfullscreen
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        loading="lazy"
+        loading="eager"
         title={title || 'Spotify Player'}
         class="spotify-iframe"
       ></iframe>
@@ -101,8 +101,15 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
     max-width: 100%;
   }
 
+  /* No margins inside scroll containers, override content-extra-narrow */
+  :global(.scroll-container--spotify .spotify-component) {
+    margin: 0;
+    width: 100%;
+    max-width: none;
+  }
+
   /* When inside a layout context, fill available space */
-  :global([data-layout-context]) .spotify-component {
+  :global([data-layout-context] .spotify-component) {
     width: 100%;
     height: 100%;
     margin: 0;
@@ -110,13 +117,13 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
     flex-direction: column;
   }
 
-  :global([data-layout-context]) .spotify-embed-container {
+  :global([data-layout-context] .spotify-embed-container) {
     flex: 1;
     display: flex;
     flex-direction: column;
   }
 
-  :global([data-layout-context]) .spotify-iframe {
+  :global([data-layout-context] .spotify-iframe) {
     flex: 1;
     height: 100%;
   }
