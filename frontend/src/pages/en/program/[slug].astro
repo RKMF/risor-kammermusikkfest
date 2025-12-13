@@ -1,157 +1,19 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
-import DynamicComponent from '../../../components/DynamicComponent.astro';
-import HeaderImage from '../../../components/HeaderImage.astro';
-import ArtistCard from '../../../components/ArtistCard.astro';
-import ComposerCard from '../../../components/ComposerCard.astro';
-import { formatDateWithWeekday } from '../../../lib/utils/dates';
-import { getMultilingualContent } from "../../../lib/utils/language.js";
-import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../../../lib/sanityImage';
+import EventDetailContent from '../../../components/EventDetailContent.astro';
 import { createDataService } from '../../../lib/sanity/dataService.js';
-import { stegaClean } from '@sanity/client/stega';
-import '../../../styles/event.css';
-import '../../../styles/artist-card.css';
-import '../../../styles/composer-card.css';
 
-// Generate static paths for all events
 export async function getStaticPaths() {
   const dataService = createDataService();
   const events = await dataService.getSlugsForType('event');
-
-  return events.map((event: any) => ({
-    params: event.params
-  }));
+  return events.map((event: any) => ({ params: event.params }));
 }
 
-const { params } = Astro;
-
-// Fetch event using DataService with language awareness
 const dataService = createDataService(Astro.request);
-const event = await dataService.getEventBySlug(params.slug);
+const event = await dataService.getEventBySlug(Astro.params.slug);
 
 if (!event) {
   return Astro.redirect('/en/404');
 }
-
-// Get appropriate content arrays
-const description = getMultilingualContent(event, 'en', 'description') || event.description_en;
-const extraContent = getMultilingualContent(event, 'en', 'extraContent') || event.extraContent_en;
 ---
 
-<Layout
-  title={stegaClean(event.title || '')}
-  slugNo={event.slug_no?.current}
-  slugEn={event.slug_en?.current}
->
-  <article class="event-page">
-      <div class="event-info-box">
-        <header class="event-header">
-          <h1 class="event-title">{stegaClean(event.title || '')}</h1>
-          {event.excerpt && (
-            <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
-          )}
-
-          <dl class="event-meta">
-            {event.eventDate?.date && (
-              <>
-                <dt class="sr-only">Date</dt>
-                <dd>
-                  <time datetime={event.eventDate.date}>
-                    {stegaClean(formatDateWithWeekday(event.eventDate.date, 'en'))}
-                  </time>
-                </dd>
-              </>
-            )}
-            {event.eventTime && (
-              <>
-                <dt class="sr-only">Time</dt>
-                <dd>
-                  <time datetime={event.eventTime.startTime}>{stegaClean(event.eventTime.startTime)}</time>–<time datetime={event.eventTime.endTime}>{stegaClean(event.eventTime.endTime)}</time>
-                </dd>
-              </>
-            )}
-            {event.venue?.title && (
-              <>
-                <dt class="sr-only">Venue</dt>
-                <dd>{stegaClean(event.venue.title)}</dd>
-              </>
-            )}
-          </dl>
-        </header>
-
-        {stegaClean(event.ticketType) === 'info' ? (
-          <p class="ticket-info">{stegaClean(event.ticketInfoText) || 'Free'}</p>
-        ) : (
-          <a href={stegaClean(event.ticketUrl)} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-            Buy tickets
-          </a>
-        )}
-      </div>
-
-      {event.image?.image?.asset && (
-        <HeaderImage
-          image={event.image.image}
-          alt={stegaClean(event.image.alt || event.title || '')}
-          credit={event.image.credit ? stegaClean(event.image.credit) : undefined}
-          aspectRatio="4:3"
-          loading="eager"
-          quality={IMAGE_QUALITY.CARD}
-          width="min(60ch, 100%)"
-        />
-      )}
-
-      {description && (
-        <section class="event-description content-narrow">
-          <h2 class="section-title">About the concert</h2>
-          <p class="description-text">{stegaClean(description)}</p>
-        </section>
-      )}
-
-      {extraContent && Array.isArray(extraContent) && extraContent.length > 0 && (
-        <section class="extra-content">
-          <h2 class="sr-only">Additional Content</h2>
-          {extraContent.map((block) => (
-            <DynamicComponent key={block._key || block._id} block={block} />
-          ))}
-        </section>
-      )}
-
-      {event.artists && event.artists.length > 0 && (
-        <section class="artists-section">
-          {/* Hidden SVG for wave clip-path definitions */}
-          <svg width="0" height="0" style="position: absolute;" aria-hidden="true">
-            <defs>
-              {/* Large cards - line 6 wave pattern with two peaks and one valley */}
-              <clipPath id="artist-wave-clip-large" clipPathUnits="objectBoundingBox">
-                <path d="M 0 0.06 C 0.08 0.06, 0.12 0.04, 0.17 0.015 C 0.22 0, 0.28 0, 0.33 0.015 C 0.38 0.03, 0.42 0.06, 0.5 0.06 C 0.58 0.06, 0.62 0.03, 0.67 0.015 C 0.72 0, 0.78 0, 0.83 0.015 C 0.88 0.04, 0.92 0.06, 1 0.06 L 1 1 L 0 1 Z"/>
-              </clipPath>
-
-              {/* Medium cards - top shallow wave pattern from logo (line 7) */}
-              <clipPath id="artist-wave-clip-medium" clipPathUnits="objectBoundingBox">
-                <path d="M 0 0.015 C 0.035 0.006, 0.077 0, 0.136 0 C 0.234 0, 0.286 0.01, 0.333 0.022 C 0.377 0.033, 0.415 0.048, 0.499 0.048 C 0.583 0.048, 0.621 0.033, 0.665 0.022 C 0.712 0.01, 0.764 0, 0.862 0 C 0.921 0, 0.963 0.006, 0.998 0.015 L 1 0.015 L 1 1 L 0 1 Z" />
-              </clipPath>
-            </defs>
-          </svg>
-
-          <h2 class="artists-title">Artists</h2>
-          <div class="artist-section scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar">
-            {event.artists.map((artist) => (
-              <ArtistCard artist={artist} language="en" size="medium" />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {event.composers && event.composers.length > 0 && (
-        <section class="composers-section">
-          <h2 class="composers-title">Composers</h2>
-          <div class="composer-section scroll-container scroll-container--always scroll-container--styled-scrollbar">
-            {event.composers.map((composer) => (
-              <ComposerCard composer={composer} lang="en" />
-            ))}
-          </div>
-        </section>
-      )}
-  </article>
-</Layout>
-
+<EventDetailContent event={event} language="en" />

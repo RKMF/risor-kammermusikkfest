@@ -1,0 +1,161 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DynamicComponent from '../components/DynamicComponent.astro';
+import ArtistCard from '../components/ArtistCard.astro';
+import EventCard from '../components/EventCard.astro';
+import { getMultilingualContent } from '../lib/utils/language.js';
+import type { ArtistResult } from '../lib/sanity/queries';
+import { stegaClean } from '@sanity/client/stega';
+import '../styles/event.css';
+import '../styles/event-card.css';
+import '../styles/artist-card.css';
+
+interface Props {
+  artist: ArtistResult;
+  language: 'no' | 'en';
+}
+
+const { artist, language } = Astro.props;
+
+// Language-specific configuration
+const config = {
+  no: {
+    concertsTitle: 'Konserter',
+    aboutTitle: 'Om artisten',
+    excerptField: 'excerpt_no',
+    contentField: 'content_no'
+  },
+  en: {
+    concertsTitle: 'Concerts',
+    aboutTitle: 'About the Artist',
+    excerptField: 'excerpt_en',
+    contentField: 'content_en'
+  }
+}[language];
+
+// Get appropriate content array
+const content = getMultilingualContent(artist, language) || artist[config.contentField];
+const excerpt = artist[config.excerptField];
+---
+
+<Layout title={`${artist.name} - Artist`}>
+  <article class="artist-page">
+    <!-- Artist Card - Centered, medium size -->
+    <!-- Card is 480px wide, image displays at 85% = 408px actual -->
+    <header class="artist-header">
+      <div class="artist-detail-card-container">
+        <ArtistCard artist={artist} language={language} size="medium" isDetailPage={true} imageSizes="408px" />
+      </div>
+
+      <!-- Excerpt -->
+      {excerpt && (
+        <p class="excerpt">{stegaClean(excerpt)}</p>
+      )}
+    </header>
+
+    <!-- Events Section -->
+    {artist.events && artist.events.length > 0 && (
+      <section class="artist-events">
+        <h2 class="artist-events-title">{config.concertsTitle}</h2>
+        <div class="scroll-container scroll-container--always scroll-container--event-cards scroll-container--styled-scrollbar">
+          {artist.events.map((event) => (
+            <EventCard event={event} language={language} />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Content below card -->
+    {content && Array.isArray(content) && content.length > 0 && (
+      <section class="artist-content">
+        <h2 class="sr-only">{config.aboutTitle}</h2>
+        {content.map((block) => (
+          <DynamicComponent key={block._key || block._id} block={block} />
+        ))}
+      </section>
+    )}
+  </article>
+</Layout>
+
+<style>
+  /* Artist Card Container - Centered with fixed width */
+  .artist-detail-card-container {
+    width: 480px;
+    max-width: 90vw;
+    margin-inline: auto;
+    margin-block-end: var(--space-6);
+  }
+
+  /* Override ArtistCard hover effects on detail page */
+  .artist-detail-card-container :global(.artist-card) {
+    width: 480px;
+    max-width: 90vw;
+    cursor: default;
+  }
+
+  /* Larger padding for larger card */
+  .artist-detail-card-container :global(.artist-info-box) {
+    padding: 1.5rem;
+  }
+
+  /* Smooth 1.1s transition from blur placeholder to sharp image */
+  .artist-detail-card-container :global(.artist-card-image) {
+    animation: fadeInImage 1.1s ease-in-out forwards;
+  }
+
+  @keyframes fadeInImage {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Increase font sizes proportionally to match 1.5x card growth */
+  .artist-detail-card-container :global(.artist-name) {
+    font-size: var(--step-3); /* 31-44px vs listing page 22-28px = ~1.5x growth */
+  }
+
+  .artist-detail-card-container :global(.artist-instrument) {
+    font-size: var(--step-0); /* 18-23px vs listing page 13-14px = ~1.5x growth */
+  }
+
+  /* Disable hover effects on detail page - card doesn't link anywhere */
+  @media (hover: hover) {
+    .artist-detail-card-container :global(.artist-card:hover) {
+      transform: none;
+      box-shadow: none;
+      background-color: var(--color-tint-blue-medium);
+    }
+
+    .artist-detail-card-container :global(.artist-card:hover .artist-info-box) {
+      background-color: var(--color-card-surface);
+    }
+
+    .artist-detail-card-container :global(.artist-card:hover .artist-name),
+    .artist-detail-card-container :global(.artist-card:hover .artist-instrument) {
+      color: var(--color-blue);
+    }
+  }
+
+  /* Excerpt styling handled by global .excerpt class in base.css */
+
+  /* Events section */
+  .artist-events {
+    margin-block-start: var(--space-8);
+    margin-block-end: var(--space-8);
+  }
+
+  .artist-events-title {
+    font-size: var(--step-3);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-block-start: 0;
+    margin-block-end: var(--space-6);
+  }
+
+  /* Content area below card - centered, max-width for readability */
+  .artist-content {
+    max-width: 65ch;
+    width: 100%;
+    margin-inline: auto;
+    margin-block-end: var(--space-8);
+  }
+</style>
