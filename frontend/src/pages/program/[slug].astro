@@ -114,6 +114,17 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
         )}
       </div>
 
+      {event.composers && event.composers.length > 0 && (
+        <section class="composers-section">
+          <h2 class="composers-title">Komponister</h2>
+          <div class="composer-section scroll-container scroll-container--always scroll-container--styled-scrollbar">
+            {event.composers.map((composer) => (
+              <ComposerCard composer={composer} lang="no" />
+            ))}
+          </div>
+        </section>
+      )}
+
       {extraContent && Array.isArray(extraContent) && extraContent.length > 0 && (
         <section class="extra-content">
           <h2 class="sr-only">Tilleggsinnhold</h2>
@@ -144,17 +155,6 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
           <div class="artist-section scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar">
             {event.artists.map((artist) => (
               <ArtistCard artist={artist} language="no" size="medium" />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {event.composers && event.composers.length > 0 && (
-        <section class="composers-section">
-          <h2 class="composers-title">Komponister</h2>
-          <div class="composer-section scroll-container scroll-container--always scroll-container--styled-scrollbar">
-            {event.composers.map((composer) => (
-              <ComposerCard composer={composer} lang="no" />
             ))}
           </div>
         </section>
