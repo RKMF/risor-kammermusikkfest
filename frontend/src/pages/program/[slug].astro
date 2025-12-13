@@ -4,6 +4,7 @@ import DynamicComponent from '../../components/DynamicComponent.astro';
 import HeaderImage from '../../components/HeaderImage.astro';
 import ArtistCard from '../../components/ArtistCard.astro';
 import ComposerCard from '../../components/ComposerCard.astro';
+import PortableText from '../../components/PortableText.astro';
 import { formatDateWithWeekday } from '../../lib/utils/dates';
 import { getMultilingualContent } from "../../lib/utils/language.js";
 import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../../lib/sanityImage';
@@ -104,7 +105,11 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
         {description && (
           <section class="event-description">
             <h2 class="section-title">Om konserten</h2>
-            <p class="description-text">{stegaClean(description)}</p>
+            {Array.isArray(description) ? (
+              <PortableText value={description} className="description-text" />
+            ) : (
+              <p class="description-text">{stegaClean(description)}</p>
+            )}
           </section>
         )}
       </div>

@@ -15,12 +15,15 @@ interface Props {
 
 const {
   title,
-  items = [],
+  items: rawItems,
   showScrollbar = false,
   className = '',
   _key,
   _type,
 } = Astro.props
+
+// Ensure items is always an array (handles null from Sanity)
+const items = rawItems ?? []
 
 // CSS classes
 const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
