@@ -88,24 +88,26 @@ const extraContent = getMultilingualContent(event, 'no', 'extraContent') || even
         )}
       </div>
 
-      {event.image?.image?.asset && (
-        <HeaderImage
-          image={event.image.image}
-          alt={stegaClean(event.image.alt || event.title || '')}
-          credit={event.image.credit ? stegaClean(event.image.credit) : undefined}
-          aspectRatio="4:3"
-          loading="eager"
-          quality={IMAGE_QUALITY.CARD}
-          width="min(60ch, 100%)"
-        />
-      )}
+      <div class="main-event-info">
+        {event.image?.image?.asset && (
+          <HeaderImage
+            image={event.image.image}
+            alt={stegaClean(event.image.alt || event.title || '')}
+            credit={event.image.credit ? stegaClean(event.image.credit) : undefined}
+            aspectRatio="4:3"
+            loading="eager"
+            quality={IMAGE_QUALITY.CARD}
+            width="100%"
+          />
+        )}
 
-      {description && (
-        <section class="event-description content-narrow">
-          <h2 class="section-title">Om konserten</h2>
-          <p class="description-text">{stegaClean(description)}</p>
-        </section>
-      )}
+        {description && (
+          <section class="event-description">
+            <h2 class="section-title">Om konserten</h2>
+            <p class="description-text">{stegaClean(description)}</p>
+          </section>
+        )}
+      </div>
 
       {extraContent && Array.isArray(extraContent) && extraContent.length > 0 && (
         <section class="extra-content">

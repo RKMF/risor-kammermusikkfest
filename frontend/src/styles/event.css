@@ -160,6 +160,25 @@ dl.event-meta {
 /* Event header images now use HeaderImage.astro component */
 /* Image sizing is handled by the component itself */
 
+/* Main event info grid - image and description side by side */
+.main-event-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: var(--space-l);
+  margin-block-end: var(--space-2xl);
+}
+
+/* Adjust image width within grid */
+.main-event-info .header-image-wrapper {
+  width: 100%;
+  margin: 0;
+}
+
+/* Adjust description within grid */
+.main-event-info .event-description {
+  margin-block: 0;
+}
+
 /* ============================================
    ARTIST SCROLLBAR SECTION
    ============================================

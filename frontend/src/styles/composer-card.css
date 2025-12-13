@@ -21,8 +21,8 @@
   /* Fixed aspect ratio - 4:5 like medium artist cards */
   aspect-ratio: 4 / 5;
 
-  /* Fluid width for scroll affordance */
-  width: clamp(280px, 30vw, 300px);
+  /* Fluid width for scroll affordance - matches artist cards */
+  width: clamp(300px, 35vw, 320px);
 
   /* Stack image and overlay */
   display: grid;
@@ -66,6 +66,9 @@
 
 .composer-card--text-only .composer-name {
   color: var(--color-blue);
+  font-weight: 600;
+  font-size: clamp(var(--step-2), 10cqi, var(--step-3));
+  font-style: normal;
 }
 
 /* ============================================
@@ -207,8 +210,12 @@
   color: var(--color-blue);
   font-family: var(--font-family-sans);
   font-size: var(--step--1);
-  font-weight: var(--font-weight-medium);
+  font-weight: 700;
   cursor: pointer;
+}
+
+.composer-modal-close:hover {
+  background-color: var(--color-tint-green-light);
 }
 
 .composer-modal-close:focus-visible {

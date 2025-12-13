@@ -106,9 +106,10 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
     width: 280px; /* Default 4:5 aspect ratio */
   }
 
-  /* Exception: Images and Videos can exceed 4:5 width (CMS-controlled aspect ratios) */
+  /* Exception: Images, Videos, and Spotify can exceed 4:5 width (CMS-controlled aspect ratios) */
   .scroll-item > :global(.image-container),
-  .scroll-item > :global(.video-component) {
+  .scroll-item > :global(.video-component),
+  .scroll-item > :global(.spotify-component) {
     width: auto; /* Allow aspect ratio to determine width */
   }
 
@@ -136,7 +137,8 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
     }
 
     .scroll-item > :global(.image-container),
-    .scroll-item > :global(.video-component) {
+    .scroll-item > :global(.video-component),
+    .scroll-item > :global(.spotify-component) {
       width: auto; /* Allow aspect ratio to determine width */
     }
   }
@@ -153,7 +155,8 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
     }
 
     .scroll-item > :global(.image-container),
-    .scroll-item > :global(.video-component) {
+    .scroll-item > :global(.video-component),
+    .scroll-item > :global(.spotify-component) {
       width: auto; /* Allow aspect ratio to determine width */
     }
   }
