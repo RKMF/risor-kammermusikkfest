@@ -54,9 +54,8 @@ const isActive = (href: string) => {
     return cleanPath === cleanHref;
   }
 
-  // For other pages, match exact path or if current path is a sub-path
-  // e.g., /program matches /program and /program/some-event
-  return cleanPath === cleanHref || cleanPath.startsWith(cleanHref + '/');
+  // Only exact path matches
+  return cleanPath === cleanHref;
 };
 ---
 
