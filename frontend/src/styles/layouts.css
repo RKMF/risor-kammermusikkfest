@@ -68,7 +68,7 @@
 
 /* Utility: Narrower width for enhanced text readability */
 .content-narrow {
-  width: min(65ch, 100% - 4rem);
+  width: min(65ch, 100% - 1rem);
   margin-inline: auto;
 }
 
