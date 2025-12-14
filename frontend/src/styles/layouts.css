@@ -218,7 +218,7 @@ img[loading="lazy"] {
 @media (prefers-color-scheme: dark) {
   /* Subtle dimming for comfortable viewing */
   img:not([data-no-dark-adjust]) {
-    filter: brightness(0.85) contrast(1.15);
+    filter: brightness(0.9) contrast(1.05);
     transition: filter 200ms ease;
   }
 

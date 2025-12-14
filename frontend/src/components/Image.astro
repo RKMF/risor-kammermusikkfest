@@ -331,6 +331,27 @@ const fetchPriority = priority ? 'high' : 'auto';
     filter: blur(0);
   }
 
+  /* Dark mode: combine blur with brightness/contrast to match global dark mode filter */
+  @media (prefers-color-scheme: dark) {
+    .image[loading="lazy"] {
+      filter: blur(0) brightness(0.9) contrast(1.05);
+    }
+
+    .image[loading="lazy"]:not(.image-loaded) {
+      filter: blur(20px) brightness(0.9) contrast(1.05);
+    }
+
+    .image[loading="lazy"].image-loaded {
+      filter: blur(0) brightness(0.9) contrast(1.05);
+    }
+
+    /* Restore full brightness on hover */
+    .image[loading="lazy"]:hover,
+    .image[loading="lazy"]:focus {
+      filter: blur(0) brightness(1) contrast(1);
+    }
+  }
+
   /* Accessibility: Reduced motion support */
   @media (prefers-reduced-motion: reduce) {
     .image {
