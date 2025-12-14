@@ -11,10 +11,17 @@ export const accordionComponent = defineType({
   icon: DocumentIcon,
   fields: [
     defineField({
+      name: 'title',
+      title: 'Tittel',
+      type: 'string',
+      description: 'Overskrift for nedtrekksmenyen',
+      validation: (Rule) => Rule.max(100).warning('Tittelen bør være maksimum 100 tegn'),
+    }),
+    defineField({
       name: 'description',
       title: 'Beskrivelse',
       type: 'text',
-      description: 'Valgfri beskrivelse som vises over nedtrekksmenyen',
+      description: 'Valgfri beskrivelse som vises under tittelen',
     }),
     defineField({
       name: 'panels',
@@ -88,12 +95,13 @@ export const accordionComponent = defineType({
   ],
   preview: {
     select: {
+      title: 'title',
       panelCount: 'panels',
     },
-    prepare({panelCount}) {
+    prepare({title, panelCount}) {
       const count = panelCount?.length || 0
       return {
-        title: 'Nedtrekksmeny',
+        title: title || 'Nedtrekksmeny',
         subtitle: `${count} panel${count !== 1 ? 'er' : ''}`,
         media: TiersIcon,
       }

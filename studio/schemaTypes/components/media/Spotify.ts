@@ -9,23 +9,11 @@ export const spotifyComponent = defineType({
   type: 'object',
   icon: PlayIcon,
   description: 'Legg til Spotify-innhold (låt, album, spilleliste eller artist)',
-  groups: [
-    {
-      name: 'content',
-      title: 'Innhold',
-      default: true,
-    },
-    {
-      name: 'display',
-      title: 'Visning',
-    },
-  ],
   fields: [
     defineField({
       name: 'spotifyUrl',
       title: 'Spotify URL',
       type: 'url',
-      group: 'content',
       description:
         'Lim inn Spotify-link (f.eks. https://open.spotify.com/track/... eller https://open.spotify.com/album/...)',
       validation: (Rule) =>
@@ -41,47 +29,12 @@ export const spotifyComponent = defineType({
           })
           .error('Spotify URL er påkrevd'),
     }),
-    defineField({
-      name: 'title',
-      title: 'Tittel',
-      type: 'string',
-      group: 'content',
-      description: 'Tittel for Spotify-innholdet (valgfritt)',
-    }),
-    defineField({
-      name: 'description',
-      title: 'Beskrivelse',
-      type: 'text',
-      rows: 3,
-      group: 'content',
-      description: 'Valgfri beskrivelse av innholdet',
-    }),
-    defineField({
-      name: 'height',
-      title: 'Høyde',
-      type: 'number',
-      group: 'display',
-      description: 'Høyde på Spotify-spilleren i piksler (standard: 352 for playlister, 152 for låter)',
-      validation: (Rule) => Rule.min(80).max(600),
-      initialValue: 352,
-    }),
-    defineField({
-      name: 'compact',
-      title: 'Kompakt visning',
-      type: 'boolean',
-      group: 'display',
-      description: 'Vis kompakt versjon av spilleren (80px høy)',
-      initialValue: false,
-    }),
   ],
   preview: {
     select: {
-      title: 'title',
-      subtitle: 'description',
       spotifyUrl: 'spotifyUrl',
-      compact: 'compact',
     },
-    prepare({title, subtitle, spotifyUrl, compact}) {
+    prepare({spotifyUrl}) {
       // Extract Spotify type from URL
       let spotifyType = 'Ukjent'
       if (spotifyUrl) {
@@ -91,13 +44,9 @@ export const spotifyComponent = defineType({
         else if (spotifyUrl.includes('/artist/')) spotifyType = 'Artist'
       }
 
-      const displayMode = compact ? ' • Kompakt' : ''
-
       return {
-        title: title || 'Spotify',
-        subtitle: subtitle
-          ? `${subtitle} (${spotifyType})${displayMode}`
-          : `${spotifyType}${displayMode}`,
+        title: 'Spotify',
+        subtitle: spotifyType,
         media: MicrophoneIcon,
       }
     },
@@ -109,10 +58,6 @@ export interface SpotifyData {
   _type: 'spotifyComponent'
   _key?: string
   spotifyUrl: string
-  title?: string
-  description?: string
-  height?: number
-  compact?: boolean
 }
 
 // Type-safe validation functions

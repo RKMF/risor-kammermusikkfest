@@ -38,7 +38,11 @@ const content = getMultilingualContent(artist, language) || artist[config.conten
 const excerpt = artist[config.excerptField];
 ---
 
-<Layout title={`${artist.name} - Artist`}>
+<Layout
+  title={`${artist.name} - Artist`}
+  slugNo={artist.slug_no?.current}
+  slugEn={artist.slug_en?.current}
+>
   <article class="artist-page">
     <!-- Artist Card - Centered, medium size -->
     <!-- Card is 480px wide, image displays at 85% = 408px actual -->

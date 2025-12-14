@@ -90,7 +90,7 @@ const isActive = (href: string) => {
       <li class="nav-item">
         <a
           href={currentLang === 'no' ? '/' : '/en'}
-          class:list={['nav-link', { 'active': isActive(currentLang === 'no' ? '/' : '/en') }]}
+          class:list={['nav-link', 'hover-underline', { 'active': isActive(currentLang === 'no' ? '/' : '/en') }]}
           aria-current={isActive(currentLang === 'no' ? '/' : '/en') ? 'page' : undefined}
         >
           <span class="nav-link-text">{currentLang === 'no' ? 'Hjem' : 'Home'}</span>
@@ -100,7 +100,7 @@ const isActive = (href: string) => {
         <li class="nav-item">
           <a
             href={item.href}
-            class:list={['nav-link', { 'active': isActive(item.href) }]}
+            class:list={['nav-link', 'hover-underline', { 'active': isActive(item.href) }]}
             aria-current={isActive(item.href) ? 'page' : undefined}
           >
             <span class="nav-link-text">{currentLang === 'no' ? item.labelNo : item.labelEn}</span>
@@ -308,64 +308,18 @@ const isActive = (href: string) => {
 
     /* Minimum touch target */
     min-height: 44px;
-
-    /* Reset global link styles - we use custom underline animation */
-    text-decoration: none !important;
-    background-image: none !important;
-    background-size: 0 !important;
-  }
-
-  .nav-link-text {
-    position: relative;
-  }
-
-  .nav-link-text::after {
-    content: '';
-    position: absolute;
-    inset-inline-start: 0;
-    inset-block-end: 0;
-    inline-size: 100%;
-    block-size: 0.08em;
-    background-color: currentColor;
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform var(--transition-fast);
-  }
-
-  @media (hover: hover) {
-    .nav-link:hover {
-      /* Override base.css nav a:hover which adds text-decoration */
-      text-decoration: none !important;
-    }
-
-    .nav-link:hover .nav-link-text::after {
-      transform: scaleX(1);
-      transform-origin: left;
-    }
-  }
-
-  .nav-link:focus-visible .nav-link-text::after {
-    transform: scaleX(1);
-    transform-origin: left;
   }
 
   .nav-link:focus-visible {
     outline: 2px solid var(--color-blue);
     outline-offset: 2px;
-    /* Override base.css focus styles that might add background */
-    background-color: transparent;
   }
 
   /* Active page indicator */
   .nav-link.active {
-    background-color: var(--color-blue) !important;
+    background-color: var(--color-blue);
     color: white;
     font-weight: var(--font-weight-bold);
-  }
-
-  /* No underline animation on active link */
-  .nav-link.active .nav-link-text::after {
-    display: none;
   }
 
   /* ============================================

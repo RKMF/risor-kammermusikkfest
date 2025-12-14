@@ -29,7 +29,11 @@ const config = {
 const content = getMultilingualContent(article, language) || article[config.contentField];
 ---
 
-<Layout title={stegaClean(article.title || '')}>
+<Layout
+  title={stegaClean(article.title || '')}
+  slugNo={article.slug_no?.current}
+  slugEn={article.slug_en?.current}
+>
   <article class="article-page">
     <header class="article-header">
       <h1>{stegaClean(article.title || '')}</h1>

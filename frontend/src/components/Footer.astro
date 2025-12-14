@@ -110,7 +110,7 @@ function getSocialIcon(name: string): string | undefined {
     {siteSettings?.newsletterUrl && newsletterTitle && (
       <a
         href={siteSettings.newsletterUrl}
-        class="footer-newsletter-link"
+        class="footer-newsletter-link hover-underline"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -128,13 +128,13 @@ function getSocialIcon(name: string): string | undefined {
       </h2>
       <address class="footer-address">
         {siteSettings.email && (
-          <a href={`mailto:${siteSettings.email}`}>
+          <a href={`mailto:${siteSettings.email}`} class="hover-underline">
             <span class="footer-link-text">{siteSettings.email}</span>
           </a>
         )}
 
         {siteSettings.phone && (
-          <a href={`tel:${siteSettings.phone}`}>
+          <a href={`tel:${siteSettings.phone}`} class="hover-underline">
             <span class="footer-link-text">{formattedPhone}</span>
           </a>
         )}
@@ -144,6 +144,7 @@ function getSocialIcon(name: string): string | undefined {
             {siteSettings.linkUrl ? (
               <a
                 href={siteSettings.linkUrl}
+                class="hover-underline"
                 target={siteSettings.openInNewTab ? '_blank' : undefined}
                 rel={siteSettings.openInNewTab ? 'noopener noreferrer' : undefined}
               >
@@ -173,7 +174,7 @@ function getSocialIcon(name: string): string | undefined {
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="footer-social-link"
+                class="footer-social-link hover-underline"
               >
                 <span class="footer-link-text">{social.name}</span>
                 {icon && (
@@ -199,7 +200,7 @@ function getSocialIcon(name: string): string | undefined {
     <!-- Developer Credit -->
     <a
       href="https://www.magefolelsen.no"
-      class="footer-developer-credit"
+      class="footer-developer-credit hover-underline"
       target="_blank"
       rel="noopener noreferrer"
     >
@@ -258,22 +259,6 @@ function getSocialIcon(name: string): string | undefined {
      SHARED LINK ANIMATION
      ============================================ */
 
-  .footer-link-text {
-    position: relative;
-  }
-
-  .footer-link-text::after {
-    content: '';
-    position: absolute;
-    inset-inline-start: 0;
-    inset-block-end: 0;
-    inline-size: 100%;
-    block-size: 0.08em;
-    background-color: currentColor;
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform var(--transition-fast);
-  }
 
   /* ============================================
      BRANDING SECTION
@@ -299,24 +284,11 @@ function getSocialIcon(name: string): string | undefined {
     font-size: var(--step-2);
     font-weight: var(--font-weight-normal);
     display: inline-block;
-    text-decoration: none;
     background-image: none;
   }
 
   .footer-newsletter-link::after {
     content: ' →';
-  }
-
-  @media (hover: hover) {
-    .footer-newsletter-link:hover .footer-link-text::after {
-      transform: scaleX(1);
-      transform-origin: left;
-    }
-  }
-
-  .footer-newsletter-link:focus-visible .footer-link-text::after {
-    transform: scaleX(1);
-    transform-origin: left;
   }
 
   /* ============================================
@@ -336,22 +308,6 @@ function getSocialIcon(name: string): string | undefined {
     line-height: 1.5;
   }
 
-  .footer-address a {
-    text-decoration: none;
-    background-image: none;
-  }
-
-  @media (hover: hover) {
-    .footer-address a:hover .footer-link-text::after {
-      transform: scaleX(1);
-      transform-origin: left;
-    }
-  }
-
-  .footer-address a:focus-visible .footer-link-text::after {
-    transform: scaleX(1);
-    transform-origin: left;
-  }
 
   /* ============================================
      SOCIAL MEDIA SECTION
@@ -380,20 +336,6 @@ function getSocialIcon(name: string): string | undefined {
     flex-direction: column;
     align-items: center;
     gap: var(--space-2);
-    text-decoration: none;
-    background-image: none;
-  }
-
-  @media (hover: hover) {
-    .footer-social-link:hover .footer-link-text::after {
-      transform: scaleX(1);
-      transform-origin: left;
-    }
-  }
-
-  .footer-social-link:focus-visible .footer-link-text::after {
-    transform: scaleX(1);
-    transform-origin: left;
   }
 
   .footer-social-icon {
@@ -427,24 +369,10 @@ function getSocialIcon(name: string): string | undefined {
   .footer-developer-credit {
     font-size: var(--step-0);
     display: inline-block;
-    text-decoration: none;
-    background-image: none;
   }
 
   .footer-developer-credit::after {
     content: ' →';
-  }
-
-  @media (hover: hover) {
-    .footer-developer-credit:hover .footer-link-text::after {
-      transform: scaleX(1);
-      transform-origin: left;
-    }
-  }
-
-  .footer-developer-credit:focus-visible .footer-link-text::after {
-    transform: scaleX(1);
-    transform-origin: left;
   }
 
   /* ============================================

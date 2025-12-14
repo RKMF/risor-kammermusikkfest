@@ -19,13 +19,12 @@ export const contentScrollContainer = defineType({
       name: 'items',
       title: 'Innhold',
       type: 'array',
-      description: 'Legg til innhold som skal vises i karusellen (alle vises som 4:5 kort)',
+      description: 'Legg til innhold. Alt vises som 4:5 kort - bildets aspect ratio ignoreres.',
       of: [
         {type: 'imageComponent'},
         {type: 'videoComponent'},
         {type: 'quoteComponent'},
         {type: 'portableTextBlock'},
-        {type: 'spotifyComponent'},
       ],
       validation: (Rule) =>
         Rule.required()

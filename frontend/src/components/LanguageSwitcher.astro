@@ -10,13 +10,31 @@ interface Props {
 
 const { currentLang, currentPath, slugNo, slugEn } = Astro.props;
 
+// Route segment translations (Norwegian → English)
+const routeNoToEn: Record<string, string> = {
+  'artikler': 'articles',
+  'artister': 'artists',
+};
+
+const translateRoute = (segment: string, toEnglish: boolean): string => {
+  if (toEnglish) {
+    return routeNoToEn[segment] || segment;
+  }
+  // English to Norwegian - reverse lookup
+  const entry = Object.entries(routeNoToEn).find(([, en]) => en === segment);
+  return entry ? entry[0] : segment;
+};
+
 // Build alternate language URL (without trailing slash)
 const buildAlternateUrl = (): string => {
   if (currentLang === 'no') {
     // Switching to English
     if (slugEn) {
-      // Dynamic page with English slug
+      // Dynamic page with English slug - also translate route segment
       const pathParts = currentPath.split('/').filter(p => p);
+      if (pathParts.length >= 1) {
+        pathParts[0] = translateRoute(pathParts[0], true);
+      }
       pathParts[pathParts.length - 1] = slugEn;
       return `/en/${pathParts.join('/')}`;
     }
@@ -28,8 +46,11 @@ const buildAlternateUrl = (): string => {
   } else {
     // Switching to Norwegian
     if (slugNo) {
-      // Dynamic page with Norwegian slug
+      // Dynamic page with Norwegian slug - also translate route segment
       const pathParts = currentPath.replace(/^\/en\/?/, '').split('/').filter(p => p);
+      if (pathParts.length >= 1) {
+        pathParts[0] = translateRoute(pathParts[0], false);
+      }
       pathParts[pathParts.length - 1] = slugNo;
       return `/${pathParts.join('/')}`;
     }

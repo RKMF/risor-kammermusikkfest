@@ -198,6 +198,15 @@ export const event = defineType({
       },
     }),
     defineField({
+      name: 'spotifyItems',
+      title: 'Spotify-innhold',
+      type: 'array',
+      of: [{type: 'spotifyComponent'}],
+      description: 'Legg til Spotify-spor, album eller spillelister',
+      group: 'basic',
+      validation: (Rule) => Rule.max(8).warning('Maks 8 Spotify-elementer anbefalt'),
+    }),
+    defineField({
       name: 'ticketType',
       title: 'Type billettvisning',
       type: 'string',

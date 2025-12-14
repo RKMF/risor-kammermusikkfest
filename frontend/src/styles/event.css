@@ -196,7 +196,7 @@ dl.event-meta {
 .artists-section {
   container-type: inline-size;
   container-name: artists-section;
-  padding-block: var(--space-5);
+  padding-block-end: var(--space-5);
 }
 
 .artists-title {
@@ -232,8 +232,7 @@ dl.event-meta {
 .composers-section {
   container-type: inline-size;
   container-name: composers-section;
-  padding-block-start: 0;
-  padding-block-end: var(--space-5);
+  margin-block-end: var(--space-2xl);
 }
 
 .composers-title {
@@ -246,6 +245,27 @@ dl.event-meta {
 /* Composer card component styles in:
    /src/styles/composer-card.css
 */
+
+/* ============================================
+   SPOTIFY SCROLLBAR SECTION
+   ============================================
+
+   Horizontal scroll container for Spotify embeds.
+   Uses 152px height (track format) instead of 4:5 aspect ratio.
+*/
+
+.spotify-section {
+  container-type: inline-size;
+  container-name: spotify-section;
+  margin-block-end: var(--space-3xl); /* Match main-event-info spacing */
+}
+
+.spotify-title {
+  margin: 0 0 var(--space-4) 0;
+  font-size: var(--step-3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-blue);
+}
 
 /* ============================================
    MAIN CONTENT AREA
@@ -271,11 +291,6 @@ dl.event-meta {
   margin: 0;
   font-size: var(--step-0);
   line-height: var(--line-height-relaxed);
-}
-
-/* Extra content from PageBuilder (for blocks below description) */
-.event-extra-content {
-  margin-block-start: var(--space-8);
 }
 
 .event-content {

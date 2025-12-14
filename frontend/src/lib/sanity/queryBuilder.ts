@@ -286,7 +286,12 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
   extraContent_en[]{
     ${PAGE_CONTENT_WITH_LINKS}
   },
-  seo
+  seo,
+  spotifyItems[]{
+    _key,
+    _type,
+    spotifyUrl
+  }
 `
 
 const ARTIST_IMAGE_SELECTION = `
@@ -332,6 +337,8 @@ const buildArtistBaseFields = (language: Language = 'no'): string => `
   country,
   ${ARTIST_IMAGE_SELECTION},
   "slug": slug.current,
+  "slug_no": slug,
+  "slug_en": slug,
   content_no[]{
     ${PAGE_CONTENT_WITH_LINKS}
   },

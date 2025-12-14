@@ -101,7 +101,7 @@ console.log('Aktiv forside:', homepage);
               <div class="header-link-item">
                 <a
                   href={resolveInternalLinkUrl(link)}
-                  class="header-link"
+                  class="header-link hover-underline"
                 >
                   <span class="header-link__text">{link.text}</span>
                 </a>
@@ -200,42 +200,11 @@ console.log('Aktiv forside:', homepage);
     padding: var(--space-2xs) var(--space-xs);
     font-weight: var(--font-weight-medium);
     font-size: var(--step-3);
-    text-decoration: none;
     background-image: none;
   }
 
   .header-link::after {
     content: ' →';
-    margin-inline-start: 0.25em;
-  }
-
-  .header-link__text {
-    position: relative;
-  }
-
-  .header-link__text::after {
-    content: '';
-    position: absolute;
-    inset-inline-start: 0;
-    inset-block-end: 0;
-    inline-size: 100%;
-    block-size: 0.08em;
-    background-color: currentColor;
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform var(--transition-fast);
-  }
-
-  @media (hover: hover) {
-    .header-link:hover .header-link__text::after {
-      transform: scaleX(1);
-      transform-origin: left;
-    }
-  }
-
-  .header-link:focus-visible .header-link__text::after {
-    transform: scaleX(1);
-    transform-origin: left;
   }
 
   .header-link:focus-visible {
