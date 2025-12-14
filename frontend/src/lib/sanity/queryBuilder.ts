@@ -261,6 +261,13 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
     instrument_en,
     "instrument": coalesce(instrument_no, instrument_en)
   },
+  "composers": composers[]->{
+    _id,
+    name,
+    description_no,
+    description_en,
+    ${ARTIST_IMAGE_SELECTION}
+  },
   ticketType,
   ticketUrl,
   ticketInfoText,
@@ -279,7 +286,12 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
   extraContent_en[]{
     ${PAGE_CONTENT_WITH_LINKS}
   },
-  seo
+  seo,
+  spotifyItems[]{
+    _key,
+    _type,
+    spotifyUrl
+  }
 `
 
 const ARTIST_IMAGE_SELECTION = `
@@ -325,6 +337,8 @@ const buildArtistBaseFields = (language: Language = 'no'): string => `
   country,
   ${ARTIST_IMAGE_SELECTION},
   "slug": slug.current,
+  "slug_no": slug,
+  "slug_en": slug,
   content_no[]{
     ${PAGE_CONTENT_WITH_LINKS}
   },

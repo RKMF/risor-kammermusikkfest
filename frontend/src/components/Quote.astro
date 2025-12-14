@@ -23,7 +23,6 @@ const {
   {(author || source) && (
     <figcaption class="quote-attribution">
       {author && <span class="quote-author">{author}</span>}
-      {author && source && <span class="quote-separator" aria-hidden="true"></span>}
       {source && <cite class="quote-source">{source}</cite>}
     </figcaption>
   )}
@@ -37,27 +36,26 @@ const {
     margin-inline: auto;
     margin-block: var(--space-l-xl); /* Fluid 24px → 40px */
     padding: var(--space-m-l); /* Fluid 16px → 30px */
-    background: var(--color-red-100); /* AAA contrast with red-900 (8.76:1) */
+    background: var(--color-red-50); /* Lighter tint, matching accordion summary level */
     color: var(--color-red-900); /* Darkest red text */
     border: none;
     box-shadow: var(--shadow-sm); /* Subtle depth */
+
+    /* Grid layout: quote on top, attribution below */
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: var(--space-m);
 
     /* Container query context */
     container-type: inline-size;
     container-name: quote;
   }
 
-  /* Reset default figure margins */
-  .quote-figure {
-    margin-block-start: 0;
-    margin-block-end: 0;
-    margin-inline-start: 0;
-    margin-inline-end: 0;
-  }
-
-  /* Blockquote inside figure - remove default margins */
+  /* Blockquote inside figure - centered horizontally and vertically */
   .quote-component {
     margin: 0;
+    justify-self: center;
+    align-self: center;
   }
 
   /* When inside a layout context, fill parent space */
@@ -65,21 +63,14 @@ const {
     width: 100%;
     height: 100%;
     margin: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  :global([data-layout-context]) .quote-text {
-    flex: 1;
-    overflow-y: auto;
   }
 
   .quote-text {
-    font-size: var(--step-1); /* Fluid 20px → 23px */
+    font-size: var(--step-2); /* TODO: Explore fluid sizing with container queries later */
     font-weight: var(--font-weight-medium); /* 500 */
     line-height: var(--line-height-normal); /* 1.6 */
     font-style: normal; /* Modern, not italic */
-    margin-block-end: var(--space-s);
+    margin: 0;
     text-wrap: balance; /* Even out line lengths for better visual balance */
     overflow-wrap: break-word; /* Prevent overflow on long words */
   }
@@ -87,21 +78,15 @@ const {
   .quote-attribution {
     display: flex;
     align-items: center;
-    justify-content: flex-end; /* Align to right */
-    gap: var(--space-xs);
-    margin-block-start: var(--space-l); /* More vertical space (24-30px) */
+    gap: var(--space-3xs);
     font-size: var(--step--1); /* Fluid 13px → 14px */
+    line-height: var(--line-height-tight); /* Tighter line-height */
     font-style: normal;
     color: var(--color-red-900); /* Match quote text color */
-    text-align: right; /* Right-align text */
   }
 
   .quote-author {
     font-weight: var(--font-weight-semibold); /* 600 */
-  }
-
-  .quote-separator::before {
-    content: '·'; /* Interpunct instead of comma */
   }
 
   .quote-source {

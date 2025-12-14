@@ -15,12 +15,15 @@ interface Props {
 
 const {
   title,
-  items = [],
+  items: rawItems,
   showScrollbar = false,
   className = '',
   _key,
   _type,
 } = Astro.props
+
+// Ensure items is always an array (handles null from Sanity)
+const items = rawItems ?? []
 
 // CSS classes
 const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
@@ -74,9 +77,8 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
 
 <style>
   .content-scroll-container {
-    width: min(100ch, 100% - 4rem);
-    margin-inline: auto;
-    margin-block: var(--space-xl-2xl); /* Fluid 32px → 60px */
+    container-type: inline-size;
+    padding-block: var(--space-5);
   }
 
   .scroll-container-title {
@@ -87,6 +89,9 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
 
   /* Scroll list - behavior from scroll-containers.css */
   .scroll-list {
+    --scroll-padding: 0; /* Remove left padding - wrapper handles margins */
+    scroll-padding-inline: 0;
+    padding-inline: 0;
     align-items: flex-start; /* Parent controls alignment - force top alignment */
     list-style: none;
     margin: 0;
@@ -94,22 +99,36 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
   }
 
   .scroll-item {
-    height: 350px; /* Height is king - all items share this height */
+    /* Match composer card sizing - fluid width, fixed aspect ratio */
+    width: clamp(300px, 35vw, 320px);
+    aspect-ratio: 4 / 5;
     overflow: hidden;
     position: relative;
   }
 
-  /* Parent-controlled layout: All children get uniform sizing */
+  /* All children fill the scroll-item completely */
   .scroll-item > :global(*) {
-    margin: 0; /* Reset all margins */
-    height: 350px; /* Enforce height */
-    width: 280px; /* Default 4:5 aspect ratio */
+    margin: 0;
+    width: 100%;
+    height: 100%;
   }
 
-  /* Exception: Images and Videos can exceed 4:5 width (CMS-controlled aspect ratios) */
-  .scroll-item > :global(.image-container),
-  .scroll-item > :global(.video-component) {
-    width: auto; /* Allow aspect ratio to determine width */
+  /* Hide image captions in scroll context - image fills entire card */
+  .scroll-item :global(.image-caption) {
+    display: none;
+  }
+
+  /* Override Image component constraints to fill scroll card */
+  .scroll-item :global(.image-container) {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+
+  .scroll-item :global(.image) {
+    width: 100%;
+    height: 100%;
+    max-height: none;
   }
 
   /* Image placeholder styling */
@@ -120,42 +139,6 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
     background: #f5f5f5;
     border: 2px dashed #ddd;
     color: #666;
-  }
-
-  /* Hide scrollbar handled by scroll-container--hide-scrollbar */
-
-  /* Tablet: Slightly smaller cards */
-  @media (max-width: 1024px) {
-    .scroll-item {
-      height: 300px;
-    }
-
-    .scroll-item > :global(*) {
-      height: 300px;
-      width: 240px; /* 4:5 aspect ratio: 300px * 4/5 = 240px */
-    }
-
-    .scroll-item > :global(.image-container),
-    .scroll-item > :global(.video-component) {
-      width: auto; /* Allow aspect ratio to determine width */
-    }
-  }
-
-  /* Mobile: Smaller cards */
-  @media (max-width: 768px) {
-    .scroll-item {
-      height: 250px;
-    }
-
-    .scroll-item > :global(*) {
-      height: 250px;
-      width: 200px; /* 4:5 aspect ratio: 250px * 4/5 = 200px */
-    }
-
-    .scroll-item > :global(.image-container),
-    .scroll-item > :global(.video-component) {
-      width: auto; /* Allow aspect ratio to determine width */
-    }
   }
 
   /* Note: Spacing (margin, gap, padding) uses fluid tokens and adjusts automatically */

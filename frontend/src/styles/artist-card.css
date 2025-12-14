@@ -49,6 +49,7 @@
 
   /* Fluid width for scroll affordance - shows partial next card */
   width: clamp(300px, 35vw, 320px);
+  min-width: 300px; /* Prevent squashing in flex containers */
 
   /* Indicate clickable */
   cursor: pointer;
@@ -110,10 +111,18 @@
 .artist-card-image {
   grid-row: 1; /* First row */
   width: 100%;
-  height: 100%;
+  height: auto;
   min-height: 0; /* Allow shrinking below intrinsic size in grid */
+  aspect-ratio: 3 / 4; /* Match grid cell proportions (3fr of 9:16 card) - fixes mobile browser height calculation */
   object-fit: cover;
   object-position: center;
+}
+
+/* Medium card image - use aspect-ratio to fix mobile browser overflow
+ * Mobile Safari/Chrome calculate height:100% incorrectly in grid+scroll contexts */
+.artist-card--medium .artist-card-image {
+  height: auto;
+  aspect-ratio: 320 / 267; /* Match grid cell proportions (2fr of 4:5 card) */
 }
 
 /* Artist Info Box - Full width in second row */

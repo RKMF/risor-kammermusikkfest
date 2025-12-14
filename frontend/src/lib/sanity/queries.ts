@@ -63,6 +63,16 @@ export interface ArtistReference {
 }
 
 /**
+ * Composer result type for event composer references
+ * Minimal fields used in event context
+ */
+export interface ComposerReference {
+  _id: string;
+  name: string;
+  image?: SanityImageObject;
+}
+
+/**
  * Full artist result type from artistBySlug and publishedArtists queries
  * Used in artist detail pages and artist listing pages
  */
@@ -121,6 +131,7 @@ export interface EventResult {
   eventTime?: EventTimeObject;
   venue?: VenueObject;
   artists?: ArtistReference[];
+  composers?: ComposerReference[];
   ticketType?: 'paid' | 'free' | 'info';
   ticketUrl?: string;
   ticketInfoText?: string;

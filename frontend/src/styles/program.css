@@ -36,51 +36,53 @@
  */
 
 /* ============================================
-   DATE FILTER - CONDITIONAL HORIZONTAL SCROLL
+   FILTER BUTTONS - SHARED STYLES
    ============================================
 
-   Robust solution for 5-8 date buttons.
-   Uses container queries to switch between:
-   - Wide containers (>1100px): Allow wrapping
-   - Narrow containers (<1100px): Horizontal scroll
+   Both date and venue filters use the same pattern:
+   - Container queries for responsive behavior
+   - Horizontal scroll when space is limited
+   - Consistent button sizing and spacing
 
-   Intrinsic approach - adapts based on available space.
+   Consolidated to reduce duplication (~70 lines saved).
 */
 
-.date-filter {
-  /* Enable container queries for responsive behavior */
+/* Container query setup */
+.date-filter,
+.venue-filter {
   container-type: inline-size;
+}
+
+.date-filter {
   container-name: date-filter;
 }
 
-/* Base styles - always single line with scroll when needed */
-.date-filter-buttons {
+.venue-filter {
+  container-name: venue-filter;
+  /* Spacing above venue filter to separate from date filter */
+  margin-block-start: var(--space-4);
+}
+
+/* Base button container styles */
+.date-filter-buttons,
+.venue-filter-buttons {
   display: flex;
   gap: var(--space-3);
   align-items: center;
-
-  /* Never wrap - always single horizontal line */
   flex-wrap: nowrap;
-
-  /* Enable horizontal scroll when buttons don't fit */
   overflow-x: auto;
   overflow-y: hidden;
-
-  /* Performance optimization */
   contain: layout style inline-size;
-
-  /* Position for pseudo-element scrollbar indicator */
   position: relative;
 }
 
-/* Ensure buttons size naturally */
-.date-filter-buttons .link-button {
+/* Button sizing */
+.date-filter-buttons .link-button,
+.venue-filter-buttons .link-button {
   flex: 0 0 auto;
   white-space: nowrap;
-  /* Smaller button size */
   padding: var(--space-2) var(--space-4);
   font-size: var(--step--1);
-  /* Remove global link underline animation */
   background-image: none;
 }
 
@@ -93,46 +95,26 @@
 }
 
 /* ============================================
-   HORIZONTAL SCROLL MODE
-   ============================================
-
-   Activate when container is too narrow for all buttons.
-   Breakpoint: 1100px (safe for up to 8 buttons)
-*/
+   HORIZONTAL SCROLL MODE - DATE FILTER
+   ============================================ */
 
 @container date-filter (max-width: 1100px) {
   .date-filter-buttons {
-    /* Disable wrapping - enable horizontal scroll */
     flex-wrap: nowrap;
     overflow-x: scroll;
     overflow-y: hidden;
-
-    /* Smooth scrolling behavior */
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
-
-    /* Scroll padding for better UX */
     scroll-padding-inline: clamp(1rem, 3vw, 2rem);
-
-    /* Space for scrollbar underneath buttons */
     padding-block-end: 12px;
-
-    /* Scroll snap for better UX */
     scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-blue) var(--color-neutral-100);
   }
 
   .date-filter-buttons .link-button {
-    /* Snap to start of each button */
     scroll-snap-align: start;
     scroll-margin-inline-start: 0.5rem;
-  }
-
-  /* Styled native scrollbar - always visible and functional
-   * Pattern defined in utilities.css (.scrollbar-styled)
-   * Kept inline here due to container query context */
-  .date-filter-buttons {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-blue) var(--color-neutral-100);
   }
 
   .date-filter-buttons::-webkit-scrollbar {
@@ -154,7 +136,6 @@
     background: var(--color-green);
   }
 
-  /* Keyboard focus indicator */
   .date-filter-buttons:focus-visible {
     outline: 2px solid var(--color-blue);
     outline-offset: 2px;
@@ -162,116 +143,28 @@
 }
 
 /* ============================================
-   TOUCH DEVICE OPTIMIZATIONS
+   HORIZONTAL SCROLL MODE - VENUE FILTER
    ============================================ */
-
-@media (pointer: coarse) {
-  /* Larger touch targets regardless of scroll mode */
-  .date-filter-buttons .link-button {
-    min-block-size: 44px;
-    padding-inline: clamp(1rem, 3vw, 1.5rem);
-  }
-}
-
-/* Respect reduced motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  .date-filter-buttons {
-    scroll-behavior: auto;
-  }
-}
-
-/* ============================================
-   VENUE FILTER - SAME BEHAVIOR AS DATE FILTER
-   ============================================
-
-   Identical structure and behavior to date filter.
-   Uses container queries to switch between wrapping and scrolling.
-*/
-
-.venue-filter {
-  /* Enable container queries for responsive behavior */
-  container-type: inline-size;
-  container-name: venue-filter;
-
-  /* Spacing above venue filter to separate from date filter */
-  margin-block-start: var(--space-4);
-}
-
-/* Base styles - always single line with scroll when needed */
-.venue-filter-buttons {
-  display: flex;
-  gap: var(--space-3);
-  align-items: center;
-
-  /* Never wrap - always single horizontal line */
-  flex-wrap: nowrap;
-
-  /* Enable horizontal scroll when buttons don't fit */
-  overflow-x: auto;
-  overflow-y: hidden;
-
-  /* Performance optimization */
-  contain: layout style inline-size;
-
-  /* Position for pseudo-element scrollbar indicator */
-  position: relative;
-}
-
-/* Ensure buttons size naturally */
-.venue-filter-buttons .link-button {
-  flex: 0 0 auto;
-  white-space: nowrap;
-  /* Smaller button size */
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--step--1);
-  /* Remove global link underline animation */
-  background-image: none;
-}
-
-/* ============================================
-   HORIZONTAL SCROLL MODE FOR VENUE FILTER
-   ============================================
-
-   Activate when container is too narrow for all buttons.
-   Breakpoint: 1100px (same as date filter)
-*/
 
 @container venue-filter (max-width: 1100px) {
   .venue-filter-buttons {
-    /* Disable wrapping - enable horizontal scroll */
     flex-wrap: nowrap;
     overflow-x: scroll;
     overflow-y: hidden;
-
-    /* Smooth scrolling behavior */
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
-
-    /* Scroll padding for better UX */
     scroll-padding-inline: clamp(1rem, 3vw, 2rem);
-
-    /* Space for scrollbar underneath buttons */
     padding-block-end: 12px;
-
     /* Pull up to compensate for date-filter's scrollbar padding */
     margin-block-start: -12px;
-
-    /* Scroll snap for better UX */
     scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-blue) var(--color-neutral-100);
   }
 
   .venue-filter-buttons .link-button {
-    /* Snap to start of each button */
     scroll-snap-align: start;
     scroll-margin-inline-start: 0.5rem;
-  }
-
-  /* Styled native scrollbar - always visible and functional
-   * Pattern defined in utilities.css (.scrollbar-styled)
-   * Kept inline here due to container query context */
-  .venue-filter-buttons {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-blue) var(--color-neutral-100);
   }
 
   .venue-filter-buttons::-webkit-scrollbar {
@@ -293,28 +186,32 @@
     background: var(--color-green);
   }
 
-  /* Keyboard focus indicator */
   .venue-filter-buttons:focus-visible {
     outline: 2px solid var(--color-blue);
     outline-offset: 2px;
   }
 }
 
-/* Touch device optimizations for venue filter */
-@media (pointer: coarse) {
-  /* Increase spacing between date and venue filters for touch accuracy */
-  .venue-filter {
-    margin-block-start: var(--space-6);  /* 24-30px instead of 12-15px */
-  }
+/* ============================================
+   TOUCH DEVICE OPTIMIZATIONS
+   ============================================ */
 
+@media (pointer: coarse) {
+  .date-filter-buttons .link-button,
   .venue-filter-buttons .link-button {
     min-block-size: 44px;
     padding-inline: clamp(1rem, 3vw, 1.5rem);
   }
+
+  /* Increase spacing between filters for touch accuracy */
+  .venue-filter {
+    margin-block-start: var(--space-6);
+  }
 }
 
-/* Respect reduced motion preferences for venue filter */
+/* Respect reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
+  .date-filter-buttons,
   .venue-filter-buttons {
     scroll-behavior: auto;
   }
@@ -473,7 +370,6 @@
   .events-grid {
     /* Switch from grid to flex for horizontal scrolling */
     display: flex;
-    grid-template-columns: initial;
   }
 }
 

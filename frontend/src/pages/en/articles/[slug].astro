@@ -1,83 +1,19 @@
 ---
-import Layout from "../../../layouts/Layout.astro";
-import DynamicComponent from "../../../components/DynamicComponent.astro";
-import HeaderImage from "../../../components/HeaderImage.astro";
-import { createDataService } from "../../../lib/sanity/dataService.js";
-import { getMultilingualContent } from "../../../lib/utils/language.js";
-import { IMAGE_QUALITY } from '../../../lib/sanityImage';
-import { stegaClean } from '@sanity/client/stega';
+import ArticleDetailContent from '../../../components/ArticleDetailContent.astro';
+import { createDataService } from '../../../lib/sanity/dataService.js';
 
-// Generate static paths for all articles
 export async function getStaticPaths() {
   const dataService = createDataService();
   const articles = await dataService.getSlugsForType('article');
-
-  return articles.map((article: any) => ({
-    params: article.params
-  }));
+  return articles.map((article: any) => ({ params: article.params }));
 }
 
-const { params } = Astro;
-
-// Fetch article using DataService with language awareness
 const dataService = createDataService(Astro.request);
-const article = await dataService.getArticleBySlug(params.slug);
+const article = await dataService.getArticleBySlug(Astro.params.slug);
 
 if (!article) {
-  return Astro.redirect('/404');
+  return Astro.redirect('/en/404');
 }
-
-// Get appropriate content array
-const content = getMultilingualContent(article, 'en') || article.content_en;
 ---
 
-<Layout title={stegaClean(article.title || '')}>
-  <article class="article-page">
-    <header class="article-header">
-      <h1>{stegaClean(article.title || '')}</h1>
-      {article.excerpt && <p class="excerpt">{stegaClean(article.excerpt)}</p>}
-    </header>
-
-    {article.image?.image && (
-      <HeaderImage
-        image={article.image.image}
-        alt={stegaClean(article.image.alt || article.title || '')}
-        credit={article.image.credit ? stegaClean(article.image.credit) : undefined}
-        aspectRatio="16:9"
-        loading="eager"
-        quality={IMAGE_QUALITY.HERO}
-        width="min(60ch, 100%)"
-      />
-    )}
-
-    {content && Array.isArray(content) && (
-      <section class="article-content">
-        <h2 class="sr-only">Article Content</h2>
-        {content.map((block) => (
-          <DynamicComponent key={block._key || block._id} block={block} />
-        ))}
-      </section>
-    )}
-  </article>
-</Layout>
-
-<style>
-  .article-header {
-    margin-bottom: var(--space-2xl); /* 48-60px - matches event page */
-    container-type: inline-size; /* Enable container queries for h1 sizing */
-  }
-
-  h1 {
-    font-size: var(--heading-h1); /* Fluid 37-69px with cqi sizing */
-    font-weight: bold;
-    line-height: 1.2;
-    margin-bottom: var(--space-6); /* 24-30px - matches event page h1 spacing */
-  }
-
-  /* Excerpt styling handled by global .excerpt class in base.css */
-
-  .article-content {
-    line-height: 1.6;
-  }
-
-</style>
+<ArticleDetailContent article={article} language="en" />

@@ -13,6 +13,19 @@
  */
 
 // Source: schema.json
+export type ComposerScrollContainer = {
+  _type: "composerScrollContainer";
+  title?: string;
+  items?: Array<{
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    _key: string;
+    [internalGroqTypeReferenceTo]?: "composer";
+  }>;
+  showScrollbar?: boolean;
+};
+
 export type EventScrollContainer = {
   _type: "eventScrollContainer";
   title?: string;
@@ -53,7 +66,9 @@ export type ContentScrollContainer = {
     _key: string;
   } & VideoComponent | {
     _key: string;
-  } & QuoteComponent>;
+  } & QuoteComponent | {
+    _key: string;
+  } & PortableTextBlock>;
   showScrollbar?: boolean;
 };
 
@@ -168,16 +183,14 @@ export type PageBuilder = Array<{
   _key: string;
 } & ArtistScrollContainer | {
   _key: string;
-} & EventScrollContainer>;
+} & EventScrollContainer | {
+  _key: string;
+} & ComposerScrollContainer>;
 
 export type CountdownComponent = {
   _type: "countdownComponent";
-  targetEvent?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "event";
-  };
+  title?: string;
+  targetDate?: string;
   style?: "large" | "compact" | "minimal";
   completedMessage?: string;
   hideWhenComplete?: boolean;
@@ -185,6 +198,7 @@ export type CountdownComponent = {
 
 export type AccordionComponent = {
   _type: "accordionComponent";
+  title?: string;
   description?: string;
   panels?: Array<{
     title?: string;
@@ -293,10 +307,6 @@ export type ButtonComponent = {
 export type SpotifyComponent = {
   _type: "spotifyComponent";
   spotifyUrl?: string;
-  title?: string;
-  description?: string;
-  height?: number;
-  compact?: boolean;
 };
 
 export type VideoComponent = {
@@ -574,6 +584,8 @@ export type Composer = {
   _updatedAt: string;
   _rev: string;
   name?: string;
+  description_no?: PortableText;
+  description_en?: PortableText;
   image?: {
     asset?: {
       _ref: string;
@@ -599,7 +611,95 @@ export type Homepage = {
   _updatedAt: string;
   _rev: string;
   adminTitle?: string;
+  headerLinks_no?: Array<{
+    linkType?: "external" | "internal";
+    text?: string;
+    description?: string;
+    url?: string;
+    internalLink?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "programPage";
+    } | {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "artistPage";
+    } | {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "articlePage";
+    } | {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "page";
+    } | {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "event";
+    } | {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "artist";
+    } | {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "article";
+    };
+    _type: "headerLink";
+    _key: string;
+  }>;
   content_no?: PageBuilder;
+  headerLinks_en?: Array<{
+    linkType?: "external" | "internal";
+    text?: string;
+    description?: string;
+    url?: string;
+    internalLink?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "programPage";
+    } | {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "artistPage";
+    } | {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "articlePage";
+    } | {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "page";
+    } | {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "event";
+    } | {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "artist";
+    } | {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "article";
+    };
+    _type: "headerLinkEn";
+    _key: string;
+  }>;
   content_en?: PageBuilder;
   homePageType?: "default" | "scheduled";
   scheduledPeriod?: {
@@ -752,6 +852,9 @@ export type Event = {
     _key: string;
     [internalGroqTypeReferenceTo]?: "composer";
   }>;
+  spotifyItems?: Array<{
+    _key: string;
+  } & SpotifyComponent>;
   ticketType?: "button" | "info";
   ticketUrl?: string;
   ticketInfoText?: string;
@@ -775,12 +878,12 @@ export type Event = {
   title_no?: string;
   slug_no?: Slug;
   excerpt_no?: string;
-  description_no?: string;
+  description_no?: PortableText;
   extraContent_no?: PageBuilder;
   title_en?: string;
   slug_en?: Slug;
   excerpt_en?: string;
-  description_en?: string;
+  description_en?: PortableText;
   extraContent_en?: PageBuilder;
   publishingStatus?: "published" | "draft" | "scheduled";
   scheduledPeriod?: {
@@ -1026,7 +1129,7 @@ export type SanityAssetSourceData = {
   url?: string;
 };
 
-export type AllSanitySchemaTypes = EventScrollContainer | ArtistScrollContainer | ContentScrollContainer | ThreeColumnLayout | TwoColumnLayout | GridComponent | PageBuilder | CountdownComponent | AccordionComponent | LinkComponent | ButtonComponent | SpotifyComponent | VideoComponent | ImageComponent | PortableTextBlock | PortableText | HeadingComponent | MarqueeComponent | QuoteComponent | Title | SiteSettings | Composer | Homepage | ProgramPage | ArtistPage | ArticlePage | Page | Event | Artist | Article | Seo | Venue | EventDate | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export type AllSanitySchemaTypes = ComposerScrollContainer | EventScrollContainer | ArtistScrollContainer | ContentScrollContainer | ThreeColumnLayout | TwoColumnLayout | GridComponent | PageBuilder | CountdownComponent | AccordionComponent | LinkComponent | ButtonComponent | SpotifyComponent | VideoComponent | ImageComponent | PortableTextBlock | PortableText | HeadingComponent | MarqueeComponent | QuoteComponent | Title | SiteSettings | Composer | Homepage | ProgramPage | ArtistPage | ArticlePage | Page | Event | Artist | Article | Seo | Venue | EventDate | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./src/pages/api/countdown.ts
 // Variable: EVENT_COUNTDOWN_QUERY

@@ -114,38 +114,11 @@ const fetchPriority = loading === 'eager' ? 'high' : 'auto';
   )}
 </figure>
 
-<script>
-  // Client-side image load detection for lazy-loaded images
-  function initHeaderImageLoading() {
-    const lazyImages = document.querySelectorAll('.header-image .header-image-element[loading="lazy"]');
-
-    lazyImages.forEach((img) => {
-      if ((img as HTMLImageElement).complete) {
-        img.classList.add('image-loaded');
-      } else {
-        img.addEventListener('load', () => {
-          img.classList.add('image-loaded');
-        }, { once: true });
-      }
-    });
-  }
-
-  // Run on initial page load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initHeaderImageLoading);
-  } else {
-    initHeaderImageLoading();
-  }
-
-  // Run on Astro page transitions
-  document.addEventListener('astro:page-load', initHeaderImageLoading);
-</script>
-
 <style>
   /* Header image container - responsive width control */
   .header-image {
     position: relative;
-    margin: 0 0 2rem 0;
+    margin: 0;
     margin-inline: auto; /* Center the figure */
     overflow: visible; /* Allow figcaption to show below */
   }

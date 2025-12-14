@@ -15,6 +15,7 @@ import Accordion from '../components/Accordion.astro';
 import ContentScrollContainer from '../components/ContentScrollContainer.astro';
 import ArtistScrollContainer from '../components/ArtistScrollContainer.astro';
 import EventScrollContainer from '../components/EventScrollContainer.astro';
+import ComposerScrollContainer from '../components/ComposerScrollContainer.astro';
 import Countdown from '../components/Countdown.astro';
 import Grid from '../components/Grid.astro';
 import TwoColumn from '../components/TwoColumn.astro';
@@ -35,6 +36,7 @@ export const componentRegistry: Record<string, AstroComponentFactory> = {
   contentScrollContainer: ContentScrollContainer,
   artistScrollContainer: ArtistScrollContainer,
   eventScrollContainer: EventScrollContainer,
+  composerScrollContainer: ComposerScrollContainer,
   countdownComponent: Countdown,
   gridComponent: Grid,
   twoColumnLayout: TwoColumn,

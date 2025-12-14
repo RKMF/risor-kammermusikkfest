@@ -63,7 +63,7 @@ const processedLinks = links.map((link) => {
 
           return (
             <li class="link-item">
-              <a href={link.url} class="link" target={target} rel={rel}>
+              <a href={link.url} class="link hover-underline" target={target} rel={rel}>
                 <span class="link-text">{link.text}</span>
                 {link.openInNewTab && (
                   <span class="visually-hidden"> (åpnes i ny fane)</span>
@@ -108,43 +108,11 @@ const processedLinks = links.map((link) => {
     /* Color inherited from global --color-link (blue) */
     font-weight: var(--font-weight-medium);
     font-size: var(--step-3);
-    text-decoration: none;
-    /* Reset background-gradient from base.css - using pseudo-element instead */
-    background-image: none;
   }
 
   .link::after {
     content: ' →';
     margin-inline-start: 0.25em;
-  }
-
-  .link-text {
-    position: relative;
-  }
-
-  .link-text::after {
-    content: '';
-    position: absolute;
-    inset-inline-start: 0;
-    inset-block-end: 0;
-    inline-size: 100%;
-    block-size: 0.08em;
-    background-color: currentColor;
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform var(--transition-fast);
-  }
-
-  @media (hover: hover) {
-    .link:hover .link-text::after {
-      transform: scaleX(1);
-      transform-origin: left;
-    }
-  }
-
-  .link:focus-visible .link-text::after {
-    transform: scaleX(1);
-    transform-origin: left;
   }
 
   /* Focus state uses global styles, just add background */

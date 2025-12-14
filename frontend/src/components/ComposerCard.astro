@@ -1,0 +1,69 @@
+---
+import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../lib/sanityImage';
+import { stegaClean } from '@sanity/client/stega';
+import type { ComposerReference } from '../lib/sanity/queries';
+import PortableText from './PortableText.astro';
+
+interface Props {
+  composer: ComposerReference;
+  lang?: 'no' | 'en';
+}
+
+const { composer, lang = 'no' } = Astro.props;
+
+// Image dimensions matching medium artist cards (4:5 aspect ratio)
+const width = 320;
+const height = 400;
+const aspectRatio = 4/5;
+
+const hasImage = composer.image?.image?.asset;
+
+// Get description based on language
+const description = lang === 'en' ? composer.description_en : composer.description_no;
+const hasDescription = !!description && description.length > 0;
+const closeText = lang === 'en' ? 'Close' : 'Lukk';
+const composerName = stegaClean(composer.name);
+const dialogId = `composer-dialog-${composer._id}`;
+---
+
+<article
+  class={`composer-card ${hasImage ? 'composer-card--has-image' : 'composer-card--text-only'} ${hasDescription ? 'composer-card--clickable' : ''}`}
+  onclick={hasDescription ? `document.getElementById('${dialogId}').showModal()` : undefined}
+  role={hasDescription ? 'button' : undefined}
+  tabindex={hasDescription ? 0 : undefined}
+  onkeydown={hasDescription ? `if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('${dialogId}').showModal()}` : undefined}
+>
+  {hasImage && composer.image?.image && (
+    <img
+      src={getOptimizedImageUrl(composer.image.image, width, height, IMAGE_QUALITY.CARD)}
+      srcset={getResponsiveImageSet(composer.image.image, [320, 480, 640], aspectRatio, IMAGE_QUALITY.CARD)}
+      sizes="320px"
+      alt={stegaClean(composer.image.alt) || composerName}
+      width={width.toString()}
+      height={height.toString()}
+      loading="lazy"
+      decoding="async"
+      class="composer-card-image"
+    />
+  )}
+
+  <div class="composer-card-overlay">
+    <p class="composer-name">{composerName}</p>
+  </div>
+</article>
+
+{hasDescription && (
+  <dialog id={dialogId} class="composer-modal" aria-labelledby={`${dialogId}-title`}>
+    <form method="dialog">
+      <button class="composer-modal-close" type="submit" autofocus>
+        {closeText}
+      </button>
+    </form>
+    <div class="composer-modal-content">
+      <h2 id={`${dialogId}-title`} class="composer-modal-title">{composerName}</h2>
+      <div class="composer-modal-body">
+        <PortableText value={description} />
+      </div>
+    </div>
+  </dialog>
+)}

@@ -244,3 +244,14 @@
 .scroll-container--soft-snap {
   scroll-snap-type: x proximity;
 }
+
+/* Spotify embeds - 152px track format */
+.scroll-container--spotify {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.scroll-container--spotify > * {
+  width: min(300px, 80vw);
+}

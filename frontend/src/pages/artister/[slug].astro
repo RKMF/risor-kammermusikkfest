@@ -1,183 +1,32 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import DynamicComponent from "../../components/DynamicComponent.astro";
-import ArtistCard from "../../components/ArtistCard.astro";
-import EventCard from "../../components/EventCard.astro";
-import { getMultilingualContent } from "../../lib/utils/language.js";
+import ArtistDetailContent from '../../components/ArtistDetailContent.astro';
 import { createDataService } from '../../lib/sanity/dataService.js';
 import type { ArtistResult } from '../../lib/sanity/queries';
 import { stegaClean } from '@sanity/client/stega';
-import '../../styles/event.css';
-import '../../styles/event-card.css';
-import '../../styles/artist-card.css';
 
-// Generate static paths for all artists
 export async function getStaticPaths() {
-  // In development, return empty array for on-demand rendering
-  if (import.meta.env.DEV) {
-    return [];
-  }
+  if (import.meta.env.DEV) return [];
 
-  // In production, pre-generate paths for all published artists
   const dataService = createDataService();
   const artists = await dataService.getArtistPage();
-
-  return artists.map((artist) => {
-    return {
-      params: {
-        slug: stegaClean(artist.slug),
-      },
-    };
-  });
+  return artists.map((artist) => ({
+    params: { slug: stegaClean(artist.slug) }
+  }));
 }
 
 const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/404');
 
-if (!slug) {
-  return Astro.redirect('/404');
-}
-
-// Create data service with Visual Editing support
 const dataService = createDataService(Astro.request);
-
 let artist: ArtistResult | null = null;
 
 try {
-  console.log(`[artister/slug].astro: Fetching artist with slug: "${slug}"`);
   artist = await dataService.getArtistBySlug(slug);
-  console.log(`[artister/slug].astro: Query returned:`, artist ? `Found artist "${artist.name}"` : 'NULL');
-
-  if (!artist) {
-    console.log(`[artister/slug].astro: Artist is null, redirecting to 404`);
-    return Astro.redirect('/404');
-  }
+  if (!artist) return Astro.redirect('/404');
 } catch (error) {
-  console.error(`[artister/slug].astro: Error loading artist "${slug}":`, error);
+  console.error(`Error loading artist "${slug}":`, error);
   return Astro.redirect('/404');
 }
-
-// Get appropriate content array
-const content = getMultilingualContent(artist) || artist.content_no;
 ---
 
-<Layout title={`${artist.name} - Artist`}>
-  <article class="artist-page">
-    <!-- Artist Card - Centered, medium size -->
-    <!-- Card is 480px wide, image displays at 85% = 408px actual -->
-    <header class="artist-header">
-      <div class="artist-detail-card-container">
-        <ArtistCard artist={artist} language="no" size="medium" isDetailPage={true} imageSizes="408px" />
-      </div>
-
-      <!-- Excerpt -->
-      {artist.excerpt_no && (
-        <p class="excerpt">{stegaClean(artist.excerpt_no)}</p>
-      )}
-    </header>
-
-    <!-- Events Section -->
-    {artist.events && artist.events.length > 0 && (
-      <section class="artist-events">
-        <h2 class="artist-events-title">Konserter</h2>
-        <div class="scroll-container scroll-container--always scroll-container--event-cards scroll-container--styled-scrollbar">
-          {artist.events.map((event) => (
-            <EventCard event={event} language="no" />
-          ))}
-        </div>
-      </section>
-    )}
-
-    <!-- Content below card -->
-    {content && Array.isArray(content) && content.length > 0 && (
-      <section class="artist-content">
-        <h2 class="sr-only">Om artisten</h2>
-        {content.map((block) => (
-          <DynamicComponent key={block._key || block._id} block={block} />
-        ))}
-      </section>
-    )}
-  </article>
-</Layout>
-
-<style>
-  /* Artist Card Container - Centered with fixed width */
-  .artist-detail-card-container {
-    width: 480px;
-    max-width: 90vw;
-    margin-inline: auto;
-    margin-block-end: var(--space-6);
-  }
-
-  /* Override ArtistCard hover effects on detail page */
-  .artist-detail-card-container :global(.artist-card) {
-    width: 480px;
-    max-width: 90vw;
-    cursor: default;
-  }
-
-  /* Larger padding for larger card */
-  .artist-detail-card-container :global(.artist-info-box) {
-    padding: 1.5rem;
-  }
-
-  /* Smooth 1.1s transition from blur placeholder to sharp image */
-  .artist-detail-card-container :global(.artist-card-image) {
-    animation: fadeInImage 1.1s ease-in-out forwards;
-  }
-
-  @keyframes fadeInImage {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  /* Increase font sizes proportionally to match 1.5x card growth */
-  .artist-detail-card-container :global(.artist-name) {
-    font-size: var(--step-3); /* 31-44px vs listing page 22-28px = ~1.5x growth */
-  }
-
-  .artist-detail-card-container :global(.artist-instrument) {
-    font-size: var(--step-0); /* 18-23px vs listing page 13-14px = ~1.5x growth */
-  }
-
-  /* Disable hover effects on detail page - card doesn't link anywhere */
-  @media (hover: hover) {
-    .artist-detail-card-container :global(.artist-card:hover) {
-      transform: none;
-      box-shadow: none;
-      background-color: var(--color-tint-blue-medium);
-    }
-
-    .artist-detail-card-container :global(.artist-card:hover .artist-info-box) {
-      background-color: var(--color-card-surface);
-    }
-
-    .artist-detail-card-container :global(.artist-card:hover .artist-name),
-    .artist-detail-card-container :global(.artist-card:hover .artist-instrument) {
-      color: var(--color-blue);
-    }
-  }
-
-  /* Excerpt styling handled by global .excerpt class in base.css */
-
-  /* Events section */
-  .artist-events {
-    margin-block-start: var(--space-8);
-    margin-block-end: var(--space-8);
-  }
-
-  .artist-events-title {
-    font-size: var(--step-3);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text-primary);
-    margin-block-start: 0;
-    margin-block-end: var(--space-6);
-  }
-
-  /* Content area below card - centered, max-width for readability */
-  .artist-content {
-    max-width: 65ch;
-    width: 100%;
-    margin-inline: auto;
-    margin-block-end: var(--space-8);
-  }
-</style>
+<ArtistDetailContent artist={artist} language="no" />

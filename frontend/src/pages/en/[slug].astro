@@ -3,44 +3,18 @@ import ContentPageLayout from '../../layouts/ContentPageLayout.astro';
 import { createDataService } from '../../lib/sanity/dataService.js';
 
 export async function getStaticPaths() {
-  // In development, return empty array for on-demand rendering
-  if (import.meta.env.DEV) {
-    return [];
-  }
-
-  // In production, you might want to pre-generate paths
-  // This would require fetching all published pages
-  return [];
+  if (import.meta.env.DEV) return [];
+  const dataService = createDataService();
+  const pages = await dataService.getSlugsForType('page');
+  return pages.map((page: any) => ({ params: page.params }));
 }
 
-const { slug } = Astro.params;
-
-if (!slug) {
-  return Astro.redirect('/en/404');
-}
-
-// Create data service with Visual Editing support
 const dataService = createDataService(Astro.request);
+const page = await dataService.getPageBySlug(Astro.params.slug);
 
-let page = null;
-
-try {
-  console.log(`[slug].astro (EN): Fetching page with slug: "${slug}"`);
-  page = await dataService.getPageBySlug(slug);
-  console.log(`[slug].astro (EN): Query returned:`, page ? `Found page "${page.title}"` : 'NULL');
-
-  if (!page) {
-    console.log(`[slug].astro (EN): Page is null, redirecting to 404`);
-    return Astro.redirect('/en/404');
-  }
-} catch (error) {
-  console.error(`[slug].astro (EN): Error loading page "${slug}":`, error);
+if (!page) {
   return Astro.redirect('/en/404');
 }
-
-const title = page.title;
 ---
 
-<ContentPageLayout title={title} pageDocument={page}>
-  <!-- Content automatically rendered by ContentPageLayout from pageDocument -->
-</ContentPageLayout>
+<ContentPageLayout title={page.title} pageDocument={page} />

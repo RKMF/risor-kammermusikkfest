@@ -31,11 +31,11 @@ const apiPath = '/api/filter-program';
         class="date-filter-buttons"
         role="region"
         aria-label={language === 'no' ? 'Filtrer etter dato' : 'Filter by date'}
-        tabindex="0"
       >
         <a
           href={`${basePath}?date=&venue=${currentVenue}`}
           class:list={['link-button', { active: !currentDate }]}
+          aria-pressed={!currentDate}
           data-filter-type="date"
           data-filter-value=""
           hx-get={apiPath}
@@ -52,6 +52,7 @@ const apiPath = '/api/filter-program';
             <a
               href={`${basePath}?date=${date}&venue=${currentVenue}`}
               class:list={['link-button', { active: currentDate === date }]}
+              aria-pressed={currentDate === date}
               data-filter-type="date"
               data-filter-value={date}
               hx-get={apiPath}
@@ -75,11 +76,11 @@ const apiPath = '/api/filter-program';
         class="venue-filter-buttons"
         role="region"
         aria-label={language === 'no' ? 'Filtrer etter sted' : 'Filter by venue'}
-        tabindex="0"
       >
         <a
           href={`${basePath}?date=${currentDate}&venue=`}
           class:list={['link-button', { active: !currentVenue }]}
+          aria-pressed={!currentVenue}
           data-filter-type="venue"
           data-filter-value=""
           hx-get={apiPath}
@@ -97,6 +98,7 @@ const apiPath = '/api/filter-program';
             <a
               href={`${basePath}?date=${currentDate}&venue=${venue.slug}`}
               class:list={['link-button', { active: currentVenue === venue.slug }]}
+              aria-pressed={currentVenue === venue.slug}
               data-filter-type="venue"
               data-filter-value={venue.slug}
               hx-get={apiPath}

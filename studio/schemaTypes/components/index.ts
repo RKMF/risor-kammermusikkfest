@@ -39,6 +39,7 @@ export {countdownComponent} from './interactive/Countdown'
 export {contentScrollContainer} from './sections/ContentScrollContainer'
 export {artistScrollContainer} from './sections/ArtistScrollContainer'
 export {eventScrollContainer} from './sections/EventScrollContainer'
+export {composerScrollContainer} from './sections/ComposerScrollContainer'
 
 // Page Builder
 export {pageBuilder} from './PageBuilder'

@@ -1,8 +1,8 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
+import { experimental_AstroContainer } from 'astro/container';
 import { createDataService } from '../../lib/sanity/dataService.js';
 import { formatDateWithWeekday } from '../../lib/utils/dates';
-import { getOptimizedImageUrl, getResponsiveSrcSet, IMAGE_QUALITY, RESPONSIVE_WIDTHS } from '../../lib/sanityImage';
 import { stegaClean } from '@sanity/client/stega';
 import {
   rateLimit,
@@ -10,6 +10,7 @@ import {
   getCORSHeaders,
   getSecurityHeaders
 } from '../../lib/security';
+import EventCard from '../../components/EventCard.astro';
 
 // Rate limiter configuration
 const rateLimiter = rateLimit({
@@ -55,7 +56,7 @@ export const GET: APIRoute = async ({ request, url }) => {
     const dateFilter = dateParam ? InputValidator.validateDate(dateParam) : null;
     const venueParam = url.searchParams.get('venue');
     const venueFilter = venueParam ? InputValidator.validateSlug(venueParam) : null;
-    const language = url.searchParams.get('lang') || 'no';
+    const language = (url.searchParams.get('lang') || 'no') as 'no' | 'en';
 
     // Create data service
     const dataService = createDataService(request);
@@ -77,7 +78,7 @@ export const GET: APIRoute = async ({ request, url }) => {
       if (!acc[dateKey]) {
         acc[dateKey] = {
           date: event.eventDate.date,
-          displayTitle: event.eventDate.title || formatDateWithWeekday(event.eventDate.date, language as 'no' | 'en'),
+          displayTitle: event.eventDate.title || formatDateWithWeekday(event.eventDate.date, language),
           events: []
         };
       }
@@ -122,12 +123,12 @@ export const GET: APIRoute = async ({ request, url }) => {
     let emptyStateMessage = 'Ingen arrangementer funnet';
     if (dateFilter && venueFilter) {
       // Get display names from the events data
-      const dateDisplay = sortedDates.find(d => d.date === dateFilter)?.displayTitle || formatDateWithWeekday(dateFilter, language as 'no' | 'en');
+      const dateDisplay = sortedDates.find(d => d.date === dateFilter)?.displayTitle || formatDateWithWeekday(dateFilter, language);
       const venueEvent = events.find((e: any) => e.venue?.slug === venueFilter);
       const venueDisplay = venueEvent?.venue?.title || venueFilter;
       emptyStateMessage = `Ingen arrangementer på ${dateDisplay} og ${venueDisplay}`;
     } else if (dateFilter) {
-      const dateDisplay = sortedDates.find(d => d.date === dateFilter)?.displayTitle || formatDateWithWeekday(dateFilter, language as 'no' | 'en');
+      const dateDisplay = sortedDates.find(d => d.date === dateFilter)?.displayTitle || formatDateWithWeekday(dateFilter, language);
       emptyStateMessage = `Ingen arrangementer på ${dateDisplay}`;
     } else if (venueFilter) {
       const venueEvent = events.find((e: any) => e.venue?.slug === venueFilter);
@@ -135,101 +136,37 @@ export const GET: APIRoute = async ({ request, url }) => {
       emptyStateMessage = `Ingen arrangementer på ${venueDisplay}`;
     }
 
-    // Generate HTML using the same structure as program.astro
+    // Generate HTML
     let html = '';
 
     if (hasEvents) {
-      html = filteredDates.map(({ date, displayTitle, events: dateEvents }) => `
-        <section class="content-section date-section" data-date="${date}">
-          <h3 class="date-title">${stegaClean(displayTitle)}</h3>
-          <div class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar">
-            ${dateEvents.map((event: any) => {
-              // Use language-aware slug selection
-              const eventSlug = language === 'en'
-                ? stegaClean(event.slug_en?.current || event.slug_no?.current)
-                : stegaClean(event.slug_no?.current || event.slug_en?.current);
-              const eventTitle = stegaClean(event.title);
-              const eventExcerpt = event.excerpt ? stegaClean(event.excerpt) : '';
+      // Create Astro container for rendering EventCard components
+      const container = await experimental_AstroContainer.create();
 
-              let imageHtml = '';
-              if (event.image?.image) {
-                const imageUrl = getOptimizedImageUrl(event.image.image, 400, 300, IMAGE_QUALITY.CARD);
-                const srcSet = getResponsiveSrcSet(event.image.image, RESPONSIVE_WIDTHS.MEDIUM, IMAGE_QUALITY.CARD);
-                const alt = event.image.alt || event.title;
+      // Render each date section with EventCard components
+      const sectionsHtml = await Promise.all(
+        filteredDates.map(async ({ date, displayTitle, events: dateEvents }) => {
+          // Render each EventCard using the actual component
+          const eventCardsHtml = await Promise.all(
+            dateEvents.map((event: any) =>
+              container.renderToString(EventCard, {
+                props: { event, language },
+              })
+            )
+          );
 
-                imageHtml = `
-                  <figure class="event-image">
-                    <picture>
-                      <source
-                        srcset="${srcSet}"
-                        type="image/webp"
-                        sizes="(max-width: 768px) 100vw, 400px"
-                      />
-                      <img
-                        src="${imageUrl}"
-                        alt="${alt}"
-                        loading="lazy"
-                        decoding="async"
-                        class="event-card-image"
-                      />
-                    </picture>
-                  </figure>
-                `;
-              }
+          return `
+            <section class="content-section date-section" data-date="${date}">
+              <h2 class="date-title">${stegaClean(displayTitle)}</h2>
+              <div class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar">
+                ${eventCardsHtml.join('')}
+              </div>
+            </section>
+          `;
+        })
+      );
 
-              let metaHtml = '<dl class="event-meta">';
-
-              if (event.eventDate?.date) {
-                const formattedDate = formatDateWithWeekday(event.eventDate.date, language as 'no' | 'en');
-                const timeRange = event.eventTime
-                  ? `, kl. ${stegaClean(event.eventTime.startTime)}`
-                  : '';
-
-                metaHtml += `
-                  <dt class="visually-hidden">Dato og tid</dt>
-                  <dd class="event-datetime">${formattedDate}${timeRange}</dd>
-                `;
-              }
-
-              if (event.venue?.title) {
-                metaHtml += `
-                  <dt class="visually-hidden">Sted</dt>
-                  <dd class="event-venue">${stegaClean(event.venue.title)}</dd>
-                `;
-              }
-
-              metaHtml += '</dl>';
-
-              const ticketType = stegaClean(event.ticketType);
-              let ticketHtml = '';
-
-              if (ticketType === 'info') {
-                const ticketInfo = stegaClean(event.ticketInfoText) || 'Gratis';
-                ticketHtml = `<p class="ticket-info">${ticketInfo}</p>`;
-              } else if (event.ticketUrl) {
-                const ticketUrl = stegaClean(event.ticketUrl);
-                ticketHtml = `<a href="${ticketUrl}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Kjøp billetter her</a>`;
-              }
-
-              const eventPath = language === 'en' ? `/en/program/${eventSlug}` : `/program/${eventSlug}`;
-
-              return `
-                <article class="event-card card" data-event-date="${event.eventDate?.date}">
-                  <h4 class="event-title">
-                    <a href="${eventPath}" class="event-title-link">
-                      ${eventTitle}
-                    </a>
-                  </h4>
-                  ${eventExcerpt ? `<p class="event-excerpt">${eventExcerpt}</p>` : ''}
-                  ${imageHtml}
-                  ${metaHtml}
-                  ${ticketHtml}
-                </article>
-              `;
-            }).join('')}
-          </div>
-        </section>
-      `).join('');
+      html = sectionsHtml.join('');
     } else {
       const emptyStateText = language === 'no'
         ? 'Prøv en annen kombinasjon, eller:'

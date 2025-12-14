@@ -1,0 +1,127 @@
+---
+import { sanityClient } from "sanity:client";
+import ComposerCard from './ComposerCard.astro';
+import { detectLanguage } from '../lib/utils/language.js';
+
+interface Props {
+  title?: string
+  items?: any[]
+  showScrollbar?: boolean
+}
+
+const {
+  title,
+  items = [],
+  showScrollbar = false
+} = Astro.props
+
+// Detect current language from URL
+const currentLanguage = detectLanguage(Astro.request)
+
+// Fetch actual composer data from references
+let composerData: any[] = []
+if (items && items.length > 0) {
+  const composerIds = items.map((item: any) => item._ref).filter(Boolean)
+  if (composerIds.length > 0) {
+    const COMPOSER_QUERY = `*[_type == "composer" && _id in $composerIds]{
+      _id,
+      name,
+      description_no,
+      description_en,
+      "image": {
+        "image": image{
+          asset->{
+            _id,
+            url,
+            metadata {
+              dimensions {
+                width,
+                height,
+                aspectRatio
+              },
+              lqip,
+              blurHash,
+              palette {
+                dominant {
+                  background,
+                  foreground
+                }
+              }
+            }
+          },
+          hotspot,
+          crop
+        },
+        "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
+        "credit": coalesce(imageCredit_no, imageCredit_en)
+      }
+    }`
+    composerData = await sanityClient.fetch(COMPOSER_QUERY, { composerIds })
+  }
+}
+
+// CSS classes based on props
+const containerClass = 'composer-scroll-container'
+const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
+---
+
+<section class={`${containerClass} ${scrollbarClass}`}>
+  {title && <h2 class="composer-scroll-title">{title}</h2>}
+  <ul class="composer-list scroll-container scroll-container--always scroll-container--styled-scrollbar">
+    {composerData.map((composer) => {
+        if (!composer) return null
+
+        return (
+          <li class="composer-item">
+            <ComposerCard composer={composer} lang={currentLanguage} />
+          </li>
+        )
+      })}
+  </ul>
+</section>
+
+<style>
+  /* Scroll Container */
+  .composer-scroll-container {
+    container-type: inline-size;
+    width: min(100ch, 100% - 4rem);
+    margin-inline: auto;
+    margin-block: var(--space-m-l);
+  }
+
+  .composer-scroll-title {
+    font-size: var(--step-3);
+    font-weight: 600;
+    margin-block-end: var(--space-m);
+  }
+
+  /* Scroll list - behavior from scroll-containers.css */
+  .composer-list {
+    list-style: none;
+    margin: 0;
+    padding-block: var(--space-2);
+  }
+
+  .composer-item {
+    /* Container for ComposerCard component */
+    display: contents;
+  }
+
+  /* Hide scrollbar variant */
+  .hide-scrollbar .composer-list.scroll-container {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-block-end: 0;
+  }
+
+  .hide-scrollbar .composer-list.scroll-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Support for reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .composer-list.scroll-container {
+      scroll-behavior: auto;
+    }
+  }
+</style>

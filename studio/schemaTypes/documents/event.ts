@@ -198,6 +198,15 @@ export const event = defineType({
       },
     }),
     defineField({
+      name: 'spotifyItems',
+      title: 'Spotify-innhold',
+      type: 'array',
+      of: [{type: 'spotifyComponent'}],
+      description: 'Legg til Spotify-spor, album eller spillelister',
+      group: 'basic',
+      validation: (Rule) => Rule.max(8).warning('Maks 8 Spotify-elementer anbefalt'),
+    }),
+    defineField({
       name: 'ticketType',
       title: 'Type billettvisning',
       type: 'string',
@@ -317,11 +326,20 @@ export const event = defineType({
     defineField({
       name: 'description_no',
       title: 'Om konserten (norsk)',
-      type: 'text',
-      description: 'Hovedtekst om konserten på norsk (obligatorisk)',
+      type: 'portableText',
+      description: 'Hovedtekst om konserten på norsk (obligatorisk, maks 500 tegn)',
       group: 'no',
-      rows: 8,
-      validation: (Rule) => Rule.required().error('Beskrivelse av konserten må fylles ut'),
+      validation: (Rule) => Rule.required().error('Beskrivelse av konserten må fylles ut').custom((value: any) => {
+        if (!value) return true
+        const text = value
+          .filter((block: any) => block._type === 'block')
+          .map((block: any) => block.children?.map((child: any) => child.text || '').join('') || '')
+          .join('')
+        if (text.length > 500) {
+          return `Beskrivelsen er ${text.length} tegn. Maks 500 tegn tillatt.`
+        }
+        return true
+      }),
     }),
     defineField({
       name: 'extraContent_no',
@@ -385,10 +403,20 @@ export const event = defineType({
     defineField({
       name: 'description_en',
       title: 'About the concert (English)',
-      type: 'text',
-      description: 'Main text about the concert in English (optional)',
+      type: 'portableText',
+      description: 'Main text about the concert in English (optional, max 500 characters)',
       group: 'en',
-      rows: 8,
+      validation: (Rule) => Rule.custom((value: any) => {
+        if (!value) return true
+        const text = value
+          .filter((block: any) => block._type === 'block')
+          .map((block: any) => block.children?.map((child: any) => child.text || '').join('') || '')
+          .join('')
+        if (text.length > 500) {
+          return `Description is ${text.length} characters. Max 500 allowed.`
+        }
+        return true
+      }),
     }),
     defineField({
       name: 'extraContent_en',
