@@ -252,14 +252,15 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
     city,
     "slug": slug.current
   },
-  "artists": artist[]->{
+  "artists": artist[defined(@->) && (@->publishingStatus == "published" || !defined(@->publishingStatus))]->{
     _id,
     name,
     "slug": slug.current,
     ${ARTIST_IMAGE_SELECTION},
     instrument_no,
     instrument_en,
-    "instrument": coalesce(instrument_no, instrument_en)
+    "instrument": coalesce(instrument_no, instrument_en),
+    publishingStatus
   },
   "composers": composers[]->{
     _id,
@@ -513,7 +514,7 @@ const buildProgramPageQuery = (language: Language = 'no') => defineQuery(`*[_typ
     ${PAGE_CONTENT_WITH_LINKS}
   },
   seo,
-  selectedEvents[]->{
+  "selectedEvents": selectedEvents[defined(@->) && (@->publishingStatus == "published" || !defined(@->publishingStatus))]->{
     ${buildEventBaseFields(language)}
   }
 }`)
@@ -533,7 +534,7 @@ const buildArtistPageQuery = (language: Language = 'no') => defineQuery(`*[_type
     ${PAGE_CONTENT_WITH_LINKS}
   },
   seo,
-  selectedArtists[]->{
+  "selectedArtists": selectedArtists[defined(@->) && (@->publishingStatus == "published" || !defined(@->publishingStatus))]->{
     ${buildArtistBaseFields(language)}
   }
 }`)
@@ -554,7 +555,7 @@ const buildArticlePageQuery = (language: Language = 'no') => defineQuery(`*[_typ
   },
   seo,
   "articles": select(
-    count(selectedArticles) > 0 => selectedArticles[]->{${buildArticleBaseFields(language)}},
+    count(selectedArticles) > 0 => selectedArticles[defined(@->) && (@->publishingStatus == "published" || !defined(@->publishingStatus))]->{${buildArticleBaseFields(language)}},
     *[_type == "article" && publishingStatus != "draft"] | order(publishedAt desc){${buildArticleBaseFields(language)}}
   )
 }`)

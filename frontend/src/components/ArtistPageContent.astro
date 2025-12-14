@@ -33,7 +33,8 @@ const dataService = createDataService(Astro.request);
 const artistsPage = await dataService.getArtistPage();
 
 // Use only selected artists from artistPage
-const allArtists = artistsPage?.selectedArtists || [];
+// Filter out any null/undefined items (e.g., draft artists that are hidden)
+const allArtists = (artistsPage?.selectedArtists || []).filter(Boolean);
 
 // Group artists by cardSize - maintains selectedArtists array order
 const largeArtists = allArtists.filter((artist) => stegaClean(artist.cardSize) === 'stor');

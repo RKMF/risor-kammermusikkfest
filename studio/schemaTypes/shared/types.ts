@@ -92,7 +92,7 @@ export interface QuoteData extends GlobalComponentData {
 
 export interface AccordionData extends GlobalComponentData {
   title: string
-  description?: string
+  description?: PortableTextBlock[]
   panels: Array<{
     title: string
     content: GlobalComponentData[]

@@ -148,15 +148,6 @@ const fetchPriority = loading === 'eager' ? 'high' : 'auto';
     filter: blur(0);
   }
 
-  /* Smooth fade-in for eager images */
-  .header-image-element[loading="eager"] {
-    animation: fadeInHeaderImage 1.1s ease-in-out forwards;
-  }
-
-  @keyframes fadeInHeaderImage {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
 
   /* Caption styling */
   .image-caption {
