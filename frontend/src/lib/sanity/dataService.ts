@@ -83,14 +83,23 @@ export class SanityDataService {
     // Check cache first
     const cached = getFromCache(finalCacheKey);
     if (cached) {
-      console.log('[DataService] Returning cached result for:', finalCacheKey);
+      if (isDevelopment) console.log('[DataService] Returning cached result for:', finalCacheKey);
       return cached;
     }
 
-    // Fetch from Sanity
-    console.log('[DataService] Executing GROQ query:', { query, params, queryParams });
-    const data = await this.client.fetch(query, params, queryParams);
-    console.log('[DataService] Query returned:', data ? 'data' : 'null');
+    // Fetch from Sanity with error handling
+    if (isDevelopment) console.log('[DataService] Executing GROQ query:', { query, params, queryParams });
+
+    let data: unknown;
+    try {
+      data = await this.client.fetch(query, params, queryParams);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      console.error('[DataService] Sanity fetch failed:', message);
+      throw new Error(`Failed to fetch data from Sanity: ${message}`);
+    }
+
+    if (isDevelopment) console.log('[DataService] Query returned:', data ? 'data' : 'null');
 
     // Transform multilingual data if requested
     const transformedData = transformMultilingual
@@ -124,14 +133,14 @@ export class SanityDataService {
 
   // Page methods
   async getPageBySlug(slug: string, options: QueryOptions = {}) {
-    console.log('[DataService.getPageBySlug] Called with:', { slug, language: this.language });
+    if (isDevelopment) console.log('[DataService.getPageBySlug] Called with:', { slug, language: this.language });
     const result = await this.fetch(
       QueryBuilder.pageBySlug(slug, this.language),
       options,
       `page:${slug}:${this.language}`,
       CACHE_DURATION.page
     );
-    console.log('[DataService.getPageBySlug] Result:', result ? 'Found' : 'NULL');
+    if (isDevelopment) console.log('[DataService.getPageBySlug] Result:', result ? 'Found' : 'NULL');
     return result;
   }
 
@@ -164,14 +173,14 @@ export class SanityDataService {
 
   // Article methods
   async getArticleBySlug(slug: string, options: QueryOptions = {}) {
-    console.log('[DataService] Getting article by slug:', slug, 'language:', this.language);
+    if (isDevelopment) console.log('[DataService] Getting article by slug:', slug, 'language:', this.language);
     const result = await this.fetch(
       QueryBuilder.articleBySlug(slug, this.language),
       options,
       `article:${slug}:${this.language}`,
       CACHE_DURATION.articles
     );
-    console.log('[DataService] Article query result:', result ? 'Found' : 'Not found');
+    if (isDevelopment) console.log('[DataService] Article query result:', result ? 'Found' : 'Not found');
     return result;
   }
 
@@ -196,14 +205,14 @@ export class SanityDataService {
 
   // Event methods
   async getEventBySlug(slug: string, options: QueryOptions = {}) {
-    console.log('[DataService] Fetching event with slug:', slug, 'language:', this.language);
+    if (isDevelopment) console.log('[DataService] Fetching event with slug:', slug, 'language:', this.language);
     const result = await this.fetch(
       QueryBuilder.eventBySlug(slug, this.language),
       options,
       `event:${slug}:${this.language}`,
       CACHE_DURATION.events
     );
-    console.log('[DataService] Event query result:', result ? 'Found' : 'Not found');
+    if (isDevelopment) console.log('[DataService] Event query result:', result ? 'Found' : 'Not found');
     return result;
   }
 

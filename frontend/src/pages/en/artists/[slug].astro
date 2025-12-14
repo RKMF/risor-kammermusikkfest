@@ -1,18 +1,9 @@
 ---
+export const prerender = false;
+
 import ArtistDetailContent from '../../../components/ArtistDetailContent.astro';
 import { createDataService } from '../../../lib/sanity/dataService.js';
 import type { ArtistResult } from '../../../lib/sanity/queries';
-import { stegaClean } from '@sanity/client/stega';
-
-export async function getStaticPaths() {
-  if (import.meta.env.DEV) return [];
-
-  const dataService = createDataService();
-  const artists = await dataService.getArtistPage('en');
-  return artists.map((artist) => ({
-    params: { slug: stegaClean(artist.slug) }
-  }));
-}
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/en/404');

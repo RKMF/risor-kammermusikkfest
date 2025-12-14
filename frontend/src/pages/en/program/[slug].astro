@@ -1,12 +1,8 @@
 ---
+export const prerender = false;
+
 import EventDetailContent from '../../../components/EventDetailContent.astro';
 import { createDataService } from '../../../lib/sanity/dataService.js';
-
-export async function getStaticPaths() {
-  const dataService = createDataService();
-  const events = await dataService.getSlugsForType('event');
-  return events.map((event: any) => ({ params: event.params }));
-}
 
 const dataService = createDataService(Astro.request);
 const event = await dataService.getEventBySlug(Astro.params.slug);

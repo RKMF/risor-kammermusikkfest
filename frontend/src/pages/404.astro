@@ -1,24 +1,41 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { detectLanguage } from '../lib/utils/language.js';
+
+// Detect language from request
+const currentLang = detectLanguage(Astro.request);
+const isEnglish = currentLang === 'en';
+
+// Bilingual content
+const content = {
+  title: isEnglish ? '404 - Page not found' : '404 - Side ikke funnet',
+  heading: isEnglish ? 'Page not found' : 'Side ikke funnet',
+  message: isEnglish
+    ? 'Sorry, we cannot find the page you are looking for. The page may have been moved or deleted. Please check the URL or go back to the homepage.'
+    : 'Beklager, vi finner ikke siden du leter etter. Siden kan ha blitt flyttet eller slettet. Sjekk at URL-en er riktig, eller gå tilbake til forsiden.',
+  homeLink: isEnglish ? 'Go to homepage' : 'Gå til forsiden',
+  programLink: isEnglish ? 'See the program' : 'Se programmet',
+  homeHref: isEnglish ? '/en' : '/',
+  programHref: isEnglish ? '/en/program' : '/program',
+};
 ---
 
 <Layout
-  title="404 - Side ikke funnet"
+  title={content.title}
   noIndex={true}
 >
   <div class="error-page">
     <h1 class="error-code">404</h1>
-    <h2 class="error-title">Side ikke funnet</h2>
+    <h2 class="error-title">{content.heading}</h2>
     <p class="error-message">
-      Beklager, vi finner ikke siden du leter etter. Siden kan ha blitt flyttet eller slettet.
-      Sjekk at URL-en er riktig, eller gå tilbake til forsiden.
+      {content.message}
     </p>
     <div class="error-actions">
-      <a href="/" class="btn btn-primary">
-        Gå til forsiden
+      <a href={content.homeHref} class="btn btn-primary">
+        {content.homeLink}
       </a>
-      <a href="/program" class="btn btn-secondary">
-        Se programmet
+      <a href={content.programHref} class="btn btn-secondary">
+        {content.programLink}
       </a>
     </div>
   </div>

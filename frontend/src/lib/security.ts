@@ -139,23 +139,34 @@ export class InputValidator {
 
 /**
  * CORS configuration for API endpoints
+ * Uses PUBLIC_SITE_URL to derive allowed origins automatically
  */
 export function getCORSHeaders(origin?: string): HeadersInit {
-  // In production, validate against allowed origins
-  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:4321']
-  
+  // Derive allowed origins from PUBLIC_SITE_URL (supports both with and without www)
+  const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'http://localhost:4321';
+  const allowedOrigins = [siteUrl];
+
+  // Also allow www variant for production
+  if (siteUrl.includes('kammermusikkfest.no')) {
+    if (siteUrl.includes('www.')) {
+      allowedOrigins.push(siteUrl.replace('www.', ''));
+    } else {
+      allowedOrigins.push(siteUrl.replace('https://', 'https://www.'));
+    }
+  }
+
   const headers: HeadersInit = {
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Max-Age': '86400', // 24 hours
   }
-  
+
   if (origin && allowedOrigins.includes(origin)) {
     headers['Access-Control-Allow-Origin'] = origin
   } else {
     headers['Access-Control-Allow-Origin'] = allowedOrigins[0]
   }
-  
+
   return headers
 }
 

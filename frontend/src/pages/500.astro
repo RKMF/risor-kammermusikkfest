@@ -1,28 +1,51 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { detectLanguage } from '../lib/utils/language.js';
+
+// Detect language from request
+const currentLang = detectLanguage(Astro.request);
+const isEnglish = currentLang === 'en';
+
+// Bilingual content
+const content = {
+  title: isEnglish ? '500 - Server error' : '500 - Serverfeil',
+  heading: isEnglish ? 'Oops! Something went wrong' : 'Oisann! Noe gikk galt',
+  message: isEnglish
+    ? 'A technical error occurred on the server. Our team has been notified and is working on it. Please try again in a moment.'
+    : 'Det oppstod en teknisk feil på serveren. Vårt team har blitt varslet og jobber med saken. Prøv gjerne igjen om litt.',
+  retryButton: isEnglish ? 'Try again' : 'Prøv på nytt',
+  homeLink: isEnglish ? 'Go to homepage' : 'Gå til forsiden',
+  homeHref: isEnglish ? '/en' : '/',
+};
 ---
 
 <Layout
-  title="500 - Serverfeil"
+  title={content.title}
   noIndex={true}
 >
   <div class="error-page">
     <h1 class="error-code error-code--danger">500</h1>
-    <h2 class="error-title">Oisann! Noe gikk galt</h2>
+    <h2 class="error-title">{content.heading}</h2>
     <p class="error-message">
-      Det oppstod en teknisk feil på serveren. Vårt team har blitt varslet og jobber med saken.
-      Prøv gjerne igjen om litt.
+      {content.message}
     </p>
     <div class="error-actions">
-      <button onclick="window.location.reload()" class="btn btn-primary">
-        Prøv på nytt
+      <button id="retry-button" class="btn btn-primary" type="button">
+        {content.retryButton}
       </button>
-      <a href="/" class="btn btn-secondary">
-        Gå til forsiden
+      <a href={content.homeHref} class="btn btn-secondary">
+        {content.homeLink}
       </a>
     </div>
   </div>
 </Layout>
+
+<script>
+  // CSP-compliant event listener (no inline onclick)
+  document.getElementById('retry-button')?.addEventListener('click', () => {
+    window.location.reload();
+  });
+</script>
 
 <style>
   .error-page, .error-page-custom {
