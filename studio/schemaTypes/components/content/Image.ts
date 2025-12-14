@@ -54,7 +54,7 @@ export const imageComponent = defineType({
           {title: 'Kvadrat (1:1)', value: '1:1'},
           {title: 'Portrett (4:5)', value: '4:5'},
           {title: 'Stående (9:16)', value: '9:16'},
-          {title: 'Landskap (16:9)', value: '16:9'},
+          {title: 'Landskap (4:3)', value: '4:3'},
         ],
         layout: 'radio',
       },

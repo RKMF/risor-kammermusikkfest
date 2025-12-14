@@ -20,8 +20,9 @@ export const accordionComponent = defineType({
     defineField({
       name: 'description',
       title: 'Beskrivelse',
-      type: 'text',
+      type: 'array',
       description: 'Valgfri beskrivelse som vises under tittelen',
+      of: [{type: 'block'}],
     }),
     defineField({
       name: 'panels',

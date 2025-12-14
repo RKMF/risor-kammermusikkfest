@@ -9,7 +9,7 @@ import PortableText from './PortableText.astro'
 
 export interface Props {
   title?: string
-  description?: string
+  description?: any[]
   panels?: Array<{
     title: string
     content: any[]
@@ -57,7 +57,11 @@ function batchContent(content: any[]) {
 
 <section class={`accordion ${className}`}>
   {title && <h2 class="accordion-title">{title}</h2>}
-  {description && <p class="accordion-description">{description}</p>}
+  {description && description.length > 0 && (
+    <div class="accordion-description">
+      <PortableText value={description} />
+    </div>
+  )}
 
   {panels && panels.length > 0 ? (
     panels.map((panel) => (
@@ -95,9 +99,7 @@ function batchContent(content: any[]) {
         </div>
       </details>
     ))
-  ) : (
-    <p class="no-panels">Ingen paneler tilgjengelig</p>
-  )}
+  ) : null}
 </section>
 
 
@@ -211,8 +213,4 @@ function batchContent(content: any[]) {
     max-inline-size: none;
   }
 
-  .no-panels {
-    padding: var(--space-m) var(--space-m-l); /* Fluid padding */
-    text-align: center;
-  }
 </style> 

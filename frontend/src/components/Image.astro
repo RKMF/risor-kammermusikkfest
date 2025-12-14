@@ -1,5 +1,6 @@
 ---
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import { stegaClean } from '@sanity/client/stega';
 import {
   getResponsiveImageSet,
   extractImageMetadata,
@@ -62,7 +63,7 @@ const caption = isImageComponent(props) ? props.image.caption : props.caption;
 const credit = isImageComponent(props) ? props.image.credit : props.credit;
 const alignment = props.alignment || 'center';
 const size = props.size || 'medium';
-const aspectRatio = props.aspectRatio || '4:5';
+const aspectRatio = stegaClean(props.aspectRatio) || '4:5';
 const className = 'className' in props ? props.className || '' : '';
 const loading = 'loading' in props ? props.loading || 'lazy' : 'lazy';
 const quality = 'quality' in props ? props.quality || IMAGE_QUALITY.CARD : IMAGE_QUALITY.CARD;
@@ -80,6 +81,11 @@ const getAspectRatioValue = (ratio: string | number): number => {
 };
 
 const aspectValue = getAspectRatioValue(aspectRatio);
+
+// Max height for images on desktop (~600px, matches CSS max-block-size)
+// CSS uses calc(var(--space-3xl) * 7.5) which ranges 480-600px
+// We use the maximum to ensure crisp images at all viewport sizes
+const MAX_IMAGE_HEIGHT = 600;
 
 // Map size prop to actual display width (matching ch-based widths)
 const getDisplayWidth = (size: string): number => {
@@ -114,7 +120,23 @@ const getAutoSizes = (size: string): string => {
   }
 };
 
-const imageWidths = getImageWidths(size);
+// Generate optimized widths based on actual displayed dimensions for ALL images
+const getOptimizedWidths = (baseWidth: number, aspectVal: number, maxHeight: number): number[] => {
+  const naturalHeight = baseWidth / aspectVal;
+
+  // Determine actual displayed width (accounting for max-height constraint)
+  const actualWidth = naturalHeight > maxHeight
+    ? Math.round(maxHeight * aspectVal)
+    : baseWidth;
+
+  // Generate widths: 0.5x, 0.75x, 1x, 1.5x, 2x of actual displayed width
+  const multipliers = [0.5, 0.75, 1, 1.5, 2];
+  return multipliers
+    .map(m => Math.round(actualWidth * m))
+    .filter(w => w >= 200 && w <= 2400); // Reasonable bounds
+};
+
+const imageWidths = getOptimizedWidths(getDisplayWidth(size), aspectValue, MAX_IMAGE_HEIGHT);
 const imageSizes = sizes || getAutoSizes(size);
 
 // Generate responsive srcset with auto-format (only if image exists)
@@ -143,11 +165,23 @@ if (image && placeholder === 'blur') {
   }
 }
 
-// Fixed height matching ContentScrollContainer (350px)
-const fixedHeight = 350;
-const imageHeight = fixedHeight;
-// Calculate width from fixed height and aspect ratio
-const imageWidth = Math.round(fixedHeight * aspectValue);
+// Calculate dimensions accounting for max-height constraint
+const displayWidth = getDisplayWidth(size);
+const naturalHeight = Math.round(displayWidth / aspectValue);
+
+// If height would exceed max, calculate from max height instead
+let imageWidth: number;
+let imageHeight: number;
+
+if (naturalHeight > MAX_IMAGE_HEIGHT) {
+  // Tall image: calculate from max height to request optimal size
+  imageHeight = MAX_IMAGE_HEIGHT;
+  imageWidth = Math.round(MAX_IMAGE_HEIGHT * aspectValue);
+} else {
+  // Normal image: calculate from width
+  imageWidth = displayWidth;
+  imageHeight = naturalHeight;
+}
 
 // Generate fallback URL with fixed height and calculated width (only if image exists)
 const fallbackUrl = image ? getOptimizedImageUrl(
@@ -265,13 +299,20 @@ const fetchPriority = priority ? 'high' : 'auto';
   .image {
     display: block;
     width: 100%;
-    max-height: 350px; /* Optional constraint - prevents excessively tall images */
+    height: auto; /* Let aspect-ratio control height */
     object-fit: cover;
     object-position: center;
 
     /* aspect-ratio set via inline style (from component props) */
     /* Placeholder shows as background during load */
     /* background-image and background-color set via inline style */
+  }
+
+  /* Limit tall images on desktop to prevent excessive scroll */
+  @media (min-width: 48rem) {
+    .image {
+      max-block-size: calc(var(--space-3xl) * 7.5); /* ~480-600px fluid */
+    }
   }
 
   /* Blur effect only for lazy-loaded images */
