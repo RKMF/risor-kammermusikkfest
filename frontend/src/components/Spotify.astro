@@ -1,4 +1,6 @@
 ---
+import { detectLanguage } from '../lib/utils/language.js';
+
 export interface Props {
   spotifyUrl: string
   title?: string
@@ -60,6 +62,19 @@ function generateSpotifyEmbedUrl(url: string, isCompact: boolean = false): strin
 const embedUrl = generateSpotifyEmbedUrl(spotifyUrl, compact)
 const actualHeight = compact ? 80 : height
 
+// Language-specific error messages
+const language = detectLanguage(Astro.request);
+const errorText = {
+  no: {
+    loadError: 'Kunne ikke laste Spotify-innhold',
+    invalidUrl: 'Ugyldig Spotify URL'
+  },
+  en: {
+    loadError: 'Could not load Spotify content',
+    invalidUrl: 'Invalid Spotify URL'
+  }
+}[language];
+
 // Sanity Visual Editing attributes
 const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
 ---
@@ -81,8 +96,8 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
     </div>
   ) : (
     <div class="spotify-error">
-      <p>Kunne ikke laste Spotify-innhold</p>
-      <p class="error-detail">Ugyldig Spotify URL</p>
+      <p>{errorText.loadError}</p>
+      <p class="error-detail">{errorText.invalidUrl}</p>
     </div>
   )}
 
