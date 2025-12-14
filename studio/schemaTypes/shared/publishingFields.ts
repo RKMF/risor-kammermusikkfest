@@ -8,6 +8,7 @@
 import {defineField} from 'sanity'
 import {CogIcon} from '@sanity/icons'
 import {crossFieldValidation} from './validation'
+import {PublishingStatusInput} from '../../components/inputs/PublishingStatusInput'
 
 /**
  * Publishing status field - controls content visibility
@@ -36,6 +37,9 @@ export const publishingStatusField = (groupName = 'publishing') =>
     initialValue: 'published',
     validation: (Rule) => Rule.required(),
     group: groupName,
+    components: {
+      input: PublishingStatusInput,
+    },
   })
 
 /**

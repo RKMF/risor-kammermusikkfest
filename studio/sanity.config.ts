@@ -154,44 +154,53 @@ export default defineConfig({
       // Replace default publish action with custom actions for different document types
 
       // Artist documents: sync events + add to artist page + custom delete
+      // Remove 'unpublish' action - editors should use Publisering tab (publishingStatus field) instead
       if (context.schemaType === 'artist') {
-        return prev.map((action) => {
-          if (action.action === 'publish') {
-            // Use composite action which handles event sync and artist page dialog
-            return compositeArtistPublishAction
-          }
-          if (action.action === 'delete') {
-            return deleteArtistAction
-          }
-          return action
-        })
+        return prev
+          .filter((action) => action.action !== 'unpublish')
+          .map((action) => {
+            if (action.action === 'publish') {
+              // Use composite action which handles event sync and artist page dialog
+              return compositeArtistPublishAction
+            }
+            if (action.action === 'delete') {
+              return deleteArtistAction
+            }
+            return action
+          })
       }
 
       // Event documents: sync date value + sync artists + add to program page + custom delete
+      // Remove 'unpublish' action - editors should use Publisering tab (publishingStatus field) instead
       if (context.schemaType === 'event') {
-        return prev.map((action) => {
-          if (action.action === 'publish') {
-            // Use composite action which handles date sync, artist sync, and program page dialog
-            return compositeEventPublishAction
-          }
-          if (action.action === 'delete') {
-            return deleteEventAction
-          }
-          return action
-        })
+        return prev
+          .filter((action) => action.action !== 'unpublish')
+          .map((action) => {
+            if (action.action === 'publish') {
+              // Use composite action which handles date sync, artist sync, and program page dialog
+              return compositeEventPublishAction
+            }
+            if (action.action === 'delete') {
+              return deleteEventAction
+            }
+            return action
+          })
       }
 
       // Article documents: add to article page + custom delete
+      // Remove 'unpublish' action - editors should use Publisering tab (publishingStatus field) instead
       if (context.schemaType === 'article') {
-        return prev.map((action) => {
-          if (action.action === 'publish') {
-            return addArticleToArticlePageAction
-          }
-          if (action.action === 'delete') {
-            return deleteArticleAction
-          }
-          return action
-        })
+        return prev
+          .filter((action) => action.action !== 'unpublish')
+          .map((action) => {
+            if (action.action === 'publish') {
+              return addArticleToArticlePageAction
+            }
+            if (action.action === 'delete') {
+              return deleteArticleAction
+            }
+            return action
+          })
       }
 
       return prev

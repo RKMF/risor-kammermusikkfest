@@ -129,8 +129,8 @@ function generateEventHtml(event: EventResult): string {
                 : ''
             }
             ${
-              event.artists && event.artists.length > 0
-                ? `<div style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-weight: 600; min-width: 4rem;">Artister:</span><span>${event.artists.map((artist) => escapeHtml(artist.name || '')).filter(Boolean).join(', ')}</span></div>`
+              event.artists && event.artists.filter(Boolean).length > 0
+                ? `<div style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;"><span style="font-weight: 600; min-width: 4rem;">Artister:</span><span>${event.artists.filter(Boolean).map((artist) => escapeHtml(artist.name || '')).filter(Boolean).join(', ')}</span></div>`
                 : ''
             }
             ${
