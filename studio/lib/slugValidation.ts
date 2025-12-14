@@ -1,4 +1,4 @@
-import type {SlugValidationContext} from 'sanity'
+import type {ValidationContext} from 'sanity'
 
 /**
  * Creates a unique slug validation function for a specific document type
@@ -6,7 +6,7 @@ import type {SlugValidationContext} from 'sanity'
  * @returns Validation function that checks for slug uniqueness
  */
 export function createUniqueSlugValidation(documentType: string) {
-  return async (slug: {current: string} | undefined, context: SlugValidationContext) => {
+  return async (slug: {current?: string} | undefined, context: ValidationContext) => {
     if (!slug?.current) return true
 
     const {document, getClient} = context
@@ -39,8 +39,8 @@ export function createUniqueSlugValidation(documentType: string) {
  * Special validation for event slugs that checks both Norwegian and English slug fields
  */
 export async function eventSlugValidation(
-  slug: {current: string} | undefined,
-  context: SlugValidationContext
+  slug: {current?: string} | undefined,
+  context: ValidationContext
 ) {
   if (!slug?.current) return true
 

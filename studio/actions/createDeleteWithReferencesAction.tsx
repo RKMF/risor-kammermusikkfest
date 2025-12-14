@@ -135,7 +135,7 @@ export function createDeleteWithReferencesAction(
       label: 'Slett',
       icon: TrashIcon,
       tone: 'critical',
-      disabled: deleteOp.disabled,
+      disabled: !!deleteOp.disabled,
       onHandle: handleDelete,
       dialog: dialogOpen && {
         type: 'dialog',

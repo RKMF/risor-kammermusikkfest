@@ -17,7 +17,7 @@ export const syncEventDateValue: DocumentActionComponent = (props) => {
   }
 
   const doc = draft || published
-  const eventDateRef = doc?.eventDate?._ref
+  const eventDateRef = (doc?.eventDate as {_ref?: string} | undefined)?._ref
 
   const syncDateValue = useCallback(async () => {
     if (!eventDateRef) {
@@ -55,6 +55,6 @@ export const syncEventDateValue: DocumentActionComponent = (props) => {
   return {
     label: 'Lagre',
     onHandle: handlePublish,
-    disabled: publish.disabled,
+    disabled: !!publish.disabled,
   }
 }

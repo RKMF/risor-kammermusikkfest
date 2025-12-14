@@ -289,13 +289,16 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
   return {
     label: 'Lagre',
     icon: PublishIcon,
-    disabled: publish.disabled,
+    disabled: !!publish.disabled,
     title: publish.disabled ? 'Ingen endringer å lagre' : undefined,
     onHandle: handlePublish,
     dialog: loadingDialogOpen
       ? {
           type: 'dialog',
           header: 'Lagrer artist',
+          onClose: () => {
+            // Loading dialog should not be closeable, but onClose is required
+          },
           content: (
             <Stack space={4} padding={4}>
               <Flex justify="center" align="center" direction="column" gap={3} style={{minHeight: '100px'}}>
