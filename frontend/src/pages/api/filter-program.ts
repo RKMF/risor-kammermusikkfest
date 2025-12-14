@@ -12,6 +12,39 @@ import {
 } from '../../lib/security';
 import EventCard from '../../components/EventCard.astro';
 
+// Types for program page data
+interface EventVenue {
+  slug: string;
+  title: string;
+}
+
+interface EventDate {
+  date: string;
+  title?: string;
+}
+
+interface EventTime {
+  startTime?: string;
+}
+
+interface ProgramEvent {
+  _id: string;
+  eventDate?: EventDate;
+  eventTime?: EventTime;
+  venue?: EventVenue;
+  [key: string]: unknown; // Allow other properties from Sanity
+}
+
+interface DateGroup {
+  date: string;
+  displayTitle: string;
+  events: ProgramEvent[];
+}
+
+interface ProgramPageData {
+  selectedEvents?: (ProgramEvent | null)[];
+}
+
 // Rate limiter configuration
 const rateLimiter = rateLimit({
   maxRequests: 60, // 60 requests per minute (generous for date filtering)
@@ -67,11 +100,13 @@ export const GET: APIRoute = async ({ request, url }) => {
     }
 
     // Get program page data
-    const programPage = await dataService.getProgramPage();
-    const events = ((programPage as any)?.selectedEvents || []).filter((event: any) => event != null);
+    const programPage = await dataService.getProgramPage() as ProgramPageData;
+    const events: ProgramEvent[] = (programPage?.selectedEvents || []).filter(
+      (event): event is ProgramEvent => event != null
+    );
 
     // Group events by date (same logic as program.astro)
-    const eventsByDate = events.reduce((acc: any, event: any) => {
+    const eventsByDate = events.reduce<Record<string, DateGroup>>((acc, event) => {
       if (!event?.eventDate?.date) return acc;
 
       const dateKey = event.eventDate.date;
@@ -84,14 +119,14 @@ export const GET: APIRoute = async ({ request, url }) => {
       }
       acc[dateKey].events.push(event);
       return acc;
-    }, {} as Record<string, { date: string; displayTitle: string; events: typeof events }>);
+    }, {});
 
     // Sort dates chronologically and sort events within each date by time
-    const sortedDates = Object.values(eventsByDate)
-      .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .map((dateGroup: any) => ({
+    const sortedDates: DateGroup[] = Object.values(eventsByDate)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .map((dateGroup) => ({
         ...dateGroup,
-        events: dateGroup.events.sort((a: any, b: any) => {
+        events: dateGroup.events.sort((a, b) => {
           const timeA = a.eventTime?.startTime || '';
           const timeB = b.eventTime?.startTime || '';
           return timeA.localeCompare(timeB);
@@ -111,7 +146,7 @@ export const GET: APIRoute = async ({ request, url }) => {
       filteredDates = filteredDates
         .map(dateGroup => ({
           ...dateGroup,
-          events: dateGroup.events.filter((e: any) => e.venue?.slug === venueFilter)
+          events: dateGroup.events.filter((e) => e.venue?.slug === venueFilter)
         }))
         .filter(dateGroup => dateGroup.events.length > 0);
     }
@@ -124,14 +159,14 @@ export const GET: APIRoute = async ({ request, url }) => {
     if (dateFilter && venueFilter) {
       // Get display names from the events data
       const dateDisplay = sortedDates.find(d => d.date === dateFilter)?.displayTitle || formatDateWithWeekday(dateFilter, language);
-      const venueEvent = events.find((e: any) => e.venue?.slug === venueFilter);
+      const venueEvent = events.find((e) => e.venue?.slug === venueFilter);
       const venueDisplay = venueEvent?.venue?.title || venueFilter;
       emptyStateMessage = `Ingen arrangementer på ${dateDisplay} og ${venueDisplay}`;
     } else if (dateFilter) {
       const dateDisplay = sortedDates.find(d => d.date === dateFilter)?.displayTitle || formatDateWithWeekday(dateFilter, language);
       emptyStateMessage = `Ingen arrangementer på ${dateDisplay}`;
     } else if (venueFilter) {
-      const venueEvent = events.find((e: any) => e.venue?.slug === venueFilter);
+      const venueEvent = events.find((e) => e.venue?.slug === venueFilter);
       const venueDisplay = venueEvent?.venue?.title || venueFilter;
       emptyStateMessage = `Ingen arrangementer på ${venueDisplay}`;
     }
@@ -148,7 +183,7 @@ export const GET: APIRoute = async ({ request, url }) => {
         filteredDates.map(async ({ date, displayTitle, events: dateEvents }) => {
           // Render each EventCard using the actual component
           const eventCardsHtml = await Promise.all(
-            dateEvents.map((event: any) =>
+            dateEvents.map((event) =>
               container.renderToString(EventCard, {
                 props: { event, language },
               })

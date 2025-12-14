@@ -116,8 +116,8 @@ const apiPath = '/api/filter-program';
     </div>
   )}
 
-  <!-- Loading indicator for htmx requests -->
-  <div id="filter-loading" class="htmx-indicator" aria-live="polite" aria-busy="false">
+  <!-- Loading indicator for htmx requests (targeted via hx-indicator="#filter-loading") -->
+  <div id="filter-loading" aria-live="polite" aria-busy="false">
     {language === 'no' ? 'Laster arrangementer...' : 'Loading events...'}
   </div>
 </section>
