@@ -455,9 +455,14 @@ export function initializeSomeFeature(param) {
 
 ### Branch Strategy: Two-Branch Model
 
-**Permanent Branches:**
+**Permanent Branches (Protected):**
 - `main` - Production branch (deploys to live URL)
 - `staging` - Testing/preview branch (deploys to test URL)
+
+Both branches are **protected** on GitHub:
+- Direct pushes are blocked
+- Changes require Pull Requests
+- CI checks must pass before merge
 
 **Temporary Branches (Your Workspace):**
 - `feature/*` - New features (e.g., `feature/ticket-sales`)
@@ -485,19 +490,20 @@ git commit -m "Add new feature"
 # 3. Push when ready
 git push origin feature/new-feature
 
-# 4. Open PR: feature/new-feature → staging
-# - Test on staging URL
-# - Review changes
-# - Merge to staging
+# 4. Create PR: feature/new-feature → staging
+gh pr create --base staging --title "Feature description"
 
-# 5. When ready for production
-# Open PR: staging → main
-# - Final review
-# - Merge to main (deploys to production)
+# 5. Review PR in Cursor IDE (GitHub Pull Requests extension)
+# - Or view in terminal: gh pr diff
 
-# 6. Clean up
-git branch -d feature/new-feature
-git push origin --delete feature/new-feature
+# 6. Merge to staging
+gh pr merge --squash --delete-branch
+
+# 7. Test on staging URL, then promote to production
+gh pr create --base main --head staging --title "Release: feature description"
+# ⚠️ IMPORTANT: Review and merge in GitHub UI (not CLI) for production releases
+
+# 8. Feature branch already deleted by --delete-branch flag
 ```
 
 ### Branch Management Rules
@@ -826,6 +832,38 @@ Before every commit, verify:
 3. **Will this add complexity?** → If yes, find a simpler solution
 4. **Which agent aligns with keeping things simple?** → Choose that one
 
+### GitHub CLI Integration
+
+**Capabilities via `gh` CLI:**
+- Create PRs with title, description, and labels
+- Merge PRs (squash/merge/rebase)
+- Check PR status, reviews, and CI results
+- List and manage issues
+- View diffs and comments
+
+**Workflow with Claude:**
+
+*Feature → Staging (standard workflow):*
+1. Claude implements changes on feature branch
+2. Claude commits and pushes
+3. Claude creates PR via `gh pr create --base staging`
+4. User reviews in Cursor IDE or terminal (`gh pr diff`)
+5. User says "merge" → Claude merges via `gh pr merge`
+
+*Staging → Main (production release):*
+1. Claude creates PR via `gh pr create --base main --head staging`
+2. **User reviews and merges directly in GitHub** (not via CLI)
+3. Production deployment requires explicit human approval in GitHub UI
+
+**Why the difference?**
+- Staging merges are iterative development - quick feedback loop
+- Production merges deploy to live users - require careful GitHub review
+
+**Review Options (for staging merges):**
+- **Cursor IDE**: GitHub Pull Requests extension shows PRs in sidebar with inline diff
+- **Terminal**: `gh pr diff` shows full diff
+- **Claude summary**: Claude can summarize changes on request
+
 ### MCP Server Usage
 
 **Tool Hierarchy (Important):**
@@ -866,6 +904,14 @@ cd studio && npm run deploy  # Deploy studio to https://rkmf-cms.sanity.studio/
 # Sanity TypeGen operations (run from studio folder)
 npm run extract-schema  # Extract schema to frontend
 cd ../frontend && npm run typegen  # Generate types from schema
+
+# GitHub CLI (requires: brew install gh && gh auth login)
+gh pr create --base staging --title "Title"  # Create PR
+gh pr merge --squash --delete-branch         # Merge and cleanup
+gh pr list                                   # List open PRs
+gh pr diff                                   # View PR diff
+gh issue list                                # List open issues
+gh issue create --title "Title"              # Create issue
 ```
 
 **Documentation:**
