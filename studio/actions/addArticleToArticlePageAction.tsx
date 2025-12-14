@@ -96,7 +96,7 @@ export const addArticleToArticlePageAction: DocumentActionComponent = (props) =>
   return {
     label: 'Lagre',
     icon: PublishIcon,
-    disabled: publish.disabled,
+    disabled: !!publish.disabled,
     title: publish.disabled ? 'Ingen endringer å lagre' : undefined,
     onHandle: handlePublish,
     dialog: dialogOpen && {
