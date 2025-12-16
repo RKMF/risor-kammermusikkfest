@@ -45,7 +45,7 @@ const customNorwegianResources = {
 
 export default defineConfig({
   name: 'default',
-  title: 'RKMF CMS',
+  title: "Kammer'n",
   icon: RKMFLogo,
 
   projectId: 'dnk98dp0',
