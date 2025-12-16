@@ -85,6 +85,13 @@ playwright-report/
 vitest-report/
 
 # ============================================
+# Lighthouse CI Reports
+# ============================================
+.lighthouseci/
+lighthouse-report*.html
+*.lighthouse.html
+
+# ============================================
 # Sanity CMS Specific
 # ============================================
 .sanity/
