@@ -212,7 +212,7 @@ const fetchPriority = priority ? 'high' : 'auto';
       decoding="async"
       fetchpriority={fetchPriority}
       sizes={imageSizes}
-      class:list={['image', imageLoading === 'eager' && 'image-loaded']}
+      class="image"
       style={`aspect-ratio: ${aspectValue}; ${placeholderUrl ? `background-image: url(${placeholderUrl}); background-size: cover; background-position: center;` : 'background-color: var(--color-gray-100, #f5f5f5);'}`}
     />
   ) : (
@@ -228,36 +228,6 @@ const fetchPriority = priority ? 'high' : 'auto';
     </figcaption>
   )}
 </figure>
-
-<script>
-  // Client-side image load detection (only for lazy-loaded images)
-  function initImageLoading() {
-    // Only target lazy-loaded images (eager images have 'image-loaded' class pre-applied)
-    const lazyImages = document.querySelectorAll('.image-container .image[loading="lazy"]');
-
-    lazyImages.forEach((img) => {
-      // Check if already loaded
-      if ((img as HTMLImageElement).complete) {
-        img.classList.add('image-loaded');
-      } else {
-        // Listen for load event
-        img.addEventListener('load', () => {
-          img.classList.add('image-loaded');
-        }, { once: true });
-      }
-    });
-  }
-
-  // Run on initial page load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initImageLoading);
-  } else {
-    initImageLoading();
-  }
-
-  // Run on Astro page transitions (if using View Transitions)
-  document.addEventListener('astro:page-load', initImageLoading);
-</script>
 
 <style>
   /* CSS Variable-based width control - Kevin Powell method */
@@ -295,7 +265,7 @@ const fetchPriority = priority ? 'high' : 'auto';
     height: 100%;
   }
 
-  /* Image element with blur-up effect */
+  /* Image element with LQIP background placeholder */
   .image {
     display: block;
     width: 100%;
@@ -312,50 +282,6 @@ const fetchPriority = priority ? 'high' : 'auto';
   @media (min-width: 48rem) {
     .image {
       max-block-size: calc(var(--space-3xl) * 7.5); /* ~480-600px fluid */
-    }
-  }
-
-  /* Blur effect only for lazy-loaded images */
-  .image[loading="lazy"] {
-    filter: blur(0);
-    transition: filter 400ms ease-out, opacity 400ms ease-out;
-  }
-
-  /* Before lazy image loads, show blurred placeholder */
-  .image[loading="lazy"]:not(.image-loaded) {
-    filter: blur(20px);
-  }
-
-  /* Ensure smooth fade-in for lazy images */
-  .image[loading="lazy"].image-loaded {
-    filter: blur(0);
-  }
-
-  /* Dark mode: combine blur with brightness/contrast to match global dark mode filter */
-  @media (prefers-color-scheme: dark) {
-    .image[loading="lazy"] {
-      filter: blur(0) brightness(0.9) contrast(1.05);
-    }
-
-    .image[loading="lazy"]:not(.image-loaded) {
-      filter: blur(20px) brightness(0.9) contrast(1.05);
-    }
-
-    .image[loading="lazy"].image-loaded {
-      filter: blur(0) brightness(0.9) contrast(1.05);
-    }
-
-    /* Restore full brightness on hover */
-    .image[loading="lazy"]:hover,
-    .image[loading="lazy"]:focus {
-      filter: blur(0) brightness(1) contrast(1);
-    }
-  }
-
-  /* Accessibility: Reduced motion support */
-  @media (prefers-reduced-motion: reduce) {
-    .image {
-      transition: none;
     }
   }
 
