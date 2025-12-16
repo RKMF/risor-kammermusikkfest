@@ -704,7 +704,7 @@ Understanding **what files we track** and **why** is crucial for security, colla
 - **Why**: Ensures reproducible builds - everyone gets same dependency versions
 
 ✅ **Documentation**
-- `README.md`, `PROJECT_GUIDE.md`, `CHANGELOG.md`
+- `README.md` (at root), `docs/` folder (PROJECT_GUIDE, DEPLOYMENT, DESIGN-SYSTEM, MEDIA, SECURITY)
 - **Why**: Project knowledge, onboarding, and history
 
 **What We DON'T Track (and Why):**

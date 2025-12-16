@@ -112,7 +112,7 @@ Manual async CSS loading was considered but **not implemented** after technical 
    - This is the 20% that gives 80% of the benefit
 
 3. **Aligns with Project Philosophy**
-   - PROJECT_GUIDE.md: "working code > elegant code"
+   - docs/PROJECT_GUIDE.md: "working code > elegant code"
    - Premature optimization is the root of all evil
    - Focus on features, not micro-optimizations
 

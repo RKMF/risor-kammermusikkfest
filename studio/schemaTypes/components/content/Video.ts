@@ -1,7 +1,7 @@
-import {defineField, defineType} from 'sanity'
-import {DocumentIcon, PlayIcon} from '@sanity/icons'
-import {componentValidation} from '../../shared/validation'
-import type {VideoData, ComponentHTMLGenerator, ValidationRule} from '../../shared/types'
+import { defineField, defineType } from 'sanity';
+import { DocumentIcon, PlayIcon } from '@sanity/icons';
+import { componentValidation } from '../../shared/validation';
+import type { VideoData, ComponentHTMLGenerator, ValidationRule } from '../../shared/types';
 
 export const videoComponent = defineType({
   name: 'videoComponent',
@@ -28,10 +28,10 @@ export const videoComponent = defineType({
       group: 'content',
       options: {
         list: [
-          {title: 'Last opp fil', value: 'sanity'},
-          {title: 'YouTube', value: 'youtube'},
-          {title: 'Vimeo', value: 'vimeo'},
-          {title: 'Annen video-URL', value: 'external'},
+          { title: 'Last opp fil', value: 'sanity' },
+          { title: 'YouTube', value: 'youtube' },
+          { title: 'Vimeo', value: 'vimeo' },
+          { title: 'Annen video-URL', value: 'external' },
         ],
       },
       initialValue: 'sanity',
@@ -43,7 +43,7 @@ export const videoComponent = defineType({
       type: 'file',
       group: 'content',
       description: 'Last opp en video-fil (MP4, WebM, etc.)',
-      hidden: ({parent}) => parent?.videoType !== 'sanity',
+      hidden: ({ parent }) => parent?.videoType !== 'sanity',
       options: {
         accept: 'video/*',
       },
@@ -54,15 +54,15 @@ export const videoComponent = defineType({
       type: 'url',
       group: 'content',
       description: 'Lim inn YouTube video URL (f.eks. https://www.youtube.com/watch?v=...)',
-      hidden: ({parent}) => parent?.videoType !== 'youtube',
+      hidden: ({ parent }) => parent?.videoType !== 'youtube',
       validation: (Rule) =>
         Rule.uri({
           scheme: ['http', 'https'],
         }).custom((url) => {
-          if (!url) return true
+          if (!url) return true;
           return url.includes('youtube.com') || url.includes('youtu.be')
             ? true
-            : 'Må være en gyldig YouTube URL'
+            : 'Må være en gyldig YouTube URL';
         }),
     }),
     defineField({
@@ -71,13 +71,13 @@ export const videoComponent = defineType({
       type: 'url',
       group: 'content',
       description: 'Lim inn Vimeo video URL (f.eks. https://vimeo.com/...)',
-      hidden: ({parent}) => parent?.videoType !== 'vimeo',
+      hidden: ({ parent }) => parent?.videoType !== 'vimeo',
       validation: (Rule) =>
         Rule.uri({
           scheme: ['http', 'https'],
         }).custom((url) => {
-          if (!url) return true
-          return url.includes('vimeo.com') ? true : 'Må være en gyldig Vimeo URL'
+          if (!url) return true;
+          return url.includes('vimeo.com') ? true : 'Må være en gyldig Vimeo URL';
         }),
     }),
     defineField({
@@ -86,7 +86,7 @@ export const videoComponent = defineType({
       type: 'url',
       group: 'content',
       description: 'Kun for direkte video-filer (.mp4, .webm osv.)',
-      hidden: ({parent}) => parent?.videoType !== 'external',
+      hidden: ({ parent }) => parent?.videoType !== 'external',
       validation: (Rule) =>
         Rule.uri({
           scheme: ['http', 'https'],
@@ -100,10 +100,10 @@ export const videoComponent = defineType({
       description: 'Velg format for videoen (bredde:høyde)',
       options: {
         list: [
-          {title: 'Kvadrat (1:1)', value: '1:1'},
-          {title: 'Portrett (4:5)', value: '4:5'},
-          {title: 'Stående (9:16)', value: '9:16'},
-          {title: 'Landskap (16:9)', value: '16:9'},
+          { title: 'Kvadrat (1:1)', value: '1:1' },
+          { title: 'Portrett (4:5)', value: '4:5' },
+          { title: 'Stående (9:16)', value: '9:16' },
+          { title: 'Landskap (16:9)', value: '16:9' },
         ],
         layout: 'radio',
       },
@@ -167,48 +167,48 @@ export const videoComponent = defineType({
       vimeoUrl: 'vimeoUrl',
       externalUrl: 'externalUrl',
     },
-    prepare({title, subtitle, videoType, media, aspectRatio, youtubeUrl, vimeoUrl, externalUrl}) {
-      const formatText = aspectRatio ? ` • Format: ${aspectRatio}` : ''
+    prepare({ title, subtitle, videoType, media, aspectRatio, youtubeUrl, vimeoUrl, externalUrl }) {
+      const formatText = aspectRatio ? ` • Format: ${aspectRatio}` : '';
 
       // Bestem hvilken video som skal vises i preview
-      let previewVideo = null
+      let previewVideo = null;
       if (videoType === 'sanity' && media) {
-        previewVideo = media
+        previewVideo = media;
       } else if (videoType === 'youtube' && youtubeUrl) {
-        previewVideo = {url: youtubeUrl, type: 'youtube'}
+        previewVideo = { url: youtubeUrl, type: 'youtube' };
       } else if (videoType === 'vimeo' && vimeoUrl) {
-        previewVideo = {url: vimeoUrl, type: 'vimeo'}
+        previewVideo = { url: vimeoUrl, type: 'vimeo' };
       } else if (videoType === 'external' && externalUrl) {
-        previewVideo = {url: externalUrl, type: 'external'}
+        previewVideo = { url: externalUrl, type: 'external' };
       }
 
       return {
         title: 'Video',
-        subtitle: `${title || 'Uten tittel'} • ${(subtitle ? `${subtitle} (${videoType})` : videoType || 'Ukjent type')}${formatText}`,
+        subtitle: `${title || 'Uten tittel'} • ${subtitle ? `${subtitle} (${videoType})` : videoType || 'Ukjent type'}${formatText}`,
         media: media || PlayIcon,
-      }
+      };
     },
   },
-})
+});
 
 // Type-safe validation functions
 export const videoValidationRules = {
   title: componentValidation.title as ValidationRule,
   videoType: componentValidation.title as ValidationRule,
-} as const
+} as const;
 
 // Utility function to validate video data has required fields
 export function hasValidVideoData(data: VideoData): boolean {
   switch (data.videoType) {
     case 'sanity':
-      return !!(data.video?.asset?.url)
+      return !!data.video?.asset?.url;
     case 'youtube':
-      return !!(data.youtubeUrl && extractYouTubeId(data.youtubeUrl))
+      return !!(data.youtubeUrl && extractYouTubeId(data.youtubeUrl));
     case 'vimeo':
-      return !!(data.vimeoUrl && extractVimeoId(data.vimeoUrl))
+      return !!(data.vimeoUrl && extractVimeoId(data.vimeoUrl));
     case 'external':
-      return !!data.externalUrl
+      return !!data.externalUrl;
     default:
-      return false
+      return false;
   }
 }

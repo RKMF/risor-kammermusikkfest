@@ -20,27 +20,15 @@
   "dependencies": {
     "@sanity/locale-nb-no": "^1.1.23",
     "@sanity/vision": "4.4.1",
-    "prop-types": "^15.8.1",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-is": "^19.1.0",
     "sanity": "4.4.1",
     "sanity-plugin-asset-source-unsplash": "4.0.1",
-    "styled-components": "^6.1.18"
+    "styled-components": "6.1.19"
   },
   "devDependencies": {
     "@sanity/eslint-config-studio": "^5.0.2",
-    "@types/react": "^19.1",
     "eslint": "^9.28",
     "happy-dom": "^15.11.7",
     "prettier": "^3.5",
-    "typescript": "^5.8",
     "vitest": "^2.1.8"
-  },
-  "prettier": {
-    "semi": false,
-    "printWidth": 100,
-    "bracketSpacing": false,
-    "singleQuote": true
   }
 }

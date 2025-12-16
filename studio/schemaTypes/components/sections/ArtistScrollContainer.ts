@@ -1,8 +1,12 @@
-import {defineField, defineType} from 'sanity'
-import {DocumentIcon} from '@sanity/icons'
-import {componentValidation, contentValidation} from '../../shared/validation'
-import type {ArtistScrollContainerData, ComponentHTMLGenerator, ValidationRule} from '../../shared/types'
-import {excludeAlreadySelected} from '../../shared/referenceFilters'
+import { defineField, defineType } from 'sanity';
+import { DocumentIcon } from '@sanity/icons';
+import { componentValidation, contentValidation } from '../../shared/validation';
+import type {
+  ArtistScrollContainerData,
+  ComponentHTMLGenerator,
+  ValidationRule,
+} from '../../shared/types';
+import { excludeAlreadySelected } from '../../shared/referenceFilters';
 
 export const artistScrollContainer = defineType({
   name: 'artistScrollContainer',
@@ -22,7 +26,7 @@ export const artistScrollContainer = defineType({
       title: 'Artister',
       type: 'array',
       description: 'Legg til mellom 2 og 8 artister som skal vises i horisontal scroll',
-      of: [{type: 'reference', to: [{type: 'artist'}]}],
+      of: [{ type: 'reference', to: [{ type: 'artist' }] }],
       validation: contentValidation.scrollContainerItems,
       options: {
         filter: excludeAlreadySelected(),
@@ -41,35 +45,37 @@ export const artistScrollContainer = defineType({
       title: 'title',
       items: 'items',
     },
-    prepare({title, items}) {
-      const itemCount = items?.length || 0
+    prepare({ title, items }) {
+      const itemCount = items?.length || 0;
       return {
         title: 'Artister',
         subtitle: `${title || 'Scroll Container'} • ${itemCount} artister (4:5 kort)`,
         media: DocumentIcon,
-      }
+      };
     },
   },
-})
+});
 
 // Funksjon for å generere HTML fra artist scroll container data
-export const generateArtistScrollHtml: ComponentHTMLGenerator<ArtistScrollContainerData> = (data: ArtistScrollContainerData): string => {
+export const generateArtistScrollHtml: ComponentHTMLGenerator<ArtistScrollContainerData> = (
+  data: ArtistScrollContainerData
+): string => {
   if (!data.items || data.items.length === 0) {
-    return ''
+    return '';
   }
 
-  const containerClass = 'artist-scroll-container'
-  const scrollbarClass = data.showScrollbar ? '' : 'hide-scrollbar'
+  const containerClass = 'artist-scroll-container';
+  const scrollbarClass = data.showScrollbar ? '' : 'hide-scrollbar';
 
   const itemsHtml = data.items
     .map((artist) => {
-      if (!artist) return ''
+      if (!artist) return '';
 
-      const artistName = artist.name || ''
-      const artistImage = artist.image?.asset?.url || ''
-      const artistImageAlt = artist.image?.alt || artistName || ''
-      const artistBio = artist.bio || ''
-      const artistGenres = artist.genres?.map((genre: any) => genre.title).join(', ') || ''
+      const artistName = artist.name || '';
+      const artistImage = artist.image?.asset?.url || '';
+      const artistImageAlt = artist.image?.alt || artistName || '';
+      const artistBio = artist.bio || '';
+      const artistGenres = artist.genres?.map((genre: any) => genre.title).join(', ') || '';
 
       return `
         <div class="artist-item">
@@ -82,13 +88,13 @@ export const generateArtistScrollHtml: ComponentHTMLGenerator<ArtistScrollContai
             </div>
           </div>
         </div>
-      `
+      `;
     })
-    .join('')
+    .join('');
 
   const titleHtml = data.title
     ? `<h3 class="artist-scroll-title">${escapeHtml(data.title)}</h3>`
-    : ''
+    : '';
 
   return `
     <div class="${containerClass} ${scrollbarClass}">
@@ -97,8 +103,8 @@ export const generateArtistScrollHtml: ComponentHTMLGenerator<ArtistScrollContai
         ${itemsHtml}
       </div>
     </div>
-  `
-}
+  `;
+};
 
 function escapeHtml(text: string): string {
   return text
@@ -106,34 +112,34 @@ function escapeHtml(text: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
+    .replace(/'/g, '&#039;');
 }
 
 // Type-safe validation functions
 export const artistScrollContainerValidationRules = {
   title: componentValidation.title as ValidationRule,
   items: contentValidation.scrollContainerItems as ValidationRule,
-} as const
+} as const;
 
 // Utility function to validate artist scroll container has content
 export function hasValidArtistScrollContent(data: ArtistScrollContainerData): boolean {
-  return !!(data.items && data.items.length > 0)
+  return !!(data.items && data.items.length > 0);
 }
 
 // Utility function to get artist count
 export function getArtistCount(data: ArtistScrollContainerData): number {
-  return data.items?.length || 0
+  return data.items?.length || 0;
 }
 
 // Utility function to generate container classes
 export function generateArtistScrollClasses(data: ArtistScrollContainerData): string[] {
-  const classes = ['artist-scroll-container']
+  const classes = ['artist-scroll-container'];
 
   if (!data.showScrollbar) {
-    classes.push('hide-scrollbar')
+    classes.push('hide-scrollbar');
   }
 
-  return classes
+  return classes;
 }
 
 // Utility function to generate scroll container CSS
@@ -216,5 +222,5 @@ export function generateArtistScrollCSS(): string {
       font-size: 1.5rem;
       font-weight: 600;
     }
-  `
+  `;
 }

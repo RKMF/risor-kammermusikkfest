@@ -1,13 +1,13 @@
-import {defineField, defineType} from 'sanity'
-import {DocumentIcon, ImageIcon, ComposeIcon, CogIcon} from '@sanity/icons'
-import {createMirrorPortableTextInput} from '../../components/inputs/MirrorPortableTextInput'
-import {multilingualImageFields, imageFieldsets, imageGroup} from '../shared/imageFields'
-import {seoFields, seoGroup} from '../objects/seoFields'
-import {componentValidation, crossFieldValidation} from '../shared/validation'
-import {articleSlugValidation} from '../../lib/slugValidation'
-import type {ArticleData, ValidationRule, MultilingualDocument} from '../shared/types'
-import {getPublishingStatusText, getLanguageStatus} from '../shared/previewHelpers'
-import {publishingFields, publishingGroup} from '../shared/publishingFields'
+import { defineField, defineType } from 'sanity';
+import { DocumentIcon, ImageIcon, ComposeIcon, CogIcon } from '@sanity/icons';
+import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
+import { multilingualImageFields, imageFieldsets, imageGroup } from '../shared/imageFields';
+import { seoFields, seoGroup } from '../objects/seoFields';
+import { componentValidation, crossFieldValidation } from '../shared/validation';
+import { articleSlugValidation } from '../../lib/slugValidation';
+import type { ArticleData, ValidationRule, MultilingualDocument } from '../shared/types';
+import { getPublishingStatusText, getLanguageStatus } from '../shared/previewHelpers';
+import { publishingFields, publishingGroup } from '../shared/publishingFields';
 
 export const article = defineType({
   name: 'article',
@@ -16,7 +16,11 @@ export const article = defineType({
   icon: DocumentIcon,
   orderings: [
     { title: 'Tittel A–Å', name: 'titleAsc', by: [{ field: 'title_no', direction: 'asc' }] },
-    { title: 'Nylig opprettet', name: 'createdDesc', by: [{ field: '_createdAt', direction: 'desc' }] },
+    {
+      title: 'Nylig opprettet',
+      name: 'createdDesc',
+      by: [{ field: '_createdAt', direction: 'desc' }],
+    },
   ],
   groups: [
     {
@@ -34,9 +38,7 @@ export const article = defineType({
     publishingGroup,
     seoGroup,
   ],
-  fieldsets: [
-    ...imageFieldsets,
-  ],
+  fieldsets: [...imageFieldsets],
   fields: [
     // NORSK INNHOLD
     defineField({
@@ -60,11 +62,11 @@ export const article = defineType({
       validation: (Rule) =>
         Rule.required().custom(async (value, context) => {
           // Først sjekk avansert slug-validering for unikhet
-          const slugValidation = await articleSlugValidation(value, context)
-          if (slugValidation !== true) return slugValidation
+          const slugValidation = await articleSlugValidation(value, context);
+          if (slugValidation !== true) return slugValidation;
 
           // Så sjekk standard slug-validering
-          return componentValidation.slug(Rule).validate(value, context)
+          return componentValidation.slug(Rule).validate(value, context);
         }),
     }),
     defineField({
@@ -104,26 +106,27 @@ export const article = defineType({
       },
       validation: (Rule) =>
         Rule.custom(async (value, context) => {
-          const doc = context.document as any
-          const hasEnglishContent = doc?.title_en || doc?.excerpt_en || (doc?.content_en && doc.content_en.length > 0)
+          const doc = context.document as any;
+          const hasEnglishContent =
+            doc?.title_en || doc?.excerpt_en || (doc?.content_en && doc.content_en.length > 0);
 
           if (hasEnglishContent && !value?.current) {
-            return 'URL (English) må settes når engelsk innhold er fylt ut'
+            return 'URL (English) må settes når engelsk innhold er fylt ut';
           }
 
           if (!value?.current) {
-            return true
+            return true;
           }
 
-          const slugValidation = await articleSlugValidation(value, context)
-          if (slugValidation !== true) return slugValidation
+          const slugValidation = await articleSlugValidation(value, context);
+          if (slugValidation !== true) return slugValidation;
 
-          const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+          const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
           if (!slugRegex.test(value.current)) {
-            return 'URL må bare inneholde små bokstaver, tall og bindestreker'
+            return 'URL må bare inneholde små bokstaver, tall og bindestreker';
           }
 
-          return true
+          return true;
         }),
     }),
     defineField({
@@ -139,10 +142,11 @@ export const article = defineType({
       name: 'content_en',
       title: 'Article content (English)',
       type: 'pageBuilder',
-      description: 'Build English article with components and content (article title is already H1)',
+      description:
+        'Build English article with components and content (article title is already H1)',
       group: 'en',
       components: {
-        input: createMirrorPortableTextInput('content_no')
+        input: createMirrorPortableTextInput('content_no'),
       },
     }),
 
@@ -165,9 +169,26 @@ export const article = defineType({
       media: 'image',
       _id: '_id',
     },
-    prepare({title_no, title_en, excerpt_no, excerpt_en, content_no, content_en, publishingStatus, scheduledStart, scheduledEnd, media, _id}) {
+    prepare({
+      title_no,
+      title_en,
+      excerpt_no,
+      excerpt_en,
+      content_no,
+      content_en,
+      publishingStatus,
+      scheduledStart,
+      scheduledEnd,
+      media,
+      _id,
+    }) {
       // Use shared helper functions for consistent status display
-      const statusText = getPublishingStatusText(_id, publishingStatus, scheduledStart, scheduledEnd)
+      const statusText = getPublishingStatusText(
+        _id,
+        publishingStatus,
+        scheduledStart,
+        scheduledEnd
+      );
       const langStatus = getLanguageStatus({
         title_no,
         title_en,
@@ -175,15 +196,15 @@ export const article = defineType({
         excerpt_en,
         content_no,
         content_en,
-      })
+      });
 
-      const title = title_no || title_en || 'Uten tittel'
+      const title = title_no || title_en || 'Uten tittel';
 
       return {
         title: title,
         subtitle: `${statusText} • ${langStatus}`,
         media: media || DocumentIcon,
-      }
+      };
     },
   },
-})
+});

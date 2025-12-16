@@ -1,9 +1,9 @@
-import {defineField, defineType} from 'sanity'
-import {CogIcon, ComposeIcon, ImageIcon, UsersIcon, HeartIcon, MenuIcon} from '@sanity/icons'
-import {multilingualImageFields, imageFieldsets} from '../shared/imageFields'
-import {seoGroup} from '../objects/seoFields'
-import {componentValidation, crossFieldValidation} from '../shared/validation'
-import {excludeAlreadySelected} from '../shared/referenceFilters'
+import { defineField, defineType } from 'sanity';
+import { CogIcon, ComposeIcon, ImageIcon, UsersIcon, HeartIcon, MenuIcon } from '@sanity/icons';
+import { multilingualImageFields, imageFieldsets } from '../shared/imageFields';
+import { seoGroup } from '../objects/seoFields';
+import { componentValidation, crossFieldValidation } from '../shared/validation';
+import { excludeAlreadySelected } from '../shared/referenceFilters';
 
 export const siteSettings = defineType({
   name: 'siteSettings',
@@ -53,7 +53,7 @@ export const siteSettings = defineType({
     {
       name: 'festivalDates',
       title: 'Festivaldatoer',
-      options: {columns: 2},
+      options: { columns: 2 },
     },
     {
       name: 'addressInfo',
@@ -102,7 +102,7 @@ export const siteSettings = defineType({
       title: 'Festival description (English)',
       type: 'text',
       rows: 2,
-      description: 'Short description of the festival and this year\'s theme in English',
+      description: "Short description of the festival and this year's theme in English",
       group: 'en',
     }),
     defineField({
@@ -118,7 +118,7 @@ export const siteSettings = defineType({
       name: 'startDate',
       title: 'Startdato',
       type: 'reference',
-      to: [{type: 'eventDate'}],
+      to: [{ type: 'eventDate' }],
       description: 'Velg første dag av festivalen',
       group: 'general',
       fieldset: 'festivalDates',
@@ -128,7 +128,7 @@ export const siteSettings = defineType({
       name: 'endDate',
       title: 'Sluttdato',
       type: 'reference',
-      to: [{type: 'eventDate'}],
+      to: [{ type: 'eventDate' }],
       description: 'Velg siste dag av festivalen',
       group: 'general',
       fieldset: 'festivalDates',
@@ -146,13 +146,13 @@ export const siteSettings = defineType({
         {
           type: 'reference',
           to: [
-            {type: 'homepage'},
-            {type: 'programPage'},
-            {type: 'artistPage'},
-            {type: 'articlePage'},
-            {type: 'page'},
+            { type: 'homepage' },
+            { type: 'programPage' },
+            { type: 'artistPage' },
+            { type: 'articlePage' },
+            { type: 'page' },
           ],
-        }
+        },
       ],
       options: {
         filter: excludeAlreadySelected(),
@@ -180,7 +180,7 @@ export const siteSettings = defineType({
               name: 'image',
               title: 'Logo',
               type: 'image',
-              options: {hotspot: true},
+              options: { hotspot: true },
               validation: componentValidation.image,
             }),
             defineField({
@@ -197,12 +197,12 @@ export const siteSettings = defineType({
               media: 'image',
               description: 'description',
             },
-            prepare({title, media, description}) {
+            prepare({ title, media, description }) {
               return {
                 title: title || 'Uten navn',
                 subtitle: description || 'Ingen beskrivelse',
                 media,
-              }
+              };
             },
           },
         },
@@ -286,11 +286,11 @@ export const siteSettings = defineType({
               title: 'name',
               url: 'url',
             },
-            prepare({title, url}) {
+            prepare({ title, url }) {
               return {
                 title: title || 'Uten navn',
                 subtitle: url || 'Ingen URL',
-              }
+              };
             },
           },
         },
@@ -315,7 +315,7 @@ export const siteSettings = defineType({
               name: 'logo',
               title: 'Sponsorlogo',
               type: 'image',
-              options: {hotspot: true},
+              options: { hotspot: true },
             }),
             defineField({
               name: 'url',
@@ -330,12 +330,12 @@ export const siteSettings = defineType({
               media: 'logo',
               url: 'url',
             },
-            prepare({title, media, url}) {
+            prepare({ title, media, url }) {
               return {
                 title: title || 'Uten navn',
                 subtitle: url ? 'Har lenke' : 'Ingen lenke',
                 media,
-              }
+              };
             },
           },
         },
@@ -345,7 +345,8 @@ export const siteSettings = defineType({
       name: 'newsletterUrl',
       title: 'Nyhetsbrev påmeldingslenke',
       type: 'url',
-      description: 'Lenke til nyhetsbrev påmeldingsskjema hos din leverandør (f.eks. Make, Mailchimp)',
+      description:
+        'Lenke til nyhetsbrev påmeldingsskjema hos din leverandør (f.eks. Make, Mailchimp)',
       group: 'general',
     }),
     ...multilingualImageFields('featuredImage'),
@@ -363,15 +364,15 @@ export const siteSettings = defineType({
       year: 'festivalSettings.year',
       startDate: 'festivalSettings.startDate.date',
     },
-    prepare({media, year, startDate}) {
+    prepare({ media, year, startDate }) {
       const formatDate = (date: string) => {
-        return date ? new Date(date).toLocaleDateString('nb-NO') : 'Ikke satt'
-      }
+        return date ? new Date(date).toLocaleDateString('nb-NO') : 'Ikke satt';
+      };
       return {
         title: 'Nettsideinnstillinger',
         subtitle: `Festival ${year || new Date().getFullYear()} (${formatDate(startDate)})`,
         media,
-      }
+      };
     },
   },
-})
+});

@@ -1,5 +1,5 @@
-import {defineField, defineType} from 'sanity'
-import {MenuIcon} from '@sanity/icons'
+import { defineField, defineType } from 'sanity';
+import { MenuIcon } from '@sanity/icons';
 
 export const marqueeComponent = defineType({
   name: 'marqueeComponent',
@@ -13,20 +13,25 @@ export const marqueeComponent = defineType({
       title: 'Tekst',
       type: 'string',
       description: 'Teksten som skal rulle over skjermen',
-      validation: (Rule) => Rule.required().min(1).max(200).error('Teksten er påkrevd (maks 200 tegn)'),
+      validation: (Rule) =>
+        Rule.required().min(1).max(200).error('Teksten er påkrevd (maks 200 tegn)'),
     }),
   ],
   preview: {
     select: {
       text: 'text',
     },
-    prepare({text}) {
-      const displayText = text ? (text.length > 40 ? `${text.substring(0, 40)}...` : text) : 'Ingen tekst'
+    prepare({ text }) {
+      const displayText = text
+        ? text.length > 40
+          ? `${text.substring(0, 40)}...`
+          : text
+        : 'Ingen tekst';
       return {
         title: 'Rullende tekst',
         subtitle: displayText,
         media: MenuIcon,
-      }
+      };
     },
   },
-})
+});

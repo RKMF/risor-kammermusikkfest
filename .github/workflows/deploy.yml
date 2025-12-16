@@ -24,7 +24,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: cd studio && npm install --legacy-peer-deps
+        run: cd studio && npm install
 
       - name: Build studio
         run: cd studio && npm run build

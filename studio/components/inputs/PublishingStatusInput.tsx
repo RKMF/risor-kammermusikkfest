@@ -1,15 +1,15 @@
-import React, {useEffect, useState, useCallback} from 'react'
-import {StringInputProps, useClient, useFormValue} from 'sanity'
-import {Stack, Card, Text, Flex, Box, Spinner} from '@sanity/ui'
-import {WarningOutlineIcon} from '@sanity/icons'
+import React, { useEffect, useState, useCallback } from 'react';
+import { StringInputProps, useClient, useFormValue } from 'sanity';
+import { Stack, Card, Text, Flex, Box, Spinner } from '@sanity/ui';
+import { WarningOutlineIcon } from '@sanity/icons';
 
 interface ReferencingDocument {
-  _id: string
-  _type: string
-  title?: string
-  title_no?: string
-  title_en?: string
-  name?: string
+  _id: string;
+  _type: string;
+  title?: string;
+  title_no?: string;
+  title_en?: string;
+  name?: string;
 }
 
 // Map document types to Norwegian display names
@@ -22,7 +22,7 @@ const typeDisplayNames: Record<string, string> = {
   articlePage: 'Artikkelside',
   homepage: 'Forside',
   page: 'Side',
-}
+};
 
 /**
  * Custom input component for publishingStatus field
@@ -30,26 +30,26 @@ const typeDisplayNames: Record<string, string> = {
  * listing where the content is referenced
  */
 export function PublishingStatusInput(props: StringInputProps) {
-  const {value, onChange, schemaType} = props
-  const [references, setReferences] = useState<ReferencingDocument[]>([])
-  const [loading, setLoading] = useState(false)
-  const [hasQueried, setHasQueried] = useState(false)
-  const client = useClient({apiVersion: '2025-01-01'})
+  const { value, onChange, schemaType } = props;
+  const [references, setReferences] = useState<ReferencingDocument[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [hasQueried, setHasQueried] = useState(false);
+  const client = useClient({ apiVersion: '2025-01-01' });
 
   // Get the document ID using useFormValue
-  const documentId = useFormValue(['_id']) as string | undefined
+  const documentId = useFormValue(['_id']) as string | undefined;
   // Remove 'drafts.' prefix if present to get the published ID
-  const publishedId = documentId?.replace(/^drafts\./, '') || ''
+  const publishedId = documentId?.replace(/^drafts\./, '') || '';
 
   // Query for documents that reference this document
   const queryReferences = useCallback(async () => {
     if (!publishedId) {
-      console.log('[PublishingStatusInput] No publishedId, skipping query')
-      return
+      console.log('[PublishingStatusInput] No publishedId, skipping query');
+      return;
     }
 
-    console.log('[PublishingStatusInput] Querying references for:', publishedId)
-    setLoading(true)
+    console.log('[PublishingStatusInput] Querying references for:', publishedId);
+    setLoading(true);
     try {
       // Query for all documents that reference this document
       const results = await client.fetch<ReferencingDocument[]>(
@@ -61,51 +61,54 @@ export function PublishingStatusInput(props: StringInputProps) {
           title_en,
           name
         }`,
-        {id: publishedId}
-      )
-      console.log('[PublishingStatusInput] Found references:', results)
-      setReferences(results)
-      setHasQueried(true)
+        { id: publishedId }
+      );
+      console.log('[PublishingStatusInput] Found references:', results);
+      setReferences(results);
+      setHasQueried(true);
     } catch (error) {
-      console.error('[PublishingStatusInput] Error querying references:', error)
+      console.error('[PublishingStatusInput] Error querying references:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [client, publishedId])
+  }, [client, publishedId]);
 
   // Query references when value changes to 'draft'
   useEffect(() => {
     if (value === 'draft' && !hasQueried) {
-      queryReferences()
+      queryReferences();
     }
-  }, [value, hasQueried, queryReferences])
+  }, [value, hasQueried, queryReferences]);
 
   // Reset query state when value changes away from 'draft'
   useEffect(() => {
     if (value !== 'draft') {
-      setHasQueried(false)
+      setHasQueried(false);
     }
-  }, [value])
+  }, [value]);
 
   // Get display title for a referencing document
   const getDisplayTitle = (doc: ReferencingDocument): string => {
-    return doc.title_no || doc.title || doc.title_en || doc.name || 'Uten tittel'
-  }
+    return doc.title_no || doc.title || doc.title_en || doc.name || 'Uten tittel';
+  };
 
   // Get display type name
   const getTypeName = (type: string): string => {
-    return typeDisplayNames[type] || type
-  }
+    return typeDisplayNames[type] || type;
+  };
 
   // Group references by type for better display
-  const groupedReferences = references.reduce((acc, doc) => {
-    const type = doc._type
-    if (!acc[type]) {
-      acc[type] = []
-    }
-    acc[type].push(doc)
-    return acc
-  }, {} as Record<string, ReferencingDocument[]>)
+  const groupedReferences = references.reduce(
+    (acc, doc) => {
+      const type = doc._type;
+      if (!acc[type]) {
+        acc[type] = [];
+      }
+      acc[type].push(doc);
+      return acc;
+    },
+    {} as Record<string, ReferencingDocument[]>
+  );
 
   return (
     <Stack space={3}>
@@ -129,7 +132,7 @@ export function PublishingStatusInput(props: StringInputProps) {
         <Card padding={4} radius={2} tone="caution" border>
           <Stack space={4}>
             <Flex align="flex-start" gap={3}>
-              <Box style={{flexShrink: 0, marginTop: '2px'}}>
+              <Box style={{ flexShrink: 0, marginTop: '2px' }}>
                 <Text size={2}>
                   <WarningOutlineIcon />
                 </Text>
@@ -161,7 +164,8 @@ export function PublishingStatusInput(props: StringInputProps) {
                 </Stack>
 
                 <Text size={2} muted>
-                  Innholdet vil vises igjen automatisk når du endrer status tilbake til "Synlig på nett".
+                  Innholdet vil vises igjen automatisk når du endrer status tilbake til "Synlig på
+                  nett".
                 </Text>
               </Stack>
             </Flex>
@@ -169,5 +173,5 @@ export function PublishingStatusInput(props: StringInputProps) {
         </Card>
       )}
     </Stack>
-  )
+  );
 }

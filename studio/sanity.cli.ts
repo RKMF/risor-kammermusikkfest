@@ -1,9 +1,9 @@
-import {defineCliConfig} from 'sanity/cli'
+import { defineCliConfig } from 'sanity/cli';
 
 export default defineCliConfig({
   api: {
     projectId: 'dnk98dp0',
-    dataset: 'production'
+    dataset: 'production',
   },
   /**
    * Enable auto-updates for studios.
@@ -15,4 +15,4 @@ export default defineCliConfig({
    * This prevents prompts during deployment.
    */
   studioHost: 'rkmf-cms',
-})
+});

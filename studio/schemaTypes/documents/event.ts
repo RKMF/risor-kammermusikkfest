@@ -1,17 +1,26 @@
-import {defineField, defineType} from 'sanity'
-import {CalendarIcon, ImageIcon, UsersIcon, ClockIcon, LinkIcon, ComposeIcon, CogIcon, CreditCardIcon} from '@sanity/icons'
-import {imageComponent} from '../components/Image'
-import {eventTimeOptions} from '../../lib/timeUtils'
-import {createMirrorPortableTextInput} from '../../components/inputs/MirrorPortableTextInput'
-import {multilingualImageFields, imageFieldsets, imageGroup} from '../shared/imageFields'
-import {seoFields, seoGroup} from '../objects/seoFields'
-import {componentValidation, crossFieldValidation} from '../shared/validation'
-import {eventSlugValidation} from '../../lib/slugValidation'
-import type {EventData, ValidationRule, MultilingualDocument} from '../shared/types'
-import {getLanguageStatus} from '../shared/previewHelpers'
-import {publishingFields, publishingGroup} from '../shared/publishingFields'
-import {excludeAlreadySelected} from '../shared/referenceFilters'
-import {MultiSelectReferenceInput} from '../components/inputs/MultiSelectReferenceInput'
+import { defineField, defineType } from 'sanity';
+import {
+  CalendarIcon,
+  ImageIcon,
+  UsersIcon,
+  ClockIcon,
+  LinkIcon,
+  ComposeIcon,
+  CogIcon,
+  CreditCardIcon,
+} from '@sanity/icons';
+import { imageComponent } from '../components/Image';
+import { eventTimeOptions } from '../../lib/timeUtils';
+import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
+import { multilingualImageFields, imageFieldsets, imageGroup } from '../shared/imageFields';
+import { seoFields, seoGroup } from '../objects/seoFields';
+import { componentValidation, crossFieldValidation } from '../shared/validation';
+import { eventSlugValidation } from '../../lib/slugValidation';
+import type { EventData, ValidationRule, MultilingualDocument } from '../shared/types';
+import { getLanguageStatus } from '../shared/previewHelpers';
+import { publishingFields, publishingGroup } from '../shared/publishingFields';
+import { excludeAlreadySelected } from '../shared/referenceFilters';
+import { MultiSelectReferenceInput } from '../components/inputs/MultiSelectReferenceInput';
 
 export const event = defineType({
   name: 'event',
@@ -25,18 +34,20 @@ export const event = defineType({
       name: 'dateTimeAsc',
       by: [
         { field: 'eventDateValue', direction: 'asc' },
-        { field: 'eventTime.startTime', direction: 'asc' }
-      ]
+        { field: 'eventTime.startTime', direction: 'asc' },
+      ],
     },
     {
       title: 'Klokkeslett',
       name: 'timeAsc',
-      by: [
-        { field: 'eventTime.startTime', direction: 'asc' }
-      ]
+      by: [{ field: 'eventTime.startTime', direction: 'asc' }],
     },
     { title: 'Navn A–Å', name: 'nameAsc', by: [{ field: 'title_no', direction: 'asc' }] },
-    { title: 'Nylig opprettet', name: 'createdDesc', by: [{ field: '_createdAt', direction: 'desc' }] },
+    {
+      title: 'Nylig opprettet',
+      name: 'createdDesc',
+      by: [{ field: '_createdAt', direction: 'desc' }],
+    },
   ],
   groups: [
     {
@@ -64,27 +75,26 @@ export const event = defineType({
     publishingGroup,
     seoGroup,
   ],
-  fieldsets: [
-    ...imageFieldsets,
-  ],
+  fieldsets: [...imageFieldsets],
   fields: [
     // FELLES INNHOLD (shared content)
     defineField({
       name: 'eventDate',
       title: 'Dato',
       type: 'reference',
-      to: [{type: 'eventDate'}],
+      to: [{ type: 'eventDate' }],
       description: 'Velg fra de konfigurerte festivaldatoene',
       group: 'basic',
       options: {
-        sort: [{field: 'date', direction: 'asc'}],
+        sort: [{ field: 'date', direction: 'asc' }],
       },
-      validation: (Rule) => Rule.warning().custom((value) => {
-        if (!value) {
-          return 'Dato må velges'
-        }
-        return true
-      }),
+      validation: (Rule) =>
+        Rule.warning().custom((value) => {
+          if (!value) {
+            return 'Dato må velges';
+          }
+          return true;
+        }),
     }),
     defineField({
       name: 'eventTime',
@@ -94,7 +104,7 @@ export const event = defineType({
       fieldsets: [
         {
           name: 'times',
-          options: {columns: 2},
+          options: { columns: 2 },
         },
       ],
       fields: [
@@ -106,12 +116,13 @@ export const event = defineType({
           options: {
             list: eventTimeOptions,
           },
-          validation: (Rule) => Rule.warning().custom((value, context) => {
-            if (!value && context.document?.publishingStatus === 'published') {
-              return 'Starttidspunkt bør fylles ut før publisering'
-            }
-            return true
-          }),
+          validation: (Rule) =>
+            Rule.warning().custom((value, context) => {
+              if (!value && context.document?.publishingStatus === 'published') {
+                return 'Starttidspunkt bør fylles ut før publisering';
+              }
+              return true;
+            }),
         },
         {
           name: 'endTime',
@@ -121,20 +132,25 @@ export const event = defineType({
           options: {
             list: eventTimeOptions,
           },
-          validation: (Rule) => Rule.warning().custom((value, context) => {
-            if (!value && context.document?.publishingStatus === 'published') {
-              return 'Sluttidspunkt bør fylles ut før publisering'
-            }
-            return true
-          }),
+          validation: (Rule) =>
+            Rule.warning().custom((value, context) => {
+              if (!value && context.document?.publishingStatus === 'published') {
+                return 'Sluttidspunkt bør fylles ut før publisering';
+              }
+              return true;
+            }),
         },
       ],
-      validation: (Rule) => Rule.warning().custom((value, context) => {
-        if ((!value?.startTime || !value?.endTime) && context.document?.publishingStatus === 'published') {
-          return 'Klokkeslett bør fylles ut før publisering'
-        }
-        return true
-      }),
+      validation: (Rule) =>
+        Rule.warning().custom((value, context) => {
+          if (
+            (!value?.startTime || !value?.endTime) &&
+            context.document?.publishingStatus === 'published'
+          ) {
+            return 'Klokkeslett bør fylles ut før publisering';
+          }
+          return true;
+        }),
     }),
     defineField({
       name: 'eventDateValue',
@@ -149,15 +165,16 @@ export const event = defineType({
       name: 'venue',
       title: 'Spillested',
       type: 'reference',
-      to: [{type: 'venue'}],
+      to: [{ type: 'venue' }],
       description: 'Velg spillestedet for arrangementet',
       group: 'basic',
-      validation: (Rule) => Rule.warning().custom((value) => {
-        if (!value) {
-          return 'Spillested må velges'
-        }
-        return true
-      }),
+      validation: (Rule) =>
+        Rule.warning().custom((value) => {
+          if (!value) {
+            return 'Spillested må velges';
+          }
+          return true;
+        }),
     }),
     defineField({
       name: 'artist',
@@ -166,8 +183,8 @@ export const event = defineType({
       of: [
         {
           type: 'reference',
-          to: [{type: 'artist'}],
-        }
+          to: [{ type: 'artist' }],
+        },
       ],
       description: 'Velg artister som opptrer på arrangementet',
       group: 'basic',
@@ -185,8 +202,8 @@ export const event = defineType({
       of: [
         {
           type: 'reference',
-          to: [{type: 'composer'}],
-        }
+          to: [{ type: 'composer' }],
+        },
       ],
       description: 'Velg komponister som har skrevet musikken som spilles på arrangementet',
       group: 'basic',
@@ -201,7 +218,7 @@ export const event = defineType({
       name: 'spotifyItems',
       title: 'Spotify-innhold',
       type: 'array',
-      of: [{type: 'spotifyComponent'}],
+      of: [{ type: 'spotifyComponent' }],
       description: 'Legg til Spotify-spor, album eller spillelister',
       group: 'basic',
       validation: (Rule) => Rule.max(8).warning('Maks 8 Spotify-elementer anbefalt'),
@@ -230,14 +247,14 @@ export const event = defineType({
       group: 'ticketing',
       validation: (Rule) =>
         Rule.custom((value, context) => {
-          const ticketType = (context.document as any)?.ticketType
+          const ticketType = (context.document as any)?.ticketType;
           if (ticketType === 'button' && !value) {
-            return 'Billett-URL er påkrevd når du velger kjøpsknapp'
+            return 'Billett-URL er påkrevd når du velger kjøpsknapp';
           }
           if (value) {
-            return componentValidation.url(Rule).validate(value, context)
+            return componentValidation.url(Rule).validate(value, context);
           }
-          return true
+          return true;
         }).error('Billett-URL er påkrevd når du velger kjøpsknapp'),
       hidden: ({ document }) => document?.ticketType !== 'button',
     }),
@@ -250,13 +267,15 @@ export const event = defineType({
       placeholder: 'Gratis',
       validation: (Rule) =>
         Rule.custom((value, context) => {
-          const ticketType = (context.document as any)?.ticketType
+          const ticketType = (context.document as any)?.ticketType;
           if (ticketType === 'info' && !value) {
-            return 'Billett-informasjon er påkrevd når du velger salgsinfo'
+            return 'Billett-informasjon er påkrevd når du velger salgsinfo';
           }
-          return true
-        }).error('Billett-informasjon er påkrevd når du velger salgsinfo')
-        .max(50).warning('Teksten bør være maksimum 50 tegn'),
+          return true;
+        })
+          .error('Billett-informasjon er påkrevd når du velger salgsinfo')
+          .max(50)
+          .warning('Teksten bør være maksimum 50 tegn'),
       hidden: ({ document }) => document?.ticketType !== 'info',
     }),
     defineField({
@@ -276,11 +295,11 @@ export const event = defineType({
       initialValue: 'available',
       validation: (Rule) =>
         Rule.custom((value, context) => {
-          const ticketType = (context.document as any)?.ticketType
+          const ticketType = (context.document as any)?.ticketType;
           if (ticketType === 'button' && !value) {
-            return 'Billettstatus er påkrevd når du velger kjøpsknapp'
+            return 'Billettstatus er påkrevd når du velger kjøpsknapp';
           }
-          return true
+          return true;
         }),
       hidden: ({ document }) => document?.ticketType !== 'button',
     }),
@@ -307,18 +326,19 @@ export const event = defineType({
       validation: (Rule) =>
         Rule.required().custom(async (value, context) => {
           // Først sjekk avansert slug-validering for unikhet
-          const slugValidation = await eventSlugValidation(value, context)
-          if (slugValidation !== true) return slugValidation
+          const slugValidation = await eventSlugValidation(value, context);
+          if (slugValidation !== true) return slugValidation;
 
           // Så sjekk standard slug-validering
-          return componentValidation.slug(Rule).validate(value, context)
+          return componentValidation.slug(Rule).validate(value, context);
         }),
     }),
     defineField({
       name: 'excerpt_no',
       title: 'Ingress (norsk)',
       type: 'text',
-      description: 'Kort beskrivelse av arrangementet på norsk. Maksimum 60 tegn (inkludert mellomrom)',
+      description:
+        'Kort beskrivelse av arrangementet på norsk. Maksimum 60 tegn (inkludert mellomrom)',
       group: 'no',
       rows: 2,
       validation: (Rule) => Rule.max(60).warning('Ingressen bør være maksimum 60 tegn'),
@@ -329,17 +349,22 @@ export const event = defineType({
       type: 'portableText',
       description: 'Hovedtekst om konserten på norsk (obligatorisk, maks 500 tegn)',
       group: 'no',
-      validation: (Rule) => Rule.required().error('Beskrivelse av konserten må fylles ut').custom((value: any) => {
-        if (!value) return true
-        const text = value
-          .filter((block: any) => block._type === 'block')
-          .map((block: any) => block.children?.map((child: any) => child.text || '').join('') || '')
-          .join('')
-        if (text.length > 500) {
-          return `Beskrivelsen er ${text.length} tegn. Maks 500 tegn tillatt.`
-        }
-        return true
-      }),
+      validation: (Rule) =>
+        Rule.required()
+          .error('Beskrivelse av konserten må fylles ut')
+          .custom((value: any) => {
+            if (!value) return true;
+            const text = value
+              .filter((block: any) => block._type === 'block')
+              .map(
+                (block: any) => block.children?.map((child: any) => child.text || '').join('') || ''
+              )
+              .join('');
+            if (text.length > 500) {
+              return `Beskrivelsen er ${text.length} tegn. Maks 500 tegn tillatt.`;
+            }
+            return true;
+          }),
     }),
     defineField({
       name: 'extraContent_no',
@@ -369,33 +394,38 @@ export const event = defineType({
       },
       validation: (Rule) =>
         Rule.custom(async (value, context) => {
-          const doc = context.document as any
-          const hasEnglishContent = doc?.title_en || doc?.excerpt_en || doc?.description_en || (doc?.extraContent_en && doc.extraContent_en.length > 0)
+          const doc = context.document as any;
+          const hasEnglishContent =
+            doc?.title_en ||
+            doc?.excerpt_en ||
+            doc?.description_en ||
+            (doc?.extraContent_en && doc.extraContent_en.length > 0);
 
           if (hasEnglishContent && !value?.current) {
-            return 'URL (English) må settes når engelsk innhold er fylt ut'
+            return 'URL (English) må settes når engelsk innhold er fylt ut';
           }
 
           if (!value?.current) {
-            return true
+            return true;
           }
 
-          const slugValidation = await eventSlugValidation(value, context)
-          if (slugValidation !== true) return slugValidation
+          const slugValidation = await eventSlugValidation(value, context);
+          if (slugValidation !== true) return slugValidation;
 
-          const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+          const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
           if (!slugRegex.test(value.current)) {
-            return 'URL må bare inneholde små bokstaver, tall og bindestreker'
+            return 'URL må bare inneholde små bokstaver, tall og bindestreker';
           }
 
-          return true
+          return true;
         }),
     }),
     defineField({
       name: 'excerpt_en',
       title: 'Excerpt (English)',
       type: 'text',
-      description: 'Short description of the event in English. Maximum 60 characters (including spaces)',
+      description:
+        'Short description of the event in English. Maximum 60 characters (including spaces)',
       group: 'en',
       rows: 2,
       validation: (Rule) => Rule.max(60).warning('Excerpt should be maximum 60 characters'),
@@ -406,17 +436,20 @@ export const event = defineType({
       type: 'portableText',
       description: 'Main text about the concert in English (optional, max 500 characters)',
       group: 'en',
-      validation: (Rule) => Rule.custom((value: any) => {
-        if (!value) return true
-        const text = value
-          .filter((block: any) => block._type === 'block')
-          .map((block: any) => block.children?.map((child: any) => child.text || '').join('') || '')
-          .join('')
-        if (text.length > 500) {
-          return `Description is ${text.length} characters. Max 500 allowed.`
-        }
-        return true
-      }),
+      validation: (Rule) =>
+        Rule.custom((value: any) => {
+          if (!value) return true;
+          const text = value
+            .filter((block: any) => block._type === 'block')
+            .map(
+              (block: any) => block.children?.map((child: any) => child.text || '').join('') || ''
+            )
+            .join('');
+          if (text.length > 500) {
+            return `Description is ${text.length} characters. Max 500 allowed.`;
+          }
+          return true;
+        }),
     }),
     defineField({
       name: 'extraContent_en',
@@ -425,7 +458,7 @@ export const event = defineType({
       description: 'Optional extra content - videos, quotes, etc.',
       group: 'en',
       components: {
-        input: createMirrorPortableTextInput('extraContent_no')
+        input: createMirrorPortableTextInput('extraContent_no'),
       },
     }),
     ...publishingFields('publishing', 'arrangementet'),
@@ -443,36 +476,46 @@ export const event = defineType({
       _id: '_id',
     },
     prepare(selection) {
-      const {title_no, title_en, media, eventDate_no, eventDate_en, eventDateDate, startTime, _id} = selection
+      const {
+        title_no,
+        title_en,
+        media,
+        eventDate_no,
+        eventDate_en,
+        eventDateDate,
+        startTime,
+        _id,
+      } = selection;
 
-      const isPublished = _id && !_id.startsWith('drafts.')
-      const statusText = isPublished ? 'Publisert' : 'Utkast'
-      const title = title_no || title_en || 'Uten navn'
+      const isPublished = _id && !_id.startsWith('drafts.');
+      const statusText = isPublished ? 'Publisert' : 'Utkast';
+      const title = title_no || title_en || 'Uten navn';
 
       // Date with multi-level fallback chain
-      const eventDateLabel = (title_no ? eventDate_no : eventDate_en)
-                           || eventDate_no
-                           || eventDate_en
-                           || (eventDateDate
-                               ? new Date(eventDateDate).toLocaleDateString('nb-NO', {
-                                   weekday: 'long',
-                                   day: 'numeric',
-                                   month: 'long'
-                                 })
-                               : 'Ingen dato')
+      const eventDateLabel =
+        (title_no ? eventDate_no : eventDate_en) ||
+        eventDate_no ||
+        eventDate_en ||
+        (eventDateDate
+          ? new Date(eventDateDate).toLocaleDateString('nb-NO', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+            })
+          : 'Ingen dato');
 
-      const timeText = startTime ? ` kl. ${startTime}` : ''
-      const dateTimeText = `${eventDateLabel}${timeText}`
+      const timeText = startTime ? ` kl. ${startTime}` : '';
+      const dateTimeText = `${eventDateLabel}${timeText}`;
 
       // Language flags based on which languages have content
-      const langStatus = getLanguageStatus({title_no, title_en})
-      const flagsText = langStatus !== 'Ingen språk valgt' ? langStatus + ' • ' : ''
+      const langStatus = getLanguageStatus({ title_no, title_en });
+      const flagsText = langStatus !== 'Ingen språk valgt' ? langStatus + ' • ' : '';
 
       return {
         title: title,
         subtitle: `${dateTimeText}\n${flagsText}${statusText}`,
         media: media,
-      }
+      };
     },
   },
-})
+});
