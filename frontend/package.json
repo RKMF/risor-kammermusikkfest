@@ -3,12 +3,12 @@
   "type": "module",
   "version": "0.0.1",
   "engines": {
-    "node": ">=20.19.0"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "astro dev --port 4321",
     "build": "npm run typecheck && astro build",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "npx tsc --noEmit",
     "preview": "astro preview",
     "astro": "astro",
     "typegen": "sanity typegen generate",
