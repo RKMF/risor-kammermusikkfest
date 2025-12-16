@@ -15,7 +15,7 @@ module.exports = {
         '/en', // English homepage
         '/program', // Program (NO)
         '/en/program', // Program (EN)
-        '/kunstnere', // Artists (NO)
+        '/artister', // Artists (NO)
         '/en/artists', // Artists (EN)
         '/artikler', // Articles (NO)
         '/en/articles', // Articles (EN)

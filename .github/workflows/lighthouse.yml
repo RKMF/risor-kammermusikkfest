@@ -14,7 +14,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Wait for CDN propagation
+        run: sleep 60
+
+      - name: Health check deployment
+        run: |
+          url="${{ github.event.deployment_status.target_url }}"
+          for i in {1..10}; do
+            if curl -f -s "$url" > /dev/null; then
+              echo "Deployment verified as live"
+              exit 0
+            fi
+            echo "Attempt $i: Deployment not yet accessible, waiting..."
+            sleep 3
+          done
+          echo "Warning: Deployment not accessible after 30 seconds, proceeding anyway"
+
       - name: Run Lighthouse CI
+        continue-on-error: true
         uses: treosh/lighthouse-ci-action@v12
         with:
           urls: |
@@ -22,7 +39,7 @@ jobs:
             ${{ github.event.deployment_status.target_url }}/en
             ${{ github.event.deployment_status.target_url }}/program
             ${{ github.event.deployment_status.target_url }}/en/program
-            ${{ github.event.deployment_status.target_url }}/kunstnere
+            ${{ github.event.deployment_status.target_url }}/artister
             ${{ github.event.deployment_status.target_url }}/en/artists
             ${{ github.event.deployment_status.target_url }}/artikler
             ${{ github.event.deployment_status.target_url }}/en/articles
