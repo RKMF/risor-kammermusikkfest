@@ -1,6 +1,5 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
-import { experimental_AstroContainer } from 'astro/container';
 import { createDataService } from '../../lib/sanity/dataService.js';
 import { formatDateWithWeekday } from '../../lib/utils/dates';
 import { stegaClean } from '@sanity/client/stega';
@@ -10,7 +9,7 @@ import {
   getCORSHeaders,
   getSecurityHeaders
 } from '../../lib/security';
-import EventCard from '../../components/EventCard.astro';
+import { getOptimizedImageUrl, getResponsiveImageSet, IMAGE_QUALITY } from '../../lib/sanityImage';
 
 // Types for program page data
 interface EventVenue {
@@ -43,6 +42,120 @@ interface DateGroup {
 
 interface ProgramPageData {
   selectedEvents?: (ProgramEvent | null)[];
+}
+
+// HTML escape function for security
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * Generate HTML for an EventCard.
+ * This replaces the expensive renderToString(EventCard) call.
+ */
+function generateEventCardHtml(event: ProgramEvent, language: 'no' | 'en'): string {
+  // Get cleaned values
+  const title = stegaClean(event.title as string) || '';
+  const excerpt = stegaClean(event.excerpt as string) || '';
+  const slugNo = stegaClean((event.slug_no as { current?: string })?.current) || '';
+  const slugEn = stegaClean((event.slug_en as { current?: string })?.current) || '';
+  const eventSlug = language === 'en' ? (slugEn || slugNo) : (slugNo || slugEn);
+  const eventPath = language === 'en' ? `/en/program/${eventSlug}` : `/program/${eventSlug}`;
+
+  // Translation strings
+  const dateLabel = language === 'en' ? 'Date and time' : 'Dato og tid';
+  const venueLabel = language === 'en' ? 'Venue' : 'Sted';
+  const ticketButtonText = language === 'en' ? 'Buy tickets' : 'Kjøp billetter her';
+  const fewTicketsText = language === 'en' ? 'Few tickets' : 'Få billetter igjen';
+  const soldOutText = language === 'en' ? 'Sold out' : 'Utsolgt';
+  const freeText = language === 'en' ? 'Free' : 'Gratis';
+
+  // Image handling
+  let imageHtml = '';
+  const eventImage = event.image as { image?: unknown; alt?: string } | undefined;
+  if (eventImage?.image) {
+    const imageUrl = getOptimizedImageUrl(eventImage.image, 320, 180, IMAGE_QUALITY.CARD);
+    const srcset = getResponsiveImageSet(eventImage.image, [320, 640, 960], 16/9, IMAGE_QUALITY.CARD);
+    const alt = escapeHtml(stegaClean(eventImage.alt) || title);
+
+    if (imageUrl) {
+      imageHtml = `
+        <div class="event-image">
+          <img
+            src="${imageUrl}"
+            srcset="${srcset}"
+            sizes="320px"
+            alt="${alt}"
+            width="320"
+            height="180"
+            loading="lazy"
+            decoding="async"
+            class="event-card-image"
+          />
+        </div>
+      `;
+    }
+  }
+
+  // Event meta (date/time and venue)
+  let metaHtml = '<dl class="event-meta">';
+
+  if (event.eventDate?.date) {
+    const dateDisplay = formatDateWithWeekday(event.eventDate.date, language);
+    const timeDisplay = event.eventTime?.startTime ? `, kl. ${escapeHtml(stegaClean(event.eventTime.startTime) || '')}` : '';
+    metaHtml += `
+      <dt class="visually-hidden">${dateLabel}</dt>
+      <dd class="event-datetime">
+        <time datetime="${event.eventDate.date}">${dateDisplay}${timeDisplay}</time>
+      </dd>
+    `;
+  }
+
+  if (event.venue?.title) {
+    metaHtml += `
+      <dt class="visually-hidden">${venueLabel}</dt>
+      <dd class="event-venue">${escapeHtml(stegaClean(event.venue.title) || '')}</dd>
+    `;
+  }
+
+  metaHtml += '</dl>';
+
+  // Ticket section
+  const ticketType = stegaClean(event.ticketType as string);
+  const ticketStatus = stegaClean(event.ticketStatus as string);
+  const ticketUrl = stegaClean(event.ticketUrl as string) || '';
+  const ticketInfoText = stegaClean(event.ticketInfoText as string) || freeText;
+
+  let ticketHtml = '';
+  if (ticketType === 'info') {
+    ticketHtml = `<span class="ticket-badge">${escapeHtml(ticketInfoText)}</span>`;
+  } else if (ticketStatus === 'sold_out') {
+    ticketHtml = `<span class="btn btn-disabled" role="button" aria-disabled="true">${soldOutText}</span>`;
+  } else if (ticketStatus === 'low_stock') {
+    ticketHtml = `<a href="${escapeHtml(ticketUrl)}" class="btn btn-warning" target="_blank" rel="noopener noreferrer">${fewTicketsText}</a>`;
+  } else {
+    ticketHtml = `<a href="${escapeHtml(ticketUrl)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">${ticketButtonText}</a>`;
+  }
+
+  // Excerpt
+  const excerptHtml = excerpt ? `<p class="event-excerpt">${escapeHtml(excerpt)}</p>` : '';
+
+  return `
+    <article class="event-card card" data-event-date="${event.eventDate?.date || ''}">
+      <h3 class="event-title">
+        <a href="${eventPath}" class="event-title-link card-link">${escapeHtml(title)}</a>
+      </h3>
+      ${excerptHtml}
+      ${imageHtml}
+      ${metaHtml}
+      ${ticketHtml}
+    </article>
+  `;
 }
 
 // Rate limiter configuration
@@ -175,31 +288,23 @@ export const GET: APIRoute = async ({ request, url }) => {
     let html = '';
 
     if (hasEvents) {
-      // Create Astro container for rendering EventCard components
-      const container = await experimental_AstroContainer.create();
+      // Render each date section with EventCard HTML templates
+      // This is much faster than using experimental_AstroContainer.renderToString
+      const sectionsHtml = filteredDates.map(({ date, displayTitle, events: dateEvents }) => {
+        // Generate HTML for each event card
+        const eventCardsHtml = dateEvents
+          .map((event) => generateEventCardHtml(event, language))
+          .join('');
 
-      // Render each date section with EventCard components
-      const sectionsHtml = await Promise.all(
-        filteredDates.map(async ({ date, displayTitle, events: dateEvents }) => {
-          // Render each EventCard using the actual component
-          const eventCardsHtml = await Promise.all(
-            dateEvents.map((event) =>
-              container.renderToString(EventCard, {
-                props: { event, language },
-              })
-            )
-          );
-
-          return `
-            <section class="content-section date-section" data-date="${date}">
-              <h2 class="date-title">${stegaClean(displayTitle)}</h2>
-              <div class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar">
-                ${eventCardsHtml.join('')}
-              </div>
-            </section>
-          `;
-        })
-      );
+        return `
+          <section class="content-section date-section" data-date="${date}">
+            <h2 class="date-title">${stegaClean(displayTitle)}</h2>
+            <div class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar">
+              ${eventCardsHtml}
+            </div>
+          </section>
+        `;
+      });
 
       html = sectionsHtml.join('');
     } else {
@@ -248,7 +353,7 @@ export const GET: APIRoute = async ({ request, url }) => {
     return new Response(html, {
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'public, max-age=60, stale-while-revalidate=30',
+        'Cache-Control': 'public, max-age=300, stale-while-revalidate=60',
         'HX-Push-Url': pushUrl,
         ...getCORSHeaders(origin),
         ...getSecurityHeaders(),
