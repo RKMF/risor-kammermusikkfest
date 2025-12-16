@@ -442,6 +442,25 @@ This project uses a proven, tested combination of Node.js, Astro, and Sanity ver
 - **Avoid major version jumps** - update incrementally (4.4 → 4.5 → 4.6, not 4.4 → 5.0)
 - **Test after any dependency changes** - both studio and frontend must work
 
+### Security Checks
+
+**Automated Protection:**
+- CI pipeline runs security scans on every push and PR
+- Dependabot creates PRs for dependency updates (weekly)
+- New code with serious vulnerabilities won't deploy (your live site keeps running the previous safe version)
+
+**Manual Checks:**
+Before major releases or dependency updates:
+```bash
+cd frontend && npm audit
+cd studio && npm audit
+```
+
+**Handling Issues:**
+- Serious issues must be fixed before merging
+- Minor issues should be evaluated for actual risk in our context
+- Some upstream dependencies may have unfixed issues - track and update when fixes are available
+
 ### Server Management
 - **Always run both servers**: Studio (3333) + Frontend (4321) for Visual Editing
 - **Start servers separately** in different terminals due to Vite process management issues

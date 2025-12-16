@@ -21,7 +21,7 @@
     "@astrojs/check": "0.9.4",
     "@astrojs/react": "4.2.1",
     "@astrojs/sitemap": "3.6.0",
-    "@astrojs/vercel": "8.2.1",
+    "@astrojs/vercel": "8.0.4",
     "@portabletext/types": "2.0.13",
     "@sanity/astro": "3.2.10",
     "@sanity/client": "^6.29.1",
@@ -35,7 +35,7 @@
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",
     "@vitest/ui": "^3.2.4",
-    "happy-dom": "^17.6.1",
+    "happy-dom": "20.0.11",
     "typescript": "5.9.2",
     "vitest": "^3.2.4"
   }
