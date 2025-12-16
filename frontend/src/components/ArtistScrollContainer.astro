@@ -85,7 +85,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 <section class={`${containerClass} ${scrollbarClass}`}>
   {title && <h2 class="artist-scroll-title">{title}</h2>}
   <ul
-    class="artist-list scroll-container scroll-container--always scroll-container--artist-cards"
+    class="artist-list scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar"
     role="region"
     tabindex="0"
     aria-label={currentLanguage === 'no' ? 'Artister' : 'Artists'}
@@ -129,15 +129,17 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     display: contents;
   }
 
-  /* Hide scrollbar variant */
-  .hide-scrollbar .artist-list.scroll-container {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    padding-block-end: 0;
-  }
+  /* Hide scrollbar on touch devices only (mouse users need scrollbar) */
+  @media (pointer: coarse) {
+    .hide-scrollbar .artist-list.scroll-container {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding-block-end: 0;
+    }
 
-  .hide-scrollbar .artist-list.scroll-container::-webkit-scrollbar {
-    display: none;
+    .hide-scrollbar .artist-list.scroll-container::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   /* Support for reduced motion */

@@ -106,7 +106,7 @@
   }
 
   .scroll-container--styled-scrollbar::-webkit-scrollbar {
-    height: 6px;
+    height: 12px; /* Comfortable for mouse users to click-and-drag */
     -webkit-appearance: none;
   }
 
@@ -124,14 +124,10 @@
     background: var(--color-green);
   }
 
-  /* Touch optimization */
+  /* Touch devices: thinner scrollbar since users primarily swipe */
   @media (pointer: coarse) {
-    .scroll-container--styled-scrollbar {
-      scrollbar-width: auto;
-    }
-
     .scroll-container--styled-scrollbar::-webkit-scrollbar {
-      height: 12px;
+      height: 6px;
     }
   }
 } /* End @container (max-width: 800px) */
@@ -181,7 +177,7 @@
 }
 
 .scroll-container--always.scroll-container--styled-scrollbar::-webkit-scrollbar {
-  height: 6px;
+  height: 12px; /* Comfortable for mouse users to click-and-drag */
   -webkit-appearance: none;
 }
 
@@ -199,14 +195,10 @@
   background: var(--color-green);
 }
 
-/* Touch optimization for always-active scrollers */
+/* Touch devices: thinner scrollbar since users primarily swipe */
 @media (pointer: coarse) {
-  .scroll-container--always.scroll-container--styled-scrollbar {
-    scrollbar-width: auto;
-  }
-
   .scroll-container--always.scroll-container--styled-scrollbar::-webkit-scrollbar {
-    height: 12px;
+    height: 6px;
   }
 }
 
@@ -231,31 +223,61 @@
    HELPER CLASSES - Optional modifiers
    ============================================ */
 
-/* Hide scrollbar (for cleaner aesthetic) */
+/* Hide scrollbar on touch devices only
+ * Desktop mouse users need visible scrollbar to scroll
+ * Touch users can swipe, so scrollbar can be hidden */
 .scroll-container--hide-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding-block-end: 0;
-
-  /* Fade edges to indicate scrollability when scrollbar is hidden */
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    black 1rem,
-    black calc(100% - 1rem),
-    transparent
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent,
-    black 1rem,
-    black calc(100% - 1rem),
-    transparent
-  );
+  /* Desktop: show styled scrollbar for mouse interaction */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-blue) var(--color-neutral-100);
 }
 
 .scroll-container--hide-scrollbar::-webkit-scrollbar {
-  display: none;
+  height: 12px;
+  -webkit-appearance: none;
+}
+
+.scroll-container--hide-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-neutral-100);
+  border-radius: 0;
+}
+
+.scroll-container--hide-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-blue);
+  border-radius: 0;
+}
+
+.scroll-container--hide-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-green);
+}
+
+/* Touch devices: hide scrollbar since users swipe */
+@media (pointer: coarse) {
+  .scroll-container--hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-block-end: 0;
+
+    /* Fade edges to indicate scrollability when scrollbar is hidden */
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 1rem,
+      black calc(100% - 1rem),
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 1rem,
+      black calc(100% - 1rem),
+      transparent
+    );
+  }
+
+  .scroll-container--hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Soft snapping instead of mandatory */
