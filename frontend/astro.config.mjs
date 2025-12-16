@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
 import react from '@astrojs/react';
+import sitemap from '@astrojs/sitemap';
 
 import sanity from '@sanity/astro';
 
@@ -103,6 +104,22 @@ export default defineConfig({
       apiVersion: '2025-01-01', // Use latest API version
       stega: {
         studioUrl: 'http://localhost:3333'
+      },
+    }),
+    sitemap({
+      // Filter out API routes and preview pages
+      filter: (page) =>
+        !page.includes('/api/') &&
+        !page.includes('/preview') &&
+        !page.includes('/404') &&
+        !page.includes('/500'),
+      // i18n support - match Astro i18n config
+      i18n: {
+        defaultLocale: 'no',
+        locales: {
+          no: 'nb-NO',
+          en: 'en-GB',
+        },
       },
     }),
   ],

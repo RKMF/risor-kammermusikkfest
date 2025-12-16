@@ -6,6 +6,7 @@ import ArtistCard from '../components/ArtistCard.astro';
 import ComposerCard from '../components/ComposerCard.astro';
 import Spotify from '../components/Spotify.astro';
 import PortableText from '../components/PortableText.astro';
+import EventSchema from '../components/structured-data/EventSchema.astro';
 import { formatDateWithWeekday } from '../lib/utils/dates';
 import { getMultilingualContent } from '../lib/utils/language.js';
 import { IMAGE_QUALITY } from '../lib/sanityImage';
@@ -60,9 +61,16 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
 
 <Layout
   title={stegaClean(event.title || '')}
+  description={stegaClean(event.excerpt || '')}
   slugNo={event.slug_no?.current}
   slugEn={event.slug_en?.current}
+  seo={event.seo}
+  image={event.image?.image || event.image}
+  ogType="event"
 >
+  <!-- Structured Data: MusicEvent Schema -->
+  <EventSchema event={event} lang={language} />
+
   <article class="event-page">
       <header class="event-info-box">
         <div class="event-header">

@@ -39,9 +39,12 @@ const excerpt = artist[config.excerptField];
 ---
 
 <Layout
-  title={`${artist.name} - Artist`}
+  title={stegaClean(artist.name || '')}
+  description={excerpt ? stegaClean(excerpt) : undefined}
   slugNo={artist.slug_no?.current}
   slugEn={artist.slug_en?.current}
+  seo={artist.seo}
+  image={artist.image?.image || artist.image}
 >
   <article class="artist-page">
     <!-- Artist Card - Centered, medium size -->

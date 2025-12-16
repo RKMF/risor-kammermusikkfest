@@ -1,0 +1,115 @@
+---
+/**
+ * Article Schema (JSON-LD)
+ *
+ * Provides structured data for news/article pages.
+ * Enables rich results with article snippets in search.
+ */
+
+import { stegaClean } from '@sanity/client/stega';
+import { getImageBuilder, IMAGE_QUALITY } from '../../lib/sanityImage';
+
+interface ArticleData {
+  _id: string;
+  title_no?: string;
+  title_en?: string;
+  excerpt_no?: string;
+  excerpt_en?: string;
+  slug_no?: { current?: string };
+  slug_en?: { current?: string };
+  image?: any;
+  _createdAt?: string;
+  _updatedAt?: string;
+  publishedDate?: string;
+  author?: {
+    name?: string;
+  };
+}
+
+interface Props {
+  article: ArticleData;
+  lang?: 'no' | 'en';
+}
+
+const { article, lang = 'no' } = Astro.props;
+
+const SITE_URL = import.meta.env.SITE_URL || 'https://kammermusikkfest.no';
+
+// Get language-specific content
+const title = lang === 'en'
+  ? stegaClean(article.title_en || article.title_no)
+  : stegaClean(article.title_no || article.title_en);
+
+const description = lang === 'en'
+  ? stegaClean(article.excerpt_en || article.excerpt_no)
+  : stegaClean(article.excerpt_no || article.excerpt_en);
+
+const slug = lang === 'en'
+  ? article.slug_en?.current || article.slug_no?.current
+  : article.slug_no?.current || article.slug_en?.current;
+
+const articleUrl = lang === 'en'
+  ? `${SITE_URL}/en/articles/${slug}`
+  : `${SITE_URL}/artikler/${slug}`;
+
+// Get image URL
+let imageUrl: string | undefined;
+if (article.image?.asset || article.image?.image?.asset) {
+  const builder = getImageBuilder(article.image);
+  if (builder) {
+    imageUrl = builder
+      .width(1200)
+      .height(675)
+      .fit('crop')
+      .auto('format')
+      .quality(IMAGE_QUALITY.CARD)
+      .url();
+  }
+}
+
+// Dates
+const publishedDate = article.publishedDate || article._createdAt;
+const modifiedDate = article._updatedAt;
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  '@id': `${articleUrl}#article`,
+  headline: title,
+  description: description,
+  url: articleUrl,
+  ...(imageUrl && {
+    image: {
+      '@type': 'ImageObject',
+      url: imageUrl,
+      width: 1200,
+      height: 675,
+    },
+  }),
+  ...(publishedDate && { datePublished: publishedDate }),
+  ...(modifiedDate && { dateModified: modifiedDate }),
+  ...(article.author?.name && {
+    author: {
+      '@type': 'Person',
+      name: stegaClean(article.author.name),
+    },
+  }),
+  publisher: {
+    '@type': 'Organization',
+    '@id': `${SITE_URL}/#organization`,
+    name: 'Risor Kammermusikkfest',
+    url: SITE_URL,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${SITE_URL}/favicon.svg`,
+    },
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': articleUrl,
+  },
+  inLanguage: lang === 'en' ? 'en-GB' : 'nb-NO',
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />

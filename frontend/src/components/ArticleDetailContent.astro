@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import DynamicComponent from '../components/DynamicComponent.astro';
 import HeaderImage from '../components/HeaderImage.astro';
+import ArticleSchema from '../components/structured-data/ArticleSchema.astro';
 import { getMultilingualContent } from '../lib/utils/language.js';
 import { IMAGE_QUALITY } from '../lib/sanityImage';
 import { stegaClean } from '@sanity/client/stega';
@@ -31,9 +32,18 @@ const content = getMultilingualContent(article, language) || article[config.cont
 
 <Layout
   title={stegaClean(article.title || '')}
+  description={stegaClean(article.excerpt || '')}
   slugNo={article.slug_no?.current}
   slugEn={article.slug_en?.current}
+  seo={article.seo}
+  image={article.image?.image}
+  ogType="article"
+  publishedDate={article._createdAt}
+  modifiedDate={article._updatedAt}
 >
+  <!-- Structured Data: Article Schema -->
+  <ArticleSchema article={article} lang={language} />
+
   <article class="article-page">
     <header class="article-header">
       <h1>{stegaClean(article.title || '')}</h1>

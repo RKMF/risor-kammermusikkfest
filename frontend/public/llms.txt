@@ -1,0 +1,31 @@
+# Risor Kammermusikkfest
+
+> Norway's premier chamber music festival held annually in Risør since 1991. Features world-class musicians performing classical and contemporary chamber music in intimate coastal settings.
+
+## About the Festival
+- [About](/en/about): Festival history, artistic vision, and mission
+- [Program](/en/program): Complete concert schedule with dates, venues, and performers
+- [Praktisk info](/en/practical): Getting here, accommodation, and venue information
+
+## Artists
+- [Featured Artists](/en/artists): Biographies of performing musicians and ensembles
+
+## News
+- [Articles](/en/articles): Latest festival news, announcements, and features
+
+## Key Information
+- **Location**: Risør, Agder, Norway
+- **Founded**: 1991
+- **Annual Duration**: One week in late June
+- **Languages**: Norwegian (primary), English
+
+## Optional
+
+### Norwegian Pages
+- [Forside](/): Norwegian homepage
+- [Program](/program): Konsertprogram (Norwegian)
+- [Artister](/artister): Artistbiografier (Norwegian)
+- [Artikler](/artikler): Nyheter og artikler (Norwegian)
+
+### Contact
+For press inquiries, ticketing, or general information, visit the main website at kammermusikkfest.no

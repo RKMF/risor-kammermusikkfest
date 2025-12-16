@@ -5,9 +5,17 @@ import { getMultilingualContent, detectLanguage, type BilingualDocument } from '
 import { stegaClean } from '@sanity/client/stega';
 import type { PageBuilder } from '../../sanity/sanity.types';
 
+interface SeoData {
+  title?: string;
+  description?: string;
+  indexingStatus?: 'index' | 'noindex';
+}
+
 interface PageDocument extends BilingualDocument {
   _id?: string;
   content?: PageBuilder;
+  seo?: SeoData;
+  image?: any;
 }
 
 interface Props {
@@ -15,14 +23,27 @@ interface Props {
   excerpt?: string;
   pageContent?: PageBuilder;
   pageDocument?: PageDocument;
+  /** SEO data override (uses pageDocument.seo by default) */
+  seo?: SeoData;
+  /** Image for OG/Twitter cards (uses pageDocument.image by default) */
+  image?: any;
+  /** Page type for OG */
+  ogType?: 'website' | 'article' | 'event';
 }
 
 const {
   title,
   excerpt,
   pageContent = [],
-  pageDocument
+  pageDocument,
+  seo,
+  image,
+  ogType = 'website'
 } = Astro.props;
+
+// Resolve SEO data: explicit prop > pageDocument.seo
+const resolvedSeo = seo || pageDocument?.seo;
+const resolvedImage = image || pageDocument?.image?.image || pageDocument?.image;
 
 // Detect language from URL to use correct content
 const language = detectLanguage(Astro.request);
@@ -40,7 +61,18 @@ const slugEn = pageDocument?.slug_en?.current ? stegaClean(pageDocument.slug_en.
 const cleanTitle = stegaClean(title);
 ---
 
-<Layout title={cleanTitle} slugNo={slugNo} slugEn={slugEn}>
+<Layout
+  title={cleanTitle}
+  description={excerpt ? stegaClean(excerpt) : undefined}
+  slugNo={slugNo}
+  slugEn={slugEn}
+  seo={resolvedSeo}
+  image={resolvedImage}
+  ogType={ogType}
+>
+  <!-- Slot for structured data (JSON-LD schemas) -->
+  <slot name="structured-data" />
+
   <div class="stack page-layout" style="--space: var(--space-xl)">
     <header class="page-header">
       <h1 class="page-title">
