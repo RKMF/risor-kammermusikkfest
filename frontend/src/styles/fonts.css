@@ -23,7 +23,47 @@
    - Total: 293KB across 9 fonts
    - Critical fonts preloaded in Layout.astro
    - Fallbacks: Times New Roman (serif), Arial (sans-serif)
+
+   Fallback font metric adjustments:
+   - CSS font metric overrides match system fallbacks to custom fonts
+   - Prevents Cumulative Layout Shift (CLS) during font loading
+   - Browser support: Chrome 87+, Firefox 89+, Safari 17+ (~93%)
+   - Metrics extracted using @capsizecss/unpack
 */
+
+/* ============================================
+   FALLBACK FONT METRIC ADJUSTMENTS
+   ============================================
+
+   These @font-face rules create metric-adjusted versions of system fonts
+   to minimize layout shift when custom fonts load.
+
+   Calculation sources:
+   - Akkurat Pro: ascent=783, descent=217, lineGap=200, xWidthAvg=463, upm=1000
+   - Domaine Text: ascent=780, descent=220, lineGap=0, xWidthAvg=467, upm=1000
+   - Arial (normalized): xWidthAvg≈441
+   - Times New Roman (normalized): xWidthAvg≈401
+*/
+
+/* Adjusted Arial to match Akkurat Pro metrics */
+@font-face {
+  font-family: 'Akkurat Pro Fallback';
+  src: local('Arial');
+  size-adjust: 105%;
+  ascent-override: 78.3%;
+  descent-override: 21.7%;
+  line-gap-override: 20%;
+}
+
+/* Adjusted Times New Roman to match Domaine Text metrics */
+@font-face {
+  font-family: 'Domaine Text Fallback';
+  src: local('Times New Roman');
+  size-adjust: 116.5%;
+  ascent-override: 78%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
 
 /* ============================================
    AKKURAT PRO (Sans-serif)
