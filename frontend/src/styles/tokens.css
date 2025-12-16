@@ -192,8 +192,9 @@
   --color-error: var(--color-secondary-500);
   
   /* Typography */
-  --font-family-serif: 'Domaine Text', 'Times New Roman', serif;
-  --font-family-sans: 'Akkurat Pro', Arial, sans-serif;
+  /* Metric-adjusted fallbacks reduce layout shift during font loading */
+  --font-family-serif: 'Domaine Text', 'Domaine Text Fallback', 'Times New Roman', serif;
+  --font-family-sans: 'Akkurat Pro', 'Akkurat Pro Fallback', Arial, sans-serif;
   --font-family-base: var(--font-family-sans);
   --font-family-heading: var(--font-family-serif);
   --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
