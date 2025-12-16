@@ -26,6 +26,6 @@ jobs:
             ${{ github.event.deployment_status.target_url }}/en/artists
             ${{ github.event.deployment_status.target_url }}/artikler
             ${{ github.event.deployment_status.target_url }}/en/articles
-          configPath: ./frontend/lighthouserc.js
+          configPath: ./frontend/lighthouserc.cjs
           uploadArtifacts: true
           temporaryPublicStorage: true
