@@ -34,7 +34,6 @@ const IMAGE_COMPONENT = `
             aspectRatio
           },
           lqip,
-          blurHash,
           palette {
             dominant {
               background,
@@ -198,7 +197,6 @@ const EVENT_IMAGE_SELECTION = `
             aspectRatio
           },
           lqip,
-          blurHash,
           palette {
             dominant {
               background,
@@ -308,7 +306,6 @@ const ARTIST_IMAGE_SELECTION = `
             aspectRatio
           },
           lqip,
-          blurHash,
           palette {
             dominant {
               background,
@@ -364,7 +361,6 @@ const ARTICLE_IMAGE_SELECTION = `
             aspectRatio
           },
           lqip,
-          blurHash,
           palette {
             dominant {
               background,
