@@ -1,11 +1,11 @@
-import {defineField, defineType} from 'sanity'
-import {DocumentIcon, ComposeIcon, CogIcon, LinkIcon} from '@sanity/icons'
-import {createMirrorPortableTextInput} from '../../components/inputs/MirrorPortableTextInput'
-import {seoFields, seoGroup} from '../objects/seoFields'
-import {componentValidation} from '../shared/validation'
-import type {HomepageData} from '../shared/types'
-import {getLanguageStatus} from '../shared/previewHelpers'
-import {publishingGroup} from '../shared/publishingFields'
+import { defineField, defineType } from 'sanity';
+import { DocumentIcon, ComposeIcon, CogIcon, LinkIcon } from '@sanity/icons';
+import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
+import { seoFields, seoGroup } from '../objects/seoFields';
+import { componentValidation } from '../shared/validation';
+import type { HomepageData } from '../shared/types';
+import { getLanguageStatus } from '../shared/previewHelpers';
+import { publishingGroup } from '../shared/publishingFields';
 
 export const homepage = defineType({
   name: 'homepage',
@@ -38,7 +38,8 @@ export const homepage = defineType({
       name: 'adminTitle',
       title: 'Administrativ tittel',
       type: 'string',
-      description: 'OBS: Kun for Studio-oversikt - vises IKKE på nettsiden. Bruk beskrivende navn som "Juleforsiden 2024" eller "Påskekampanje"',
+      description:
+        'OBS: Kun for Studio-oversikt - vises IKKE på nettsiden. Bruk beskrivende navn som "Juleforsiden 2024" eller "Påskekampanje"',
       validation: componentValidation.title,
       group: 'admin',
     }),
@@ -48,7 +49,8 @@ export const homepage = defineType({
       name: 'headerLinks_no',
       title: 'Header-lenker',
       type: 'array',
-      description: 'Opptil 4 CTA-lenker som vises i header-boksen ved siden av logoen. Hvis tom, vises ingen header-boks.',
+      description:
+        'Opptil 4 CTA-lenker som vises i header-boksen ved siden av logoen. Hvis tom, vises ingen header-boks.',
       group: 'no',
       validation: (Rule) => Rule.max(4).error('Maks 4 header-lenker'),
       of: [
@@ -64,8 +66,8 @@ export const homepage = defineType({
               type: 'string',
               options: {
                 list: [
-                  {title: 'Ekstern lenke', value: 'external'},
-                  {title: 'Intern side', value: 'internal'},
+                  { title: 'Ekstern lenke', value: 'external' },
+                  { title: 'Intern side', value: 'internal' },
                 ],
                 layout: 'radio',
               },
@@ -89,14 +91,14 @@ export const homepage = defineType({
               title: 'URL',
               type: 'url',
               description: 'Ekstern URL (https://...)',
-              hidden: ({parent}) => parent?.linkType === 'internal',
+              hidden: ({ parent }) => parent?.linkType === 'internal',
               validation: (Rule) =>
                 Rule.custom((value, context) => {
-                  const parent = context.parent as {linkType?: string}
+                  const parent = context.parent as { linkType?: string };
                   if (parent?.linkType === 'external' && !value) {
-                    return 'URL er påkrevd for eksterne lenker'
+                    return 'URL er påkrevd for eksterne lenker';
                   }
-                  return true
+                  return true;
                 }),
             }),
             defineField({
@@ -105,23 +107,23 @@ export const homepage = defineType({
               type: 'reference',
               description: 'Velg hvilken side lenken skal gå til',
               to: [
-                {type: 'programPage'},
-                {type: 'artistPage'},
-                {type: 'articlePage'},
-                {type: 'page'},
-                {type: 'event'},
-                {type: 'artist'},
-                {type: 'article'},
+                { type: 'programPage' },
+                { type: 'artistPage' },
+                { type: 'articlePage' },
+                { type: 'page' },
+                { type: 'event' },
+                { type: 'artist' },
+                { type: 'article' },
               ],
               weak: true,
-              hidden: ({parent}) => parent?.linkType !== 'internal',
+              hidden: ({ parent }) => parent?.linkType !== 'internal',
               validation: (Rule) =>
                 Rule.custom((value, context) => {
-                  const parent = context.parent as {linkType?: string}
+                  const parent = context.parent as { linkType?: string };
                   if (parent?.linkType === 'internal' && !value) {
-                    return 'Du må velge en intern side'
+                    return 'Du må velge en intern side';
                   }
-                  return true
+                  return true;
                 }),
             }),
           ],
@@ -132,13 +134,13 @@ export const homepage = defineType({
               linkType: 'linkType',
               url: 'url',
             },
-            prepare({title, description, linkType, url}) {
-              const linkInfo = linkType === 'internal' ? 'Intern lenke' : url || 'Ingen URL'
+            prepare({ title, description, linkType, url }) {
+              const linkInfo = linkType === 'internal' ? 'Intern lenke' : url || 'Ingen URL';
               return {
                 title: title || 'Uten tekst',
                 subtitle: description ? `${description} • ${linkInfo}` : linkInfo,
                 media: LinkIcon,
-              }
+              };
             },
           },
         },
@@ -159,7 +161,8 @@ export const homepage = defineType({
       name: 'headerLinks_en',
       title: 'Header links',
       type: 'array',
-      description: 'Up to 4 CTA links displayed in the header box next to the logo. If empty, no header box is shown.',
+      description:
+        'Up to 4 CTA links displayed in the header box next to the logo. If empty, no header box is shown.',
       group: 'en',
       validation: (Rule) => Rule.max(4).error('Max 4 header links'),
       of: [
@@ -175,8 +178,8 @@ export const homepage = defineType({
               type: 'string',
               options: {
                 list: [
-                  {title: 'External link', value: 'external'},
-                  {title: 'Internal page', value: 'internal'},
+                  { title: 'External link', value: 'external' },
+                  { title: 'Internal page', value: 'internal' },
                 ],
                 layout: 'radio',
               },
@@ -200,14 +203,14 @@ export const homepage = defineType({
               title: 'URL',
               type: 'url',
               description: 'External URL (https://...)',
-              hidden: ({parent}) => parent?.linkType === 'internal',
+              hidden: ({ parent }) => parent?.linkType === 'internal',
               validation: (Rule) =>
                 Rule.custom((value, context) => {
-                  const parent = context.parent as {linkType?: string}
+                  const parent = context.parent as { linkType?: string };
                   if (parent?.linkType === 'external' && !value) {
-                    return 'URL is required for external links'
+                    return 'URL is required for external links';
                   }
-                  return true
+                  return true;
                 }),
             }),
             defineField({
@@ -216,23 +219,23 @@ export const homepage = defineType({
               type: 'reference',
               description: 'Select which page the link should go to',
               to: [
-                {type: 'programPage'},
-                {type: 'artistPage'},
-                {type: 'articlePage'},
-                {type: 'page'},
-                {type: 'event'},
-                {type: 'artist'},
-                {type: 'article'},
+                { type: 'programPage' },
+                { type: 'artistPage' },
+                { type: 'articlePage' },
+                { type: 'page' },
+                { type: 'event' },
+                { type: 'artist' },
+                { type: 'article' },
               ],
               weak: true,
-              hidden: ({parent}) => parent?.linkType !== 'internal',
+              hidden: ({ parent }) => parent?.linkType !== 'internal',
               validation: (Rule) =>
                 Rule.custom((value, context) => {
-                  const parent = context.parent as {linkType?: string}
+                  const parent = context.parent as { linkType?: string };
                   if (parent?.linkType === 'internal' && !value) {
-                    return 'You must select an internal page'
+                    return 'You must select an internal page';
                   }
-                  return true
+                  return true;
                 }),
             }),
           ],
@@ -243,13 +246,13 @@ export const homepage = defineType({
               linkType: 'linkType',
               url: 'url',
             },
-            prepare({title, description, linkType, url}) {
-              const linkInfo = linkType === 'internal' ? 'Internal link' : url || 'No URL'
+            prepare({ title, description, linkType, url }) {
+              const linkInfo = linkType === 'internal' ? 'Internal link' : url || 'No URL';
               return {
                 title: title || 'No text',
                 subtitle: description ? `${description} • ${linkInfo}` : linkInfo,
                 media: LinkIcon,
-              }
+              };
             },
           },
         },
@@ -261,10 +264,11 @@ export const homepage = defineType({
       name: 'content_en',
       title: 'Page content (English)',
       type: 'pageBuilder',
-      description: 'Build English homepage with components and content. Start with an H1 heading that becomes the page main title',
+      description:
+        'Build English homepage with components and content. Start with an H1 heading that becomes the page main title',
       group: 'en',
       components: {
-        input: createMirrorPortableTextInput('content_no')
+        input: createMirrorPortableTextInput('content_no'),
       },
     }),
 
@@ -277,10 +281,10 @@ export const homepage = defineType({
       group: 'publishing',
       options: {
         list: [
-          {title: 'Standard forside', value: 'default'},
-          {title: 'Planlagt forside', value: 'scheduled'}
+          { title: 'Standard forside', value: 'default' },
+          { title: 'Planlagt forside', value: 'scheduled' },
         ],
-        layout: 'radio'
+        layout: 'radio',
       },
       initialValue: 'scheduled',
     }),
@@ -289,11 +293,11 @@ export const homepage = defineType({
       title: 'Planlagt periode',
       type: 'object',
       group: 'publishing',
-      hidden: ({document}) => document?.homePageType === 'default',
+      hidden: ({ document }) => document?.homePageType === 'default',
       fieldsets: [
         {
           name: 'timing',
-          options: {columns: 2},
+          options: { columns: 2 },
         },
       ],
       fields: [
@@ -324,23 +328,24 @@ export const homepage = defineType({
       hasNorwegian: 'content_no',
       hasEnglish: 'content_en',
     },
-    prepare({adminTitle, homePageType, startDate, endDate, hasNorwegian, hasEnglish}) {
+    prepare({ adminTitle, homePageType, startDate, endDate, hasNorwegian, hasEnglish }) {
       // Use shared helper for language status
-      const langStatus = getLanguageStatus({hasNorwegian, hasEnglish})
-      const langText = langStatus !== 'Ingen språk valgt' ? ` • ${langStatus}` : ''
+      const langStatus = getLanguageStatus({ hasNorwegian, hasEnglish });
+      const langText = langStatus !== 'Ingen språk valgt' ? ` • ${langStatus}` : '';
 
       // Period status
-      const periodStatus = homePageType === 'default'
-        ? 'Standard forside'
-        : startDate && endDate
-          ? `${new Date(startDate).toLocaleDateString('nb-NO')} ${new Date(startDate).toLocaleTimeString('nb-NO', {hour: '2-digit', minute: '2-digit'})} → ${new Date(endDate).toLocaleDateString('nb-NO')} ${new Date(endDate).toLocaleTimeString('nb-NO', {hour: '2-digit', minute: '2-digit'})}`
-          : 'Ingen periode satt'
+      const periodStatus =
+        homePageType === 'default'
+          ? 'Standard forside'
+          : startDate && endDate
+            ? `${new Date(startDate).toLocaleDateString('nb-NO')} ${new Date(startDate).toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })} → ${new Date(endDate).toLocaleDateString('nb-NO')} ${new Date(endDate).toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })}`
+            : 'Ingen periode satt';
 
       return {
         title: adminTitle || 'Uten tittel',
         subtitle: `${periodStatus}${langText}`,
         media: DocumentIcon,
-      }
+      };
     },
   },
-})
+});

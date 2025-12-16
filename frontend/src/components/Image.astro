@@ -151,18 +151,10 @@ const responsiveSrcset: string = image ? getResponsiveImageSet(
 // Extract metadata for advanced features
 const metadata: ImageMetadata = image ? extractImageMetadata(image) : {};
 
-// Generate placeholder (BlurHash preferred, fallback to LQIP)
+// Generate LQIP placeholder for blur-up effect
 let placeholderUrl: string | null = null;
 if (image && placeholder === 'blur') {
-  // Try BlurHash first (better quality but only works client-side during hydration)
-  if (metadata.blurHash) {
-    // For SSR, we'll use LQIP as initial placeholder
-    // Client-side script can upgrade to BlurHash if needed
-    placeholderUrl = metadata.lqip || getLQIPUrl(image);
-  } else {
-    // Fall back to LQIP
-    placeholderUrl = getLQIPUrl(image);
-  }
+  placeholderUrl = metadata.lqip || getLQIPUrl(image);
 }
 
 // Calculate dimensions accounting for max-height constraint

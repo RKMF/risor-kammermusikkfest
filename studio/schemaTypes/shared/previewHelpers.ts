@@ -12,20 +12,20 @@
  */
 interface LanguageFields {
   // Common fields across most document types
-  title_no?: string
-  title_en?: string
-  excerpt_no?: string
-  excerpt_en?: string
-  content_no?: any
-  content_en?: any
+  title_no?: string;
+  title_en?: string;
+  excerpt_no?: string;
+  excerpt_en?: string;
+  content_no?: any;
+  content_en?: any;
 
   // Artist-specific fields
-  instrument_no?: string
-  instrument_en?: string
+  instrument_no?: string;
+  instrument_en?: string;
 
   // Boolean flags (for backward compatibility)
-  hasNorwegian?: boolean
-  hasEnglish?: boolean
+  hasNorwegian?: boolean;
+  hasEnglish?: boolean;
 }
 
 /**
@@ -44,25 +44,25 @@ export function getPublishingStatusText(
   scheduledEnd?: string
 ): string {
   // Check if document is published (not a draft)
-  const isPublished = _id && !_id.startsWith('drafts.')
-  let statusText = isPublished ? 'Publisert' : 'Utkast'
+  const isPublished = _id && !_id.startsWith('drafts.');
+  let statusText = isPublished ? 'Publisert' : 'Utkast';
 
   // Handle scheduled content timing
   if (publishingStatus === 'scheduled' && scheduledStart && scheduledEnd) {
-    const now = new Date()
-    const start = new Date(scheduledStart)
-    const end = new Date(scheduledEnd)
+    const now = new Date();
+    const start = new Date(scheduledStart);
+    const end = new Date(scheduledEnd);
 
     if (now >= start && now <= end) {
-      statusText = 'Live' // Currently within scheduled period
+      statusText = 'Live'; // Currently within scheduled period
     } else if (now < start) {
-      statusText = 'Venter' // Waiting for scheduled start
+      statusText = 'Venter'; // Waiting for scheduled start
     } else {
-      statusText = 'Utløpt' // Past scheduled end date
+      statusText = 'Utløpt'; // Past scheduled end date
     }
   }
 
-  return statusText
+  return statusText;
 }
 
 /**
@@ -75,7 +75,7 @@ export function getPublishingStatusText(
  * @returns Language status string: 'NO', 'EN', 'NO EN', or 'Ingen språk valgt'
  */
 export function getLanguageStatus(fields: LanguageFields): string {
-  const languages: string[] = []
+  const languages: string[] = [];
 
   // Check for Norwegian content
   // We check multiple possible field names to support different document types
@@ -84,10 +84,10 @@ export function getLanguageStatus(fields: LanguageFields): string {
     fields.title_no ||
     fields.excerpt_no ||
     fields.content_no ||
-    fields.instrument_no // Artist-specific
+    fields.instrument_no; // Artist-specific
 
   if (hasNorwegian) {
-    languages.push('NO')
+    languages.push('NO');
   }
 
   // Check for English content
@@ -96,12 +96,12 @@ export function getLanguageStatus(fields: LanguageFields): string {
     fields.title_en ||
     fields.excerpt_en ||
     fields.content_en ||
-    fields.instrument_en // Artist-specific
+    fields.instrument_en; // Artist-specific
 
   if (hasEnglish) {
-    languages.push('EN')
+    languages.push('EN');
   }
 
   // Return formatted language status
-  return languages.length > 0 ? languages.join(' ') : 'Ingen språk valgt'
+  return languages.length > 0 ? languages.join(' ') : 'Ingen språk valgt';
 }

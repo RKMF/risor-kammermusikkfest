@@ -49,7 +49,6 @@ if (events && events.length > 0) {
                 aspectRatio
               },
               lqip,
-              blurHash,
               palette {
                 dominant {
                   background,
@@ -125,7 +124,12 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
 <section class={`${containerClass} ${scrollbarClass}`}>
   {title && <h2 class="event-scroll-title">{title}</h2>}
-  <ul class="event-list scroll-container scroll-container--always scroll-container--event-cards">
+  <ul
+    class="event-list scroll-container scroll-container--always scroll-container--event-cards scroll-container--styled-scrollbar"
+    role="region"
+    tabindex="0"
+    aria-label={currentLanguage === 'no' ? 'Arrangementer' : 'Events'}
+  >
     {sortedEvents.map((event) => {
         if (!event) return null
 
@@ -165,15 +169,17 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
     display: contents;
   }
 
-  /* Hide scrollbar variant */
-  .hide-scrollbar .event-list.scroll-container {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    padding-block-end: 0;
-  }
+  /* Hide scrollbar on touch devices only (mouse users need scrollbar) */
+  @media (pointer: coarse) {
+    .hide-scrollbar .event-list.scroll-container {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding-block-end: 0;
+    }
 
-  .hide-scrollbar .event-list.scroll-container::-webkit-scrollbar {
-    display: none;
+    .hide-scrollbar .event-list.scroll-container::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   /* Support for reduced motion */

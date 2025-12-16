@@ -5,14 +5,13 @@ A simple, bilingual (Norwegian/English) festival website built with Astro and Sa
 ## Quick Start
 
 ### Prerequisites
-- Node.js v20.19.0 (recommended)
+- Node.js v22.x (LTS) or v20.19.0+
 - npm 10+
 
 ### Installation
 
 ```bash
-# Install dependencies (use legacy-peer-deps for compatibility)
-npm install --legacy-peer-deps
+npm install
 ```
 
 ### First-Time Setup
@@ -92,7 +91,12 @@ This ensures type safety across the entire stack when working with Sanity conten
 │   ├── actions/        # Custom Studio actions
 │   ├── components/     # Custom UI components
 │   └── package.json
-└── PROJECT_GUIDE.md   # Comprehensive documentation
+└── docs/              # Documentation
+    ├── PROJECT_GUIDE.md
+    ├── DEPLOYMENT.md
+    ├── DESIGN-SYSTEM.md
+    ├── MEDIA.md
+    └── SECURITY.md
 ```
 
 ## Tech Stack
@@ -155,7 +159,7 @@ Currently 8 test files covering:
 
 ## Documentation
 
-- **PROJECT_GUIDE.md** - Comprehensive project documentation covering:
+- **[docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md)** - Comprehensive project documentation covering:
   - Philosophy and architecture
   - Core technologies (Sanity, Astro, HTMX, TypeScript)
   - Development workflow
@@ -163,7 +167,7 @@ Currently 8 test files covering:
   - AI assistant guidelines
   - Best practices and conventions
 
-- **DESIGN-SYSTEM.md** - Spacing and layout system documentation:
+- **[docs/DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md)** - Spacing and layout system documentation:
   - Utopia-inspired fluid spacing tokens
   - Intrinsic layout patterns (Grid, TwoColumn, ThreeColumn)
   - Container queries for responsive components
@@ -171,7 +175,7 @@ Currently 8 test files covering:
   - Component width system
   - Migration guides and decision trees
 
-- **MEDIA.md** - Media handling reference guide (images and videos):
+- **[docs/MEDIA.md](docs/MEDIA.md)** - Media handling reference guide (images and videos):
   - Architecture and core utilities
   - Fetching images and videos from Sanity (GROQ patterns)
   - Rendering with Image and Video components
@@ -195,7 +199,7 @@ This project uses a two-branch model:
 4. Test on staging URL
 5. When ready, merge `staging` to `main` for production
 
-See PROJECT_GUIDE.md section 5 for detailed workflow.
+See [docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md) section 5 for detailed workflow.
 
 ## Deployment
 
@@ -223,12 +227,8 @@ This is a **professional festival website** following production-ready standards
 
 Simple means **focused and maintainable**, not amateur or shortcuts.
 
-See PROJECT_GUIDE.md section 1 for the complete philosophy and decision framework.
-
-## License
-
-MIT
+See [docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md) section 1 for the complete philosophy and decision framework.
 
 ---
 
-For comprehensive documentation, troubleshooting, and best practices, see **PROJECT_GUIDE.md**.
+For comprehensive documentation, troubleshooting, and best practices, see **[docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md)**.

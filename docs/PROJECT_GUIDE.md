@@ -83,7 +83,7 @@ Before making **ANY** change, evaluate in this order:
 - **New features** - Must solve real user needs, not hypothetical
 - **Major version upgrades** - Balance security benefits vs. breaking changes
 - **Refactoring working code** - Improve if clear maintainability/security gain
-- **Changing Node.js version** - Only for security or required features (currently 20.19.0)
+- **Changing Node.js version** - Only for security or required features (currently 22.x LTS)
 - **Adding monitoring/analytics** - Only when specifically required for business needs
 
 ### Common Pitfalls to Avoid
@@ -399,9 +399,41 @@ export function initializeSomeFeature(param) {
 ## 3. Environment & Setup
 
 ### Node.js Version Management
-- **Use Node.js v20.19.0** - This is the proven compatible version
+- **Use Node.js v22.x LTS** (or minimum v20.19.0) - These are the proven compatible versions
 - **Never upgrade Node.js** without testing both studio and frontend first
-- If Node.js upgrade is necessary, test incrementally (20.x → 21.x → 22.x)
+- Prefer even-numbered LTS versions (20, 22, 24) over odd versions (21, 23)
+
+### Version Compatibility (December 2024)
+
+This project uses a proven, tested combination of Node.js, Astro, and Sanity versions:
+
+**Current Versions:**
+| Component | Version | Why |
+|-----------|---------|-----|
+| Node.js | 22.x LTS | Best compatibility with all deps, LTS support until 2027 |
+| Astro | 5.16.x | Latest stable, requires Node 20.3+ or 22+ |
+| Sanity Studio | 4.x | Node 20.19+ required (only breaking change from v3) |
+| @sanity/astro | 3.2.x | Visual Editing integration |
+| @sanity/client | 6.x | API client for content fetching |
+
+**Compatibility Matrix:**
+| Component | Minimum Node.js | Recommended |
+|-----------|-----------------|-------------|
+| Sanity v4 | 20.19+ | 22.x |
+| Astro 5.8+ | 20.3.0+ | 22.x |
+| Vercel | 20.x or 22.x | 22.x |
+
+**Why These Versions:**
+- **Node 22.x**: All dependencies officially support it, LTS until April 2027
+- **Astro 5.x**: Stable, mature, with excellent Sanity integration
+- **Sanity 4.x**: The v3→v4 upgrade ONLY changes Node.js requirements, nothing else
+- **Frontend sanity package**: Uses v3.x as peer dependency for @sanity/astro (this is correct)
+
+**Upgrade Guidelines:**
+- Minor version updates (5.16 → 5.17): Generally safe, run `npm update`
+- Major version updates (Astro 5 → 6): Wait for stability, test thoroughly
+- Node.js updates: Stick to even LTS versions, test both studio and frontend
+- Always run `npm run build` after any dependency changes
 
 ### Dependency Management
 - **Use `npm install --legacy-peer-deps`** for dependency conflicts
@@ -409,6 +441,25 @@ export function initializeSomeFeature(param) {
 - **Sanity Studio updates** - keep reasonably current to get security fixes and bug improvements
 - **Avoid major version jumps** - update incrementally (4.4 → 4.5 → 4.6, not 4.4 → 5.0)
 - **Test after any dependency changes** - both studio and frontend must work
+
+### Security Checks
+
+**Automated Protection:**
+- CI pipeline runs security scans on every push and PR
+- Dependabot creates PRs for dependency updates (weekly)
+- New code with serious vulnerabilities won't deploy (your live site keeps running the previous safe version)
+
+**Manual Checks:**
+Before major releases or dependency updates:
+```bash
+cd frontend && npm audit
+cd studio && npm audit
+```
+
+**Handling Issues:**
+- Serious issues must be fixed before merging
+- Minor issues should be evaluated for actual risk in our context
+- Some upstream dependencies may have unfixed issues - track and update when fixes are available
 
 ### Server Management
 - **Always run both servers**: Studio (3333) + Frontend (4321) for Visual Editing
@@ -704,7 +755,7 @@ Understanding **what files we track** and **why** is crucial for security, colla
 - **Why**: Ensures reproducible builds - everyone gets same dependency versions
 
 ✅ **Documentation**
-- `README.md`, `PROJECT_GUIDE.md`, `CHANGELOG.md`
+- `README.md` (at root), `docs/` folder (PROJECT_GUIDE, DEPLOYMENT, DESIGN-SYSTEM, MEDIA, SECURITY)
 - **Why**: Project knowledge, onboarding, and history
 
 **What We DON'T Track (and Why):**
@@ -784,7 +835,7 @@ Before every commit, verify:
 ✅ **Agent Verification**: ALWAYS check `.claude/agents/` directory for actual agent names before invoking (ignore system prompt agent names)
 ✅ **Agent Rules**: Read relevant files in `.claude/agents/` for specific agent guidance
 ✅ **MCP Usage**: Use MCP servers when they provide value over CLI
-✅ **Dependencies**: Keep stable, use Node.js 20.19.0, npm --legacy-peer-deps
+✅ **Dependencies**: Keep stable, use Node.js 22.x LTS, npm --legacy-peer-deps
 ✅ **Simplicity First**: Working code > "better" code, simple > complex
 ✅ **Visual Editing**: Maintain compatibility, test after changes
 ✅ **Bilingual Support**: Norwegian default, English optional
@@ -872,9 +923,23 @@ Before every commit, verify:
 3. **CLI commands last** - Only when neither MCP nor WebFetch solve the problem
 
 **Available MCP Servers:**
-- **Astro Docs MCP** - Search Astro documentation, get framework info and examples
-- **GitHub MCP** - Search repositories, manage issues/PRs, handle GitHub operations
-- **IDE MCP** - Get language diagnostics from VS Code
+- **Sanity MCP** - Direct CMS operations (verified working):
+  - Query documents with GROQ (`query_documents`)
+  - Create, patch, publish, unpublish, delete documents
+  - Get schema information (`get_schema`, `get_context`)
+  - Schedule and manage content releases
+  - Semantic search via embeddings indices
+  - Best practices via `list_sanity_rules` and `get_sanity_rules`
+  - Authentication: Uses OAuth (`npx sanity login` credentials)
+- **Vercel MCP** - Deployment and hosting operations:
+  - Deploy projects (`deploy_to_vercel`)
+  - List and inspect deployments, projects, teams
+  - Get build logs for debugging failed deployments
+  - Fetch protected Vercel URLs
+  - Check domain availability
+- **Astro Docs MCP** - Search Astro documentation (`search_astro_docs`)
+- **GitHub MCP** - Repository operations, issues, PRs, code search
+- **IDE MCP** - VS Code language diagnostics (`getDiagnostics`)
 
 **Principle**: Use MCP when it provides actual value - not "because we can"
 
@@ -885,7 +950,7 @@ Before every commit, verify:
 **Project Settings:**
 - Project ID: `dnk98dp0`
 - Dataset: `production`
-- Node.js: `v20.19.0`
+- Node.js: `v22.x LTS` (or minimum v20.19.0)
 
 **Server Ports:**
 - Studio: `http://localhost:3333`

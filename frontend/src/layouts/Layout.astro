@@ -6,6 +6,8 @@ import type { MenuItem } from '../components/Menu.astro';
 import Footer from '../components/Footer.astro';
 import type { SiteSettings } from '../components/Footer.astro';
 import HreflangTags from '../components/HreflangTags.astro';
+import SEO from '../components/SEO.astro';
+import OrganizationSchema from '../components/structured-data/OrganizationSchema.astro';
 import { detectLanguage, type Language } from '../lib/utils/language.js';
 import { QueryBuilder } from '../lib/sanity/queryBuilder.js';
 
@@ -21,20 +23,41 @@ import '../styles/components.css';
 import '../styles/layouts.css';
 import '../styles/artist-card.css';
 
+interface SeoData {
+  title?: string;
+  description?: string;
+  indexingStatus?: 'index' | 'noindex';
+}
+
 export interface Props {
   title: string;
   description?: string;
   slugNo?: string;
   slugEn?: string;
   frontpage?: boolean;
+  /** SEO data from Sanity CMS */
+  seo?: SeoData;
+  /** Image for Open Graph/Twitter cards (Sanity image object) */
+  image?: any;
+  /** Page type for OG (website, article, event) */
+  ogType?: 'website' | 'article' | 'event';
+  /** Published date for articles */
+  publishedDate?: string;
+  /** Modified date */
+  modifiedDate?: string;
 }
 
 const {
   title,
-  description = "Moderne web-applikasjon med Sanity CMS og Astro frontend",
+  description = "Norges ledende kammermusikkfestival i Risør",
   slugNo,
   slugEn,
-  frontpage = false
+  frontpage = false,
+  seo,
+  image,
+  ogType = 'website',
+  publishedDate,
+  modifiedDate,
 } = Astro.props;
 
 // Detect current language from URL
@@ -61,13 +84,23 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
 <html lang={currentLang} id="top">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title} - Risør kammermusikkfest</title>
 
-    <!-- Hreflang tags for SEO -->
+    <!-- SEO Meta Tags, Open Graph, Twitter Cards -->
+    <SEO
+      title={title}
+      description={description}
+      seo={seo}
+      image={image}
+      lang={currentLang}
+      type={ogType}
+      publishedDate={publishedDate}
+      modifiedDate={modifiedDate}
+    />
+
+    <!-- Hreflang tags for multilingual SEO -->
     <HreflangTags
       currentLang={currentLang}
       currentPath={currentPath}
@@ -314,6 +347,9 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
 
     <!-- Footer -->
     <Footer currentLang={currentLang} siteSettings={siteSettings} />
+
+    <!-- Structured Data: Organization Schema (site-wide) -->
+    <OrganizationSchema />
 
     <!-- Visual Editing Component -->
     {enableVisualEditing && <VisualEditing enabled={true} zIndex={1000} />}

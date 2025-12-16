@@ -1,7 +1,7 @@
-import {defineField, defineType} from 'sanity'
-import {ComposeIcon} from '@sanity/icons'
-import {componentValidation, contentValidation} from '../../shared/validation'
-import {excludeAlreadySelected} from '../../shared/referenceFilters'
+import { defineField, defineType } from 'sanity';
+import { ComposeIcon } from '@sanity/icons';
+import { componentValidation, contentValidation } from '../../shared/validation';
+import { excludeAlreadySelected } from '../../shared/referenceFilters';
 
 export const composerScrollContainer = defineType({
   name: 'composerScrollContainer',
@@ -21,7 +21,7 @@ export const composerScrollContainer = defineType({
       title: 'Komponister',
       type: 'array',
       description: 'Legg til mellom 2 og 8 komponister som skal vises i horisontal scroll',
-      of: [{type: 'reference', to: [{type: 'composer'}]}],
+      of: [{ type: 'reference', to: [{ type: 'composer' }] }],
       validation: contentValidation.scrollContainerItems,
       options: {
         filter: excludeAlreadySelected(),
@@ -40,13 +40,13 @@ export const composerScrollContainer = defineType({
       title: 'title',
       items: 'items',
     },
-    prepare({title, items}) {
-      const itemCount = items?.length || 0
+    prepare({ title, items }) {
+      const itemCount = items?.length || 0;
       return {
         title: 'Komponister',
         subtitle: `${title || 'Scroll Container'} • ${itemCount} komponister`,
         media: ComposeIcon,
-      }
+      };
     },
   },
-})
+});

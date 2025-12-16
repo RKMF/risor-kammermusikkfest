@@ -1,4 +1,4 @@
-import {type ReferenceCleanupConfig} from './createDeleteWithReferencesAction'
+import { type ReferenceCleanupConfig } from './createDeleteWithReferencesAction';
 
 export const articleDeleteConfig: ReferenceCleanupConfig = {
   documentType: 'article',
@@ -12,7 +12,7 @@ export const articleDeleteConfig: ReferenceCleanupConfig = {
       pluralForm: 'sider',
     },
   ],
-}
+};
 
 export const artistDeleteConfig: ReferenceCleanupConfig = {
   documentType: 'artist',
@@ -33,7 +33,7 @@ export const artistDeleteConfig: ReferenceCleanupConfig = {
       pluralForm: 'arrangementer',
     },
   ],
-}
+};
 
 export const eventDeleteConfig: ReferenceCleanupConfig = {
   documentType: 'event',
@@ -54,4 +54,4 @@ export const eventDeleteConfig: ReferenceCleanupConfig = {
       pluralForm: 'artister',
     },
   ],
-}
+};

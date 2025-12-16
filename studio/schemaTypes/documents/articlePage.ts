@@ -1,11 +1,11 @@
-import {defineField, defineType} from 'sanity'
-import {DocumentIcon, ComposeIcon, DocumentTextIcon} from '@sanity/icons'
-import {createMirrorPortableTextInput} from '../../components/inputs/MirrorPortableTextInput'
-import {componentValidation} from '../shared/validation'
-import {seoFields, seoGroup} from '../objects/seoFields'
-import {excludeAlreadySelected} from '../shared/referenceFilters'
-import {MultiSelectReferenceInput} from '../components/inputs/MultiSelectReferenceInput'
-import {getLanguageStatus} from '../shared/previewHelpers'
+import { defineField, defineType } from 'sanity';
+import { DocumentIcon, ComposeIcon, DocumentTextIcon } from '@sanity/icons';
+import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
+import { componentValidation } from '../shared/validation';
+import { seoFields, seoGroup } from '../objects/seoFields';
+import { excludeAlreadySelected } from '../shared/referenceFilters';
+import { MultiSelectReferenceInput } from '../components/inputs/MultiSelectReferenceInput';
+import { getLanguageStatus } from '../shared/previewHelpers';
 
 export const articlePage = defineType({
   name: 'articlePage',
@@ -52,7 +52,7 @@ export const articlePage = defineType({
         source: 'title_no',
         maxLength: 96,
       },
-      initialValue: {current: 'artikler'},
+      initialValue: { current: 'artikler' },
       validation: componentValidation.slug,
       group: 'no',
     }),
@@ -109,7 +109,7 @@ export const articlePage = defineType({
       description: 'Build English article overview with components and content',
       group: 'en',
       components: {
-        input: createMirrorPortableTextInput('content_no')
+        input: createMirrorPortableTextInput('content_no'),
       },
     }),
 
@@ -121,10 +121,11 @@ export const articlePage = defineType({
       of: [
         {
           type: 'reference',
-          to: [{type: 'article'}],
-        }
+          to: [{ type: 'article' }],
+        },
       ],
-      description: 'Velg artikler som skal vises på artikkeloversikten, eller la stå tom for å vise alle publiserte artikler (vises på begge språk)',
+      description:
+        'Velg artikler som skal vises på artikkeloversikten, eller la stå tom for å vise alle publiserte artikler (vises på begge språk)',
       group: 'articles',
       components: {
         input: MultiSelectReferenceInput,
@@ -145,9 +146,9 @@ export const articlePage = defineType({
       hasNorwegian: 'content_no',
       hasEnglish: 'content_en',
     },
-    prepare({title_no, title_en, slug_no, slug_en, hasNorwegian, hasEnglish}) {
+    prepare({ title_no, title_en, slug_no, slug_en, hasNorwegian, hasEnglish }) {
       // Language status using shared helper
-      const langStatus = getLanguageStatus({title_no, title_en, hasNorwegian, hasEnglish});
+      const langStatus = getLanguageStatus({ title_no, title_en, hasNorwegian, hasEnglish });
 
       const title = title_no || title_en || 'Artikkeloversikt';
       const slug = slug_no || slug_en || 'artikler';
@@ -159,4 +160,4 @@ export const articlePage = defineType({
       };
     },
   },
-})
+});

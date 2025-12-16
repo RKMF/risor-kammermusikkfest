@@ -1,5 +1,5 @@
-import {defineField, defineType} from 'sanity'
-import {SplitHorizontalIcon} from '@sanity/icons'
+import { defineField, defineType } from 'sanity';
+import { SplitHorizontalIcon } from '@sanity/icons';
 
 export const twoColumnLayout = defineType({
   name: 'twoColumnLayout',
@@ -21,17 +21,15 @@ export const twoColumnLayout = defineType({
       type: 'array',
       description: 'Komponent som vises til venstre',
       of: [
-        {type: 'imageComponent'},
-        {type: 'videoComponent'},
-        {type: 'spotifyComponent'},
-        {type: 'quoteComponent'},
-        {type: 'portableTextBlock'},
-        {type: 'headingComponent'},
+        { type: 'imageComponent' },
+        { type: 'videoComponent' },
+        { type: 'spotifyComponent' },
+        { type: 'quoteComponent' },
+        { type: 'portableTextBlock' },
+        { type: 'headingComponent' },
       ],
       validation: (Rule) =>
-        Rule.required()
-          .max(1)
-          .error('Venstre kolonne kan bare ha én komponent'),
+        Rule.required().max(1).error('Venstre kolonne kan bare ha én komponent'),
     }),
     defineField({
       name: 'rightColumn',
@@ -39,17 +37,14 @@ export const twoColumnLayout = defineType({
       type: 'array',
       description: 'Komponent som vises til høyre',
       of: [
-        {type: 'imageComponent'},
-        {type: 'videoComponent'},
-        {type: 'spotifyComponent'},
-        {type: 'quoteComponent'},
-        {type: 'portableTextBlock'},
-        {type: 'headingComponent'},
+        { type: 'imageComponent' },
+        { type: 'videoComponent' },
+        { type: 'spotifyComponent' },
+        { type: 'quoteComponent' },
+        { type: 'portableTextBlock' },
+        { type: 'headingComponent' },
       ],
-      validation: (Rule) =>
-        Rule.required()
-          .max(1)
-          .error('Høyre kolonne kan bare ha én komponent'),
+      validation: (Rule) => Rule.required().max(1).error('Høyre kolonne kan bare ha én komponent'),
     }),
     defineField({
       name: 'reverseOnMobile',
@@ -65,9 +60,9 @@ export const twoColumnLayout = defineType({
       description: 'Velg sideforholdet for kolonnene',
       options: {
         list: [
-          {title: '4:5 (portrett)', value: '4:5'},
-          {title: '9:16 (høy portrett)', value: '9:16'},
-          {title: '1:1 (kvadrat)', value: '1:1'},
+          { title: '4:5 (portrett)', value: '4:5' },
+          { title: '9:16 (høy portrett)', value: '9:16' },
+          { title: '1:1 (kvadrat)', value: '1:1' },
         ],
         layout: 'radio',
       },
@@ -82,17 +77,17 @@ export const twoColumnLayout = defineType({
       reverseOnMobile: 'reverseOnMobile',
       aspectRatio: 'aspectRatio',
     },
-    prepare({title, leftColumn, rightColumn, reverseOnMobile, aspectRatio}) {
-      const leftType = leftColumn?.[0]?._type || 'tom'
-      const rightType = rightColumn?.[0]?._type || 'tom'
-      const reverseText = reverseOnMobile ? ' • Reversert mobil' : ''
-      const aspectText = ` • ${aspectRatio || '4:5'}`
+    prepare({ title, leftColumn, rightColumn, reverseOnMobile, aspectRatio }) {
+      const leftType = leftColumn?.[0]?._type || 'tom';
+      const rightType = rightColumn?.[0]?._type || 'tom';
+      const reverseText = reverseOnMobile ? ' • Reversert mobil' : '';
+      const aspectText = ` • ${aspectRatio || '4:5'}`;
 
       return {
         title: title || 'To kolonner',
         subtitle: `Venstre: ${leftType} | Høyre: ${rightType}${reverseText}${aspectText}`,
         media: SplitHorizontalIcon,
-      }
+      };
     },
   },
-})
+});

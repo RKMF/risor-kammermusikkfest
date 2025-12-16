@@ -3,12 +3,12 @@
   "type": "module",
   "version": "0.0.1",
   "engines": {
-    "node": "20.x"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "astro dev --port 4321",
     "build": "npm run typecheck && astro build",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "npx -p typescript tsc --noEmit",
     "preview": "astro preview",
     "astro": "astro",
     "typegen": "sanity typegen generate",
@@ -20,28 +20,26 @@
   "dependencies": {
     "@astrojs/check": "0.9.4",
     "@astrojs/react": "4.2.1",
-    "@astrojs/vercel": "8.2.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "@astrojs/sitemap": "3.6.0",
+    "@astrojs/vercel": "8.0.4",
     "@portabletext/types": "2.0.13",
-    "@sanity/astro": "^3.2.6",
+    "@sanity/astro": "3.2.10",
     "@sanity/client": "^6.29.1",
     "@sanity/image-url": "^1.1.0",
-    "@types/react": "19.1.8",
-    "astro": "^5.11.0",
+    "astro": "5.16.6",
     "astro-htmx": "1.0.6",
     "astro-portabletext": "^0.11.1",
-    "blurhash": "2.0.5",
     "htmx.org": "^2.0.6",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "react-is": "19.1.1",
-    "sanity": "^3.98.0",
-    "styled-components": "6.1.19",
-    "typescript": "5.9.2"
+    "sanity": "4.22.0",
+    "styled-components": "^6.1.18"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",
     "@vitest/ui": "^3.2.4",
-    "happy-dom": "^17.6.1",
+    "happy-dom": "20.0.11",
+    "typescript": "5.9.2",
     "vitest": "^3.2.4"
   }
 }

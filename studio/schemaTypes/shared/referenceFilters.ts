@@ -29,21 +29,21 @@
  * @returns A Sanity filter function that excludes selected references
  */
 export function excludeAlreadySelected() {
-  return ({document, parent}: {document: any; parent: any}) => {
+  return ({ document, parent }: { document: any; parent: any }) => {
     // parent is the array field itself
     // Extract all _ref values from already-selected references
     const selected =
       parent
         ?.filter((item: any) => item && item._ref) // Filter out null/undefined
         ?.map((item: any) => item._ref) // Extract _ref IDs
-        .filter(Boolean) || [] // Remove any falsy values
+        .filter(Boolean) || []; // Remove any falsy values
 
     // If nothing is selected yet, show all items (except current document)
     if (selected.length === 0) {
       return {
         filter: '_id != $documentId',
-        params: {documentId: document._id || ''},
-      }
+        params: { documentId: document._id || '' },
+      };
     }
 
     // Exclude already-selected items AND the current document (prevents self-reference)
@@ -53,8 +53,8 @@ export function excludeAlreadySelected() {
         selected,
         documentId: document._id || '',
       },
-    }
-  }
+    };
+  };
 }
 
 /**
@@ -80,18 +80,18 @@ export function excludeAlreadySelected() {
  * @returns A Sanity filter function with custom filtering
  */
 export function excludeAlreadySelectedWithCustomFilter(customFilter: string) {
-  return ({document, parent}: {document: any; parent: any}) => {
+  return ({ document, parent }: { document: any; parent: any }) => {
     const selected =
       parent
         ?.filter((item: any) => item && item._ref)
         ?.map((item: any) => item._ref)
-        .filter(Boolean) || []
+        .filter(Boolean) || [];
 
     if (selected.length === 0) {
       return {
         filter: `_id != $documentId && ${customFilter}`,
-        params: {documentId: document._id || ''},
-      }
+        params: { documentId: document._id || '' },
+      };
     }
 
     return {
@@ -100,8 +100,8 @@ export function excludeAlreadySelectedWithCustomFilter(customFilter: string) {
         selected,
         documentId: document._id || '',
       },
-    }
-  }
+    };
+  };
 }
 
 /**
@@ -129,18 +129,18 @@ export function excludeAlreadySelectedWithCustomFilter(customFilter: string) {
  * @returns Options object for use in defineField
  */
 export function createReferenceArrayOptions(config: {
-  excludeSelected?: boolean
-  customFilter?: string
+  excludeSelected?: boolean;
+  customFilter?: string;
 }) {
-  const options: any = {}
+  const options: any = {};
 
   if (config.excludeSelected) {
     if (config.customFilter) {
-      options.filter = excludeAlreadySelectedWithCustomFilter(config.customFilter)
+      options.filter = excludeAlreadySelectedWithCustomFilter(config.customFilter);
     } else {
-      options.filter = excludeAlreadySelected()
+      options.filter = excludeAlreadySelected();
     }
   }
 
-  return options
+  return options;
 }

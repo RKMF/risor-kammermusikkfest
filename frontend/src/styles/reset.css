@@ -17,6 +17,7 @@
 /* Set core body defaults */
 body {
   min-height: 100vh;
+  min-height: 100svh; /* Mobile-safe: fits when browser UI (address bar) visible */
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

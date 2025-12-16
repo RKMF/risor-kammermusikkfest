@@ -1,4 +1,4 @@
-import {Card, Text, Stack, Heading, Code, Box} from '@sanity/ui'
+import { Card, Text, Stack, Heading, Code, Box } from '@sanity/ui';
 import {
   BlockContentIcon,
   TextIcon,
@@ -11,18 +11,18 @@ import {
   DocumentIcon,
   CalendarIcon,
   EllipsisHorizontalIcon,
-} from '@sanity/icons'
+} from '@sanity/icons';
 
 interface ComponentInfo {
-  name: string
-  icon: React.ComponentType
-  useCase: string
-  when: string
-  example?: string
+  name: string;
+  icon: React.ComponentType;
+  useCase: string;
+  when: string;
+  example?: string;
 }
 
 const components: Record<string, ComponentInfo[]> = {
-  'Innhold': [
+  Innhold: [
     {
       name: 'Overskrift',
       icon: BlockContentIcon,
@@ -45,11 +45,12 @@ const components: Record<string, ComponentInfo[]> = {
       example: '"En uforglemmelig opplevelse!" - VG',
     },
   ],
-  'Media': [
+  Media: [
     {
       name: 'Bilde',
       icon: ImageIcon,
-      useCase: 'Last opp egne bilder, søk i Unsplash, eller velg fra bildebiblioteket. Inkluder alt-tekst, bildetekst og kreditering.',
+      useCase:
+        'Last opp egne bilder, søk i Unsplash, eller velg fra bildebiblioteket. Inkluder alt-tekst, bildetekst og kreditering.',
       when: 'For alle typer bilder: festivalbilder, artistbilder, sceneveiledning. Velg format (kvadrat, portrett, stående, landskap) for best visning.',
       example: 'Festivalområde, scenebilder, artistfoto',
     },
@@ -68,7 +69,7 @@ const components: Record<string, ComponentInfo[]> = {
       example: 'Festivalspilleliste 2025, featured artister, warm-up playlist',
     },
   ],
-  'Interaktiv': [
+  Interaktiv: [
     {
       name: 'Knapp',
       icon: BoltIcon,
@@ -91,7 +92,7 @@ const components: Record<string, ComponentInfo[]> = {
       example: 'Nedtelling til festivalstart, neste konsert, billettslipp',
     },
   ],
-  'Layout': [
+  Layout: [
     {
       name: 'To kolonner',
       icon: TiersIcon,
@@ -114,7 +115,7 @@ const components: Record<string, ComponentInfo[]> = {
       example: 'Bildegalleri, video-highlights, featured playlists',
     },
   ],
-  'Seksjoner': [
+  Seksjoner: [
     {
       name: 'Artistkarusell',
       icon: DocumentIcon,
@@ -132,12 +133,13 @@ const components: Record<string, ComponentInfo[]> = {
     {
       name: 'Innholdskarusell',
       icon: EllipsisHorizontalIcon,
-      useCase: 'Horisontal scrollbar med blandet innhold: bilder, video, Spotify, sitater (alle 4:5)',
+      useCase:
+        'Horisontal scrollbar med blandet innhold: bilder, video, Spotify, sitater (alle 4:5)',
       when: 'For storytelling med variert innhold i Instagram-stil',
       example: 'Festivalhøydepunkter, Stemningsbilder + musikk, Anmeldelser',
     },
   ],
-}
+};
 
 export default function ComponentGuide() {
   return (
@@ -155,14 +157,14 @@ export default function ComponentGuide() {
             <Heading size={2}>{category}</Heading>
             <Stack space={3}>
               {items.map((component) => {
-                const Icon = component.icon
+                const Icon = component.icon;
                 return (
                   <Card key={component.name} padding={4} radius={2} shadow={1}>
                     <Stack space={3}>
                       <Stack space={2}>
                         <Box>
                           <Text size={2} weight="semibold">
-                            <Icon style={{display: 'inline', marginRight: 8}} />
+                            <Icon style={{ display: 'inline', marginRight: 8 }} />
                             {component.name}
                           </Text>
                         </Box>
@@ -188,7 +190,7 @@ export default function ComponentGuide() {
                       )}
                     </Stack>
                   </Card>
-                )
+                );
               })}
             </Stack>
           </Stack>
@@ -209,5 +211,5 @@ export default function ComponentGuide() {
         </Card>
       </Stack>
     </Box>
-  )
+  );
 }

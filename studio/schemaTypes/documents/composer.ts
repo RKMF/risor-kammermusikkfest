@@ -1,9 +1,9 @@
-import {defineField, defineType} from 'sanity'
-import {ComposeIcon} from '@sanity/icons'
-import {componentValidation} from '../shared/validation'
-import {multilingualImageFields, imageFieldsets, imageGroup} from '../shared/imageFields'
-import {getLanguageStatus} from '../shared/previewHelpers'
-import {LoremIpsumInput} from '../components/content/LoremIpsumButton'
+import { defineField, defineType } from 'sanity';
+import { ComposeIcon } from '@sanity/icons';
+import { componentValidation } from '../shared/validation';
+import { multilingualImageFields, imageFieldsets, imageGroup } from '../shared/imageFields';
+import { getLanguageStatus } from '../shared/previewHelpers';
+import { LoremIpsumInput } from '../components/content/LoremIpsumButton';
 
 export const composer = defineType({
   name: 'composer',
@@ -29,9 +29,7 @@ export const composer = defineType({
     },
     imageGroup,
   ],
-  fieldsets: [
-    ...imageFieldsets,
-  ],
+  fieldsets: [...imageFieldsets],
   fields: [
     defineField({
       name: 'name',
@@ -67,17 +65,17 @@ export const composer = defineType({
       description_no: 'description_no',
       description_en: 'description_en',
     },
-    prepare({name, media, description_no, description_en}) {
+    prepare({ name, media, description_no, description_en }) {
       const langStatus = getLanguageStatus({
         hasNorwegian: !!description_no,
         hasEnglish: !!description_en,
-      })
+      });
 
       return {
         title: name || 'Uten navn',
         subtitle: langStatus,
         media: media || ComposeIcon,
-      }
+      };
     },
   },
-})
+});

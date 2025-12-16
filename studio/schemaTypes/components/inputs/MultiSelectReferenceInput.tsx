@@ -1,5 +1,5 @@
-import React, {useEffect, useState, useMemo, useCallback} from 'react'
-import {ArrayOfObjectsInputProps, set, unset, useClient} from 'sanity'
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { ArrayOfObjectsInputProps, set, unset, useClient } from 'sanity';
 import {
   Stack,
   Card,
@@ -11,57 +11,57 @@ import {
   Spinner,
   Dialog,
   Button,
-} from '@sanity/ui'
-import {SearchIcon, AddIcon} from '@sanity/icons'
+} from '@sanity/ui';
+import { SearchIcon, AddIcon } from '@sanity/icons';
 
 interface ReferenceItem {
-  _id: string
-  _type: string
-  title?: string
-  title_no?: string
-  title_en?: string
-  name?: string
-  [key: string]: any
+  _id: string;
+  _type: string;
+  title?: string;
+  title_no?: string;
+  title_en?: string;
+  name?: string;
+  [key: string]: any;
 }
 
 interface Reference {
-  _type: 'reference'
-  _key: string
-  _ref: string
+  _type: 'reference';
+  _key: string;
+  _ref: string;
 }
 
 export function MultiSelectReferenceInput(props: ArrayOfObjectsInputProps) {
-  const {value = [], onChange, schemaType} = props
-  const [items, setItems] = useState<ReferenceItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
-  const client = useClient({apiVersion: '2025-01-01'})
+  const { value = [], onChange, schemaType } = props;
+  const [items, setItems] = useState<ReferenceItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const client = useClient({ apiVersion: '2025-01-01' });
 
   // Extract the reference type from schema
-  const referenceType = schemaType.of?.[0]?.to?.[0]?.name
+  const referenceType = schemaType.of?.[0]?.to?.[0]?.name;
 
   // Get button text based on reference type
   const getButtonText = useCallback(() => {
     switch (referenceType) {
       case 'artist':
-        return 'Velg flere artister'
+        return 'Velg flere artister';
       case 'event':
-        return 'Velg flere arrangementer'
+        return 'Velg flere arrangementer';
       case 'composer':
-        return 'Velg flere komponister'
+        return 'Velg flere komponister';
       case 'article':
-        return 'Velg flere artikler'
+        return 'Velg flere artikler';
       default:
-        return 'Velg flere elementer'
+        return 'Velg flere elementer';
     }
-  }, [referenceType])
+  }, [referenceType]);
 
   useEffect(() => {
     if (!referenceType) {
-      setLoading(false)
-      return
+      setLoading(false);
+      return;
     }
 
     // Fetch all available documents of the reference type
@@ -75,64 +75,64 @@ export function MultiSelectReferenceInput(props: ArrayOfObjectsInputProps) {
           title_en,
           name
         }`,
-        {type: referenceType},
+        { type: referenceType }
       )
       .then((fetchedItems) => {
-        setItems(fetchedItems)
-        setLoading(false)
+        setItems(fetchedItems);
+        setLoading(false);
       })
       .catch((error) => {
-        console.error('Error fetching references:', error)
-        setLoading(false)
-      })
-  }, [referenceType, client])
+        console.error('Error fetching references:', error);
+        setLoading(false);
+      });
+  }, [referenceType, client]);
 
   // Get display title for an item
   const getDisplayTitle = useCallback((item: ReferenceItem): string => {
-    return item.title_no || item.title || item.title_en || item.name || 'Uten tittel'
-  }, [])
+    return item.title_no || item.title || item.title_en || item.name || 'Uten tittel';
+  }, []);
 
   // Filter items based on search query
   const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return items
+    if (!searchQuery.trim()) return items;
 
-    const query = searchQuery.toLowerCase()
+    const query = searchQuery.toLowerCase();
     return items.filter((item) => {
-      const title = getDisplayTitle(item).toLowerCase()
-      return title.includes(query)
-    })
-  }, [items, searchQuery, getDisplayTitle])
+      const title = getDisplayTitle(item).toLowerCase();
+      return title.includes(query);
+    });
+  }, [items, searchQuery, getDisplayTitle]);
 
   // Track currently selected IDs in the array
   const currentlySelectedIds = useMemo(() => {
-    return new Set((value || []).map((ref: Reference) => ref._ref))
-  }, [value])
+    return new Set((value || []).map((ref: Reference) => ref._ref));
+  }, [value]);
 
   // Open dialog and initialize selection state
   const handleOpenDialog = useCallback(() => {
-    setSelectedItems(new Set(currentlySelectedIds))
-    setSearchQuery('')
-    setDialogOpen(true)
-  }, [currentlySelectedIds])
+    setSelectedItems(new Set(currentlySelectedIds));
+    setSearchQuery('');
+    setDialogOpen(true);
+  }, [currentlySelectedIds]);
 
   // Close dialog without saving
   const handleCloseDialog = useCallback(() => {
-    setDialogOpen(false)
-    setSelectedItems(new Set())
-  }, [])
+    setDialogOpen(false);
+    setSelectedItems(new Set());
+  }, []);
 
   // Toggle item selection in the dialog
   const handleToggleItem = useCallback((itemId: string, checked: boolean) => {
     setSelectedItems((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
       if (checked) {
-        next.add(itemId)
+        next.add(itemId);
       } else {
-        next.delete(itemId)
+        next.delete(itemId);
       }
-      return next
-    })
-  }, [])
+      return next;
+    });
+  }, []);
 
   // Save selected items and close dialog
   const handleSaveSelection = useCallback(() => {
@@ -141,18 +141,18 @@ export function MultiSelectReferenceInput(props: ArrayOfObjectsInputProps) {
       _type: 'reference',
       _key: `${itemId}-${Date.now()}`, // Unique key
       _ref: itemId,
-    }))
+    }));
 
     // Update the field value
     if (newReferences.length > 0) {
-      onChange(set(newReferences))
+      onChange(set(newReferences));
     } else {
-      onChange(unset())
+      onChange(unset());
     }
 
-    setDialogOpen(false)
-    setSelectedItems(new Set())
-  }, [selectedItems, onChange])
+    setDialogOpen(false);
+    setSelectedItems(new Set());
+  }, [selectedItems, onChange]);
 
   if (loading) {
     return (
@@ -164,7 +164,7 @@ export function MultiSelectReferenceInput(props: ArrayOfObjectsInputProps) {
           </Box>
         </Flex>
       </Card>
-    )
+    );
   }
 
   if (!referenceType) {
@@ -172,7 +172,7 @@ export function MultiSelectReferenceInput(props: ArrayOfObjectsInputProps) {
       <Card padding={4} border radius={2} tone="critical">
         <Text>Feil: Kunne ikke finne referansetype i skjema</Text>
       </Card>
-    )
+    );
   }
 
   return (
@@ -226,12 +226,7 @@ export function MultiSelectReferenceInput(props: ArrayOfObjectsInputProps) {
               />
 
               {/* Checkbox list */}
-              <Card
-                border
-                padding={4}
-                radius={2}
-                style={{maxHeight: '400px', overflowY: 'auto'}}
-              >
+              <Card border padding={4} radius={2} style={{ maxHeight: '400px', overflowY: 'auto' }}>
                 <Stack space={3}>
                   {filteredItems.length === 0 ? (
                     <Text muted>
@@ -266,5 +261,5 @@ export function MultiSelectReferenceInput(props: ArrayOfObjectsInputProps) {
         </Dialog>
       )}
     </>
-  )
+  );
 }

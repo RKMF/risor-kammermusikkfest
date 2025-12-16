@@ -5,10 +5,10 @@
  * across document types (artist, article, page, event, homepage).
  */
 
-import {defineField} from 'sanity'
-import {CogIcon} from '@sanity/icons'
-import {crossFieldValidation} from './validation'
-import {PublishingStatusInput} from '../../components/inputs/PublishingStatusInput'
+import { defineField } from 'sanity';
+import { CogIcon } from '@sanity/icons';
+import { crossFieldValidation } from './validation';
+import { PublishingStatusInput } from '../../components/inputs/PublishingStatusInput';
 
 /**
  * Publishing status field - controls content visibility
@@ -28,9 +28,9 @@ export const publishingStatusField = (groupName = 'publishing') =>
     type: 'string',
     options: {
       list: [
-        {title: 'Synlig på nett umiddelbart', value: 'published'},
-        {title: 'Lagre uten å bli synlig på nett', value: 'draft'},
-        {title: 'Planlegg periode', value: 'scheduled'},
+        { title: 'Synlig på nett umiddelbart', value: 'published' },
+        { title: 'Lagre uten å bli synlig på nett', value: 'draft' },
+        { title: 'Planlegg periode', value: 'scheduled' },
       ],
       layout: 'radio',
     },
@@ -40,7 +40,7 @@ export const publishingStatusField = (groupName = 'publishing') =>
     components: {
       input: PublishingStatusInput,
     },
-  })
+  });
 
 /**
  * Scheduled period field - defines start and end dates for scheduled content
@@ -57,12 +57,12 @@ export const scheduledPeriodField = (groupName = 'publishing', contentType = 'in
     name: 'scheduledPeriod',
     title: 'Planlagt periode',
     type: 'object',
-    hidden: ({document}) => document?.publishingStatus !== 'scheduled',
+    hidden: ({ document }) => document?.publishingStatus !== 'scheduled',
     group: groupName,
     fieldsets: [
       {
         name: 'timing',
-        options: {columns: 2},
+        options: { columns: 2 },
       },
     ],
     fields: [
@@ -83,7 +83,7 @@ export const scheduledPeriodField = (groupName = 'publishing', contentType = 'in
         validation: crossFieldValidation.requiredWhen('publishingStatus', 'scheduled'),
       },
     ],
-  })
+  });
 
 /**
  * Publishing group definition for document schema
@@ -94,7 +94,7 @@ export const publishingGroup = {
   name: 'publishing',
   title: 'Publisering',
   icon: CogIcon,
-}
+};
 
 /**
  * Convenience function to get both publishing fields at once
@@ -113,5 +113,5 @@ export const publishingGroup = {
  * @returns Array of both publishing field definitions
  */
 export function publishingFields(groupName = 'publishing', contentType = 'innhold') {
-  return [publishingStatusField(groupName), scheduledPeriodField(groupName, contentType)]
+  return [publishingStatusField(groupName), scheduledPeriodField(groupName, contentType)];
 }

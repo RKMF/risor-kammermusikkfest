@@ -1,61 +1,61 @@
-import {useCallback, useState} from 'react'
-import {type DocumentActionComponent, useClient, useDocumentOperation} from 'sanity'
-import {TrashIcon} from '@sanity/icons'
-import {Button, Flex, Stack, Text} from '@sanity/ui'
+import { useCallback, useState } from 'react';
+import { type DocumentActionComponent, useClient, useDocumentOperation } from 'sanity';
+import { TrashIcon } from '@sanity/icons';
+import { Button, Flex, Stack, Text } from '@sanity/ui';
 
 export interface ReferenceCleanupConfig {
   // Document type this action applies to
-  documentType: string
+  documentType: string;
 
   // Norwegian singular label for the document type (used in UI)
-  labelSingular: string
+  labelSingular: string;
 
   // Reference patterns to clean up
   references: Array<{
     // Document type that contains the reference
-    referringType: string
+    referringType: string;
 
     // Field path within the referring document
-    fieldPath: string
+    fieldPath: string;
 
     // Norwegian label for display (e.g., "oversiktsside", "arrangement")
-    displayLabel: string
+    displayLabel: string;
 
     // Singular form for count display
-    singularForm: string
+    singularForm: string;
 
     // Plural form for count display
-    pluralForm: string
-  }>
+    pluralForm: string;
+  }>;
 }
 
 interface AffectedReference {
-  type: string
-  count: number
-  displayLabel: string
-  singularForm: string
-  pluralForm: string
+  type: string;
+  count: number;
+  displayLabel: string;
+  singularForm: string;
+  pluralForm: string;
 }
 
 export function createDeleteWithReferencesAction(
   config: ReferenceCleanupConfig
 ): DocumentActionComponent {
   return (props) => {
-    const {id, type, onComplete} = props
-    const client = useClient({apiVersion: '2025-01-01'})
-    const {delete: deleteOp} = useDocumentOperation(id, type)
-    const [dialogOpen, setDialogOpen] = useState(false)
-    const [isDeleting, setIsDeleting] = useState(false)
-    const [affectedReferences, setAffectedReferences] = useState<AffectedReference[]>([])
+    const { id, type, onComplete } = props;
+    const client = useClient({ apiVersion: '2025-01-01' });
+    const { delete: deleteOp } = useDocumentOperation(id, type);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [affectedReferences, setAffectedReferences] = useState<AffectedReference[]>([]);
 
     // Only show this action for the configured document type
     if (type !== config.documentType) {
-      return null
+      return null;
     }
 
     const handleDelete = useCallback(async () => {
       // Get the published document ID (without drafts. prefix)
-      const publishedId = id.replace(/^drafts\./, '')
+      const publishedId = id.replace(/^drafts\./, '');
 
       // Query all reference types in parallel
       const referenceQueries = config.references.map(async (ref) => {
@@ -64,10 +64,10 @@ export function createDeleteWithReferencesAction(
             _id,
             "hasReference": count(${ref.fieldPath}[_ref == $id]) > 0
           }`,
-          {referringType: ref.referringType, id: publishedId}
-        )
+          { referringType: ref.referringType, id: publishedId }
+        );
 
-        const count = results.filter((r: any) => r.hasReference).length
+        const count = results.filter((r: any) => r.hasReference).length;
 
         return {
           type: ref.referringType,
@@ -75,19 +75,19 @@ export function createDeleteWithReferencesAction(
           displayLabel: ref.displayLabel,
           singularForm: ref.singularForm,
           pluralForm: ref.pluralForm,
-        }
-      })
+        };
+      });
 
-      const results = await Promise.all(referenceQueries)
-      setAffectedReferences(results)
-      setDialogOpen(true)
-    }, [id, client, config.references])
+      const results = await Promise.all(referenceQueries);
+      setAffectedReferences(results);
+      setDialogOpen(true);
+    }, [id, client, config.references]);
 
     const confirmDelete = useCallback(async () => {
-      setIsDeleting(true)
+      setIsDeleting(true);
 
       try {
-        const publishedId = id.replace(/^drafts\./, '')
+        const publishedId = id.replace(/^drafts\./, '');
 
         // Clean up references from all referring document types
         for (const ref of config.references) {
@@ -97,39 +97,39 @@ export function createDeleteWithReferencesAction(
               _rev,
               "${ref.fieldPath}": ${ref.fieldPath}
             }`,
-            {referringType: ref.referringType, id: publishedId}
-          )
+            { referringType: ref.referringType, id: publishedId }
+          );
 
           for (const doc of documents) {
-            const currentReferences = doc[ref.fieldPath] || []
+            const currentReferences = doc[ref.fieldPath] || [];
             const updatedReferences = currentReferences.filter(
               (reference: any) => reference._ref !== publishedId
-            )
+            );
 
             await client
               .patch(doc._id)
-              .set({[ref.fieldPath]: updatedReferences})
-              .commit()
+              .set({ [ref.fieldPath]: updatedReferences })
+              .commit();
           }
         }
 
         // Delete both draft and published versions
-        const draftId = `drafts.${publishedId}`
+        const draftId = `drafts.${publishedId}`;
         await Promise.all([
           client.delete(publishedId).catch(() => {}), // Ignore if doesn't exist
           client.delete(draftId).catch(() => {}), // Ignore if doesn't exist
-        ])
+        ]);
 
-        setDialogOpen(false)
-        onComplete()
+        setDialogOpen(false);
+        onComplete();
       } catch (error) {
-        console.error(`Error deleting ${config.documentType}:`, error)
-        setDialogOpen(false)
-        onComplete()
+        console.error(`Error deleting ${config.documentType}:`, error);
+        setDialogOpen(false);
+        onComplete();
       } finally {
-        setIsDeleting(false)
+        setIsDeleting(false);
       }
-    }, [id, client, config, onComplete])
+    }, [id, client, config, onComplete]);
 
     return {
       label: 'Slett',
@@ -140,8 +140,8 @@ export function createDeleteWithReferencesAction(
       dialog: dialogOpen && {
         type: 'dialog',
         onClose: () => {
-          setDialogOpen(false)
-          onComplete()
+          setDialogOpen(false);
+          onComplete();
         },
         header: `Slett ${config.labelSingular}`,
         content: (
@@ -152,7 +152,7 @@ export function createDeleteWithReferencesAction(
                   {config.labelSingular.charAt(0).toUpperCase() + config.labelSingular.slice(1)}en
                   vil bli fjernet fra:
                 </Text>
-                <ul style={{margin: 0, paddingLeft: '1.5em'}}>
+                <ul style={{ margin: 0, paddingLeft: '1.5em' }}>
                   {affectedReferences
                     .filter((ref) => ref.count > 0)
                     .map((ref, i) => (
@@ -167,8 +167,8 @@ export function createDeleteWithReferencesAction(
               </>
             ) : (
               <Text>
-                Er du sikker på at du vil slette {config.labelSingular === 'artist' ? 'denne' : 'dette'}{' '}
-                {config.labelSingular}
+                Er du sikker på at du vil slette{' '}
+                {config.labelSingular === 'artist' ? 'denne' : 'dette'} {config.labelSingular}
                 {config.labelSingular === 'artist' ? 'en' : 'et'}?
               </Text>
             )}
@@ -177,8 +177,8 @@ export function createDeleteWithReferencesAction(
                 text="Avbryt"
                 mode="ghost"
                 onClick={() => {
-                  setDialogOpen(false)
-                  onComplete()
+                  setDialogOpen(false);
+                  onComplete();
                 }}
                 disabled={isDeleting}
               />
@@ -193,6 +193,6 @@ export function createDeleteWithReferencesAction(
           </Stack>
         ),
       },
-    }
-  }
+    };
+  };
 }

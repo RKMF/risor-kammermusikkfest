@@ -110,7 +110,16 @@ const slugNo = homepage?.slug_no?.current ? stegaClean(homepage.slug_no.current)
 const slugEn = homepage?.slug_en?.current ? stegaClean(homepage.slug_en.current) : undefined;
 ---
 
-<Layout title={homepageTitle} slugNo={slugNo} slugEn={slugEn} frontpage>
+<Layout
+  title={homepageTitle}
+  description={homepage?.excerpt ? stegaClean(homepage.excerpt) : undefined}
+  slugNo={slugNo}
+  slugEn={slugEn}
+  frontpage
+  seo={homepage?.seo}
+  image={homepage?.image?.image}
+  ogType="website"
+>
   <div class="stack page-layout" style="--space: var(--space-xl)">
     {!homepage && (
       <div class="no-content">

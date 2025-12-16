@@ -1,15 +1,15 @@
-import {defineField, defineType} from 'sanity'
-import {UserIcon, ComposeIcon, CogIcon, ImageIcon} from '@sanity/icons'
-import {createMirrorPortableTextInput} from '../../components/inputs/MirrorPortableTextInput'
-import {multilingualImageFields, imageFieldsets, imageGroup} from '../shared/imageFields'
-import {seoFields, seoGroup} from '../objects/seoFields'
-import {componentValidation, crossFieldValidation} from '../shared/validation'
-import {artistSlugValidation} from '../../lib/slugValidation'
-import type {ArtistData, ValidationRule, MultilingualDocument} from '../shared/types'
-import {getPublishingStatusText, getLanguageStatus} from '../shared/previewHelpers'
-import {publishingFields, publishingGroup} from '../shared/publishingFields'
-import {excludeAlreadySelected} from '../shared/referenceFilters'
-import {MultiSelectReferenceInput} from '../components/inputs/MultiSelectReferenceInput'
+import { defineField, defineType } from 'sanity';
+import { UserIcon, ComposeIcon, CogIcon, ImageIcon } from '@sanity/icons';
+import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
+import { multilingualImageFields, imageFieldsets, imageGroup } from '../shared/imageFields';
+import { seoFields, seoGroup } from '../objects/seoFields';
+import { componentValidation, crossFieldValidation } from '../shared/validation';
+import { artistSlugValidation } from '../../lib/slugValidation';
+import type { ArtistData, ValidationRule, MultilingualDocument } from '../shared/types';
+import { getPublishingStatusText, getLanguageStatus } from '../shared/previewHelpers';
+import { publishingFields, publishingGroup } from '../shared/publishingFields';
+import { excludeAlreadySelected } from '../shared/referenceFilters';
+import { MultiSelectReferenceInput } from '../components/inputs/MultiSelectReferenceInput';
 
 export const artist = defineType({
   name: 'artist',
@@ -18,7 +18,11 @@ export const artist = defineType({
   icon: UserIcon,
   orderings: [
     { title: 'Navn A–Å', name: 'nameAsc', by: [{ field: 'name', direction: 'asc' }] },
-    { title: 'Nylig opprettet', name: 'createdDesc', by: [{ field: '_createdAt', direction: 'desc' }] },
+    {
+      title: 'Nylig opprettet',
+      name: 'createdDesc',
+      by: [{ field: '_createdAt', direction: 'desc' }],
+    },
   ],
   groups: [
     {
@@ -41,9 +45,7 @@ export const artist = defineType({
     publishingGroup,
     seoGroup,
   ],
-  fieldsets: [
-    ...imageFieldsets,
-  ],
+  fieldsets: [...imageFieldsets],
   fields: [
     // BASE (shared content)
     defineField({
@@ -58,7 +60,8 @@ export const artist = defineType({
       name: 'slug',
       title: 'URL',
       type: 'slug',
-      description: 'URL-vennlig versjon av artistnavn (f.eks. "kunstner-navn"). Samme på alle språk.',
+      description:
+        'URL-vennlig versjon av artistnavn (f.eks. "kunstner-navn"). Samme på alle språk.',
       options: {
         source: 'name',
         maxLength: 96,
@@ -66,11 +69,11 @@ export const artist = defineType({
       validation: (Rule) =>
         Rule.required().custom(async (value, context) => {
           // Først sjekk avansert slug-validering for unikhet
-          const slugValidation = await artistSlugValidation(value, context)
-          if (slugValidation !== true) return slugValidation
+          const slugValidation = await artistSlugValidation(value, context);
+          if (slugValidation !== true) return slugValidation;
 
           // Så sjekk standard slug-validering
-          return componentValidation.slug(Rule).validate(value, context)
+          return componentValidation.slug(Rule).validate(value, context);
         }),
       group: 'basic',
     }),
@@ -141,7 +144,7 @@ export const artist = defineType({
       description: 'Build English artist page with components and content',
       group: 'en',
       components: {
-        input: createMirrorPortableTextInput('content_no')
+        input: createMirrorPortableTextInput('content_no'),
       },
     }),
     ...multilingualImageFields('image'),
@@ -153,8 +156,8 @@ export const artist = defineType({
       of: [
         {
           type: 'reference',
-          to: [{type: 'event'}],
-        }
+          to: [{ type: 'event' }],
+        },
       ],
       description: 'Velg arrangementer som denne artisten opptrer på',
       group: 'basic',
@@ -183,9 +186,27 @@ export const artist = defineType({
       excerpt_en: 'excerpt_en',
       _id: '_id',
     },
-    prepare({name, instrument_no, instrument_en, publishingStatus, scheduledStart, scheduledEnd, media, hasNorwegian, hasEnglish, excerpt_no, excerpt_en, _id}) {
+    prepare({
+      name,
+      instrument_no,
+      instrument_en,
+      publishingStatus,
+      scheduledStart,
+      scheduledEnd,
+      media,
+      hasNorwegian,
+      hasEnglish,
+      excerpt_no,
+      excerpt_en,
+      _id,
+    }) {
       // Use shared helper functions for consistent status display
-      const statusText = getPublishingStatusText(_id, publishingStatus, scheduledStart, scheduledEnd)
+      const statusText = getPublishingStatusText(
+        _id,
+        publishingStatus,
+        scheduledStart,
+        scheduledEnd
+      );
       const langStatus = getLanguageStatus({
         hasNorwegian,
         hasEnglish,
@@ -193,15 +214,15 @@ export const artist = defineType({
         excerpt_en,
         instrument_no,
         instrument_en,
-      })
+      });
 
-      const instrument = instrument_no || instrument_en || 'Ukjent instrument'
+      const instrument = instrument_no || instrument_en || 'Ukjent instrument';
 
       return {
         title: name,
         subtitle: `${instrument} • ${statusText} • ${langStatus}`,
         media: media || UserIcon,
-      }
+      };
     },
   },
-})
+});

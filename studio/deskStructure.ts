@@ -1,4 +1,4 @@
-import {StructureBuilder} from 'sanity/desk'
+import { StructureBuilder } from 'sanity/desk';
 import {
   CogIcon,
   DocumentTextIcon,
@@ -10,7 +10,7 @@ import {
   ComposeIcon,
   UsersIcon,
   WarningOutlineIcon,
-} from '@sanity/icons'
+} from '@sanity/icons';
 
 export const structure = (S: StructureBuilder) =>
   S.list()
@@ -48,19 +48,15 @@ export const structure = (S: StructureBuilder) =>
         .title('Arrangementer')
         .icon(CalendarIcon)
         .child(
-          S.documentTypeList('event')
-            .defaultOrdering([
-              {field: 'eventDateValue', direction: 'asc'},
-              {field: 'eventTime.startTime', direction: 'asc'}
-            ])
+          S.documentTypeList('event').defaultOrdering([
+            { field: 'eventDateValue', direction: 'asc' },
+            { field: 'eventTime.startTime', direction: 'asc' },
+          ])
         ),
       S.listItem()
         .title('Artister')
         .icon(UserIcon)
-        .child(
-          S.documentTypeList('artist')
-            .defaultOrdering([{field: 'name', direction: 'asc'}])
-        ),
+        .child(S.documentTypeList('artist').defaultOrdering([{ field: 'name', direction: 'asc' }])),
       S.listItem().title('Artikler').icon(DocumentTextIcon).child(S.documentTypeList('article')),
 
       // Referansedata
@@ -69,22 +65,16 @@ export const structure = (S: StructureBuilder) =>
         .title('Festivaldatoer')
         .icon(CalendarIcon)
         .child(
-          S.documentTypeList('eventDate')
-            .defaultOrdering([{field: 'date', direction: 'asc'}])
+          S.documentTypeList('eventDate').defaultOrdering([{ field: 'date', direction: 'asc' }])
         ),
       S.listItem()
         .title('Spillesteder')
         .icon(HomeIcon)
-        .child(
-          S.documentTypeList('venue')
-            .defaultOrdering([{field: 'title', direction: 'asc'}])
-        ),
+        .child(S.documentTypeList('venue').defaultOrdering([{ field: 'title', direction: 'asc' }])),
       S.listItem()
         .title('Komponister')
         .icon(ComposeIcon)
         .child(
-          S.documentTypeList('composer')
-            .defaultOrdering([{field: 'name', direction: 'asc'}])
+          S.documentTypeList('composer').defaultOrdering([{ field: 'name', direction: 'asc' }])
         ),
-
-    ])
+    ]);

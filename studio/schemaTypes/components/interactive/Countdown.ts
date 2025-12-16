@@ -1,5 +1,5 @@
-import {defineField, defineType} from 'sanity'
-import {ClockIcon} from '@sanity/icons'
+import { defineField, defineType } from 'sanity';
+import { ClockIcon } from '@sanity/icons';
 
 export const countdownComponent = defineType({
   name: 'countdownComponent',
@@ -31,9 +31,9 @@ export const countdownComponent = defineType({
       type: 'string',
       options: {
         list: [
-          {title: 'Stor (hero)', value: 'large'},
-          {title: 'Kompakt', value: 'compact'},
-          {title: 'Minimal (tekstlinje)', value: 'minimal'},
+          { title: 'Stor (hero)', value: 'large' },
+          { title: 'Kompakt', value: 'compact' },
+          { title: 'Minimal (tekstlinje)', value: 'minimal' },
         ],
         layout: 'radio',
       },
@@ -60,7 +60,7 @@ export const countdownComponent = defineType({
       targetDate: 'targetDate',
       style: 'style',
     },
-    prepare({title, targetDate, style}) {
+    prepare({ title, targetDate, style }) {
       const dateStr = targetDate
         ? new Date(targetDate).toLocaleString('nb-NO', {
             day: '2-digit',
@@ -69,13 +69,13 @@ export const countdownComponent = defineType({
             hour: '2-digit',
             minute: '2-digit',
           })
-        : 'Ingen dato valgt'
+        : 'Ingen dato valgt';
 
       return {
         title: title || 'Nedtelling',
         subtitle: `${dateStr} • ${style || 'compact'} stil`,
         media: ClockIcon,
-      }
+      };
     },
   },
-})
+});

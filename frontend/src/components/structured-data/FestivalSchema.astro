@@ -1,0 +1,73 @@
+---
+/**
+ * Festival Schema (JSON-LD)
+ *
+ * Provides structured data for the program/festival listing page.
+ * Represents the festival as a whole with references to individual events.
+ */
+
+interface FestivalDates {
+  startDate?: string;
+  endDate?: string;
+}
+
+interface Props {
+  /** Festival year for the name */
+  year?: number;
+  /** Start and end dates of the festival */
+  dates?: FestivalDates;
+  /** Description of this year's festival */
+  description?: string;
+  /** Current language */
+  lang?: 'no' | 'en';
+}
+
+const {
+  year = new Date().getFullYear(),
+  dates,
+  description,
+  lang = 'no',
+} = Astro.props;
+
+const SITE_URL = import.meta.env.SITE_URL || 'https://kammermusikkfest.no';
+
+const festivalUrl = lang === 'en' ? `${SITE_URL}/en/program` : `${SITE_URL}/program`;
+
+const defaultDescription = lang === 'en'
+  ? `Risør Chamber Music Festival ${year} - Norway's premier chamber music festival featuring world-class musicians performing classical and contemporary chamber music.`
+  : `Risør Kammermusikkfest ${year} - Norges fremste kammermusikkfestival med verdensklasse musikere som fremfører klassisk og moderne kammermusikk.`;
+
+const festivalSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Festival',
+  '@id': `${SITE_URL}/#festival`,
+  name: `Risor Kammermusikkfest ${year}`,
+  alternateName: `Risør Chamber Music Festival ${year}`,
+  description: description || defaultDescription,
+  url: festivalUrl,
+  ...(dates?.startDate && { startDate: dates.startDate }),
+  ...(dates?.endDate && { endDate: dates.endDate }),
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  location: {
+    '@type': 'Place',
+    name: 'Risør',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Risør',
+      addressRegion: 'Agder',
+      addressCountry: 'NO',
+    },
+  },
+  organizer: {
+    '@type': 'Organization',
+    '@id': `${SITE_URL}/#organization`,
+    name: 'Risor Kammermusikkfest',
+    url: SITE_URL,
+  },
+  // Note: subEvent would be populated with references to individual MusicEvent schemas
+  // but keeping it simple - each event page has its own schema with superEvent reference
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(festivalSchema)} />

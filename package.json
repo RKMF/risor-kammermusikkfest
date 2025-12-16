@@ -14,6 +14,18 @@
     "test:watch": "npm run test:watch --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "clean": "npm run clean --workspaces --if-present"
+    "clean": "npm run clean --workspaces --if-present",
+    "check-deps": "npm ls 2>&1 | grep -i 'peer dep\\|UNMET' || echo 'All peer deps satisfied'",
+    "check-deps:root": "npm ls 2>&1 | grep -i 'peer dep\\|UNMET' || echo 'All peer deps satisfied'"
+  },
+  "dependencies": {
+    "react": "^19.2.2",
+    "react-dom": "^19.2.2",
+    "react-is": "^19.2.3",
+    "styled-components": "^6.1.15"
+  },
+  "devDependencies": {
+    "typescript": "5.9.2",
+    "@types/react": "19.1.8"
   }
 }

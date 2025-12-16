@@ -296,10 +296,11 @@ export const GET: APIRoute = async ({ request, url }) => {
           .map((event) => generateEventCardHtml(event, language))
           .join('');
 
+        const eventsLabel = language === 'no' ? 'Arrangementer' : 'Events';
         return `
           <section class="content-section date-section" data-date="${date}">
             <h2 class="date-title">${stegaClean(displayTitle)}</h2>
-            <div class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar">
+            <div class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar" role="region" tabindex="0" aria-label="${eventsLabel}">
               ${eventCardsHtml}
             </div>
           </section>

@@ -1,7 +1,7 @@
-import {defineField, defineType, defineArrayMember} from 'sanity'
-import {LinkIcon} from '@sanity/icons'
-import {buttonURLValidation} from '../../../lib/urlValidation'
-import {componentSpecificValidation} from '../../shared/validation'
+import { defineField, defineType, defineArrayMember } from 'sanity';
+import { LinkIcon } from '@sanity/icons';
+import { buttonURLValidation } from '../../../lib/urlValidation';
+import { componentSpecificValidation } from '../../shared/validation';
 
 export const linkComponent = defineType({
   name: 'linkComponent',
@@ -38,8 +38,8 @@ export const linkComponent = defineType({
               description: 'Velg om lenken skal gå til en ekstern nettside eller en intern side',
               options: {
                 list: [
-                  {title: 'Ekstern lenke', value: 'external'},
-                  {title: 'Intern side', value: 'internal'},
+                  { title: 'Ekstern lenke', value: 'external' },
+                  { title: 'Intern side', value: 'internal' },
                 ],
                 layout: 'radio',
               },
@@ -57,24 +57,24 @@ export const linkComponent = defineType({
               title: 'URL',
               type: 'url',
               description: 'Hvor lenken skal gå (https://, mailto:, eller tel:)',
-              hidden: ({parent}) => parent?.linkType === 'internal',
+              hidden: ({ parent }) => parent?.linkType === 'internal',
               validation: (Rule) =>
                 Rule.custom((value, context) => {
-                  const parent = context.parent as {linkType?: string; internalLink?: any}
-                  const linkType = parent?.linkType || 'external'
+                  const parent = context.parent as { linkType?: string; internalLink?: any };
+                  const linkType = parent?.linkType || 'external';
 
                   // If no linkType set, check if this is an old external link
                   if (!parent?.linkType && !parent?.internalLink && !value) {
-                    return 'URL er påkrevd'
+                    return 'URL er påkrevd';
                   }
 
                   if (linkType === 'external' && !value) {
-                    return 'URL er påkrevd for eksterne lenker'
+                    return 'URL er påkrevd for eksterne lenker';
                   }
                   if (value) {
-                    return buttonURLValidation(value, context)
+                    return buttonURLValidation(value, context);
                   }
-                  return true
+                  return true;
                 }),
             }),
             defineField({
@@ -83,24 +83,24 @@ export const linkComponent = defineType({
               type: 'reference',
               description: 'Velg hvilken side lenken skal gå til',
               to: [
-                {type: 'homepage'},
-                {type: 'programPage'},
-                {type: 'artistPage'},
-                {type: 'articlePage'},
-                {type: 'page'},
-                {type: 'event'},
-                {type: 'artist'},
-                {type: 'article'},
+                { type: 'homepage' },
+                { type: 'programPage' },
+                { type: 'artistPage' },
+                { type: 'articlePage' },
+                { type: 'page' },
+                { type: 'event' },
+                { type: 'artist' },
+                { type: 'article' },
               ],
               weak: true,
-              hidden: ({parent}) => parent?.linkType !== 'internal',
+              hidden: ({ parent }) => parent?.linkType !== 'internal',
               validation: (Rule) =>
                 Rule.custom((value, context) => {
-                  const parent = context.parent as {linkType?: string}
+                  const parent = context.parent as { linkType?: string };
                   if (parent?.linkType === 'internal' && !value) {
-                    return 'Du må velge en intern side'
+                    return 'Du må velge en intern side';
                   }
-                  return true
+                  return true;
                 }),
             }),
             defineField({
@@ -126,23 +126,23 @@ export const linkComponent = defineType({
               internalLink: 'internalLink',
               openInNewTab: 'openInNewTab',
             },
-            prepare({title, url, linkType, internalLink, openInNewTab}) {
-              const newTabText = openInNewTab ? ' • Ny fane' : ''
-              let linkDestination = 'Ingen URL'
+            prepare({ title, url, linkType, internalLink, openInNewTab }) {
+              const newTabText = openInNewTab ? ' • Ny fane' : '';
+              let linkDestination = 'Ingen URL';
 
               if (linkType === 'internal') {
                 linkDestination = internalLink
                   ? `Intern: ${internalLink._ref?.slice(0, 8)}...`
-                  : 'Ingen side valgt'
+                  : 'Ingen side valgt';
               } else {
-                linkDestination = url || 'Ingen URL'
+                linkDestination = url || 'Ingen URL';
               }
 
               return {
                 title: title || 'Uten tekst',
                 subtitle: `${linkDestination}${newTabText}`,
                 media: LinkIcon,
-              }
+              };
             },
           },
         }),
@@ -153,15 +153,15 @@ export const linkComponent = defineType({
     select: {
       links: 'links',
     },
-    prepare({links}) {
-      const linkCount = links?.length || 0
-      const firstLinkText = links?.[0]?.text || 'Ingen lenker'
+    prepare({ links }) {
+      const linkCount = links?.length || 0;
+      const firstLinkText = links?.[0]?.text || 'Ingen lenker';
 
       return {
         title: 'Lenker',
         subtitle: `${linkCount} lenke${linkCount !== 1 ? 'r' : ''} • ${firstLinkText}${linkCount > 1 ? '...' : ''}`,
         media: LinkIcon,
-      }
+      };
     },
   },
-})
+});
