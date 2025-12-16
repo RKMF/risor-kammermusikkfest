@@ -872,9 +872,23 @@ Before every commit, verify:
 3. **CLI commands last** - Only when neither MCP nor WebFetch solve the problem
 
 **Available MCP Servers:**
-- **Astro Docs MCP** - Search Astro documentation, get framework info and examples
-- **GitHub MCP** - Search repositories, manage issues/PRs, handle GitHub operations
-- **IDE MCP** - Get language diagnostics from VS Code
+- **Sanity MCP** - Direct CMS operations (verified working):
+  - Query documents with GROQ (`query_documents`)
+  - Create, patch, publish, unpublish, delete documents
+  - Get schema information (`get_schema`, `get_context`)
+  - Schedule and manage content releases
+  - Semantic search via embeddings indices
+  - Best practices via `list_sanity_rules` and `get_sanity_rules`
+  - Authentication: Uses OAuth (`npx sanity login` credentials)
+- **Vercel MCP** - Deployment and hosting operations:
+  - Deploy projects (`deploy_to_vercel`)
+  - List and inspect deployments, projects, teams
+  - Get build logs for debugging failed deployments
+  - Fetch protected Vercel URLs
+  - Check domain availability
+- **Astro Docs MCP** - Search Astro documentation (`search_astro_docs`)
+- **GitHub MCP** - Repository operations, issues, PRs, code search
+- **IDE MCP** - VS Code language diagnostics (`getDiagnostics`)
 
 **Principle**: Use MCP when it provides actual value - not "because we can"
 
