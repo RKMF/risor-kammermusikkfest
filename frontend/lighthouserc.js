@@ -2,7 +2,7 @@
  * Lighthouse CI Configuration
  *
  * Runs performance audits against Vercel preview deployments.
- * All assertions are warnings only (won't block merges).
+ * Assertions are warnings only - failures won't block merges.
  *
  * @see https://github.com/GoogleChrome/lighthouse-ci
  */
