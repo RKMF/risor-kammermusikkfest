@@ -67,7 +67,12 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
 <section class={`${containerClass} ${scrollbarClass}`}>
   {title && <h2 class="composer-scroll-title">{title}</h2>}
-  <ul class="composer-list scroll-container scroll-container--always scroll-container--styled-scrollbar">
+  <ul
+    class="composer-list scroll-container scroll-container--always scroll-container--styled-scrollbar"
+    role="region"
+    tabindex="0"
+    aria-label={currentLanguage === 'no' ? 'Komponister' : 'Composers'}
+  >
     {composerData.map((composer) => {
         if (!composer) return null
 

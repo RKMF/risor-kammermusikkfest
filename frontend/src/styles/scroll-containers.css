@@ -220,8 +220,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scroll-container {
+  .scroll-container,
+  .scroll-container--always {
     scroll-behavior: auto;
+    scroll-snap-type: none;
   }
 }
 
@@ -234,6 +236,22 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
   padding-block-end: 0;
+
+  /* Fade edges to indicate scrollability when scrollbar is hidden */
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 1rem,
+    black calc(100% - 1rem),
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 1rem,
+    black calc(100% - 1rem),
+    transparent
+  );
 }
 
 .scroll-container--hide-scrollbar::-webkit-scrollbar {

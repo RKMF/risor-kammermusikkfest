@@ -125,7 +125,12 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
 <section class={`${containerClass} ${scrollbarClass}`}>
   {title && <h2 class="event-scroll-title">{title}</h2>}
-  <ul class="event-list scroll-container scroll-container--always scroll-container--event-cards">
+  <ul
+    class="event-list scroll-container scroll-container--always scroll-container--event-cards"
+    role="region"
+    tabindex="0"
+    aria-label={currentLanguage === 'no' ? 'Arrangementer' : 'Events'}
+  >
     {sortedEvents.map((event) => {
         if (!event) return null
 
