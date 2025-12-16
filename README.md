@@ -5,7 +5,7 @@ A simple, bilingual (Norwegian/English) festival website built with Astro and Sa
 ## Quick Start
 
 ### Prerequisites
-- Node.js v20.19.0 (recommended)
+- Node.js v22.x (LTS) or v20.19.0+
 - npm 10+
 
 ### Installation

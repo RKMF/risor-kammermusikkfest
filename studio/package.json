@@ -19,8 +19,8 @@
   ],
   "dependencies": {
     "@sanity/locale-nb-no": "^1.1.23",
-    "@sanity/vision": "4.4.1",
-    "sanity": "4.4.1",
+    "@sanity/vision": "4.22.0",
+    "sanity": "4.22.0",
     "sanity-plugin-asset-source-unsplash": "4.0.1",
     "styled-components": "6.1.19"
   },

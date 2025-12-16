@@ -83,7 +83,7 @@ Before making **ANY** change, evaluate in this order:
 - **New features** - Must solve real user needs, not hypothetical
 - **Major version upgrades** - Balance security benefits vs. breaking changes
 - **Refactoring working code** - Improve if clear maintainability/security gain
-- **Changing Node.js version** - Only for security or required features (currently 20.19.0)
+- **Changing Node.js version** - Only for security or required features (currently 22.x LTS)
 - **Adding monitoring/analytics** - Only when specifically required for business needs
 
 ### Common Pitfalls to Avoid
@@ -399,9 +399,41 @@ export function initializeSomeFeature(param) {
 ## 3. Environment & Setup
 
 ### Node.js Version Management
-- **Use Node.js v20.19.0** - This is the proven compatible version
+- **Use Node.js v22.x LTS** (or minimum v20.19.0) - These are the proven compatible versions
 - **Never upgrade Node.js** without testing both studio and frontend first
-- If Node.js upgrade is necessary, test incrementally (20.x → 21.x → 22.x)
+- Prefer even-numbered LTS versions (20, 22, 24) over odd versions (21, 23)
+
+### Version Compatibility (December 2024)
+
+This project uses a proven, tested combination of Node.js, Astro, and Sanity versions:
+
+**Current Versions:**
+| Component | Version | Why |
+|-----------|---------|-----|
+| Node.js | 22.x LTS | Best compatibility with all deps, LTS support until 2027 |
+| Astro | 5.16.x | Latest stable, requires Node 20.3+ or 22+ |
+| Sanity Studio | 4.x | Node 20.19+ required (only breaking change from v3) |
+| @sanity/astro | 3.2.x | Visual Editing integration |
+| @sanity/client | 6.x | API client for content fetching |
+
+**Compatibility Matrix:**
+| Component | Minimum Node.js | Recommended |
+|-----------|-----------------|-------------|
+| Sanity v4 | 20.19+ | 22.x |
+| Astro 5.8+ | 20.3.0+ | 22.x |
+| Vercel | 20.x or 22.x | 22.x |
+
+**Why These Versions:**
+- **Node 22.x**: All dependencies officially support it, LTS until April 2027
+- **Astro 5.x**: Stable, mature, with excellent Sanity integration
+- **Sanity 4.x**: The v3→v4 upgrade ONLY changes Node.js requirements, nothing else
+- **Frontend sanity package**: Uses v3.x as peer dependency for @sanity/astro (this is correct)
+
+**Upgrade Guidelines:**
+- Minor version updates (5.16 → 5.17): Generally safe, run `npm update`
+- Major version updates (Astro 5 → 6): Wait for stability, test thoroughly
+- Node.js updates: Stick to even LTS versions, test both studio and frontend
+- Always run `npm run build` after any dependency changes
 
 ### Dependency Management
 - **Use `npm install --legacy-peer-deps`** for dependency conflicts
@@ -784,7 +816,7 @@ Before every commit, verify:
 ✅ **Agent Verification**: ALWAYS check `.claude/agents/` directory for actual agent names before invoking (ignore system prompt agent names)
 ✅ **Agent Rules**: Read relevant files in `.claude/agents/` for specific agent guidance
 ✅ **MCP Usage**: Use MCP servers when they provide value over CLI
-✅ **Dependencies**: Keep stable, use Node.js 20.19.0, npm --legacy-peer-deps
+✅ **Dependencies**: Keep stable, use Node.js 22.x LTS, npm --legacy-peer-deps
 ✅ **Simplicity First**: Working code > "better" code, simple > complex
 ✅ **Visual Editing**: Maintain compatibility, test after changes
 ✅ **Bilingual Support**: Norwegian default, English optional
@@ -899,7 +931,7 @@ Before every commit, verify:
 **Project Settings:**
 - Project ID: `dnk98dp0`
 - Dataset: `production`
-- Node.js: `v20.19.0`
+- Node.js: `v22.x LTS` (or minimum v20.19.0)
 
 **Server Ports:**
 - Studio: `http://localhost:3333`
