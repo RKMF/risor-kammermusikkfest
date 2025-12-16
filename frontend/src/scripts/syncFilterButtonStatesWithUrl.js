@@ -156,15 +156,10 @@ function syncAriaPressed() {
 }
 
 /**
- * Initializes filter button state synchronization.
- *
- * Sets up event listeners for:
- * - htmx history restoration (back/forward navigation)
- * - htmx content swaps (filter button clicks)
- * - htmx request lifecycle (loading states)
- * - initial page load (bookmarked/shared URLs)
+ * Sets up all HTMX event listeners for filter synchronization.
+ * Called once HTMX is confirmed to be available.
  */
-export function initializeFilterButtonStateSynchronization() {
+function setupHtmxEventListeners() {
   // Listen for htmx history restoration events (browser back/forward buttons)
   document.body.addEventListener('htmx:historyRestore', () => {
     syncFilterButtonsWithCurrentUrl();
@@ -183,11 +178,71 @@ export function initializeFilterButtonStateSynchronization() {
     syncAriaPressed();
     setLoadingAriaState(false);
   });
+}
 
-  // Perform initial sync on page load
-  // This handles cases where users:
-  // - Bookmark a filtered URL
-  // - Share a filtered URL
-  // - Refresh the page with filters applied
+/**
+ * Waits for HTMX to be available on the window object.
+ * Uses polling with exponential backoff, max 10 attempts over ~2 seconds.
+ * @returns {Promise<boolean>} Resolves true if HTMX found, false if timeout
+ */
+function waitForHtmx() {
+  return new Promise((resolve) => {
+    // Check immediately
+    if (typeof window !== 'undefined' && window.htmx) {
+      resolve(true);
+      return;
+    }
+
+    let attempts = 0;
+    const maxAttempts = 10;
+    const baseDelay = 50; // Start with 50ms
+
+    function checkHtmx() {
+      attempts++;
+      if (typeof window !== 'undefined' && window.htmx) {
+        resolve(true);
+        return;
+      }
+      if (attempts >= maxAttempts) {
+        console.warn('HTMX not found after waiting. Filter sync will use fallback mode.');
+        resolve(false);
+        return;
+      }
+      // Exponential backoff: 50, 100, 150, 200...
+      setTimeout(checkHtmx, baseDelay + (attempts * 50));
+    }
+
+    setTimeout(checkHtmx, baseDelay);
+  });
+}
+
+/**
+ * Initializes filter button state synchronization.
+ *
+ * Sets up event listeners for:
+ * - htmx history restoration (back/forward navigation)
+ * - htmx content swaps (filter button clicks)
+ * - htmx request lifecycle (loading states)
+ * - initial page load (bookmarked/shared URLs)
+ *
+ * Waits for HTMX to be available before setting up listeners.
+ */
+export async function initializeFilterButtonStateSynchronization() {
+  // Perform initial sync immediately (doesn't need HTMX)
+  // This handles bookmarked/shared URLs
   syncFilterButtonsWithCurrentUrl();
+
+  // Wait for HTMX to be available before setting up event listeners
+  const htmxAvailable = await waitForHtmx();
+
+  if (htmxAvailable) {
+    setupHtmxEventListeners();
+  } else {
+    // Fallback: Listen for popstate for back/forward navigation
+    // This provides basic functionality even without HTMX events
+    window.addEventListener('popstate', () => {
+      syncFilterButtonsWithCurrentUrl();
+      syncAriaPressed();
+    });
+  }
 }
