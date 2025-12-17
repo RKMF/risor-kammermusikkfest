@@ -1,5 +1,5 @@
-import {defineField, defineType} from 'sanity'
-import {InlineElementIcon} from '@sanity/icons'
+import { defineField, defineType } from 'sanity';
+import { InlineElementIcon } from '@sanity/icons';
 
 export const contentScrollContainer = defineType({
   name: 'contentScrollContainer',
@@ -19,17 +19,15 @@ export const contentScrollContainer = defineType({
       name: 'items',
       title: 'Innhold',
       type: 'array',
-      description: 'Legg til innhold som skal vises i karusellen (alle vises som 4:5 kort)',
+      description: 'Legg til innhold. Alt vises som 4:5 kort - bildets aspect ratio ignoreres.',
       of: [
-        {type: 'imageComponent'},
-        {type: 'videoComponent'},
-        {type: 'quoteComponent'},
+        { type: 'imageComponent' },
+        { type: 'videoComponent' },
+        { type: 'quoteComponent' },
+        { type: 'portableTextBlock' },
       ],
       validation: (Rule) =>
-        Rule.required()
-          .min(2)
-          .max(12)
-          .error('Karusellen må ha mellom 2 og 12 elementer'),
+        Rule.required().min(2).max(12).error('Karusellen må ha mellom 2 og 12 elementer'),
     }),
     defineField({
       name: 'showScrollbar',
@@ -45,16 +43,15 @@ export const contentScrollContainer = defineType({
       items: 'items',
       showScrollbar: 'showScrollbar',
     },
-    prepare({title, items, showScrollbar}) {
-      const itemCount = items?.length || 0
-      const scrollbarStatus = showScrollbar ? 'med scrollbar' : 'uten scrollbar'
+    prepare({ title, items, showScrollbar }) {
+      const itemCount = items?.length || 0;
+      const scrollbarStatus = showScrollbar ? 'med scrollbar' : 'uten scrollbar';
 
       return {
         title: title || 'Innholdskarusell',
         subtitle: `${itemCount} elementer (4:5 kort) • ${scrollbarStatus}`,
         media: InlineElementIcon,
-      }
+      };
     },
   },
-})
-
+});

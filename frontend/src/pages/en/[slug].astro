@@ -1,0 +1,15 @@
+---
+export const prerender = false;
+
+import ContentPageLayout from '../../layouts/ContentPageLayout.astro';
+import { createDataService } from '../../lib/sanity/dataService.js';
+
+const dataService = createDataService(Astro.request);
+const page = await dataService.getPageBySlug(Astro.params.slug);
+
+if (!page) {
+  return Astro.redirect('/en/404');
+}
+---
+
+<ContentPageLayout title={page.title} pageDocument={page} />

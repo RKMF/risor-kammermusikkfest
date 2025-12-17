@@ -1,5 +1,6 @@
 ---
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import { stegaClean } from '@sanity/client/stega';
 import {
   getResponsiveImageSet,
   extractImageMetadata,
@@ -9,7 +10,8 @@ import {
   type ImageMetadata
 } from '../lib/sanityImage';
 
-interface Props {
+// Direct props structure (when component is used directly)
+interface DirectImageProps {
   image: SanityImageSource;
   alt: string;
   caption?: string;
@@ -24,28 +26,52 @@ interface Props {
   sizes?: string;
   placeholder?: 'blur' | 'color' | 'empty';
   priority?: boolean;
-  // Visual editing props
   _key?: string;
   _type?: string;
 }
 
-// Extract props - handle both direct image prop and imageComponent structure
+// ImageComponent structure (from Sanity CMS)
+interface ImageComponentProps {
+  image: {
+    image: SanityImageSource;
+    alt?: string;
+    caption?: string;
+    credit?: string;
+  };
+  aspectRatio?: '4:5' | '1:1' | '16:9' | '9:16' | number;
+  size?: 'small' | 'medium' | 'large' | 'full';
+  alignment?: 'left' | 'center' | 'right';
+  _key?: string;
+  _type?: string;
+}
+
+type Props = DirectImageProps | ImageComponentProps;
+
+// Type guard to check if props is ImageComponent structure
+function isImageComponent(props: Props): props is ImageComponentProps {
+  return 'image' in props &&
+         props.image !== null &&
+         typeof props.image === 'object' &&
+         'image' in props.image;
+}
+
+// Extract props with type safety
 const props = Astro.props;
-const image = (props as any).image?.image || (props as any).image; // Extract nested .image if exists
-const alt = (props as any).alt || '';
-const caption = (props as any).caption;
-const credit = (props as any).credit;
-const alignment = (props as any).alignment || 'center';
-const size = (props as any).size || 'medium';
-const aspectRatio = (props as any).aspectRatio || '4:5'; // Use CMS value, fallback to 4:5
-const className = (props as any).className || '';
-const loading = (props as any).loading || 'lazy';
-const quality = (props as any).quality || IMAGE_QUALITY.CARD;
-const sizes = (props as any).sizes;
-const placeholder = (props as any).placeholder || 'blur';
-const priority = (props as any).priority || false;
-const _key = (props as any)._key;
-const _type = (props as any)._type;
+const image = isImageComponent(props) ? props.image.image : props.image;
+const alt = isImageComponent(props) ? (props.image.alt || '') : props.alt;
+const caption = isImageComponent(props) ? props.image.caption : props.caption;
+const credit = isImageComponent(props) ? props.image.credit : props.credit;
+const alignment = props.alignment || 'center';
+const size = props.size || 'medium';
+const aspectRatio = stegaClean(props.aspectRatio) || '4:5';
+const className = 'className' in props ? props.className || '' : '';
+const loading = 'loading' in props ? props.loading || 'lazy' : 'lazy';
+const quality = 'quality' in props ? props.quality || IMAGE_QUALITY.CARD : IMAGE_QUALITY.CARD;
+const sizes = 'sizes' in props ? props.sizes : undefined;
+const placeholder = 'placeholder' in props ? props.placeholder || 'blur' : 'blur';
+const priority = 'priority' in props ? props.priority || false : false;
+const _key = props._key;
+const _type = props._type;
 
 // Convert aspect ratio to numeric value
 const getAspectRatioValue = (ratio: string | number): number => {
@@ -55,6 +81,11 @@ const getAspectRatioValue = (ratio: string | number): number => {
 };
 
 const aspectValue = getAspectRatioValue(aspectRatio);
+
+// Max height for images on desktop (~600px, matches CSS max-block-size)
+// CSS uses calc(var(--space-3xl) * 7.5) which ranges 480-600px
+// We use the maximum to ensure crisp images at all viewport sizes
+const MAX_IMAGE_HEIGHT = 600;
 
 // Map size prop to actual display width (matching ch-based widths)
 const getDisplayWidth = (size: string): number => {
@@ -89,7 +120,23 @@ const getAutoSizes = (size: string): string => {
   }
 };
 
-const imageWidths = getImageWidths(size);
+// Generate optimized widths based on actual displayed dimensions for ALL images
+const getOptimizedWidths = (baseWidth: number, aspectVal: number, maxHeight: number): number[] => {
+  const naturalHeight = baseWidth / aspectVal;
+
+  // Determine actual displayed width (accounting for max-height constraint)
+  const actualWidth = naturalHeight > maxHeight
+    ? Math.round(maxHeight * aspectVal)
+    : baseWidth;
+
+  // Generate widths: 0.5x, 0.75x, 1x, 1.5x, 2x of actual displayed width
+  const multipliers = [0.5, 0.75, 1, 1.5, 2];
+  return multipliers
+    .map(m => Math.round(actualWidth * m))
+    .filter(w => w >= 200 && w <= 2400); // Reasonable bounds
+};
+
+const imageWidths = getOptimizedWidths(getDisplayWidth(size), aspectValue, MAX_IMAGE_HEIGHT);
 const imageSizes = sizes || getAutoSizes(size);
 
 // Generate responsive srcset with auto-format (only if image exists)
@@ -104,25 +151,29 @@ const responsiveSrcset: string = image ? getResponsiveImageSet(
 // Extract metadata for advanced features
 const metadata: ImageMetadata = image ? extractImageMetadata(image) : {};
 
-// Generate placeholder (BlurHash preferred, fallback to LQIP)
+// Generate LQIP placeholder for blur-up effect
 let placeholderUrl: string | null = null;
 if (image && placeholder === 'blur') {
-  // Try BlurHash first (better quality but only works client-side during hydration)
-  if (metadata.blurHash) {
-    // For SSR, we'll use LQIP as initial placeholder
-    // Client-side script can upgrade to BlurHash if needed
-    placeholderUrl = metadata.lqip || getLQIPUrl(image);
-  } else {
-    // Fall back to LQIP
-    placeholderUrl = getLQIPUrl(image);
-  }
+  placeholderUrl = metadata.lqip || getLQIPUrl(image);
 }
 
-// Fixed height matching ContentScrollContainer (350px)
-const fixedHeight = 350;
-const imageHeight = fixedHeight;
-// Calculate width from fixed height and aspect ratio
-const imageWidth = Math.round(fixedHeight * aspectValue);
+// Calculate dimensions accounting for max-height constraint
+const displayWidth = getDisplayWidth(size);
+const naturalHeight = Math.round(displayWidth / aspectValue);
+
+// If height would exceed max, calculate from max height instead
+let imageWidth: number;
+let imageHeight: number;
+
+if (naturalHeight > MAX_IMAGE_HEIGHT) {
+  // Tall image: calculate from max height to request optimal size
+  imageHeight = MAX_IMAGE_HEIGHT;
+  imageWidth = Math.round(MAX_IMAGE_HEIGHT * aspectValue);
+} else {
+  // Normal image: calculate from width
+  imageWidth = displayWidth;
+  imageHeight = naturalHeight;
+}
 
 // Generate fallback URL with fixed height and calculated width (only if image exists)
 const fallbackUrl = image ? getOptimizedImageUrl(
@@ -153,7 +204,7 @@ const fetchPriority = priority ? 'high' : 'auto';
       decoding="async"
       fetchpriority={fetchPriority}
       sizes={imageSizes}
-      class:list={['image', imageLoading === 'eager' && 'image-loaded']}
+      class="image"
       style={`aspect-ratio: ${aspectValue}; ${placeholderUrl ? `background-image: url(${placeholderUrl}); background-size: cover; background-position: center;` : 'background-color: var(--color-gray-100, #f5f5f5);'}`}
     />
   ) : (
@@ -169,36 +220,6 @@ const fetchPriority = priority ? 'high' : 'auto';
     </figcaption>
   )}
 </figure>
-
-<script>
-  // Client-side image load detection (only for lazy-loaded images)
-  function initImageLoading() {
-    // Only target lazy-loaded images (eager images have 'image-loaded' class pre-applied)
-    const lazyImages = document.querySelectorAll('.image-container .image[loading="lazy"]');
-
-    lazyImages.forEach((img) => {
-      // Check if already loaded
-      if ((img as HTMLImageElement).complete) {
-        img.classList.add('image-loaded');
-      } else {
-        // Listen for load event
-        img.addEventListener('load', () => {
-          img.classList.add('image-loaded');
-        }, { once: true });
-      }
-    });
-  }
-
-  // Run on initial page load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initImageLoading);
-  } else {
-    initImageLoading();
-  }
-
-  // Run on Astro page transitions (if using View Transitions)
-  document.addEventListener('astro:page-load', initImageLoading);
-</script>
 
 <style>
   /* CSS Variable-based width control - Kevin Powell method */
@@ -236,11 +257,11 @@ const fetchPriority = priority ? 'high' : 'auto';
     height: 100%;
   }
 
-  /* Image element with blur-up effect */
+  /* Image element with LQIP background placeholder */
   .image {
     display: block;
     width: 100%;
-    max-height: 350px; /* Optional constraint - prevents excessively tall images */
+    height: auto; /* Let aspect-ratio control height */
     object-fit: cover;
     object-position: center;
 
@@ -249,26 +270,10 @@ const fetchPriority = priority ? 'high' : 'auto';
     /* background-image and background-color set via inline style */
   }
 
-  /* Blur effect only for lazy-loaded images */
-  .image[loading="lazy"] {
-    filter: blur(0);
-    transition: filter 400ms ease-out, opacity 400ms ease-out;
-  }
-
-  /* Before lazy image loads, show blurred placeholder */
-  .image[loading="lazy"]:not(.image-loaded) {
-    filter: blur(20px);
-  }
-
-  /* Ensure smooth fade-in for lazy images */
-  .image[loading="lazy"].image-loaded {
-    filter: blur(0);
-  }
-
-  /* Accessibility: Reduced motion support */
-  @media (prefers-reduced-motion: reduce) {
+  /* Limit tall images on desktop to prevent excessive scroll */
+  @media (min-width: 48rem) {
     .image {
-      transition: none;
+      max-block-size: calc(var(--space-3xl) * 7.5); /* ~480-600px fluid */
     }
   }
 

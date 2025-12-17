@@ -1,4 +1,5 @@
 import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
+import type { PageBuilder } from '../../sanity/sanity.types';
 
 // Import all components that can be used in content blocks
 import PortableText from '../components/PortableText.astro';
@@ -9,10 +10,12 @@ import Spotify from '../components/Spotify.astro';
 import Button from '../components/Button.astro';
 import Link from '../components/Link.astro';
 import Quote from '../components/Quote.astro';
+import Marquee from '../components/Marquee.astro';
 import Accordion from '../components/Accordion.astro';
 import ContentScrollContainer from '../components/ContentScrollContainer.astro';
 import ArtistScrollContainer from '../components/ArtistScrollContainer.astro';
 import EventScrollContainer from '../components/EventScrollContainer.astro';
+import ComposerScrollContainer from '../components/ComposerScrollContainer.astro';
 import Countdown from '../components/Countdown.astro';
 import Grid from '../components/Grid.astro';
 import TwoColumn from '../components/TwoColumn.astro';
@@ -28,10 +31,12 @@ export const componentRegistry: Record<string, AstroComponentFactory> = {
   buttonComponent: Button,
   linkComponent: Link,
   quoteComponent: Quote,
+  marqueeComponent: Marquee,
   accordionComponent: Accordion,
   contentScrollContainer: ContentScrollContainer,
   artistScrollContainer: ArtistScrollContainer,
   eventScrollContainer: EventScrollContainer,
+  composerScrollContainer: ComposerScrollContainer,
   countdownComponent: Countdown,
   gridComponent: Grid,
   twoColumnLayout: TwoColumn,
@@ -51,10 +56,5 @@ export function getComponent(type: string): AstroComponentFactory | null {
   return componentRegistry[type] || null;
 }
 
-// Type for content blocks
-export interface ContentBlock {
-  _type: string;
-  _key?: string;
-  _id?: string;
-  [key: string]: any;
-}
+// Type for content blocks - extracts discriminated union element type from PageBuilder array
+export type ContentBlock = PageBuilder extends Array<infer T> ? T : never;

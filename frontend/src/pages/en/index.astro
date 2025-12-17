@@ -1,37 +1,5 @@
 ---
-import ContentPageLayout from '../../layouts/ContentPageLayout.astro';
-import { createDataService } from '../../lib/sanity/dataService.js';
-
-// Create data service with Visual Editing support
-const dataService = createDataService(Astro.request);
-
-// Load homepage using data service
-const homepage = await dataService.getHomepage();
-
-const homepageTitle = homepage?.title || 'Home';
-
-// Smart caching based on content type
-if (homepage?.scheduledPeriod) {
-  const timeUntilExpiry = new Date(homepage.scheduledPeriod.endDate).getTime() - Date.now();
-  const cacheTime = Math.min(timeUntilExpiry / 1000, 300); // Max 5 minutes
-
-  Astro.response.headers.set('Cache-Control', `public, max-age=${cacheTime}`);
-} else {
-  Astro.response.headers.set('Cache-Control', 'public, max-age=3600'); // 1 hour
-}
+import FrontpageContent from '../../components/FrontpageContent.astro';
 ---
 
-<ContentPageLayout title={homepageTitle} pageDocument={homepage}>
-  {!homepage && (
-    <div class="no-content">
-      <h1>Welcome to the homepage</h1>
-      <p>No homepage is configured yet. Go to Sanity Studio to create a homepage.</p>
-    </div>
-  )}
-</ContentPageLayout>
-
-<style>
-  .no-content {
-    margin: 0;
-  }
-</style>
+<FrontpageContent language="en" />

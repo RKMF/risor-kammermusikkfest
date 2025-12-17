@@ -9,6 +9,7 @@
    - CSS variables for fine-tuning
    - Scrollbar styling integrated
    - Aspect ratios managed by card components
+   - Properties activate ONLY in narrow containers (<800px)
 
    Usage:
    <div class="scroll-container scroll-container--event-cards scroll-container--styled-scrollbar">
@@ -20,18 +21,137 @@
    ============================================ */
 
 /* ============================================
-   BASE SCROLL CONTAINER
+   CSS VARIABLES - Available at all widths
    ============================================ */
 
 .scroll-container {
+  /* Self-contained container context - enables @container queries */
+  container-type: inline-size;
+
   /* Configurable via CSS variables */
   --scroll-gap: var(--space-m);
   --scroll-padding: clamp(1rem, 3vw, 2rem);
   --scroll-snap: x mandatory;
+}
 
-  /* Base styles */
+/* ============================================
+   SCROLL ACTIVATION - Only in narrow containers
+   ============================================
+
+   Scroll properties ONLY apply when container width < 800px.
+   This prevents conflicts with grid layouts at wider widths.
+   ============================================ */
+
+@container (max-width: 800px) {
+  .scroll-container {
+    /* Layout */
+    display: flex;
+    gap: var(--scroll-gap);
+
+    /* Scroll behavior */
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scroll-snap-type: var(--scroll-snap);
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+    scroll-padding-inline: var(--scroll-padding);
+
+    /* Vertical padding to accommodate card hover lift effects
+     * 8px provides breathing room for transform: translateY(-4px) hover
+     * Prevents cards from being clipped at top edge when lifting
+     * Token defined in tokens.css with full documentation */
+    padding-block: var(--scroll-container-padding-block);
+  }
+
+  .scroll-container > * {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    scroll-margin-inline-start: 0.5rem;
+  }
+
+  /* ============================================
+     PRESET VARIANTS - Common content patterns
+     ============================================ */
+
+  /* Event cards pattern */
+  .scroll-container--event-cards {
+    --scroll-gap: clamp(var(--space-l), 3vw, var(--space-6));
+    /* Note: width and aspect-ratio (7/11) set by .event-card component */
+  }
+
+  /* Artist cards pattern */
+  .scroll-container--artist-cards {
+    --scroll-gap: clamp(var(--space-l), 3vw, var(--space-6));
+    /* Note: width and aspect-ratio (4/5, 1/1, or 16/9) set by .artist-card component variants */
+  }
+
+  /* Content items (generic) */
+  .scroll-container--content {
+    --scroll-gap: var(--space-m-l);
+  }
+
+  /* ============================================
+     SCROLLBAR STYLING - Single source of truth
+     ============================================ */
+
+  .scroll-container--styled-scrollbar {
+    /* Override base padding-block to account for visible scrollbar
+     * Top: inherit 8px from .scroll-container (hover lift room)
+     * Bottom: 12px for scrollbar visibility
+     * Total vertical padding: 8px + 12px = 20px */
+    padding-block: var(--scroll-container-padding-block) 12px;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-blue) var(--color-neutral-100);
+  }
+
+  .scroll-container--styled-scrollbar::-webkit-scrollbar {
+    height: 12px; /* Comfortable for mouse users to click-and-drag */
+    -webkit-appearance: none;
+  }
+
+  .scroll-container--styled-scrollbar::-webkit-scrollbar-track {
+    background: var(--color-neutral-100);
+    border-radius: 0;
+  }
+
+  .scroll-container--styled-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-blue);
+    border-radius: 0;
+  }
+
+  .scroll-container--styled-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-green);
+  }
+
+  /* Touch devices: thinner scrollbar since users primarily swipe */
+  @media (pointer: coarse) {
+    .scroll-container--styled-scrollbar::-webkit-scrollbar {
+      height: 6px;
+    }
+  }
+} /* End @container (max-width: 800px) */
+
+/* ============================================
+   ALWAYS-ACTIVE SCROLL CONTAINERS
+   ============================================
+
+   For contexts where scrolling should be active at ALL widths,
+   not just narrow containers. Used for:
+   - Event detail page artist cards
+   - Artist detail page event cards
+   - Dedicated scroll container components
+
+   These containers bypass the @container query and always
+   display as horizontal scrollers.
+   ============================================ */
+
+.scroll-container--always {
+  /* Layout */
   display: flex;
   gap: var(--scroll-gap);
+
+  /* Scroll behavior */
   overflow-x: scroll;
   overflow-y: hidden;
   scroll-snap-type: var(--scroll-snap);
@@ -39,82 +159,46 @@
   overscroll-behavior-x: contain;
   scroll-padding-inline: var(--scroll-padding);
 
-  /* Vertical padding to accommodate card hover lift effects
-   * 8px provides breathing room for transform: translateY(-4px) hover
-   * Prevents cards from being clipped at top edge when lifting
-   * Token defined in tokens.css with full documentation */
+  /* Vertical padding - same as conditional scrollers */
   padding-block: var(--scroll-container-padding-block);
 }
 
-.scroll-container > * {
+.scroll-container--always > * {
   flex-shrink: 0;
   scroll-snap-align: start;
   scroll-margin-inline-start: 0.5rem;
 }
 
-/* ============================================
-   PRESET VARIANTS - Common content patterns
-   ============================================ */
-
-/* Event cards pattern */
-.scroll-container--event-cards {
-  --scroll-gap: clamp(var(--space-l), 3vw, var(--space-6));
-  /* Note: width and aspect-ratio (7/11) set by .event-card component */
-}
-
-/* Artist cards pattern */
-.scroll-container--artist-cards {
-  --scroll-gap: clamp(var(--space-l), 3vw, var(--space-6));
-  /* Note: width and aspect-ratio (4/5, 1/1, or 16/9) set by .artist-card component variants */
-}
-
-/* Content items (generic) */
-.scroll-container--content {
-  --scroll-gap: var(--space-m-l);
-}
-
-/* ============================================
-   SCROLLBAR STYLING - Single source of truth
-   ============================================ */
-
-.scroll-container--styled-scrollbar {
-  /* Override base padding-block to account for visible scrollbar
-   * Top: inherit 8px from .scroll-container (hover lift room)
-   * Bottom: 12px for scrollbar visibility
-   * Total vertical padding: 8px + 12px = 20px */
+/* Scrollbar styling for always-active containers */
+.scroll-container--always.scroll-container--styled-scrollbar {
   padding-block: var(--scroll-container-padding-block) 12px;
-
   scrollbar-width: thin;
   scrollbar-color: var(--color-blue) var(--color-neutral-100);
 }
 
-.scroll-container--styled-scrollbar::-webkit-scrollbar {
-  height: 6px;
+.scroll-container--always.scroll-container--styled-scrollbar::-webkit-scrollbar {
+  height: 12px; /* Comfortable for mouse users to click-and-drag */
   -webkit-appearance: none;
 }
 
-.scroll-container--styled-scrollbar::-webkit-scrollbar-track {
+.scroll-container--always.scroll-container--styled-scrollbar::-webkit-scrollbar-track {
   background: var(--color-neutral-100);
   border-radius: 0;
 }
 
-.scroll-container--styled-scrollbar::-webkit-scrollbar-thumb {
+.scroll-container--always.scroll-container--styled-scrollbar::-webkit-scrollbar-thumb {
   background: var(--color-blue);
   border-radius: 0;
 }
 
-.scroll-container--styled-scrollbar::-webkit-scrollbar-thumb:hover {
+.scroll-container--always.scroll-container--styled-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--color-green);
 }
 
-/* Touch optimization */
+/* Touch devices: thinner scrollbar since users primarily swipe */
 @media (pointer: coarse) {
-  .scroll-container--styled-scrollbar {
-    scrollbar-width: auto;
-  }
-
-  .scroll-container--styled-scrollbar::-webkit-scrollbar {
-    height: 12px;
+  .scroll-container--always.scroll-container--styled-scrollbar::-webkit-scrollbar {
+    height: 6px;
   }
 }
 
@@ -128,8 +212,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scroll-container {
+  .scroll-container,
+  .scroll-container--always {
     scroll-behavior: auto;
+    scroll-snap-type: none;
   }
 }
 
@@ -137,18 +223,75 @@
    HELPER CLASSES - Optional modifiers
    ============================================ */
 
-/* Hide scrollbar (for cleaner aesthetic) */
+/* Hide scrollbar on touch devices only
+ * Desktop mouse users need visible scrollbar to scroll
+ * Touch users can swipe, so scrollbar can be hidden */
 .scroll-container--hide-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding-block-end: 0;
+  /* Desktop: show styled scrollbar for mouse interaction */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-blue) var(--color-neutral-100);
 }
 
 .scroll-container--hide-scrollbar::-webkit-scrollbar {
-  display: none;
+  height: 12px;
+  -webkit-appearance: none;
+}
+
+.scroll-container--hide-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-neutral-100);
+  border-radius: 0;
+}
+
+.scroll-container--hide-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-blue);
+  border-radius: 0;
+}
+
+.scroll-container--hide-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-green);
+}
+
+/* Touch devices: hide scrollbar since users swipe */
+@media (pointer: coarse) {
+  .scroll-container--hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-block-end: 0;
+
+    /* Fade edges to indicate scrollability when scrollbar is hidden */
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 1rem,
+      black calc(100% - 1rem),
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 1rem,
+      black calc(100% - 1rem),
+      transparent
+    );
+  }
+
+  .scroll-container--hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Soft snapping instead of mandatory */
 .scroll-container--soft-snap {
   scroll-snap-type: x proximity;
+}
+
+/* Spotify embeds - 152px track format */
+.scroll-container--spotify {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.scroll-container--spotify > * {
+  width: min(300px, 80vw);
 }

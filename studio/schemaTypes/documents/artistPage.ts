@@ -1,10 +1,11 @@
-import {defineField, defineType} from 'sanity'
-import {UsersIcon, ComposeIcon, UserIcon} from '@sanity/icons'
-import {createMirrorPortableTextInput} from '../../components/inputs/MirrorPortableTextInput'
-import {componentValidation} from '../shared/validation'
-import type {ArtistPageData} from '../shared/types'
-import {excludeAlreadySelected} from '../shared/referenceFilters'
-import {MultiSelectReferenceInput} from '../components/inputs/MultiSelectReferenceInput'
+import { defineField, defineType } from 'sanity';
+import { UsersIcon, ComposeIcon, UserIcon } from '@sanity/icons';
+import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
+import { componentValidation } from '../shared/validation';
+import type { ArtistPageData } from '../shared/types';
+import { excludeAlreadySelected } from '../shared/referenceFilters';
+import { MultiSelectReferenceInput } from '../components/inputs/MultiSelectReferenceInput';
+import { getLanguageStatus } from '../shared/previewHelpers';
 
 export const artistPage = defineType({
   name: 'artistPage',
@@ -50,7 +51,7 @@ export const artistPage = defineType({
         source: 'title_no',
         maxLength: 96,
       },
-      initialValue: {current: 'artister'},
+      initialValue: { current: 'artister' },
       validation: componentValidation.slug,
       group: 'no',
     }),
@@ -107,7 +108,7 @@ export const artistPage = defineType({
       description: 'Build English artist overview with components and content',
       group: 'en',
       components: {
-        input: createMirrorPortableTextInput('content_no')
+        input: createMirrorPortableTextInput('content_no'),
       },
     }),
 
@@ -119,8 +120,8 @@ export const artistPage = defineType({
       of: [
         {
           type: 'reference',
-          to: [{type: 'artist'}],
-        }
+          to: [{ type: 'artist' }],
+        },
       ],
       description: 'Velg artister som skal vises på artistoversikten (vises på begge språk)',
       group: 'artists',
@@ -141,12 +142,9 @@ export const artistPage = defineType({
       hasNorwegian: 'content_no',
       hasEnglish: 'content_en',
     },
-    prepare({title_no, title_en, slug_no, slug_en, hasNorwegian, hasEnglish}) {
-      // Language status
-      const languages: string[] = [];
-      if (hasNorwegian || title_no) languages.push('NO');
-      if (hasEnglish || title_en) languages.push('EN');
-      const langStatus = languages.length > 0 ? languages.join(' ') : 'Ingen språk valgt';
+    prepare({ title_no, title_en, slug_no, slug_en, hasNorwegian, hasEnglish }) {
+      // Language status using shared helper
+      const langStatus = getLanguageStatus({ title_no, title_en, hasNorwegian, hasEnglish });
 
       const title = title_no || title_en || 'Artistoversikt';
       const slug = slug_no || slug_en || 'artister';
@@ -158,4 +156,4 @@ export const artistPage = defineType({
       };
     },
   },
-})
+});

@@ -1,29 +1,29 @@
 /* Artist Card Component - Shared Global CSS
  *
- * Overlay design pattern used across:
+ * Stacked layout pattern used across:
  * - /pages/artister.astro (Norwegian)
  * - /pages/en/artists.astro (English)
  * - /pages/program/[slug].astro (Event detail pages)
  * - /pages/en/program/[slug].astro (English event detail pages)
  *
- * Design: Fixed 320px cards with images anchored top-left
- * and info box overlaid in bottom-right corner.
- * Three sizes: Large (9:16), Medium (4:5), Small (1:1)
+ * Design: Fixed 320px cards with stacked layout
+ * (image on top, info box below).
+ * Two sizes: Large (9:16), Medium (4:5)
  *
  * Note: Global CSS required for HTMX compatibility.
  * See program.css lines 1-36 for explanation of why we use global CSS.
  */
 
 /* ============================================
-   ARTIST CARD - IMAGE WITH OVERLAY DESIGN
+   ARTIST CARD - STACKED LAYOUT
    ============================================
 
-   320px fixed width cards using CSS Grid for overlay layout.
-   Image and info box stack in the same grid area using grid-area: content.
+   320px fixed width cards using CSS Grid for stacked layout.
+   Image on top, info box below.
 
    Layout:
-   - Image: anchored top-left with 1rem margin (85% width, aspect ratio varies by size)
-   - Info box: anchored bottom-right with 1rem margins, dynamic width
+   - Image: full width in first grid row
+   - Info box: full width in second grid row
 
    Modern Grid approach following CSS best practices (Ahmad Shadeed, CSS-Tricks).
 */
@@ -33,22 +33,28 @@
   container-type: inline-size;
   overflow: hidden;
   border: none;
+  border-bottom: calc(var(--space-fixed-1) * 2) solid var(--color-blue);
   background-color: var(--color-tint-blue-medium);
   box-shadow: none;
   transition: transform 200ms var(--ease-standard),
               box-shadow 200ms var(--ease-standard),
               background-color 200ms var(--ease-standard);
 
-  /* Grid layout for stacking image and info box */
+  /* Grid layout - stacked: image (3/4) + info box (1/4) */
   display: grid;
-  grid-template: "content" 1fr / 1fr;
+  grid-template-rows: 3fr 1fr;
 
   /* Fixed aspect ratio - same as image */
   aspect-ratio: 9 / 16; /* Tall portrait format */
 
   /* Fluid width for scroll affordance - shows partial next card */
   width: clamp(300px, 35vw, 320px);
+  min-width: 300px; /* Prevent squashing in flex containers */
+
+  /* Indicate clickable */
+  cursor: pointer;
 }
+
 
 /* Hover effect only for devices with hover capability */
 @media (hover: hover) {
@@ -59,7 +65,7 @@
   }
 
   .artist-card:hover .artist-info-box {
-    background-color: #ebf9f7; /* Matches card's rgba(0, 179, 154, 0.08) over white */
+    background-color: var(--color-tint-green-light); /* Match card hover background */
   }
 
   .artist-card:hover .artist-name {
@@ -73,7 +79,6 @@
 
 /* Artist Title - Hidden but contains the stretched link */
 .artist-title {
-  /* Keep in document flow but hide visually behind other elements */
   /* NO position property - must stay static for ::before to work */
   width: 0;
   height: 0;
@@ -85,14 +90,14 @@
 /* Artist Name - Visible name in info box */
 .artist-name {
   margin: 0;
-  /* Fluid font size using Utopia token: 22-28px responsive */
-  font-size: var(--step-1);
-  line-height: 1.3;
-  font-weight: 600;
+  /* Fluid font size scaling with container width (cqi units) */
+  font-size: clamp(var(--step-2), 10cqi, var(--step-3));
+  line-height: 1.1;
+  font-weight: 500;
   font-family: var(--font-family-heading);
   text-transform: none;
   letter-spacing: 0.01em;
-  color: var(--color-background);
+  color: var(--color-blue);
   transition: color var(--transition-base);
 
   /* Natural wrapping for long names */
@@ -100,54 +105,50 @@
   hyphens: none;
   text-wrap: wrap; /* Changed from balance for more consistent box widths */
 
-  /* Full name display - no truncation */
 }
 
-/* Artist Image - Anchored to top-left using Grid */
+/* Artist Image - Full width in first row */
 .artist-card-image {
-  grid-area: content; /* Stack in same grid area as info box */
-  justify-self: start; /* Align to left */
-  align-self: start; /* Align to top */
-  margin: 1rem; /* Equal margin on all sides, same as info box */
-  width: 85%; /* Narrower than full width */
+  grid-row: 1; /* First row */
+  width: 100%;
   height: auto;
-  aspect-ratio: 9/16; /* Matches card aspect ratio */
+  min-height: 0; /* Allow shrinking below intrinsic size in grid */
+  aspect-ratio: 3 / 4; /* Match grid cell proportions (3fr of 9:16 card) - fixes mobile browser height calculation */
   object-fit: cover;
   object-position: center;
-
-  /* Large cards - bottom wave pattern from logo (deeper wave) */
-  clip-path: url(#artist-wave-clip-large);
 }
 
-/* Artist Info Box - Overlay in bottom-right using Grid */
-.artist-info-box {
-  grid-area: content; /* Stack in same grid area as image */
-  place-self: end; /* Modern shorthand: align to bottom-right */
-  margin: 1rem; /* Inset from bottom and right edges */
-  /* Using --color-blue-600 for WCAG AA compliance (4.5:1 contrast with white) */
-  background-color: var(--color-blue-600);
-  color: var(--color-background);
-  padding: 1rem;
-  display: grid;
-  gap: 0.25rem;
-  z-index: 2; /* Above image layer */
-  transition: background-color 200ms var(--ease-standard);
+/* Medium card image - use aspect-ratio to fix mobile browser overflow
+ * Mobile Safari/Chrome calculate height:100% incorrectly in grid+scroll contexts */
+.artist-card--medium .artist-card-image {
+  height: auto;
+  aspect-ratio: 320 / 267; /* Match grid cell proportions (2fr of 4:5 card) */
+}
 
-  /* Dynamic width based on content with constraints */
-  width: auto;
-  min-width: 12ch; /* Minimum ~12 characters width */
-  max-width: 85%; /* Maximum size aligned with image */
+/* Artist Info Box - Full width in second row */
+.artist-info-box {
+  grid-row: 2; /* Second row */
+  background-color: var(--color-card-surface);
+  color: var(--color-blue);
+  padding: 1rem 1rem 1rem 1.5rem;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  align-content: start;
+  gap: var(--space-3xs, 0.25rem);
+  z-index: 2;
+  transition: background-color 200ms var(--ease-standard);
+  width: 100%;
 }
 
 .artist-instrument {
   margin: 0;
-  /* Fluid font size using Utopia token: 13-14px responsive */
-  font-size: var(--step--2);
+  /* Fluid font size using Utopia token: 16-18px responsive */
+  font-size: var(--step--1);
   line-height: 1.3;
   font-weight: var(--font-weight-medium);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: rgba(255, 255, 255, 0.9); /* Semi-transparent white on dark background */
+  color: var(--color-blue);
   transition: color var(--transition-base);
 }
 
@@ -165,6 +166,7 @@
 .artist-card .artist-title-link:focus-visible {
   outline-color: var(--color-background);
 }
+
 
 /* ============================================
    ACCESSIBILITY & MOTION PREFERENCES
@@ -194,74 +196,23 @@
    CARD SIZE VARIANTS
    ============================================ */
 
-/* LARGE (stor) - Default, no modifier needed */
-/* Already defined above: 320px width, 9:16 aspect ratio, overlay pattern */
+/* LARGE (stor) - Default, stacked layout defined above */
+/* 320px width, 9:16 aspect ratio, image 2/3 + info box 1/3 */
 
-/* Force two-line name wrap on large cards for consistent layout */
-.artist-card:not(.artist-card--medium):not(.artist-card--small) .artist-info-box {
-  max-width: 85%; /* Matches image width for visual alignment */
-}
-
-/* MEDIUM (medium) - Portrait 4:5 cards with overlay */
+/* MEDIUM (medium) - Stacked layout like large, but 4:5 aspect ratio */
 .artist-card--medium {
-  aspect-ratio: 4 / 5; /* Portrait format */
+  aspect-ratio: 4 / 5;
+  grid-template-rows: 2fr 1fr; /* More space for info box than large cards */
 }
 
 .artist-card--medium .artist-card-image {
-  aspect-ratio: 4/5; /* Match card aspect ratio */
-
-  /* Medium cards - top shallow wave pattern from logo */
-  clip-path: url(#artist-wave-clip-medium);
-}
-
-/* SMALL (liten) - Square 1:1 cards with overlay pattern */
-.artist-card--small {
-  /* Square aspect ratio for small cards */
-  aspect-ratio: 1 / 1;
-
-  /* Light blue tint background - matches large/medium cards */
-  background-color: var(--color-tint-blue-medium);
-
-  /* Grid layout inherited from .artist-card - keeps overlay pattern consistent */
-}
-
-/* Small card image - square format */
-.artist-card--small .artist-card-image {
-  aspect-ratio: 1/1; /* Match card aspect ratio */
-
-  /* Small cards - no wave pattern, straight edge */
+  /* Stacked layout - inherits grid-row: 1 from base */
   clip-path: none;
 }
 
-/* Info box overlay for small cards - matches large/medium pattern */
-.artist-card--small .artist-info-box {
-  /* Keep overlay positioning from parent .artist-info-box */
-  /* grid-area: content, place-self: end, margin: 1rem all inherited */
-
-  /* Restore dark blue background - same as large/medium cards */
-  background-color: var(--color-blue-600);
-  padding: 1rem;
-
-  /* Dynamic width - same as large/medium cards */
-  width: auto;
-  min-width: 12ch;
-  max-width: 85%;
+.artist-card--medium .artist-info-box {
+  /* Stacked layout - inherits grid-row: 2 from base */
 }
 
-/* Small card hover effect - matches large/medium pattern */
-@media (hover: hover) {
-  .artist-card--small:hover {
-    transform: translateY(-4px);
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-    background-color: var(--color-tint-green-light);
-  }
+/* Medium cards inherit font sizes from base rules */
 
-  .artist-card--small:hover .artist-info-box {
-    background-color: var(--color-green-50);
-  }
-
-  .artist-card--small:hover .artist-name,
-  .artist-card--small:hover .artist-instrument {
-    color: var(--color-blue);
-  }
-}

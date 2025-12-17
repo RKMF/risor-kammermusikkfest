@@ -23,6 +23,27 @@ export const LANGUAGE_LABELS: Record<Language, string> = {
 };
 
 /**
+ * Base interface for documents with bilingual content
+ * Provides type safety for language-specific fields
+ */
+export interface BilingualDocument {
+  title_no?: string;
+  title_en?: string;
+  excerpt_no?: string;
+  excerpt_en?: string;
+  slug_no?: { current: string };
+  slug_en?: { current: string };
+  content_no?: unknown[];
+  content_en?: unknown[];
+  description_no?: string;
+  description_en?: string;
+  extraContent_no?: unknown[];
+  extraContent_en?: unknown[];
+  // Allow additional properties for flexibility
+  [key: string]: unknown;
+}
+
+/**
  * Get language from URL or request
  * Detects language based on /en/ prefix in URL path
  */
@@ -75,7 +96,7 @@ export function getMultilingualValue<T>(
  * Get slug with language preference
  */
 export function getMultilingualSlug(
-  item: { [key: string]: any } | undefined,
+  item: BilingualDocument | undefined,
   language: Language = DEFAULT_LANGUAGE
 ): { current: string } | undefined {
   if (!item) return undefined;
@@ -116,13 +137,13 @@ export function createMultilingualSlug(): string {
  * Transform Sanity document to include convenience fields
  * Adds fallback values for title, slug, content, etc. based on language preference
  */
-export function transformMultilingualDocument(
-  doc: any,
+export function transformMultilingualDocument<T extends BilingualDocument>(
+  doc: T | null | undefined,
   language: Language = DEFAULT_LANGUAGE
-): any {
-  if (!doc) return doc;
+): T | null {
+  if (!doc) return null;
 
-  const transformed = { ...doc };
+  const transformed: BilingualDocument = { ...doc };
 
   // Add convenience fields with language-aware fallbacks
   const multilingualFields = ['title', 'content', 'excerpt', 'description'];
@@ -148,7 +169,7 @@ export function transformMultilingualDocument(
     }
   }
 
-  return transformed;
+  return transformed as T;
 }
 
 /**
@@ -156,7 +177,7 @@ export function transformMultilingualDocument(
  * Returns the appropriate content array based on language preference
  */
 export function getMultilingualContent(
-  doc: any,
+  doc: BilingualDocument | undefined,
   language: Language = DEFAULT_LANGUAGE
 ): any[] | undefined {
   if (!doc) return undefined;

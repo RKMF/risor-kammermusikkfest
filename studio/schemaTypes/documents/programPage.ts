@@ -1,10 +1,11 @@
-import {defineField, defineType} from 'sanity'
-import {CalendarIcon, ComposeIcon} from '@sanity/icons'
-import {createMirrorPortableTextInput} from '../../components/inputs/MirrorPortableTextInput'
-import {componentValidation} from '../shared/validation'
-import type {ProgramPageData} from '../shared/types'
-import {excludeAlreadySelected} from '../shared/referenceFilters'
-import {MultiSelectReferenceInput} from '../components/inputs/MultiSelectReferenceInput'
+import { defineField, defineType } from 'sanity';
+import { CalendarIcon, ComposeIcon } from '@sanity/icons';
+import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
+import { componentValidation } from '../shared/validation';
+import type { ProgramPageData } from '../shared/types';
+import { excludeAlreadySelected } from '../shared/referenceFilters';
+import { MultiSelectReferenceInput } from '../components/inputs/MultiSelectReferenceInput';
+import { getLanguageStatus } from '../shared/previewHelpers';
 
 export const programPage = defineType({
   name: 'programPage',
@@ -50,7 +51,7 @@ export const programPage = defineType({
         source: 'title_no',
         maxLength: 96,
       },
-      initialValue: {current: 'program'},
+      initialValue: { current: 'program' },
       validation: componentValidation.slug,
       group: 'no',
     }),
@@ -107,7 +108,7 @@ export const programPage = defineType({
       description: 'Build English program overview with components and content',
       group: 'en',
       components: {
-        input: createMirrorPortableTextInput('content_no')
+        input: createMirrorPortableTextInput('content_no'),
       },
     }),
 
@@ -119,8 +120,8 @@ export const programPage = defineType({
       of: [
         {
           type: 'reference',
-          to: [{type: 'event'}],
-        }
+          to: [{ type: 'event' }],
+        },
       ],
       description: 'Velg arrangementer som skal vises på programoversikten (vises på begge språk)',
       group: 'events',
@@ -141,12 +142,9 @@ export const programPage = defineType({
       hasNorwegian: 'content_no',
       hasEnglish: 'content_en',
     },
-    prepare({title_no, title_en, slug_no, slug_en, hasNorwegian, hasEnglish}) {
-      // Language status
-      const languages: string[] = [];
-      if (hasNorwegian || title_no) languages.push('NO');
-      if (hasEnglish || title_en) languages.push('EN');
-      const langStatus = languages.length > 0 ? languages.join(' ') : 'Ingen språk valgt';
+    prepare({ title_no, title_en, slug_no, slug_en, hasNorwegian, hasEnglish }) {
+      // Language status using shared helper
+      const langStatus = getLanguageStatus({ title_no, title_en, hasNorwegian, hasEnglish });
 
       const title = title_no || title_en || 'Programoversikt';
       const slug = slug_no || slug_en || 'program';
@@ -158,4 +156,4 @@ export const programPage = defineType({
       };
     },
   },
-})
+});

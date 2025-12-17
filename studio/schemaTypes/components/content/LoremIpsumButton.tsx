@@ -1,7 +1,7 @@
-import {Button, Stack} from '@sanity/ui'
-import {TextIcon} from '@sanity/icons'
-import {type InputProps, set, unset} from 'sanity'
-import {useCallback} from 'react'
+import { Button, Stack } from '@sanity/ui';
+import { TextIcon } from '@sanity/icons';
+import { type InputProps, set, unset } from 'sanity';
+import { useCallback } from 'react';
 
 // Norwegian lorem ipsum text
 const LOREM_IPSUM = [
@@ -33,20 +33,20 @@ const LOREM_IPSUM = [
     ],
     markDefs: [],
   },
-]
+];
 
 export function LoremIpsumInput(props: InputProps) {
-  const {value, onChange, renderDefault} = props
+  const { value, onChange, renderDefault } = props;
 
   const handleInsertLorem = useCallback(() => {
-    onChange(set(LOREM_IPSUM))
-  }, [onChange])
+    onChange(set(LOREM_IPSUM));
+  }, [onChange]);
 
   const handleClear = useCallback(() => {
-    onChange(unset())
-  }, [onChange])
+    onChange(unset());
+  }, [onChange]);
 
-  const isEmpty = !value || (Array.isArray(value) && value.length === 0)
+  const isEmpty = !value || (Array.isArray(value) && value.length === 0);
 
   return (
     <Stack space={3}>
@@ -57,7 +57,7 @@ export function LoremIpsumInput(props: InputProps) {
           tone="primary"
           mode="ghost"
           onClick={handleInsertLorem}
-          style={{width: 'fit-content'}}
+          style={{ width: 'fit-content' }}
         />
         {!isEmpty && (
           <Button
@@ -65,11 +65,11 @@ export function LoremIpsumInput(props: InputProps) {
             tone="critical"
             mode="ghost"
             onClick={handleClear}
-            style={{width: 'fit-content'}}
+            style={{ width: 'fit-content' }}
           />
         )}
       </Stack>
       {renderDefault(props)}
     </Stack>
-  )
+  );
 }

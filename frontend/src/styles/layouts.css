@@ -68,7 +68,7 @@
 
 /* Utility: Narrower width for enhanced text readability */
 .content-narrow {
-  width: min(65ch, 100% - 4rem);
+  width: min(65ch, 100% - 1rem);
   margin-inline: auto;
 }
 
@@ -203,29 +203,6 @@ img[loading="lazy"] {
   /* Ensure critical images are visible */
   img:not([role="presentation"]):not([alt=""]) {
     display: block;
-  }
-}
-
-/* ============================================
-   DARK MODE ADJUSTMENTS
-   ============================================
-
-   Subtle opacity adjustment for images in dark mode.
-   Exempt logos and sponsor images.
-*/
-
-@media (prefers-color-scheme: dark) {
-  /* Global dark mode image adjustments */
-  img:not([data-no-dark-adjust]) {
-    opacity: 0.9;
-  }
-
-  /* Exempt specific images from dark mode adjustments */
-  img[data-no-dark-adjust],
-  .logo img,
-  .sponsor-logo img {
-    opacity: 1;
-    filter: none;
   }
 }
 

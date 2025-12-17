@@ -1,9 +1,13 @@
 import {defineQuery} from 'groq'
 import {createMultilingualField, type Language} from '../utils/language.js'
+import type { ArtistResult, EventResult, ArticleResult } from './queries'
 
-export interface QueryDefinition<P extends Record<string, unknown> = Record<string, unknown>> {
+export interface QueryDefinition<
+  TResult = unknown,
+  TParams extends Record<string, unknown> = Record<string, unknown>
+> {
   query: ReturnType<typeof defineQuery>
-  params: P
+  params: TParams
 }
 
 // ============================================================================
@@ -30,7 +34,6 @@ const IMAGE_COMPONENT = `
             aspectRatio
           },
           lqip,
-          blurHash,
           palette {
             dominant {
               background,
@@ -194,7 +197,6 @@ const EVENT_IMAGE_SELECTION = `
             aspectRatio
           },
           lqip,
-          blurHash,
           palette {
             dominant {
               background,
@@ -234,6 +236,9 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
   excerpt_no,
   excerpt_en,
   ${createMultilingualField('excerpt', language)},
+  description_no,
+  description_en,
+  ${createMultilingualField('description', language)},
   ${EVENT_IMAGE_SELECTION},
   ${EVENT_DATE_SELECTION},
   eventTime,
@@ -245,14 +250,22 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
     city,
     "slug": slug.current
   },
-  "artists": artist[]->{
+  "artists": artist[defined(@->) && (@->publishingStatus == "published" || !defined(@->publishingStatus))]->{
     _id,
     name,
     "slug": slug.current,
     ${ARTIST_IMAGE_SELECTION},
     instrument_no,
     instrument_en,
-    "instrument": coalesce(instrument_no, instrument_en)
+    "instrument": coalesce(instrument_no, instrument_en),
+    publishingStatus
+  },
+  "composers": composers[]->{
+    _id,
+    name,
+    description_no,
+    description_en,
+    ${ARTIST_IMAGE_SELECTION}
   },
   ticketType,
   ticketUrl,
@@ -272,7 +285,12 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
   extraContent_en[]{
     ${PAGE_CONTENT_WITH_LINKS}
   },
-  seo
+  seo,
+  spotifyItems[]{
+    _key,
+    _type,
+    spotifyUrl
+  }
 `
 
 const ARTIST_IMAGE_SELECTION = `
@@ -288,7 +306,6 @@ const ARTIST_IMAGE_SELECTION = `
             aspectRatio
           },
           lqip,
-          blurHash,
           palette {
             dominant {
               background,
@@ -318,6 +335,8 @@ const buildArtistBaseFields = (language: Language = 'no'): string => `
   country,
   ${ARTIST_IMAGE_SELECTION},
   "slug": slug.current,
+  "slug_no": slug,
+  "slug_en": slug,
   content_no[]{
     ${PAGE_CONTENT_WITH_LINKS}
   },
@@ -342,7 +361,6 @@ const ARTICLE_IMAGE_SELECTION = `
             aspectRatio
           },
           lqip,
-          blurHash,
           palette {
             dominant {
               background,
@@ -416,6 +434,36 @@ const HOMEPAGE_QUERY = defineQuery(`*[_type == "homepage" && (
   ${createMultilingualField('title')},
   title_no,
   title_en,
+  headerLinks_no[]{
+    _key,
+    linkType,
+    text,
+    description,
+    url,
+    "internalLink": select(
+      linkType == "internal" && defined(internalLink) => internalLink->{
+        _type,
+        "slug": coalesce(slug_no.current, slug_en.current, slug.current),
+        "slug_no": slug_no.current,
+        "slug_en": slug_en.current
+      }
+    )
+  },
+  headerLinks_en[]{
+    _key,
+    linkType,
+    text,
+    description,
+    url,
+    "internalLink": select(
+      linkType == "internal" && defined(internalLink) => internalLink->{
+        _type,
+        "slug": coalesce(slug_no.current, slug_en.current, slug.current),
+        "slug_no": slug_no.current,
+        "slug_en": slug_en.current
+      }
+    )
+  },
   content_no[]{
     ${PAGE_CONTENT_WITH_LINKS}
   },
@@ -462,7 +510,7 @@ const buildProgramPageQuery = (language: Language = 'no') => defineQuery(`*[_typ
     ${PAGE_CONTENT_WITH_LINKS}
   },
   seo,
-  selectedEvents[]->{
+  "selectedEvents": selectedEvents[defined(@->) && (@->publishingStatus == "published" || !defined(@->publishingStatus))]->{
     ${buildEventBaseFields(language)}
   }
 }`)
@@ -482,7 +530,7 @@ const buildArtistPageQuery = (language: Language = 'no') => defineQuery(`*[_type
     ${PAGE_CONTENT_WITH_LINKS}
   },
   seo,
-  selectedArtists[]->{
+  "selectedArtists": selectedArtists[defined(@->) && (@->publishingStatus == "published" || !defined(@->publishingStatus))]->{
     ${buildArtistBaseFields(language)}
   }
 }`)
@@ -503,7 +551,7 @@ const buildArticlePageQuery = (language: Language = 'no') => defineQuery(`*[_typ
   },
   seo,
   "articles": select(
-    count(selectedArticles) > 0 => selectedArticles[]->{${buildArticleBaseFields(language)}},
+    count(selectedArticles) > 0 => selectedArticles[defined(@->) && (@->publishingStatus == "published" || !defined(@->publishingStatus))]->{${buildArticleBaseFields(language)}},
     *[_type == "article" && publishingStatus != "draft"] | order(publishedAt desc){${buildArticleBaseFields(language)}}
   )
 }`)
@@ -520,7 +568,14 @@ const buildArtistBySlugQuery = (language: Language = 'no') => defineQuery(`*[_ty
   youtube,
   websiteUrl,
   spotifyUrl,
-  instagramUrl
+  instagramUrl,
+  "events": *[_type == "event" && references(^._id) && publishingStatus == "published"] | order(eventDate->date asc, eventTime.startTime asc){
+    ${buildEventBaseFields(language)},
+    ticketType,
+    ticketUrl,
+    ticketInfoText,
+    ticketStatus
+  }
 }`)
 
 const buildArticleBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "article" && ${buildSlugMatch(language)}][0]{
@@ -601,6 +656,18 @@ const SITE_SETTINGS_MENU_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
       _type == "articlePage" => "/en/articles",
       _type == "page" => "/en/" + coalesce(slug_en.current, slug_no.current, "")
     )
+  },
+  "symbolLogo": logos[name == "Symbol"][0]{
+    name,
+    "image": image{
+      asset->{
+        _id,
+        url,
+        mimeType
+      },
+      hotspot,
+      crop
+    }
   }
 }`)
 
@@ -638,6 +705,33 @@ const SITE_SETTINGS_FOOTER_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
       crop
     },
     url
+  },
+  "symbolLogo": logos[name == "Symbol"][0]{
+    name,
+    "image": image{
+      asset->{
+        _id,
+        url,
+        mimeType
+      },
+      hotspot,
+      crop
+    }
+  }
+}`)
+
+const SITE_SETTINGS_TEKST_LOGO_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
+  "tekstLogo": logos[name == "Tekst-logo"][0]{
+    name,
+    "image": image{
+      asset->{
+        _id,
+        url,
+        mimeType
+      },
+      hotspot,
+      crop
+    }
   }
 }`)
 
@@ -648,31 +742,31 @@ export const QueryBuilder = {
   pageBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
     return {query: buildPageBySlugQuery(language), params: {slug}}
   },
-  programPage(language: Language = 'no'): QueryDefinition {
+  programPage(language: Language = 'no'): QueryDefinition<EventResult[]> {
     return {query: buildProgramPageQuery(language), params: {}}
   },
-  artistPage(language: Language = 'no'): QueryDefinition {
+  artistPage(language: Language = 'no'): QueryDefinition<ArtistResult[]> {
     return {query: buildArtistPageQuery(language), params: {}}
   },
-  articlePage(language: Language = 'no'): QueryDefinition {
+  articlePage(language: Language = 'no'): QueryDefinition<ArticleResult[]> {
     return {query: buildArticlePageQuery(language), params: {}}
   },
-  eventBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
+  eventBySlug(slug: string, language: Language = 'no'): QueryDefinition<EventResult, {slug: string}> {
     return {query: buildEventBySlugQuery(language), params: {slug}}
   },
-  artistBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
+  artistBySlug(slug: string, language: Language = 'no'): QueryDefinition<ArtistResult, {slug: string}> {
     return {query: buildArtistBySlugQuery(language), params: {slug}}
   },
-  articleBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
+  articleBySlug(slug: string, language: Language = 'no'): QueryDefinition<ArticleResult, {slug: string}> {
     return {query: buildArticleBySlugQuery(language), params: {slug}}
   },
-  publishedArticles(language: Language = 'no'): QueryDefinition {
+  publishedArticles(language: Language = 'no'): QueryDefinition<ArticleResult[]> {
     return {query: buildPublishedArticlesQuery(language), params: {}}
   },
-  publishedArtists(language: Language = 'no'): QueryDefinition {
+  publishedArtists(language: Language = 'no'): QueryDefinition<ArtistResult[]> {
     return {query: buildPublishedArtistsQuery(language), params: {}}
   },
-  publishedEvents(language: Language = 'no'): QueryDefinition {
+  publishedEvents(language: Language = 'no'): QueryDefinition<EventResult[]> {
     return {query: buildPublishedEventsQuery(language), params: {}}
   },
   eventDates(): QueryDefinition {
@@ -692,6 +786,9 @@ export const QueryBuilder = {
   },
   siteSettingsFooter(): QueryDefinition {
     return {query: SITE_SETTINGS_FOOTER_QUERY, params: {}}
+  },
+  siteSettingsTekstLogo(): QueryDefinition {
+    return {query: SITE_SETTINGS_TEKST_LOGO_QUERY, params: {}}
   }
 } as const
 

@@ -63,8 +63,8 @@ const processedLinks = links.map((link) => {
 
           return (
             <li class="link-item">
-              <a href={link.url} class="link" target={target} rel={rel}>
-                {link.text}
+              <a href={link.url} class="link hover-underline" target={target} rel={rel}>
+                <span class="link-text">{link.text}</span>
                 {link.openInNewTab && (
                   <span class="visually-hidden"> (åpnes i ny fane)</span>
                 )}
@@ -80,6 +80,8 @@ const processedLinks = links.map((link) => {
 
 <style>
   .link-component {
+    background-color: var(--color-tint-blue-medium);
+    padding: var(--space-l);
     margin-block: var(--space-m-l);
   }
 
@@ -106,17 +108,11 @@ const processedLinks = links.map((link) => {
     /* Color inherited from global --color-link (blue) */
     font-weight: var(--font-weight-medium);
     font-size: var(--step-3);
-    /* Arrow handled by global .link-list a::after */
-    transition: var(--transition-link-standard);
   }
 
-  @media (hover: hover) {
-    .link:hover {
-      color: var(--color-link);
-      background-color: var(--color-tint-green-light);
-      transform: translateY(-4px);
-      box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-    }
+  .link::after {
+    content: ' →';
+    margin-inline-start: 0.25em;
   }
 
   /* Focus state uses global styles, just add background */

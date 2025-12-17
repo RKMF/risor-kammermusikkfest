@@ -23,6 +23,7 @@
   cursor: pointer;
   transition: all var(--transition-fast);
   text-decoration: none;
+  background-image: none; /* Override global link underline animation */
 }
 
 @media (hover: hover) {

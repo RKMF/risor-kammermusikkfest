@@ -277,42 +277,35 @@ h6 {
 */
 
 /* ============================================
-   LINKS - THREE PATTERN SYSTEM
+   LINKS - FIVE CATEGORY SYSTEM
    ============================================
 
-   1. INLINE BODY LINKS (default)
-      - Blue color, underline, NO arrow
-      - Use in: Article content, descriptions, portable text
+   1. BUTTONS (.link-button, .btn)
+      - NO underline ever
+      - Hover: background color change
 
-   2. STANDALONE LINKS (.link-list a, .link-standalone)
-      - Blue color, underline, arrow ALWAYS visible (→)
-      - Use in: Link component, "Read more" CTAs
+   2. CARDS (.card-link, .event-card a, .artist-card a)
+      - NO underline ever
+      - Hover: card lifts/shadows
 
-   3. NAVIGATION LINKS (nav a)
-      - Blue color, NO underline, NO arrow
-      - Underline appears on hover
-      - Use in: Menu, footer navigation
+   3. NAVIGATION (nav a, .nav-link, footer links)
+      - Own ::after underline animation
+      - Defined in Menu.astro and Footer.astro
+
+   4. INLINE TEXT (.portable-text a)
+      - Gradient background-image underline
+      - Hover: underline animates in from left
+
+   5. STANDALONE (.link in Link.astro)
+      - Own ::after underline animation
+      - Defined in Link.astro scoped styles
+
    ============================================ */
 
-/* Default: Inline body links */
+/* Base link styles - color only, NO underline by default */
 a {
   color: var(--color-link);
-  text-decoration: underline;
-  text-decoration-thickness: 0.0625em; /* 1/16 of font size - scales with text */
-  text-underline-offset: 0.3em;
-  display: inline-block; /* Required for transform to work */
-  transition: var(--transition-link-standard);
-}
-
-/* Hover state - Same as standalone links (blue text, green tint, lift, shadow) but NO arrow */
-@media (hover: hover) {
-  a:hover {
-    color: var(--color-link);
-    background-color: var(--color-tint-green-light);
-    text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
-    transform: translateY(-2px);
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 8px;
-  }
+  text-decoration: none;
 }
 
 /* Focus state - WCAG compliance */
@@ -332,50 +325,42 @@ a:visited {
   color: var(--color-link);
 }
 
+/* Inline text links - no hover animation */
+.portable-text a:visited {
+  color: var(--color-link);
+}
+
+/* ============================================
+   HOVER UNDERLINE UTILITY
+   ============================================
+
+   Text links that show underline on hover.
+   Apply to: nav links, footer links, standalone links, header links
+   Do NOT apply to: buttons (.btn, .link-button), cards
+*/
+.hover-underline {
+  text-underline-offset: 0.3em;
+  text-decoration-thickness: 0.08em;
+  text-decoration-color: transparent;
+  text-decoration-line: underline;
+  transition: text-decoration-color var(--transition-fast);
+}
+
 @media (hover: hover) {
-  a:visited:hover {
-    color: var(--color-link);
-    background-color: var(--color-tint-green-light);
-    text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
-    transform: translateY(-2px);
-    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 8px;
+  .hover-underline:hover {
+    text-decoration-color: currentColor;
   }
 }
 
-/* Standalone links - Arrow always visible */
-.link-list a::after,
-.link-standalone::after {
-  content: ' →';
-  display: inline;
-  text-decoration: none;
+@media (prefers-reduced-motion: reduce) {
+  .hover-underline {
+    transition: none;
+  }
 }
 
-/* Standalone links - Always dark blue with underline (no visited state color change) */
-.link-list a,
-.link-standalone {
-  color: var(--color-link);
-  text-decoration: underline;
-  text-decoration-color: var(--color-link);
-  text-decoration-thickness: 0.0625em; /* 1/16 of font size - scales with text */
-  text-underline-offset: 0.3em;
-}
-
-.link-list a:visited,
-.link-standalone:visited {
-  color: var(--color-link);
-  text-decoration: underline;
-  text-decoration-color: var(--color-link);
-  text-underline-offset: 0.3em;
-}
-
-@media (hover: hover) {
-  .link-list a:hover,
-  .link-standalone:hover,
-  .link-list a:visited:hover,
-  .link-standalone:visited:hover {
-    color: var(--color-link);
-    text-decoration-color: var(--color-link);
-    text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
+@media (prefers-contrast: high) {
+  .hover-underline {
+    text-decoration-color: currentColor;
   }
 }
 
@@ -408,7 +393,7 @@ a.link-button {
   transition: all var(--transition-base);
 }
 
-/* Remove underlines from button-styled and navigation links */
+/* Remove underlines from button-styled and card links */
 a.link-button,
 a.btn,
 a.btn-primary,
@@ -417,14 +402,12 @@ a.btn-ghost,
 a.card,
 .event-card a,
 .artist-card a,
-.card-grid a,
-nav a,
-[role="navigation"] a {
+.card-grid a {
   text-decoration: none;
 }
 
 /* Remove arrows from button-styled, card, and navigation links
-   Note: Standalone links (.link-list a) are NOT in this list */
+   Note: .link class keeps its own arrow (defined in Link.astro scoped styles) */
 a.link-button::after,
 a.btn::after,
 a.btn-primary::after,
@@ -434,21 +417,9 @@ a.card::after,
 .event-card a::after,
 .artist-card a::after,
 .card-grid a::after,
-nav a::after,
-[role="navigation"] a::after {
+nav a:not(.link)::after,
+[role="navigation"] a:not(.link)::after {
   content: none;
-}
-
-/* Navigation hovers get underline only - no lift/shadow/tint */
-@media (hover: hover) {
-  nav a:hover,
-  [role="navigation"] a:hover {
-    text-decoration: underline;
-    text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
-    background-color: transparent;
-    transform: none;
-    box-shadow: none;
-  }
 }
 
 /* Card link hover overrides - cards provide container-level hover feedback */

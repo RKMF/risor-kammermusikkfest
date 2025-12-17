@@ -1,7 +1,7 @@
-import {defineField, defineType} from 'sanity'
-import {AddCommentIcon} from '@sanity/icons'
-import {componentSpecificValidation, componentValidation} from '../../shared/validation'
-import type {QuoteData, ComponentHTMLGenerator, ValidationRule} from '../../shared/types'
+import { defineField, defineType } from 'sanity';
+import { AddCommentIcon } from '@sanity/icons';
+import { componentSpecificValidation, componentValidation } from '../../shared/validation';
+import type { QuoteData, ComponentHTMLGenerator, ValidationRule } from '../../shared/types';
 
 // HTML escape utility function
 function escapeHtml(text: string): string {
@@ -10,7 +10,7 @@ function escapeHtml(text: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
+    .replace(/'/g, '&#039;');
 }
 
 // Type-safe validation functions
@@ -19,18 +19,18 @@ export const quoteValidationRules = {
   author: componentValidation.shortTitle as ValidationRule,
   source: componentValidation.longDescription as ValidationRule,
   cite: componentValidation.url as ValidationRule,
-} as const
+} as const;
 
 // Utility function to format quote attribution
 export function formatQuoteAttribution(author?: string, source?: string): string {
-  if (!author && !source) return ''
-  if (author && source) return `${author}, ${source}`
-  return author || source || ''
+  if (!author && !source) return '';
+  if (author && source) return `${author}, ${source}`;
+  return author || source || '';
 }
 
 // Utility function to validate quote has required content
 export function hasValidQuoteContent(data: QuoteData): boolean {
-  return !!(data.quote && data.quote.trim().length > 0)
+  return !!(data.quote && data.quote.trim().length > 0);
 }
 
 export const quoteComponent = defineType({
@@ -74,56 +74,56 @@ export const quoteComponent = defineType({
       subtitle: 'author',
       source: 'source',
     },
-    prepare({title, subtitle, source}) {
-      const displaySubtitle = title ? `${title.substring(0, 40)}...` : 'Ingen innhold'
+    prepare({ title, subtitle, source }) {
+      const displaySubtitle = title ? `${title.substring(0, 40)}...` : 'Ingen innhold';
       const authorInfo = subtitle
         ? `${subtitle}${source ? ` - ${source}` : ''}`
-        : source || 'Ingen forfatter'
+        : source || 'Ingen forfatter';
 
       return {
         title: 'Sitat',
         subtitle: `${displaySubtitle} • ${authorInfo}`,
         media: AddCommentIcon,
-      }
+      };
     },
   },
-})
+});
 
 // Function to generate HTML from quote data
 export const generateQuoteHtml: ComponentHTMLGenerator<QuoteData> = (data: QuoteData): string => {
   if (!data.quote) {
-    return ''
+    return '';
   }
 
-  const escapedQuote = escapeHtml(data.quote)
-  const escapedAuthor = data.author ? escapeHtml(data.author) : ''
-  const escapedSource = data.source ? escapeHtml(data.source) : ''
-  const escapedCite = data.cite ? escapeHtml(data.cite) : ''
+  const escapedQuote = escapeHtml(data.quote);
+  const escapedAuthor = data.author ? escapeHtml(data.author) : '';
+  const escapedSource = data.source ? escapeHtml(data.source) : '';
+  const escapedCite = data.cite ? escapeHtml(data.cite) : '';
 
-  let html = '<blockquote'
+  let html = '<blockquote';
 
   if (escapedCite) {
-    html += ` cite="${escapedCite}"`
+    html += ` cite="${escapedCite}"`;
   }
 
-  html += '>'
-  html += escapedQuote
+  html += '>';
+  html += escapedQuote;
 
   // Add attribution if author or source exists
   if (escapedAuthor || escapedSource) {
-    html += '<cite>'
+    html += '<cite>';
     if (escapedAuthor) {
-      html += escapedAuthor
+      html += escapedAuthor;
     }
     if (escapedAuthor && escapedSource) {
-      html += ', '
+      html += ', ';
     }
     if (escapedSource) {
-      html += escapedSource
+      html += escapedSource;
     }
-    html += '</cite>'
+    html += '</cite>';
   }
 
-  html += '</blockquote>'
-  return html
-}
+  html += '</blockquote>';
+  return html;
+};

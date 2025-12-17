@@ -6,6 +6,8 @@ import type { MenuItem } from '../components/Menu.astro';
 import Footer from '../components/Footer.astro';
 import type { SiteSettings } from '../components/Footer.astro';
 import HreflangTags from '../components/HreflangTags.astro';
+import SEO from '../components/SEO.astro';
+import OrganizationSchema from '../components/structured-data/OrganizationSchema.astro';
 import { detectLanguage, type Language } from '../lib/utils/language.js';
 import { QueryBuilder } from '../lib/sanity/queryBuilder.js';
 
@@ -21,28 +23,52 @@ import '../styles/components.css';
 import '../styles/layouts.css';
 import '../styles/artist-card.css';
 
+interface SeoData {
+  title?: string;
+  description?: string;
+  indexingStatus?: 'index' | 'noindex';
+}
+
 export interface Props {
   title: string;
   description?: string;
   slugNo?: string;
   slugEn?: string;
+  frontpage?: boolean;
+  /** SEO data from Sanity CMS */
+  seo?: SeoData;
+  /** Image for Open Graph/Twitter cards (Sanity image object) */
+  image?: any;
+  /** Page type for OG (website, article, event) */
+  ogType?: 'website' | 'article' | 'event';
+  /** Published date for articles */
+  publishedDate?: string;
+  /** Modified date */
+  modifiedDate?: string;
 }
 
 const {
   title,
-  description = "Moderne web-applikasjon med Sanity CMS og Astro frontend",
+  description = "Norges ledende kammermusikkfestival i Risør",
   slugNo,
-  slugEn
+  slugEn,
+  frontpage = false,
+  seo,
+  image,
+  ogType = 'website',
+  publishedDate,
+  modifiedDate,
 } = Astro.props;
 
 // Detect current language from URL
 const currentLang: Language = detectLanguage(Astro.request);
 const currentPath = new URL(Astro.request.url).pathname;
 
-// Fetch menu items from Sanity
+// Fetch menu items and logo from Sanity
 const { query: menuQuery, params: menuParams } = QueryBuilder.siteSettingsMenu();
-const menuData = await sanityClient.fetch<{ menuItems: MenuItem[] }>(menuQuery, menuParams);
+const menuData = await sanityClient.fetch<{ menuItems: MenuItem[]; symbolLogo?: { name: string; image: any } }>(menuQuery, menuParams);
 const menuItems = menuData?.menuItems || [];
+const symbolLogo = menuData?.symbolLogo;
 
 // Fetch footer settings from Sanity
 const { query: footerQuery, params: footerParams } = QueryBuilder.siteSettingsFooter();
@@ -55,16 +81,26 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
 ---
 
 <!DOCTYPE html>
-<html lang={currentLang}>
+<html lang={currentLang} id="top">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
 
-    <!-- Hreflang tags for SEO -->
+    <!-- SEO Meta Tags, Open Graph, Twitter Cards -->
+    <SEO
+      title={title}
+      description={description}
+      seo={seo}
+      image={image}
+      lang={currentLang}
+      type={ogType}
+      publishedDate={publishedDate}
+      modifiedDate={modifiedDate}
+    />
+
+    <!-- Hreflang tags for multilingual SEO -->
     <HreflangTags
       currentLang={currentLang}
       currentPath={currentPath}
@@ -91,6 +127,20 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
       type="font/woff2"
       crossorigin
     />
+    <link
+      rel="preload"
+      href="/fonts/sans-serif/AkkBd_Pro.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/serif/DomaineText-Medium.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
 
     <!-- Minimal critical styles -->
     <style>
@@ -111,8 +161,6 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
         grid-template-rows: auto 1fr auto;
         grid-template-columns: 100%;
         min-block-size: var(--viewport-full); /* Mobile-safe viewport height (svh with vh fallback) */
-        /* Pure white background */
-        background-color: #ffffff;
       }
 
       /* Main content - Flexible, fills available space */
@@ -122,14 +170,20 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
         /* Kevin Powell pattern: Fluid on mobile, capped on desktop */
         width: min(100ch, 100% - 3rem);
         margin-inline: auto;
-        /* Intrinsic padding using fluid values */
-        padding-block-start: var(--page-top-spacing);
-        /* Generous margin to footer */
+        /* Spacing from header and footer */
+        margin-block-start: var(--page-top-spacing);
         margin-block-end: calc(var(--space-3xl) * 2);
 
         /* Enable container queries for child components */
         container-type: inline-size;
         container-name: content;
+      }
+
+      /* Frontpage: reduced top spacing on desktop */
+      @media (min-width: 768px) {
+        .main-content--frontpage {
+          margin-block-start: calc(var(--page-top-spacing) * 0.75);
+        }
       }
 
       /* ============================================
@@ -278,7 +332,7 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
     </style>
 
   </head>
-  <body>
+  <body data-last-update={new Date().toISOString()}>
     <!-- Skip navigation link for keyboard accessibility -->
     <a href="#main-content" class="skip-link">
       {currentLang === 'no' ? 'Hopp til hovedinnhold' : 'Skip to main content'}
@@ -291,14 +345,25 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
       slugNo={slugNo}
       slugEn={slugEn}
       menuItems={menuItems}
+      symbolLogo={symbolLogo}
     />
 
-    <main id="main-content" class="main-content" tabindex="-1">
+    <main id="main-content" class:list={['main-content', { 'main-content--frontpage': frontpage }]} tabindex="-1">
       <slot />
     </main>
 
+    <!-- Back to top link -->
+    <div class="back-to-top-container">
+      <a href="#top" class="back-to-top-link">
+        <span class="back-to-top-text">{currentLang === 'no' ? 'Tilbake til toppen' : 'Back to the top'} ↑</span>
+      </a>
+    </div>
+
     <!-- Footer -->
     <Footer currentLang={currentLang} siteSettings={siteSettings} />
+
+    <!-- Structured Data: Organization Schema (site-wide) -->
+    <OrganizationSchema />
 
     <!-- Visual Editing Component -->
     {enableVisualEditing && <VisualEditing enabled={true} zIndex={1000} />}
@@ -309,6 +374,79 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
       // Make htmx available globally for all pages
       window.htmx = htmx;
     </script>
+
+    <!-- bfcache handler - refresh stale data on back/forward navigation -->
+    <script src="../scripts/bfcacheHandler.js"></script>
   </body>
 </html>
+
+<style>
+  /* ============================================
+     BACK TO TOP LINK
+     ============================================
+
+     Global navigation element for returning to page top.
+     Appears before footer on all pages.
+  */
+
+  .back-to-top-container {
+    /* Spacing above and large spacing below */
+    margin-block-start: var(--space-l);
+    margin-block-end: calc(var(--space-3xl) * 2);
+
+    /* Center the link */
+    text-align: center;
+  }
+
+  .back-to-top-link {
+    display: inline-block;
+    text-decoration: none;
+    background-image: none; /* Override base.css */
+    font-size: var(--step-1);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .back-to-top-text {
+    position: relative;
+  }
+
+  .back-to-top-text::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-end: 0;
+    inline-size: 100%;
+    block-size: 0.08em;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform var(--transition-fast);
+  }
+
+  @media (hover: hover) {
+    .back-to-top-link:hover .back-to-top-text::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+
+  .back-to-top-link:focus-visible .back-to-top-text::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* Accessibility: Disable smooth scroll for reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top-link {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* Print styles - hide back to top link */
+  @media print {
+    .back-to-top-container {
+      display: none !important;
+    }
+  }
+</style>
 

@@ -30,12 +30,13 @@ const apiPath = '/api/filter-program';
       <div
         class="date-filter-buttons"
         role="region"
-        aria-label={language === 'no' ? 'Filtrer etter dato' : 'Filter by date'}
         tabindex="0"
+        aria-label={language === 'no' ? 'Filtrer etter dato' : 'Filter by date'}
       >
         <a
-          href={`${basePath}?date=&venue=${currentVenue}`}
+          href={`${basePath}?lang=${language}&date=&venue=${currentVenue}`}
           class:list={['link-button', { active: !currentDate }]}
+          aria-pressed={!currentDate}
           data-filter-type="date"
           data-filter-value=""
           hx-get={apiPath}
@@ -50,8 +51,9 @@ const apiPath = '/api/filter-program';
 
         {uniqueDates.map(date => (
             <a
-              href={`${basePath}?date=${date}&venue=${currentVenue}`}
+              href={`${basePath}?lang=${language}&date=${date}&venue=${currentVenue}`}
               class:list={['link-button', { active: currentDate === date }]}
+              aria-pressed={currentDate === date}
               data-filter-type="date"
               data-filter-value={date}
               hx-get={apiPath}
@@ -74,12 +76,13 @@ const apiPath = '/api/filter-program';
       <div
         class="venue-filter-buttons"
         role="region"
-        aria-label={language === 'no' ? 'Filtrer etter sted' : 'Filter by venue'}
         tabindex="0"
+        aria-label={language === 'no' ? 'Filtrer etter sted' : 'Filter by venue'}
       >
         <a
-          href={`${basePath}?date=${currentDate}&venue=`}
+          href={`${basePath}?lang=${language}&date=${currentDate}&venue=`}
           class:list={['link-button', { active: !currentVenue }]}
+          aria-pressed={!currentVenue}
           data-filter-type="venue"
           data-filter-value=""
           hx-get={apiPath}
@@ -95,8 +98,9 @@ const apiPath = '/api/filter-program';
         {availableVenues.map(venue => {
           return (
             <a
-              href={`${basePath}?date=${currentDate}&venue=${venue.slug}`}
+              href={`${basePath}?lang=${language}&date=${currentDate}&venue=${venue.slug}`}
               class:list={['link-button', { active: currentVenue === venue.slug }]}
+              aria-pressed={currentVenue === venue.slug}
               data-filter-type="venue"
               data-filter-value={venue.slug}
               hx-get={apiPath}
@@ -114,8 +118,8 @@ const apiPath = '/api/filter-program';
     </div>
   )}
 
-  <!-- Loading indicator for htmx requests -->
-  <div id="filter-loading" class="htmx-indicator" aria-live="polite" aria-busy="false">
+  <!-- Loading indicator for htmx requests (targeted via hx-indicator="#filter-loading") -->
+  <div id="filter-loading" aria-live="polite" aria-busy="false">
     {language === 'no' ? 'Laster arrangementer...' : 'Loading events...'}
   </div>
 </section>

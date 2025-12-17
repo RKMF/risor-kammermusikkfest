@@ -8,7 +8,8 @@ import Heading from './Heading.astro'
 import PortableText from './PortableText.astro'
 
 export interface Props {
-  description?: string
+  title?: string
+  description?: any[]
   panels?: Array<{
     title: string
     content: any[]
@@ -17,71 +18,117 @@ export interface Props {
 }
 
 const {
+  title,
   description,
   panels = [],
   className = ''
 } = Astro.props
+
+// Generate unique ID for exclusive accordion behavior (prevents cross-accordion interference)
+const accordionId = crypto.randomUUID?.() || Math.random().toString(36).slice(2, 11)
+
+// Batch consecutive blocks together for cleaner HTML output
+// Instead of wrapping each <p> in its own div, consecutive blocks render in one PortableText call
+function batchContent(content: any[]) {
+  const batched: Array<{ type: 'blocks'; items: any[] } | { type: 'component'; item: any }> = []
+  let currentBlocks: any[] = []
+
+  for (const item of content) {
+    if (item._type === 'block') {
+      currentBlocks.push(item)
+    } else {
+      // Flush accumulated blocks before adding component
+      if (currentBlocks.length > 0) {
+        batched.push({ type: 'blocks', items: currentBlocks })
+        currentBlocks = []
+      }
+      batched.push({ type: 'component', item })
+    }
+  }
+
+  // Flush remaining blocks
+  if (currentBlocks.length > 0) {
+    batched.push({ type: 'blocks', items: currentBlocks })
+  }
+
+  return batched
+}
 ---
 
 <section class={`accordion ${className}`}>
-  {description && <p class="accordion-description">{description}</p>}
+  {title && <h2 class="accordion-title">{title}</h2>}
+  {description && description.length > 0 && (
+    <div class="accordion-description">
+      <PortableText value={description} />
+    </div>
+  )}
 
   {panels && panels.length > 0 ? (
     panels.map((panel) => (
-      <details class="accordion-panel" name="accordion-group">
+      <details class="accordion-panel" name={`accordion-${accordionId}`}>
         <summary class="accordion-summary">
           {panel.title}
         </summary>
-        {panel.content && panel.content.length > 0 ? (
-          panel.content.map((item) => {
-            switch (item._type) {
-              case 'block':
-                return <PortableText value={[item]} semantic="div" />
-              case 'imageComponent':
-                return <Image {...item} />
-              case 'videoComponent':
-                return <Video {...item} />
-              case 'buttonComponent':
-                return <Button {...item} />
-              case 'title':
-                return <Title {...item} />
-              case 'quoteComponent':
-                return <Quote {...item} />
-              case 'heading':
-                return <Heading {...item} />
-              default:
-                return <p>Ukjent komponent: {item._type}</p>
-            }
-          })
-        ) : (
-          <p>Ingen innhold</p>
-        )}
+        <div class="accordion-content">
+          {panel.content && panel.content.length > 0 ? (
+            batchContent(panel.content).map((batch) => {
+              if (batch.type === 'blocks') {
+                return <PortableText value={batch.items} className="accordion-text" />
+              }
+              const item = batch.item
+              switch (item._type) {
+                case 'imageComponent':
+                  return <Image {...item} />
+                case 'videoComponent':
+                  return <Video {...item} />
+                case 'buttonComponent':
+                  return <Button {...item} />
+                case 'title':
+                  return <Title {...item} />
+                case 'quoteComponent':
+                  return <Quote {...item} />
+                case 'heading':
+                  return <Heading {...item} />
+                default:
+                  return <p>Ukjent komponent: {item._type}</p>
+              }
+            })
+          ) : (
+            <p>Ingen innhold</p>
+          )}
+        </div>
       </details>
     ))
-  ) : (
-    <p class="no-panels">Ingen paneler tilgjengelig</p>
-  )}
+  ) : null}
 </section>
 
 
 <style>
   .accordion {
-    width: min(65ch, 100% - 4rem); /* Same width as Quote component */
+    width: min(85ch, 100%); /* Wider on big screens, but not full width */
     max-width: 100%;
     margin-inline: auto; /* Center it */
     margin-block: var(--space-xl-2xl); /* Fluid section spacing */
-    background: var(--color-yellow-50); /* Light yellow background for entire component */
+    background: var(--color-yellow-100); /* Light yellow background for entire component */
     padding: var(--space-m-l); /* Padding around entire accordion */
   }
 
+  .accordion-title {
+    margin: 0 0 var(--space-s) 0;
+    font-size: var(--step-3);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-yellow-900);
+  }
+
   .accordion-description {
+    max-width: 70ch;
     margin-bottom: var(--space-l);
     line-height: var(--line-height-normal);
     color: var(--color-yellow-900); /* Dark yellow text to match theme */
+    text-wrap: balance;
   }
 
   .accordion-panel {
-    border: 2px solid var(--color-yellow-200); /* Visible border around each panel */
     margin-bottom: var(--space-s); /* Space between panels */
   }
 
@@ -91,7 +138,8 @@ const {
 
   .accordion-summary {
     padding: var(--space-m) var(--space-m-l); /* Fluid padding */
-    background: var(--color-yellow-100); /* Light yellow tint */
+    padding-inline-end: 3rem; /* Reserve space for arrow (1.5rem position + arrow width) */
+    background: var(--color-yellow-50); /* Light yellow tint */
     color: var(--color-yellow-900); /* Dark yellow text */
     cursor: pointer;
     font-weight: var(--font-weight-medium); /* 500 */
@@ -123,11 +171,11 @@ const {
   }
 
   .accordion-summary:hover {
-    background: var(--color-yellow-200); /* Slightly darker on hover */
+    background: var(--color-red-50); /* Red tint on hover - matches card hover pattern */
   }
 
   .accordion-summary:active {
-    background: var(--color-yellow-100); /* Keep yellow during click */
+    background: var(--color-red-100); /* Slightly darker red on click */
   }
 
   .accordion-summary:focus {
@@ -144,16 +192,25 @@ const {
     transition: content-visibility 0.5s ease-out, height 0.5s ease-out;
   }
 
-  /* Style content directly within details (after summary) */
-  .accordion-panel > :not(summary) {
-    padding: var(--space-m) var(--space-m-l); /* Fluid padding */
-    background: var(--color-yellow-50); /* Very light yellow background */
-    color: var(--color-yellow-900); /* Dark yellow text */
-    line-height: var(--line-height-normal);
+  /* Content wrapper - single padding, gap controls spacing between items */
+  .accordion-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    padding: var(--space-m) var(--space-m-l);
+    background: var(--color-yellow-50);
+    color: var(--color-yellow-900);
   }
 
-  .no-panels {
-    padding: var(--space-m) var(--space-m-l); /* Fluid padding */
-    text-align: center;
+  /* Reset margins on direct children - gap controls spacing */
+  .accordion-content > * {
+    margin-block: 0;
   }
+
+  /* Override content-narrow width restriction - accordion has its own padding */
+  .accordion-content :global(.accordion-text) {
+    width: 100%;
+    max-inline-size: none;
+  }
+
 </style> 

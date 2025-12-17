@@ -1,0 +1,37 @@
+version: 2
+updates:
+  # Frontend dependencies (Astro, Sanity client, etc.)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      astro:
+        patterns:
+          - "astro"
+          - "@astrojs/*"
+      sanity:
+        patterns:
+          - "@sanity/*"
+          - "sanity"
+
+  # Studio dependencies (Sanity Studio)
+  - package-ecosystem: "npm"
+    directory: "/studio"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    groups:
+      sanity-studio:
+        patterns:
+          - "sanity"
+          - "@sanity/*"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"

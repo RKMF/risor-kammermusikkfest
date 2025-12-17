@@ -1,0 +1,52 @@
+---
+/**
+ * Organization Schema (JSON-LD)
+ *
+ * Provides structured data about Risør Kammermusikkfest organization
+ * for search engines and AI systems. Included site-wide in Layout.
+ */
+
+interface Props {
+  /** Additional social media URLs to include */
+  socialUrls?: string[];
+}
+
+const { socialUrls = [] } = Astro.props;
+
+const SITE_URL = import.meta.env.SITE_URL || 'https://kammermusikkfest.no';
+
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': `${SITE_URL}/#organization`,
+  name: 'Risor Kammermusikkfest',
+  alternateName: 'Risør Chamber Music Festival',
+  url: SITE_URL,
+  logo: {
+    '@type': 'ImageObject',
+    url: `${SITE_URL}/favicon.svg`,
+    width: 512,
+    height: 512,
+  },
+  description: 'Norges ledende kammermusikkfestival, holdt årlig i Risør. Verdensklasse musikere fremfører klassisk og moderne kammermusikk.',
+  foundingDate: '1991',
+  location: {
+    '@type': 'Place',
+    name: 'Risør',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Risør',
+      addressRegion: 'Agder',
+      addressCountry: 'NO',
+    },
+  },
+  sameAs: socialUrls,
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer service',
+    availableLanguage: ['Norwegian', 'English'],
+  },
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />

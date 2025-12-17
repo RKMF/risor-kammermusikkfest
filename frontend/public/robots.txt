@@ -1,0 +1,43 @@
+# Risør Kammermusikkfest - robots.txt
+# Festival website - maximum visibility for cultural content
+# Last updated: 2025-12-16
+
+User-agent: *
+Allow: /
+
+# Block private/preview areas only
+Disallow: /api/draft-mode/
+Disallow: /api/preview/
+
+# AI Crawlers - ALLOW for AI search visibility
+# Being cited in ChatGPT, Perplexity, Google AI answers benefits festival discovery
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+# Social media preview crawlers - ensure rich link previews
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+# Sitemap for search engine discovery
+Sitemap: https://kammermusikkfest.no/sitemap.xml

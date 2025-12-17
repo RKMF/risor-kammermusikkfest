@@ -1,0 +1,123 @@
+---
+/**
+ * SEO Component
+ *
+ * Renders SEO meta tags from Sanity CMS data, including:
+ * - Standard meta tags (title, description, robots)
+ * - Open Graph tags for social sharing
+ * - Twitter Card tags
+ * - Canonical URL
+ *
+ * Falls back to page title/description if SEO fields are empty in Sanity.
+ */
+
+import { stegaClean } from '@sanity/client/stega';
+import { getImageBuilder, IMAGE_QUALITY } from '../lib/sanityImage';
+
+interface SeoData {
+  title?: string;
+  description?: string;
+  indexingStatus?: 'index' | 'noindex';
+}
+
+interface Props {
+  /** Page title (used as fallback if seo.title is empty) */
+  title: string;
+  /** Page description/excerpt (used as fallback if seo.description is empty) */
+  description?: string;
+  /** SEO data from Sanity CMS */
+  seo?: SeoData;
+  /** Image for Open Graph/Twitter cards (Sanity image object) */
+  image?: any;
+  /** Current language */
+  lang?: 'no' | 'en';
+  /** Page type for OG (website, article, event) */
+  type?: 'website' | 'article' | 'event';
+  /** Published date for articles */
+  publishedDate?: string;
+  /** Modified date */
+  modifiedDate?: string;
+}
+
+const {
+  title,
+  description,
+  seo,
+  image,
+  lang = 'no',
+  type = 'website',
+  publishedDate,
+  modifiedDate,
+} = Astro.props;
+
+// Site configuration
+const SITE_NAME = 'Risor Kammermusikkfest';
+const SITE_URL = import.meta.env.SITE_URL || 'https://kammermusikkfest.no';
+
+// Build canonical URL
+const canonicalUrl = new URL(Astro.url.pathname, SITE_URL).href;
+
+// Clean and prepare SEO data with fallbacks
+const seoTitle = stegaClean(seo?.title || title);
+const seoDescription = stegaClean(seo?.description || description || '');
+const indexingStatus = seo?.indexingStatus || 'index';
+
+// Full title with site name
+const fullTitle = `${seoTitle} - ${SITE_NAME}`;
+
+// Generate OG image URL if image provided
+let ogImageUrl: string | undefined;
+if (image?.asset || image?.image?.asset) {
+  // Use Sanity image URL builder for optimized OG image (1200x630 is standard)
+  const builder = getImageBuilder(image);
+  if (builder) {
+    ogImageUrl = builder
+      .width(1200)
+      .height(630)
+      .fit('crop')
+      .auto('format')
+      .quality(IMAGE_QUALITY.CARD)
+      .url();
+  }
+}
+
+// Locale mapping for Open Graph
+const ogLocale = lang === 'en' ? 'en_GB' : 'nb_NO';
+const alternateLocale = lang === 'en' ? 'nb_NO' : 'en_GB';
+---
+
+<!-- Primary Meta Tags -->
+<title>{fullTitle}</title>
+<meta name="title" content={fullTitle} />
+{seoDescription && <meta name="description" content={seoDescription} />}
+
+<!-- Robots -->
+<meta name="robots" content={indexingStatus === 'noindex' ? 'noindex, nofollow' : 'index, follow'} />
+
+<!-- Canonical URL -->
+<link rel="canonical" href={canonicalUrl} />
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:title" content={seoTitle} />
+{seoDescription && <meta property="og:description" content={seoDescription} />}
+{ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+<meta property="og:site_name" content={SITE_NAME} />
+<meta property="og:locale" content={ogLocale} />
+<meta property="og:locale:alternate" content={alternateLocale} />
+
+<!-- Twitter -->
+<meta name="twitter:card" content={ogImageUrl ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:url" content={canonicalUrl} />
+<meta name="twitter:title" content={seoTitle} />
+{seoDescription && <meta name="twitter:description" content={seoDescription} />}
+{ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
+
+<!-- Article-specific meta (for articles/news) -->
+{type === 'article' && publishedDate && (
+  <meta property="article:published_time" content={publishedDate} />
+)}
+{type === 'article' && modifiedDate && (
+  <meta property="article:modified_time" content={modifiedDate} />
+)}

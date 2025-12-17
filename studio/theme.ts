@@ -1,4 +1,4 @@
-import {buildLegacyTheme} from 'sanity'
+import { buildLegacyTheme } from 'sanity';
 
 /**
  * Custom Sanity Studio theme matching the frontend color scheme
@@ -15,7 +15,7 @@ const frontendColors = {
   greenTint: '#E6F7F5', // Very light green tint for list items
   gray: '#666666', // Neutral
   surface: '#f8f9fa', // Light background variant
-}
+};
 
 export const rkmfTheme = buildLegacyTheme({
   // Base colors
@@ -50,4 +50,4 @@ export const rkmfTheme = buildLegacyTheme({
 
   // Focus states
   '--focus-color': frontendColors.blue,
-})
+});

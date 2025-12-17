@@ -126,7 +126,7 @@ dl.event-meta dt {
 dl.event-meta dd {
   display: block;
   margin: 0;
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
   letter-spacing: 0.01em; /* Subtle spacing for readability */
   color: var(--color-blue);
 }
@@ -145,18 +145,19 @@ dl.event-meta dd {
 .event-image {
   position: relative;
   width: 100%;
-  aspect-ratio: 16/9; /* Widescreen ratio for balanced layout */
+  height: 0;
+  padding-bottom: 56.25%; /* 9/16 = 56.25% - more reliable than aspect-ratio during HTMX swap */
   overflow: hidden;
   margin: 0;
   margin-top: clamp(0.625rem, 2.5cqi, 0.75rem);
   align-self: center;
-
-  /* Critical for grid items - allows proper row sizing */
-  min-height: 0;
 }
 
 /* Image fills container and respects hotspot/crop */
 .event-card-image {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover; /* Fills frame, respects hotspot */
@@ -171,6 +172,8 @@ dl.event-meta dd {
 /* Stretched link pattern - uses global .card-link from base.css */
 .event-card .event-title-link {
   color: var(--color-blue);
+  /* Remove global link underline animation */
+  background-image: none;
 }
 
 /* Customize focus outline color for event cards */

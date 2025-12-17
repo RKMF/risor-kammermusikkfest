@@ -1,29 +1,29 @@
-import {useCallback, useState} from 'react'
-import {type DocumentActionComponent, useClient, useDocumentOperation} from 'sanity'
-import {CheckmarkIcon, PublishIcon} from '@sanity/icons'
-import {Button, Flex, Stack, Text} from '@sanity/ui'
+import { useCallback, useState } from 'react';
+import { type DocumentActionComponent, useClient, useDocumentOperation } from 'sanity';
+import { CheckmarkIcon, PublishIcon } from '@sanity/icons';
+import { Button, Flex, Stack, Text } from '@sanity/ui';
 import {
   findMissingReciprocalReferences,
   syncReciprocalReferences,
-} from '../utils/bidirectionalSync'
+} from '../utils/bidirectionalSync';
 
 export const syncArtistEventsAction: DocumentActionComponent = (props) => {
-  const {id, type, draft, published, onComplete} = props
-  const client = useClient({apiVersion: '2025-01-01'})
-  const {publish} = useDocumentOperation(id, type)
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [isSyncing, setIsSyncing] = useState(false)
-  const [missingReferences, setMissingReferences] = useState<string[]>([])
-  const [eventCount, setEventCount] = useState(0)
+  const { id, type, draft, published, onComplete } = props;
+  const client = useClient({ apiVersion: '2025-01-01' });
+  const { publish } = useDocumentOperation(id, type);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [missingReferences, setMissingReferences] = useState<string[]>([]);
+  const [eventCount, setEventCount] = useState(0);
 
   // Only show this action for artist documents
   if (type !== 'artist') {
-    return null
+    return null;
   }
 
   const handlePublish = useCallback(async () => {
     // Publish the document and wait for it to complete
-    await publish.execute()
+    await publish.execute();
 
     // Check for missing reciprocal references
     try {
@@ -33,30 +33,30 @@ export const syncArtistEventsAction: DocumentActionComponent = (props) => {
         'events', // Artist's field containing event references
         'event', // Target document type
         'artist' // Field in events that should reference back to this artist
-      )
+      );
 
       if (missing.length > 0) {
-        setMissingReferences(missing)
-        setEventCount(missing.length)
-        setDialogOpen(true)
+        setMissingReferences(missing);
+        setEventCount(missing.length);
+        setDialogOpen(true);
       } else {
-        onComplete()
+        onComplete();
       }
     } catch (error) {
-      console.error('Error checking reciprocal references:', error)
-      onComplete()
+      console.error('Error checking reciprocal references:', error);
+      onComplete();
     }
-  }, [draft, published, publish, onComplete, client, id])
+  }, [draft, published, publish, onComplete, client, id]);
 
   const handleSync = useCallback(
     async (shouldSync: boolean) => {
       if (!shouldSync) {
-        setDialogOpen(false)
-        onComplete()
-        return
+        setDialogOpen(false);
+        onComplete();
+        return;
       }
 
-      setIsSyncing(true)
+      setIsSyncing(true);
 
       try {
         await syncReciprocalReferences(
@@ -64,32 +64,32 @@ export const syncArtistEventsAction: DocumentActionComponent = (props) => {
           id,
           missingReferences,
           'artist' // Field name in events to update
-        )
+        );
 
-        setDialogOpen(false)
-        onComplete()
+        setDialogOpen(false);
+        onComplete();
       } catch (error) {
-        console.error('Error syncing reciprocal references:', error)
-        setDialogOpen(false)
-        onComplete()
+        console.error('Error syncing reciprocal references:', error);
+        setDialogOpen(false);
+        onComplete();
       } finally {
-        setIsSyncing(false)
+        setIsSyncing(false);
       }
     },
     [client, id, missingReferences, onComplete]
-  )
+  );
 
   return {
     label: 'Lagre',
     icon: PublishIcon,
-    disabled: publish.disabled,
+    disabled: !!publish.disabled,
     title: publish.disabled ? 'Ingen endringer å lagre' : undefined,
     onHandle: handlePublish,
     dialog: dialogOpen && {
       type: 'dialog',
       onClose: () => {
-        setDialogOpen(false)
-        onComplete()
+        setDialogOpen(false);
+        onComplete();
       },
       header: 'Synkroniser arrangementer?',
       content: (
@@ -121,5 +121,5 @@ export const syncArtistEventsAction: DocumentActionComponent = (props) => {
         </Stack>
       ),
     },
-  }
-}
+  };
+};

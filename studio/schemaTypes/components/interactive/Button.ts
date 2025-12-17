@@ -1,8 +1,8 @@
-import {defineField, defineType} from 'sanity'
-import {BoltIcon} from '@sanity/icons'
-import {buttonURLValidation} from '../../../lib/urlValidation'
-import {componentSpecificValidation} from '../../shared/validation'
-import type {ButtonData, ComponentHTMLGenerator, ValidationRule} from '../../shared/types'
+import { defineField, defineType } from 'sanity';
+import { BoltIcon } from '@sanity/icons';
+import { buttonURLValidation } from '../../../lib/urlValidation';
+import { componentSpecificValidation } from '../../shared/validation';
+import type { ButtonData, ComponentHTMLGenerator, ValidationRule } from '../../shared/types';
 
 export const buttonComponent = defineType({
   name: 'buttonComponent',
@@ -42,9 +42,9 @@ export const buttonComponent = defineType({
       description: 'Velg stil på knappen',
       options: {
         list: [
-          {title: 'Primær (blå bakgrunn, hvit tekst)', value: 'primary'},
-          {title: 'Sekundær (grå bakgrunn, hvit tekst)', value: 'secondary'},
-          {title: 'Utkant (gjennomsiktig, blå ramme)', value: 'outline'},
+          { title: 'Primær (blå bakgrunn, hvit tekst)', value: 'primary' },
+          { title: 'Sekundær (grå bakgrunn, hvit tekst)', value: 'secondary' },
+          { title: 'Utkant (gjennomsiktig, blå ramme)', value: 'outline' },
         ],
         layout: 'radio',
       },
@@ -73,26 +73,27 @@ export const buttonComponent = defineType({
       style: 'style',
       fullWidth: 'fullWidth',
     },
-    prepare({title, style, fullWidth}) {
-      const styleDesc = {
-        'primary': 'Primær',
-        'secondary': 'Sekundær',
-        'outline': 'Utkant'
-      }[style || 'primary'] || 'Primær'
+    prepare({ title, style, fullWidth }) {
+      const styleDesc =
+        {
+          primary: 'Primær',
+          secondary: 'Sekundær',
+          outline: 'Utkant',
+        }[style || 'primary'] || 'Primær';
 
-      const widthText = fullWidth ? ' • Full bredde' : ''
+      const widthText = fullWidth ? ' • Full bredde' : '';
 
       return {
         title: 'Knapp',
         subtitle: `${title || 'Uten tekst'} • ${styleDesc}${widthText}`,
         media: BoltIcon,
-      }
+      };
     },
   },
-})
+});
 
 // Type-safe validation functions
 export const buttonValidationRules = {
   text: componentSpecificValidation.buttonText as ValidationRule,
   url: (Rule: any) => Rule.required().custom(buttonURLValidation) as ValidationRule,
-} as const
+} as const;

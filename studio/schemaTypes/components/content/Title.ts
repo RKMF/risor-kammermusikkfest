@@ -1,7 +1,7 @@
-import {defineField, defineType} from 'sanity'
-import {DocumentTextIcon} from '@sanity/icons'
-import {componentValidation, componentSpecificValidation} from '../../shared/validation'
-import type {TitleData, ComponentHTMLGenerator, ValidationRule} from '../../shared/types'
+import { defineField, defineType } from 'sanity';
+import { DocumentTextIcon } from '@sanity/icons';
+import { componentValidation, componentSpecificValidation } from '../../shared/validation';
+import type { TitleData, ComponentHTMLGenerator, ValidationRule } from '../../shared/types';
 
 // HTML escape utility function
 export function escapeHtml(text: string): string {
@@ -10,7 +10,7 @@ export function escapeHtml(text: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
+    .replace(/'/g, '&#039;');
 }
 
 export const title = defineType({
@@ -39,42 +39,42 @@ export const title = defineType({
       title: 'mainTitle',
       subtitle: 'subtitle',
     },
-    prepare({title, subtitle}) {
+    prepare({ title, subtitle }) {
       return {
         title: 'Tittel',
         subtitle: `${title || 'Uten tittel'}${subtitle ? ` • Undertittel: ${subtitle}` : ''}`,
         media: DocumentTextIcon,
-      }
+      };
     },
   },
-})
+});
 
 // Type-safe validation functions
 export const titleValidationRules = {
   mainTitle: componentSpecificValidation.headingText as ValidationRule,
   subtitle: componentSpecificValidation.headingText as ValidationRule,
-} as const
+} as const;
 
 // Utility function to validate title has required content
 export function hasValidTitleContent(data: TitleData): boolean {
-  return !!(data.mainTitle && data.mainTitle.trim().length > 0)
+  return !!(data.mainTitle && data.mainTitle.trim().length > 0);
 }
 
 // Utility function to generate SEO-friendly title
 export function generateSeoTitle(data: TitleData, siteName?: string): string {
-  const parts = []
+  const parts = [];
 
   if (data.mainTitle) {
-    parts.push(data.mainTitle)
+    parts.push(data.mainTitle);
   }
 
   if (data.subtitle) {
-    parts.push(data.subtitle)
+    parts.push(data.subtitle);
   }
 
   if (siteName) {
-    parts.push(siteName)
+    parts.push(siteName);
   }
 
-  return parts.join(' | ')
+  return parts.join(' | ');
 }

@@ -4,7 +4,7 @@
  * Production-ready image optimization with:
  * - Modern TypeScript interfaces
  * - SSR-compatible (no browser APIs)
- * - BlurHash and LQIP support
+ * - LQIP (Low Quality Image Placeholder) support
  * - Responsive srcset generation
  * - Hotspot and crop preservation
  * - Multi-format picture element support
@@ -13,7 +13,6 @@
 import imageUrlBuilder from '@sanity/image-url'
 import type { SanityImageSource } from '@sanity/image-url/lib/types/types'
 import { sanityClient } from 'sanity:client'
-import { decode } from 'blurhash'
 
 /**
  * Standardized image quality levels for consistent optimization
@@ -56,7 +55,6 @@ export interface ImageMetadata {
   height?: number
   aspectRatio?: number
   lqip?: string
-  blurHash?: string
   dominantColor?: string
   palette?: {
     darkMuted?: { background: string; foreground: string; population: number }
@@ -220,58 +218,6 @@ export function getLQIPUrl(source: SanityImageSource): string | null {
 }
 
 /**
- * Decode BlurHash to base64 data URI
- *
- * Converts a BlurHash string into a base64-encoded image for use as a placeholder.
- * BlurHash provides better visual quality than LQIP for placeholders.
- *
- * @param blurHash - BlurHash string from Sanity metadata
- * @param width - Decoded image width (default: 32px)
- * @param height - Decoded image height (default: 32px)
- * @returns Base64 data URI for use in img src or CSS background
- *
- * @example
- * ```typescript
- * const placeholder = getBlurHashPlaceholder(metadata.blurHash)
- * // Returns: "data:image/png;base64,iVBORw0KGgo..."
- * ```
- */
-export function getBlurHashPlaceholder(
-  blurHash: string,
-  width: number = 32,
-  height: number = 32
-): string | null {
-  if (!blurHash) return null
-
-  try {
-    const pixels = decode(blurHash, width, height)
-
-    // Create canvas in memory (works in Node.js with canvas polyfill if needed)
-    if (typeof window === 'undefined') {
-      // SSR: Return a simple placeholder or the blurhash string
-      // Client-side hydration can replace this with actual decoded image
-      return null
-    }
-
-    const canvas = document.createElement('canvas')
-    canvas.width = width
-    canvas.height = height
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return null
-
-    const imageData = ctx.createImageData(width, height)
-    imageData.data.set(pixels)
-    ctx.putImageData(imageData, 0, 0)
-
-    return canvas.toDataURL('image/png')
-  } catch (error) {
-    console.warn('Failed to decode BlurHash:', error)
-    return null
-  }
-}
-
-/**
  * Generate responsive srcset using Sanity CDN auto-format negotiation
  *
  * Uses auto=format which lets Sanity CDN negotiate the best format (AVIF/WebP/JPG)
@@ -325,7 +271,7 @@ export function getResponsiveImageSet(
 /**
  * Extract image metadata from Sanity image object
  *
- * Pulls dimensions, LQIP, BlurHash, color palette, hotspot, and crop data.
+ * Pulls dimensions, LQIP, color palette, hotspot, and crop data.
  * Use this to get all available metadata for advanced image handling.
  *
  * @param imageObject - Sanity image object from query (includes asset.metadata)
@@ -336,14 +282,14 @@ export function getResponsiveImageSet(
  * // In your GROQ query:
  * // image {
  * //   asset-> {
- * //     metadata { dimensions, lqip, blurHash, palette }
+ * //     metadata { dimensions, lqip, palette }
  * //   },
  * //   hotspot,
  * //   crop
  * // }
  *
  * const metadata = extractImageMetadata(imageObject)
- * console.log(metadata.blurHash, metadata.dominantColor, metadata.aspectRatio)
+ * console.log(metadata.lqip, metadata.dominantColor, metadata.aspectRatio)
  * ```
  */
 export function extractImageMetadata(imageObject: any): ImageMetadata {
@@ -362,11 +308,6 @@ export function extractImageMetadata(imageObject: any): ImageMetadata {
     // LQIP (base64 encoded thumbnail)
     if (assetMetadata.lqip) {
       metadata.lqip = assetMetadata.lqip
-    }
-
-    // BlurHash (compact image placeholder)
-    if (assetMetadata.blurHash) {
-      metadata.blurHash = assetMetadata.blurHash
     }
 
     // Color palette (extracted by Sanity)

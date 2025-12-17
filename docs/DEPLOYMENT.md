@@ -36,7 +36,7 @@ This guide walks you through deploying the **Risør Kammermusikkfest** website t
 - **Build Command**: `npm run build` (auto-detected)
 - **Output Directory**: `dist` (auto-detected)
 - **Install Command**: `npm install --legacy-peer-deps` ⚠️ **REQUIRED**
-- **Node.js Version**: 20.x
+- **Node.js Version**: 22.x (or 20.19.0+)
 
 > **Why `--legacy-peer-deps`?** Your project uses NPM workspaces and requires this flag to install correctly.
 

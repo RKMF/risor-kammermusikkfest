@@ -1,4 +1,6 @@
 ---
+import { detectLanguage } from '../lib/utils/language.js';
+
 export interface Props {
   videoType: 'sanity' | 'youtube' | 'vimeo' | 'external'
   video?: any
@@ -73,6 +75,23 @@ switch (videoType) {
     videoSource = video?.asset?.url || ''
     break
 }
+
+// Language-specific text
+const language = detectLanguage(Astro.request);
+const videoText = {
+  no: {
+    browserNotSupported: 'Din nettleser støtter ikke HTML5 video.',
+    youtubeTitle: 'Innebygd YouTube-video',
+    vimeoTitle: 'Innebygd Vimeo-video',
+    loadError: 'Kunne ikke laste video'
+  },
+  en: {
+    browserNotSupported: 'Your browser does not support HTML5 video.',
+    youtubeTitle: 'Embedded YouTube video',
+    vimeoTitle: 'Embedded Vimeo video',
+    loadError: 'Could not load video'
+  }
+}[language];
 ---
 
 {videoType && videoSource ? (
@@ -91,7 +110,7 @@ switch (videoType) {
       >
         <source src={videoSource} type="video/mp4" />
         {/* Future: Add <track> elements for captions/subtitles */}
-        Din nettleser støtter ikke HTML5 video.
+        {videoText.browserNotSupported}
       </video>
     )}
 
@@ -99,7 +118,7 @@ switch (videoType) {
       <iframe
         loading="lazy"
         src={`${videoSource}?autoplay=${autoplay ? 1 : 0}&mute=${muted ? 1 : 0}&controls=${controls ? 1 : 0}&loop=${loop ? 1 : 0}&rel=0`}
-        title={title || 'Innebygd YouTube-video'}
+        title={title || videoText.youtubeTitle}
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowFullscreen
         class="video-element"
@@ -111,7 +130,7 @@ switch (videoType) {
       <iframe
         loading="lazy"
         src={`${videoSource}?autoplay=${autoplay ? 1 : 0}&muted=${muted ? 1 : 0}&controls=${controls ? 1 : 0}&loop=${loop ? 1 : 0}&dnt=1`}
-        title={title || 'Innebygd Vimeo-video'}
+        title={title || videoText.vimeoTitle}
         allow="autoplay; fullscreen; picture-in-picture"
         allowFullscreen
         class="video-element"
@@ -133,7 +152,7 @@ switch (videoType) {
       >
         <source src={videoSource} type="video/mp4" />
         {/* Future: Add <track> elements for captions/subtitles */}
-        Din nettleser støtter ikke HTML5 video.
+        {videoText.browserNotSupported}
       </video>
     )}
 
@@ -155,7 +174,7 @@ switch (videoType) {
   </figure>
 ) : (
   <div class="video-error" role="alert">
-    <p>Kunne ikke laste video</p>
+    <p>{videoText.loadError}</p>
   </div>
 )}
 

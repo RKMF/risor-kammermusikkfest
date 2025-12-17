@@ -16,6 +16,18 @@ export interface SiteSettings {
     name: string;
     url: string;
   }>;
+  symbolLogo?: {
+    name: string;
+    image: {
+      asset: {
+        _id: string;
+        url: string;
+        mimeType: string;
+      };
+      hotspot?: any;
+      crop?: any;
+    };
+  };
 }
 
 interface Props {
@@ -40,7 +52,7 @@ const currentYear = new Date().getFullYear();
 // Developer credit text based on language
 const developerCreditText = currentLang === 'no'
   ? 'Nettsider fra Magefølelsen'
-  : 'Website developed by Magefølelsen';
+  : 'Website by Magefølelsen';
 
 const newTabText = currentLang === 'no'
   ? '(åpnes i ny fane)'
@@ -76,61 +88,84 @@ function getSocialIcon(name: string): string | undefined {
 }
 ---
 
-<footer class="page-footer">
+<footer class="footer" role="contentinfo">
 
-  <!-- Newsletter Link -->
-  {siteSettings?.newsletterUrl && newsletterTitle && (
-    <a
-      href={siteSettings.newsletterUrl}
-      class="newsletter-link"
-      target="_blank"
-      rel="noopener noreferrer"
+  <!-- Branding Section -->
+  <div class="footer-branding">
+    <!-- Festival Logo -->
+    <svg
+      viewBox="0 0 850.39 850.39"
+      width="70"
+      height="70"
+      class="footer-logo"
+      aria-label="Risør Kammermusikkfest"
     >
-      {newsletterTitle}
-      <span class="visually-hidden"> {newTabText}</span>
-    </a>
-  )}
+      <polygon fill="#1B198F" points="738.52 358.88 635.73 256.09 530.46 361.36 425.2 256.09 319.93 361.36 214.66 256.09 111.87 358.89 111.87 419.14 214.66 316.35 319.93 421.62 425.2 316.35 530.46 421.62 635.73 316.35 738.52 419.14 738.52 358.88"/>
+      <rect fill="#1B198F" x="111.87" y="498.81" width="626.65" height="41.61"/>
+      <path fill="#1B198F" d="M425.2,704.18c28.67,0,41.16-13.69,63.86-36.41,21.3-21.32,45.85-43.82,92.8-43.82s71.5,22.5,92.8,43.82c22.7,22.72,35.19,36.41,63.86,36.41v42.18c-47.09,0-69.74-24.29-89.61-43.89-22.84-22.51-35.01-36.34-67.05-36.34s-44.2,13.83-67.05,36.34c-19.88,19.59-42.53,43.89-89.61,43.89s-69.74-24.29-89.61-43.89c-22.84-22.51-35.01-36.34-67.05-36.34s-44.2,13.83-67.05,36.34c-19.88,19.59-42.53,43.89-89.61,43.89v-42.18c28.67,0,41.16-13.69,63.86-36.41,21.3-21.32,45.85-43.82,92.8-43.82s71.5,22.5,92.8,43.82c22.7,22.72,35.19,36.41,63.86,36.41Z"/>
+      <path fill="#1B198F" d="M738.52,117.1c-21.88-7.53-48.47-13.07-85.36-13.07-61.15,0-94.08,15.17-123.95,29.5-27.38,13.14-51.19,24.71-104.02,24.71s-76.64-11.57-104.02-24.71c-29.86-14.33-62.8-29.5-123.95-29.5-36.9,0-63.49,5.54-85.36,13.07v45.14c21.15-9.19,44.42-16.03,85.36-16.03,52.83,0,76.25,11.37,103.63,24.51,29.86,14.33,63.18,29.7,124.33,29.7s94.47-15.37,124.33-29.7c27.38-13.14,50.8-24.51,103.63-24.51,40.94,0,64.22,6.84,85.36,16.03v-45.14h.02Z"/>
+    </svg>
 
-  <!-- Contact Information -->
+    <!-- Newsletter Link -->
+    {siteSettings?.newsletterUrl && newsletterTitle && (
+      <a
+        href={siteSettings.newsletterUrl}
+        class="footer-newsletter-link hover-underline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span class="footer-link-text">{newsletterTitle}</span>
+        <span class="visually-hidden"> {newTabText}</span>
+      </a>
+    )}
+  </div>
+
+  <!-- Contact Section -->
   {(siteSettings?.email || siteSettings?.phone || siteSettings?.address) && (
-    <address>
-      {siteSettings.email && (
-        <a href={`mailto:${siteSettings.email}`}>
-          {siteSettings.email}
-        </a>
-      )}
+    <section class="footer-contact" aria-labelledby="contact-heading">
+      <h2 id="contact-heading" class="visually-hidden">
+        {currentLang === 'no' ? 'Kontaktinformasjon' : 'Contact Information'}
+      </h2>
+      <address class="footer-address">
+        {siteSettings.email && (
+          <a href={`mailto:${siteSettings.email}`} class="hover-underline">
+            <span class="footer-link-text">{siteSettings.email}</span>
+          </a>
+        )}
 
-      {siteSettings.phone && (
-        <a href={`tel:${siteSettings.phone}`}>
-          {formattedPhone}
-        </a>
-      )}
+        {siteSettings.phone && (
+          <a href={`tel:${siteSettings.phone}`} class="hover-underline">
+            <span class="footer-link-text">{formattedPhone}</span>
+          </a>
+        )}
 
-      {siteSettings.address && (
-        <>
-          {siteSettings.linkUrl ? (
-            <a
-              href={siteSettings.linkUrl}
-              target={siteSettings.openInNewTab ? '_blank' : undefined}
-              rel={siteSettings.openInNewTab ? 'noopener noreferrer' : undefined}
-            >
-              {siteSettings.address}
-              {siteSettings.openInNewTab && (
-                <span class="visually-hidden"> {newTabText}</span>
-              )}
-            </a>
-          ) : (
-            <span>{siteSettings.address}</span>
-          )}
-        </>
-      )}
-    </address>
+        {siteSettings.address && (
+          <>
+            {siteSettings.linkUrl ? (
+              <a
+                href={siteSettings.linkUrl}
+                class="hover-underline"
+                target={siteSettings.openInNewTab ? '_blank' : undefined}
+                rel={siteSettings.openInNewTab ? 'noopener noreferrer' : undefined}
+              >
+                <span class="footer-link-text">{siteSettings.address}</span>
+                {siteSettings.openInNewTab && (
+                  <span class="visually-hidden"> {newTabText}</span>
+                )}
+              </a>
+            ) : (
+              <span>{siteSettings.address}</span>
+            )}
+          </>
+        )}
+      </address>
+    </section>
   )}
 
   <!-- Social Media Links -->
   {siteSettings?.socialMedia && siteSettings.socialMedia.length > 0 && (
-    <nav aria-label={socialAriaLabel}>
-      <ul>
+    <div class="footer-social" role="group" aria-label={socialAriaLabel}>
+      <ul class="footer-social-list">
         {siteSettings.socialMedia.map((social) => {
           const icon = getSocialIcon(social.name);
           return (
@@ -139,11 +174,11 @@ function getSocialIcon(name: string): string | undefined {
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="social-link"
+                class="footer-social-link hover-underline"
               >
-                <span class="social-name">{social.name}</span>
+                <span class="footer-link-text">{social.name}</span>
                 {icon && (
-                  <span class="social-icon" set:html={icon} />
+                  <span class="footer-social-icon" set:html={icon} />
                 )}
                 <span class="visually-hidden"> {newTabText}</span>
               </a>
@@ -151,72 +186,138 @@ function getSocialIcon(name: string): string | undefined {
           );
         })}
       </ul>
-    </nav>
+    </div>
   )}
 
-  <!-- Copyright Notice -->
-  <p class="copyright">
-    © {currentYear} {organizationName || 'Risør kammermusikkfest'}
-  </p>
 
-  <!-- Developer Credit -->
-  <a
-    href="https://www.magefolelsen.no"
-    class="developer-credit"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    {developerCreditText}
-    <span class="visually-hidden"> {newTabText}</span>
-  </a>
+  <!-- Meta Information -->
+  <div class="footer-meta">
+    <!-- Copyright Notice -->
+    <p class="footer-copyright">
+      © {currentYear} {organizationName || 'Risør kammermusikkfest'}
+    </p>
+
+    <!-- Developer Credit -->
+    <a
+      href="https://www.magefolelsen.no"
+      class="footer-developer-credit hover-underline"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <span class="footer-link-text">{developerCreditText}</span>
+      <span class="visually-hidden"> {newTabText}</span>
+    </a>
+  </div>
 
 </footer>
 
 <style>
-  /* Footer - Intrinsic size with centered content */
-  .page-footer {
+  /* ============================================
+     FOOTER - INTRINSIC LAYOUT
+     ============================================ */
+
+  .footer {
+    /* Container sizing */
     margin-inline: auto;
     width: min(80ch, 100% - 5rem);
-    background-color: var(--color-green-100);
     margin-block-end: calc(var(--space-3xl) * 3);
 
-    /* Flexbox layout for children */
+    /* Visual styling */
+    background-color: var(--color-green-100);
+
+    /* Layout - Flexbox with gap for spacing */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: var(--space-l);
-
-    /* Centering and padding */
     text-align: center;
+
+    /* Padding */
     padding-block-start: var(--space-2xl);
     padding-block-end: var(--space-3xl);
     padding-inline: var(--space-xl);
   }
 
-  /* Reset margins on direct children */
-  .page-footer > * {
+  /* Reset margins on direct children - gap handles spacing */
+  .footer > * {
     margin: 0;
   }
 
-  /* Contact section - semantic address element */
-  .page-footer address {
+  /* ============================================
+     SPACING OVERRIDES
+
+     Add extra spacing where needed beyond the default gap
+     ============================================ */
+
+  /* Extra space above meta section */
+  .footer-meta {
+    margin-block-start: var(--space-xl);
+  }
+
+  /* ============================================
+     SHARED LINK ANIMATION
+     ============================================ */
+
+
+  /* ============================================
+     BRANDING SECTION
+     ============================================ */
+
+  .footer-branding {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-l);
+    padding-block-end: var(--space-xl);
+  }
+
+  /* Festival logo styling */
+  .footer-logo {
+    display: block;
+    width: 70px;
+    height: 70px;
+  }
+
+  /* Newsletter link */
+  .footer-newsletter-link {
+    font-size: var(--step-2);
+    font-weight: var(--font-weight-normal);
+    display: inline-block;
+    background-image: none;
+  }
+
+  .footer-newsletter-link::after {
+    content: ' →';
+  }
+
+  /* ============================================
+     CONTACT SECTION
+     ============================================ */
+
+  .footer-contact {
+    /* Inherits spacing from stack pattern */
+  }
+
+  .footer-address {
     font-style: normal;
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
     font-size: var(--step-0);
     line-height: 1.5;
-    margin-block-end: var(--space-m);
   }
 
-  /* Social navigation */
-  .page-footer nav {
-    margin-block-start: calc(var(--space-l) * -0.5);
-    margin-block-end: var(--space-m);
+
+  /* ============================================
+     SOCIAL MEDIA SECTION
+     ============================================ */
+
+  .footer-social {
+    padding-block-end: var(--space-xl);
   }
 
-  .page-footer nav ul {
+  .footer-social-list {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -226,97 +327,58 @@ function getSocialIcon(name: string): string | undefined {
     gap: var(--space-s);
   }
 
-  .page-footer nav li {
+  .footer-social-list li {
     margin: 0;
   }
 
-  /* Social media link layout */
-  .social-link {
+  .footer-social-link {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: var(--space-2);
   }
 
-  /* Social media icon styling */
-  .social-icon {
+  .footer-social-icon {
     display: block;
     width: 24px;
     height: 24px;
   }
 
-  .social-icon :global(svg) {
+  .footer-social-icon :global(svg) {
     width: 100%;
     height: 100%;
     fill: currentColor;
   }
 
-  /* Contact & social links - simple underline on hover only */
-  .page-footer address a,
-  .social-link {
-    text-decoration: none;
+
+  /* ============================================
+     META SECTION (Copyright & Developer Credit)
+     ============================================ */
+
+  .footer-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-l);
   }
 
-  @media (hover: hover) {
-    .page-footer address a:hover,
-    .social-link:hover {
-      text-decoration: underline;
-      text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
-      background-color: transparent; /* Override global green tint */
-      transform: none; /* Override global lift */
-      box-shadow: none; /* Override global shadow */
-    }
-  }
-
-  /* Remove arrows from contact/social links */
-  .page-footer address a::after,
-  .social-link::after {
-    content: none;
-  }
-
-  /* Specific elements - set first for proper cascade */
-  .copyright,
-  .developer-credit {
+  .footer-copyright {
     font-size: var(--step-0);
   }
 
-  .newsletter-link {
-    font-size: var(--step-2);
-    font-weight: var(--font-weight-normal);
-    padding-block: var(--space-m);
-  }
-
-  /* Newsletter & developer credit - lift only (no green tint, no shadow) */
-  .page-footer a.newsletter-link,
-  .page-footer a.developer-credit {
+  .footer-developer-credit {
+    font-size: var(--step-0);
     display: inline-block;
-    text-decoration: underline;
-    text-decoration-thickness: 0.0625em; /* Default - scales with text */
-    transition: transform var(--transition-fast); /* Only transition lift - instant thickness change */
   }
 
-  @media (hover: hover) {
-    .page-footer a.newsletter-link:hover,
-    .page-footer a.developer-credit:hover {
-      text-decoration: underline;
-      text-decoration-thickness: 0.08em; /* Subtle increase - scales with text */
-      transform: translateY(-2px); /* Only lift */
-      background-color: transparent; /* No green tint */
-      box-shadow: none; /* No shadow */
-    }
-  }
-
-  .page-footer .copyright {
-    margin-block-end: var(--space-m);
-  }
-
-  /* Arrows for external CTAs */
-  .page-footer .newsletter-link::after,
-  .page-footer .developer-credit::after {
+  .footer-developer-credit::after {
     content: ' →';
   }
 
-  /* Accessibility: Visually hidden but available to screen readers */
+  /* ============================================
+     ACCESSIBILITY UTILITIES
+     ============================================ */
+
   .visually-hidden {
     position: absolute;
     width: 1px;
@@ -329,9 +391,12 @@ function getSocialIcon(name: string): string | undefined {
     border-width: 0;
   }
 
-  /* Print styles */
+  /* ============================================
+     PRINT STYLES
+     ============================================ */
+
   @media print {
-    .page-footer {
+    .footer {
       display: none !important;
     }
   }

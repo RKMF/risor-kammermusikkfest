@@ -1,5 +1,5 @@
-import {defineField, defineType} from 'sanity'
-import {ThLargeIcon} from '@sanity/icons'
+import { defineField, defineType } from 'sanity';
+import { ThLargeIcon } from '@sanity/icons';
 
 export const gridComponent = defineType({
   name: 'gridComponent',
@@ -21,8 +21,8 @@ export const gridComponent = defineType({
       description: 'Hvor mange kolonner skal rutenettet ha på desktop?',
       options: {
         list: [
-          {title: '2 kolonner', value: '2'},
-          {title: '3 kolonner', value: '3'},
+          { title: '2 kolonner', value: '2' },
+          { title: '3 kolonner', value: '3' },
         ],
         layout: 'radio',
       },
@@ -35,16 +35,13 @@ export const gridComponent = defineType({
       type: 'array',
       description: 'Legg til bilder, videoer, sitater eller Spotify-innhold',
       of: [
-        {type: 'imageComponent'},
-        {type: 'videoComponent'},
-        {type: 'quoteComponent'},
-        {type: 'spotifyComponent'},
+        { type: 'imageComponent' },
+        { type: 'videoComponent' },
+        { type: 'quoteComponent' },
+        { type: 'spotifyComponent' },
       ],
       validation: (Rule) =>
-        Rule.required()
-          .min(4)
-          .max(12)
-          .error('Rutenettet må ha mellom 4 og 12 elementer'),
+        Rule.required().min(4).max(12).error('Rutenettet må ha mellom 4 og 12 elementer'),
     }),
     defineField({
       name: 'aspectRatio',
@@ -53,8 +50,8 @@ export const gridComponent = defineType({
       description: 'Velg sideforholdet for alle elementer',
       options: {
         list: [
-          {title: '4:5 (portrett)', value: '4:5'},
-          {title: '1:1 (kvadrat)', value: '1:1'},
+          { title: '4:5 (portrett)', value: '4:5' },
+          { title: '1:1 (kvadrat)', value: '1:1' },
         ],
         layout: 'radio',
       },
@@ -67,9 +64,9 @@ export const gridComponent = defineType({
       description: 'Hvor mye plass skal det være mellom elementene?',
       options: {
         list: [
-          {title: 'Liten', value: 'small'},
-          {title: 'Medium', value: 'medium'},
-          {title: 'Stor', value: 'large'},
+          { title: 'Liten', value: 'small' },
+          { title: 'Medium', value: 'medium' },
+          { title: 'Stor', value: 'large' },
         ],
         layout: 'radio',
       },
@@ -84,17 +81,17 @@ export const gridComponent = defineType({
       aspectRatio: 'aspectRatio',
       gap: 'gap',
     },
-    prepare({title, columns, items, aspectRatio, gap}) {
-      const itemCount = items?.length || 0
-      const columnText = columns === '2' ? '2 kolonner' : '3 kolonner'
-      const gapText = gap === 'small' ? 'liten' : gap === 'large' ? 'stor' : 'medium'
-      const aspectText = aspectRatio || '4:5'
+    prepare({ title, columns, items, aspectRatio, gap }) {
+      const itemCount = items?.length || 0;
+      const columnText = columns === '2' ? '2 kolonner' : '3 kolonner';
+      const gapText = gap === 'small' ? 'liten' : gap === 'large' ? 'stor' : 'medium';
+      const aspectText = aspectRatio || '4:5';
 
       return {
         title: title || 'Rutenett',
         subtitle: `${columnText} • ${itemCount} elementer • ${aspectText} • ${gapText} avstand`,
         media: ThLargeIcon,
-      }
+      };
     },
   },
-})
+});

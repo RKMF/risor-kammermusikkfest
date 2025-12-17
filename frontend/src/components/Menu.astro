@@ -17,9 +17,21 @@ interface Props {
   slugNo?: string;
   slugEn?: string;
   menuItems?: MenuItem[];
+  symbolLogo?: {
+    name: string;
+    image: {
+      asset: {
+        _id: string;
+        url: string;
+        mimeType: string;
+      };
+      hotspot?: any;
+      crop?: any;
+    };
+  };
 }
 
-const { currentLang, currentPath, slugNo, slugEn, menuItems = [] } = Astro.props;
+const { currentLang, currentPath, slugNo, slugEn, menuItems = [], symbolLogo } = Astro.props;
 
 // Transform CMS menu items into navigation format
 const navItems = menuItems.map((item) => {
@@ -42,9 +54,8 @@ const isActive = (href: string) => {
     return cleanPath === cleanHref;
   }
 
-  // For other pages, match exact path or if current path is a sub-path
-  // e.g., /program matches /program and /program/some-event
-  return cleanPath === cleanHref || cleanPath.startsWith(cleanHref + '/');
+  // Only exact path matches
+  return cleanPath === cleanHref;
 };
 ---
 
@@ -78,20 +89,22 @@ const isActive = (href: string) => {
       <li class="nav-item">
         <a
           href={currentLang === 'no' ? '/' : '/en'}
-          class:list={['nav-link', { 'active': isActive(currentLang === 'no' ? '/' : '/en') }]}
+          class:list={['nav-link', 'hover-underline', { 'active': isActive(currentLang === 'no' ? '/' : '/en') }]}
           aria-current={isActive(currentLang === 'no' ? '/' : '/en') ? 'page' : undefined}
+          data-astro-prefetch
         >
-          {currentLang === 'no' ? 'Hjem' : 'Home'}
+          <span class="nav-link-text">{currentLang === 'no' ? 'Hjem' : 'Home'}</span>
         </a>
       </li>
       {navItems.map((item) => (
         <li class="nav-item">
           <a
             href={item.href}
-            class:list={['nav-link', { 'active': isActive(item.href) }]}
+            class:list={['nav-link', 'hover-underline', { 'active': isActive(item.href) }]}
             aria-current={isActive(item.href) ? 'page' : undefined}
+            data-astro-prefetch
           >
-            {currentLang === 'no' ? item.labelNo : item.labelEn}
+            <span class="nav-link-text">{currentLang === 'no' ? item.labelNo : item.labelEn}</span>
           </a>
         </li>
       ))}
@@ -154,8 +167,12 @@ const isActive = (href: string) => {
   .logo-svg {
     width: 100%;
     height: 100%;
-    fill: white;
     display: block;
+  }
+
+  /* SVG fill styling */
+  svg.logo-svg {
+    fill: white;
     transition: fill var(--transition-fast);
   }
 
@@ -165,7 +182,7 @@ const isActive = (href: string) => {
       transform: scale(1.05);
     }
 
-    .menu-toggle:hover .logo-svg {
+    .menu-toggle:hover svg.logo-svg {
       fill: var(--color-blue);
     }
   }
@@ -175,7 +192,7 @@ const isActive = (href: string) => {
     background-color: var(--color-green-50);
   }
 
-  .menu-toggle:has(+ #navigation-menu:popover-open) .logo-svg {
+  .menu-toggle:has(+ #navigation-menu:popover-open) svg.logo-svg {
     fill: var(--color-blue);
   }
 
@@ -282,27 +299,16 @@ const isActive = (href: string) => {
   }
 
   .nav-link {
-    display: block;
+    display: flex;
+    align-items: center;
     padding: var(--space-2) var(--space-3);
     font-size: var(--step-0);
     font-weight: var(--font-weight-medium);
     color: var(--color-blue);
-    text-decoration: none;
-    transition:
-      background-color var(--transition-fast),
-      color var(--transition-fast);
+    transition: color var(--transition-fast);
 
     /* Minimum touch target */
     min-height: 44px;
-    display: flex;
-    align-items: center;
-  }
-
-  @media (hover: hover) {
-    .nav-link:hover {
-      background-color: rgba(0, 179, 154, 0.08);
-      color: var(--color-blue);
-    }
   }
 
   .nav-link:focus-visible {

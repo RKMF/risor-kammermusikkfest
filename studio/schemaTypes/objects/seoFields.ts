@@ -1,7 +1,7 @@
-import {defineField, defineType} from 'sanity'
-import {SearchIcon} from '@sanity/icons'
-import {seoValidation} from '../shared/validation'
-import type {SeoFieldsData, ValidationRule, SchemaGroup} from '../shared/types'
+import { defineField, defineType } from 'sanity';
+import { SearchIcon } from '@sanity/icons';
+import { seoValidation } from '../shared/validation';
+import type { SeoFieldsData, ValidationRule, SchemaGroup } from '../shared/types';
 
 /**
  * Modern SEO object type with fallback logic
@@ -25,7 +25,8 @@ export const seoType = defineType({
       title: 'SEO-beskrivelse',
       type: 'text',
       rows: 3,
-      description: 'Kort sammendrag for søkemotorer og sosiale medier. Hvis tom, brukes sidens ingress.',
+      description:
+        'Kort sammendrag for søkemotorer og sosiale medier. Hvis tom, brukes sidens ingress.',
       validation: seoValidation.metaDescription,
     }),
     defineField({
@@ -36,9 +37,9 @@ export const seoType = defineType({
       options: {
         list: [
           { title: 'Synlig for søkemotorer', value: 'index' },
-          { title: 'Skjul fra søkemotorer', value: 'noindex' }
+          { title: 'Skjul fra søkemotorer', value: 'noindex' },
         ],
-        layout: 'radio'
+        layout: 'radio',
       },
       initialValue: 'index',
     }),
@@ -49,18 +50,22 @@ export const seoType = defineType({
       description: 'description',
       indexingStatus: 'indexingStatus',
     },
-    prepare({title, description, indexingStatus}) {
-      const status = indexingStatus === 'noindex' ? 'Skjult fra søkemotorer' : 'Synlig for søkemotorer'
-      const content = title || description ? `${title || 'Ingen tittel'} • ${description || 'Ingen beskrivelse'}` : 'Bruker fallback fra sideinnhold'
+    prepare({ title, description, indexingStatus }) {
+      const status =
+        indexingStatus === 'noindex' ? 'Skjult fra søkemotorer' : 'Synlig for søkemotorer';
+      const content =
+        title || description
+          ? `${title || 'Ingen tittel'} • ${description || 'Ingen beskrivelse'}`
+          : 'Bruker fallback fra sideinnhold';
 
       return {
         title: 'SEO-innstillinger',
         subtitle: `${content} • ${status} • Hovedbilde brukes for deling`,
         media: SearchIcon,
-      }
+      };
     },
   },
-})
+});
 
 /**
  * Reusable SEO field for documents
@@ -72,57 +77,57 @@ export const seoFields = [
     type: 'seo',
     group: 'seo',
   }),
-]
+];
 
 // Helper to add SEO group to document schemas
 export const seoGroup: SchemaGroup = {
   name: 'seo',
   title: 'SEO',
   icon: SearchIcon,
-}
+};
 
 // Type-safe validation functions
 export const seoValidationRules = {
   metaTitle: seoValidation.metaTitle as ValidationRule,
   metaDescription: seoValidation.metaDescription as ValidationRule,
-} as const
+} as const;
 
 // Utility function to validate SEO data
 export function validateSeoData(data: SeoFieldsData): { isValid: boolean; errors: string[] } {
-  const errors: string[] = []
+  const errors: string[] = [];
 
   if (data.title && data.title.length > 60) {
-    errors.push('SEO-tittel bør være under 60 tegn for optimal visning i søkemotorer')
+    errors.push('SEO-tittel bør være under 60 tegn for optimal visning i søkemotorer');
   }
 
   if (data.description && data.description.length > 160) {
-    errors.push('SEO-beskrivelse bør være under 160 tegn for optimal visning i søkemotorer')
+    errors.push('SEO-beskrivelse bør være under 160 tegn for optimal visning i søkemotorer');
   }
 
   if (data.title && data.title.length < 10) {
-    errors.push('SEO-tittel bør være minst 10 tegn lang')
+    errors.push('SEO-tittel bør være minst 10 tegn lang');
   }
 
   if (data.description && data.description.length < 50) {
-    errors.push('SEO-beskrivelse bør være minst 50 tegn lang')
+    errors.push('SEO-beskrivelse bør være minst 50 tegn lang');
   }
 
   return {
     isValid: errors.length === 0,
     errors,
-  }
+  };
 }
 
 // Utility function to generate fallback SEO data
 export function generateFallbackSeoData(pageData: {
-  title?: string
-  excerpt?: string
-  image?: any
+  title?: string;
+  excerpt?: string;
+  image?: any;
 }): Partial<SeoFieldsData> {
   return {
     title: pageData.title,
     description: pageData.excerpt,
     image: pageData.image,
     indexingStatus: 'index',
-  }
+  };
 }

@@ -1,13 +1,13 @@
-import {defineField, defineType} from 'sanity'
-import {DocumentIcon, ComposeIcon, CogIcon, ImageIcon} from '@sanity/icons'
-import {createMirrorPortableTextInput} from '../../components/inputs/MirrorPortableTextInput'
-import {multilingualImageFields, imageFieldsets, imageGroup} from '../shared/imageFields'
-import {seoFields, seoGroup} from '../objects/seoFields'
-import {componentValidation, crossFieldValidation} from '../shared/validation'
-import {pageSlugValidation} from '../../lib/slugValidation'
-import type {PageData, ValidationRule, MultilingualDocument} from '../shared/types'
-import {getPublishingStatusText, getLanguageStatus} from '../shared/previewHelpers'
-import {publishingFields, publishingGroup} from '../shared/publishingFields'
+import { defineField, defineType } from 'sanity';
+import { DocumentIcon, ComposeIcon, CogIcon, ImageIcon } from '@sanity/icons';
+import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
+import { multilingualImageFields, imageFieldsets, imageGroup } from '../shared/imageFields';
+import { seoFields, seoGroup } from '../objects/seoFields';
+import { componentValidation, crossFieldValidation } from '../shared/validation';
+import { pageSlugValidation } from '../../lib/slugValidation';
+import type { PageData, ValidationRule, MultilingualDocument } from '../shared/types';
+import { getPublishingStatusText, getLanguageStatus } from '../shared/previewHelpers';
+import { publishingFields, publishingGroup } from '../shared/publishingFields';
 
 export const page = defineType({
   name: 'page',
@@ -16,7 +16,11 @@ export const page = defineType({
   icon: DocumentIcon,
   orderings: [
     { title: 'Tittel A–Å', name: 'titleAsc', by: [{ field: 'title_no', direction: 'asc' }] },
-    { title: 'Nylig opprettet', name: 'createdDesc', by: [{ field: '_createdAt', direction: 'desc' }] },
+    {
+      title: 'Nylig opprettet',
+      name: 'createdDesc',
+      by: [{ field: '_createdAt', direction: 'desc' }],
+    },
   ],
   groups: [
     {
@@ -34,9 +38,7 @@ export const page = defineType({
     publishingGroup,
     seoGroup,
   ],
-  fieldsets: [
-    ...imageFieldsets,
-  ],
+  fieldsets: [...imageFieldsets],
   fields: [
     // NORSK INNHOLD
     defineField({
@@ -60,11 +62,11 @@ export const page = defineType({
       validation: (Rule) =>
         Rule.required().custom(async (value, context) => {
           // Først sjekk avansert slug-validering for unikhet
-          const slugValidation = await pageSlugValidation(value, context)
-          if (slugValidation !== true) return slugValidation
+          const slugValidation = await pageSlugValidation(value, context);
+          if (slugValidation !== true) return slugValidation;
 
           // Så sjekk standard slug-validering
-          return componentValidation.slug(Rule).validate(value, context)
+          return componentValidation.slug(Rule).validate(value, context);
         }),
     }),
     defineField({
@@ -96,11 +98,11 @@ export const page = defineType({
       validation: (Rule) =>
         Rule.required().custom(async (value, context) => {
           // Først sjekk avansert slug-validering for unikhet
-          const slugValidation = await pageSlugValidation(value, context)
-          if (slugValidation !== true) return slugValidation
+          const slugValidation = await pageSlugValidation(value, context);
+          if (slugValidation !== true) return slugValidation;
 
           // Så sjekk standard slug-validering
-          return componentValidation.slug(Rule).validate(value, context)
+          return componentValidation.slug(Rule).validate(value, context);
         }),
     }),
     defineField({
@@ -110,7 +112,7 @@ export const page = defineType({
       description: 'Build English page with components and content',
       group: 'en',
       components: {
-        input: createMirrorPortableTextInput('content_no')
+        input: createMirrorPortableTextInput('content_no'),
       },
     }),
 
@@ -130,23 +132,37 @@ export const page = defineType({
       hasEnglish: 'content_en',
       _id: '_id',
     },
-    prepare({title_no, title_en, publishingStatus, scheduledStart, scheduledEnd, hasNorwegian, hasEnglish, _id}) {
+    prepare({
+      title_no,
+      title_en,
+      publishingStatus,
+      scheduledStart,
+      scheduledEnd,
+      hasNorwegian,
+      hasEnglish,
+      _id,
+    }) {
       // Use shared helper functions for consistent status display
-      const statusText = getPublishingStatusText(_id, publishingStatus, scheduledStart, scheduledEnd)
+      const statusText = getPublishingStatusText(
+        _id,
+        publishingStatus,
+        scheduledStart,
+        scheduledEnd
+      );
       const langStatus = getLanguageStatus({
         hasNorwegian,
         hasEnglish,
         title_no,
         title_en,
-      })
+      });
 
-      const title = title_no || title_en || 'Uten tittel'
+      const title = title_no || title_en || 'Uten tittel';
 
       return {
         title: title,
         subtitle: `${statusText} • ${langStatus}`,
         media: DocumentIcon,
-      }
+      };
     },
   },
-})
+});

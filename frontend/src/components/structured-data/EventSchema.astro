@@ -1,0 +1,153 @@
+---
+/**
+ * Event/MusicEvent Schema (JSON-LD)
+ *
+ * Provides structured data for individual concert/event pages.
+ * Enables rich results in Google Search with event details.
+ */
+
+import { stegaClean } from '@sanity/client/stega';
+import { getImageBuilder, IMAGE_QUALITY } from '../../lib/sanityImage';
+
+interface EventData {
+  _id: string;
+  title?: string;
+  excerpt?: string;
+  eventDate?: {
+    date?: string;
+  };
+  eventTime?: {
+    startTime?: string;
+    endTime?: string;
+  };
+  venue?: {
+    title?: string;
+    address?: string;
+  };
+  image?: any;
+  ticketUrl?: string;
+  ticketType?: 'link' | 'info';
+  ticketInfoText?: string;
+  artists?: Array<{
+    _id: string;
+    name?: string;
+    instrument?: string;
+  }>;
+  composers?: Array<{
+    name?: string;
+  }>;
+}
+
+interface Props {
+  event: EventData;
+  lang?: 'no' | 'en';
+}
+
+const { event, lang = 'no' } = Astro.props;
+
+const SITE_URL = import.meta.env.SITE_URL || 'https://kammermusikkfest.no';
+
+// Build event URL
+const eventSlug = lang === 'en'
+  ? (event as any).slug_en?.current || (event as any).slug_no?.current
+  : (event as any).slug_no?.current || (event as any).slug_en?.current;
+const eventUrl = lang === 'en'
+  ? `${SITE_URL}/en/program/${eventSlug}`
+  : `${SITE_URL}/program/${eventSlug}`;
+
+// Build ISO date/time strings
+const eventDate = stegaClean(event.eventDate?.date);
+const startTime = stegaClean(event.eventTime?.startTime);
+const endTime = stegaClean(event.eventTime?.endTime);
+
+// Combine date and time for ISO format (assumes Norway timezone +02:00 summer, +01:00 winter)
+const startDateTime = eventDate && startTime
+  ? `${eventDate}T${startTime}:00+02:00`
+  : eventDate;
+const endDateTime = eventDate && endTime
+  ? `${eventDate}T${endTime}:00+02:00`
+  : undefined;
+
+// Get image URL for schema
+let imageUrl: string | undefined;
+if (event.image?.asset || event.image?.image?.asset) {
+  const builder = getImageBuilder(event.image);
+  if (builder) {
+    imageUrl = builder
+      .width(1200)
+      .height(675)
+      .fit('crop')
+      .auto('format')
+      .quality(IMAGE_QUALITY.CARD)
+      .url();
+  }
+}
+
+// Build performer array
+const performers = (event.artists || [])
+  .filter(artist => artist?.name)
+  .map(artist => ({
+    '@type': 'Person',
+    name: stegaClean(artist.name),
+    ...(artist.instrument && { description: stegaClean(artist.instrument) }),
+  }));
+
+// Build offers (ticket info)
+const offers = event.ticketType === 'link' && event.ticketUrl
+  ? {
+      '@type': 'Offer',
+      url: stegaClean(event.ticketUrl),
+      availability: 'https://schema.org/InStock',
+      priceCurrency: 'NOK',
+    }
+  : event.ticketType === 'info'
+    ? {
+        '@type': 'Offer',
+        description: stegaClean(event.ticketInfoText) || (lang === 'en' ? 'Free admission' : 'Gratis inngang'),
+        availability: 'https://schema.org/InStock',
+        price: 0,
+        priceCurrency: 'NOK',
+      }
+    : undefined;
+
+const eventSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'MusicEvent',
+  '@id': `${eventUrl}#event`,
+  name: stegaClean(event.title),
+  description: stegaClean(event.excerpt),
+  url: eventUrl,
+  ...(startDateTime && { startDate: startDateTime }),
+  ...(endDateTime && { endDate: endDateTime }),
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  ...(imageUrl && { image: imageUrl }),
+  location: event.venue?.title
+    ? {
+        '@type': 'Place',
+        name: stegaClean(event.venue.title),
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: 'Risør',
+          addressRegion: 'Agder',
+          addressCountry: 'NO',
+        },
+      }
+    : undefined,
+  ...(performers.length > 0 && { performer: performers }),
+  ...(offers && { offers }),
+  organizer: {
+    '@type': 'Organization',
+    '@id': `${SITE_URL}/#organization`,
+    name: 'Risor Kammermusikkfest',
+    url: SITE_URL,
+  },
+  superEvent: {
+    '@type': 'Festival',
+    '@id': `${SITE_URL}/#festival`,
+    name: 'Risor Kammermusikkfest 2025',
+  },
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(eventSchema)} />

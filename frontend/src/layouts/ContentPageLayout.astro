@@ -1,37 +1,78 @@
 ---
 import Layout from './Layout.astro';
 import DynamicComponent from '../components/DynamicComponent.astro';
-import { getMultilingualContent, detectLanguage } from '../lib/utils/language.js';
+import { getMultilingualContent, detectLanguage, type BilingualDocument } from '../lib/utils/language.js';
 import { stegaClean } from '@sanity/client/stega';
+import type { PageBuilder } from '../../sanity/sanity.types';
+
+interface SeoData {
+  title?: string;
+  description?: string;
+  indexingStatus?: 'index' | 'noindex';
+}
+
+interface PageDocument extends BilingualDocument {
+  _id?: string;
+  content?: PageBuilder;
+  seo?: SeoData;
+  image?: any;
+}
 
 interface Props {
   title: string;
   excerpt?: string;
-  pageContent?: any[];
-  pageDocument?: any; // Full document with multilingual content
+  pageContent?: PageBuilder;
+  pageDocument?: PageDocument;
+  /** SEO data override (uses pageDocument.seo by default) */
+  seo?: SeoData;
+  /** Image for OG/Twitter cards (uses pageDocument.image by default) */
+  image?: any;
+  /** Page type for OG */
+  ogType?: 'website' | 'article' | 'event';
 }
 
 const {
   title,
   excerpt,
   pageContent = [],
-  pageDocument
+  pageDocument,
+  seo,
+  image,
+  ogType = 'website'
 } = Astro.props;
+
+// Resolve SEO data: explicit prop > pageDocument.seo
+const resolvedSeo = seo || pageDocument?.seo;
+const resolvedImage = image || pageDocument?.image?.image || pageDocument?.image;
 
 // Detect language from URL to use correct content
 const language = detectLanguage(Astro.request);
 
-// Get multilingual content if pageDocument is provided, otherwise use pageContent
-const content = pageDocument
-  ? (getMultilingualContent(pageDocument, language) || pageDocument?.content || pageContent)
-  : pageContent;
+// Explicit pageContent prop takes precedence, otherwise extract from document
+const content = pageContent?.length
+  ? pageContent
+  : (pageDocument ? getMultilingualContent(pageDocument, language) : []);
 
 // Extract slug information from pageDocument if available and clean stega encoding
 const slugNo = pageDocument?.slug_no?.current ? stegaClean(pageDocument.slug_no.current) : undefined;
 const slugEn = pageDocument?.slug_en?.current ? stegaClean(pageDocument.slug_en.current) : undefined;
+
+// Clean title for browser tab (keep raw title in h1 for Visual Editing)
+const cleanTitle = stegaClean(title);
 ---
 
-<Layout title={`${title} - Sanity + Astro`} slugNo={slugNo} slugEn={slugEn}>
+<Layout
+  title={cleanTitle}
+  description={excerpt ? stegaClean(excerpt) : undefined}
+  slugNo={slugNo}
+  slugEn={slugEn}
+  seo={resolvedSeo}
+  image={resolvedImage}
+  ogType={ogType}
+>
+  <!-- Slot for structured data (JSON-LD schemas) -->
+  <slot name="structured-data" />
+
   <div class="stack page-layout" style="--space: var(--space-xl)">
     <header class="page-header">
       <h1 class="page-title">
@@ -97,16 +138,16 @@ const slugEn = pageDocument?.slug_en?.current ? stegaClean(pageDocument.slug_en.
 
   /* Excerpt styling now handled by global .excerpt class in base.css */
 
-  .page-content {
-    margin: 0;
-    /* Stack pattern now handled by primitive class */
-  }
-
   /* Fallback for browsers without container query support */
   @supports not (container-type: inline-size) {
     .page-layout {
       /* Traditional max-width pattern */
       max-inline-size: var(--container-max-width);
+    }
+
+    .page-title {
+      /* Viewport-based fallback when cqi is unsupported */
+      font-size: clamp(1.944rem, 1.5rem + 4vw, 3.8147rem);
     }
   }
 </style>

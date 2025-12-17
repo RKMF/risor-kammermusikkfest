@@ -1,6 +1,6 @@
-import {definePlugin} from 'sanity'
-import {BookIcon} from '@sanity/icons'
-import ComponentGuide from '../components/ComponentGuide'
+import { definePlugin } from 'sanity';
+import { BookIcon } from '@sanity/icons';
+import ComponentGuide from '../components/ComponentGuide';
 
 export const componentGuideTool = definePlugin({
   name: 'component-guide',
@@ -12,4 +12,4 @@ export const componentGuideTool = definePlugin({
       component: ComponentGuide,
     },
   ],
-})
+});

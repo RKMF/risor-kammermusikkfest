@@ -1,28 +1,29 @@
-import {defineConfig} from 'sanity'
-import {structureTool} from 'sanity/structure'
-import {visionTool} from '@sanity/vision'
-import {presentationTool} from 'sanity/presentation'
-import {nbNOLocale} from '@sanity/locale-nb-no'
-import {unsplashImageAsset} from 'sanity-plugin-asset-source-unsplash'
-import {schemaTypes} from './schemaTypes'
-import {structure} from './deskStructure'
-import {placeholderTextPlugin} from './plugins/placeholderTextPlugin'
-import {componentGuideTool} from './plugins/componentGuideTool'
-import {compositeArtistPublishAction} from './actions/compositeArtistPublishAction'
-import {compositeEventPublishAction} from './actions/compositeEventPublishAction'
-import {addArticleToArticlePageAction} from './actions/addArticleToArticlePageAction'
-import {createDeleteWithReferencesAction} from './actions/createDeleteWithReferencesAction'
+import { defineConfig } from 'sanity';
+import { structureTool } from 'sanity/structure';
+import { visionTool } from '@sanity/vision';
+import { presentationTool } from 'sanity/presentation';
+import { nbNOLocale } from '@sanity/locale-nb-no';
+import { unsplashImageAsset } from 'sanity-plugin-asset-source-unsplash';
+import { schemaTypes } from './schemaTypes';
+import { structure } from './deskStructure';
+import { placeholderTextPlugin } from './plugins/placeholderTextPlugin';
+import { componentGuideTool } from './plugins/componentGuideTool';
+import { compositeArtistPublishAction } from './actions/compositeArtistPublishAction';
+import { compositeEventPublishAction } from './actions/compositeEventPublishAction';
+import { addArticleToArticlePageAction } from './actions/addArticleToArticlePageAction';
+import { createDeleteWithReferencesAction } from './actions/createDeleteWithReferencesAction';
 import {
   articleDeleteConfig,
   artistDeleteConfig,
   eventDeleteConfig,
-} from './actions/deleteConfigs'
-import {rkmfTheme} from './theme'
+} from './actions/deleteConfigs';
+import { rkmfTheme } from './theme';
+import { RKMFLogo } from './components/RKMFLogo';
 
 // Create delete actions using factory function
-const deleteArticleAction = createDeleteWithReferencesAction(articleDeleteConfig)
-const deleteArtistAction = createDeleteWithReferencesAction(artistDeleteConfig)
-const deleteEventAction = createDeleteWithReferencesAction(eventDeleteConfig)
+const deleteArticleAction = createDeleteWithReferencesAction(articleDeleteConfig);
+const deleteArtistAction = createDeleteWithReferencesAction(artistDeleteConfig);
+const deleteEventAction = createDeleteWithReferencesAction(eventDeleteConfig);
 
 // Custom Norwegian i18n resources to override publish button text
 const customNorwegianResources = {
@@ -32,19 +33,20 @@ const customNorwegianResources = {
         'publish-label': 'Lagre',
         'publish-now': 'Lagre nå',
         'publish-schedule': 'Planlegg lagring',
-        'publish-changes': 'Lagre endringer'
+        'publish-changes': 'Lagre endringer',
       },
       'document-status': {
-        'published': 'Lagret',
-        'not-published': 'Ikke lagret'
-      }
-    }
-  }
-}
+        published: 'Lagret',
+        'not-published': 'Ikke lagret',
+      },
+    },
+  },
+};
 
 export default defineConfig({
   name: 'default',
-  title: 'studio',
+  title: "Kammer'n",
+  icon: RKMFLogo,
 
   projectId: 'dnk98dp0',
   dataset: 'production',
@@ -52,7 +54,7 @@ export default defineConfig({
   theme: rkmfTheme,
 
   plugins: [
-    structureTool({structure}),
+    structureTool({ structure }),
     visionTool(),
     nbNOLocale(),
     unsplashImageAsset(),
@@ -101,10 +103,14 @@ export default defineConfig({
                   title: doc?.title_no || 'Untitled event',
                   href: `/program/${doc?.slug_no}`,
                 },
-                ...(doc?.slug_en ? [{
-                  title: doc?.title_en || 'Untitled event (EN)',
-                  href: `/en/program/${doc?.slug_en}`,
-                }] : []),
+                ...(doc?.slug_en
+                  ? [
+                      {
+                        title: doc?.title_en || 'Untitled event (EN)',
+                        href: `/en/program/${doc?.slug_en}`,
+                      },
+                    ]
+                  : []),
               ],
             }),
           },
@@ -152,47 +158,56 @@ export default defineConfig({
       // Replace default publish action with custom actions for different document types
 
       // Artist documents: sync events + add to artist page + custom delete
+      // Remove 'unpublish' action - editors should use Publisering tab (publishingStatus field) instead
       if (context.schemaType === 'artist') {
-        return prev.map((action) => {
-          if (action.action === 'publish') {
-            // Use composite action which handles event sync and artist page dialog
-            return compositeArtistPublishAction
-          }
-          if (action.action === 'delete') {
-            return deleteArtistAction
-          }
-          return action
-        })
+        return prev
+          .filter((action) => action.action !== 'unpublish')
+          .map((action) => {
+            if (action.action === 'publish') {
+              // Use composite action which handles event sync and artist page dialog
+              return compositeArtistPublishAction;
+            }
+            if (action.action === 'delete') {
+              return deleteArtistAction;
+            }
+            return action;
+          });
       }
 
       // Event documents: sync date value + sync artists + add to program page + custom delete
+      // Remove 'unpublish' action - editors should use Publisering tab (publishingStatus field) instead
       if (context.schemaType === 'event') {
-        return prev.map((action) => {
-          if (action.action === 'publish') {
-            // Use composite action which handles date sync, artist sync, and program page dialog
-            return compositeEventPublishAction
-          }
-          if (action.action === 'delete') {
-            return deleteEventAction
-          }
-          return action
-        })
+        return prev
+          .filter((action) => action.action !== 'unpublish')
+          .map((action) => {
+            if (action.action === 'publish') {
+              // Use composite action which handles date sync, artist sync, and program page dialog
+              return compositeEventPublishAction;
+            }
+            if (action.action === 'delete') {
+              return deleteEventAction;
+            }
+            return action;
+          });
       }
 
       // Article documents: add to article page + custom delete
+      // Remove 'unpublish' action - editors should use Publisering tab (publishingStatus field) instead
       if (context.schemaType === 'article') {
-        return prev.map((action) => {
-          if (action.action === 'publish') {
-            return addArticleToArticlePageAction
-          }
-          if (action.action === 'delete') {
-            return deleteArticleAction
-          }
-          return action
-        })
+        return prev
+          .filter((action) => action.action !== 'unpublish')
+          .map((action) => {
+            if (action.action === 'publish') {
+              return addArticleToArticlePageAction;
+            }
+            if (action.action === 'delete') {
+              return deleteArticleAction;
+            }
+            return action;
+          });
       }
 
-      return prev
+      return prev;
     },
   },
 
@@ -205,5 +220,4 @@ export default defineConfig({
       },
     ],
   },
-
-})
+});

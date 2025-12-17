@@ -1,15 +1,17 @@
 ---
 export interface Props {
-  targetEvent: any;
+  targetDate: string;
+  title?: string;
   style?: 'large' | 'compact' | 'minimal';
   completedMessage?: string;
   hideWhenComplete?: boolean;
 }
 
 const {
-  targetEvent,
+  targetDate: targetDateStr,
+  title,
   style = 'compact',
-  completedMessage = 'Arrangementet har startet!',
+  completedMessage = 'Tiden er ute!',
   hideWhenComplete = false
 } = Astro.props;
 
@@ -17,58 +19,37 @@ const {
 function getTimeRemaining(targetDate: Date) {
   const now = new Date();
   const diff = targetDate.getTime() - now.getTime();
-  
+
   if (diff <= 0) {
-    return { expired: true };
+    return { expired: true, days: 0, hours: 0, minutes: 0 };
   }
-  
+
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  
+
   return { days, hours, minutes, expired: false };
 }
 
-// Get target date from event
-const eventDate = targetEvent?.eventDate?.date;
-const eventTime = targetEvent?.eventTime?.startTime || '00:00';
-
 // Default time remaining
 let timeRemaining = { expired: true, days: 0, hours: 0, minutes: 0 };
-let targetDate = null;
 let updateInterval = '60s';
 
-// Check if we have valid date
-if (eventDate) {
-  // Clean eventTime of any Unicode characters and whitespace
-  const cleanTime = eventTime.replace(/[^\d:]/g, '').trim();
-
-  // Parse cleaned time
-  const timeParts = cleanTime.split(':');
-  const hours = parseInt(timeParts[0] || '0', 10);
-  const minutes = parseInt(timeParts[1] || '0', 10);
-  
-  targetDate = new Date(eventDate);
-  targetDate.setHours(hours, minutes, 0, 0);
-  
-  console.log('Target date:', targetDate.toISOString());
-  
+// Parse the target date (ISO datetime string from Sanity)
+if (targetDateStr) {
+  const targetDate = new Date(targetDateStr);
   timeRemaining = getTimeRemaining(targetDate);
-  
+
   // Determine update frequency based on time remaining
-  updateInterval = timeRemaining.days && timeRemaining.days > 1 
+  updateInterval = timeRemaining.days > 1
     ? '3600s' // Update every hour when > 1 day
     : '60s';   // Update every minute when < 1 day
-} else {
-  console.error('No event date found for countdown. TargetEvent:', targetEvent);
 }
 
 // Don't render if expired and hideWhenComplete is true
 if (timeRemaining.expired && hideWhenComplete) {
   return null;
 }
-
-const eventId = targetEvent?._id;
 ---
 
 <section class={`countdown countdown--${style}`}>
@@ -78,41 +59,35 @@ const eventId = targetEvent?._id;
     aria-live="polite"
     aria-atomic="true"
     aria-label={timeRemaining.expired ? completedMessage : `Nedtelling: ${timeRemaining.days ? `${timeRemaining.days} dager, ` : ''}${timeRemaining.hours ? `${timeRemaining.hours} timer og ` : ''}${timeRemaining.minutes} minutter igjen`}
-    hx-get={`/api/countdown?eventId=${eventId}`}
-    hx-trigger={`every ${updateInterval}`}
-    hx-swap="innerHTML"
   >
     {timeRemaining.expired ? (
       <p class="countdown__expired">
-        <span aria-hidden="true">✓</span>
         {completedMessage}
       </p>
     ) : (
-      <div class="countdown__time">
-        <p class="countdown__sentence">
-          {timeRemaining.days > 0 && (
-            <span class="countdown__unit">
-              <span class="countdown__number">{timeRemaining.days}</span>
-              <span class="countdown__label">{timeRemaining.days === 1 ? 'dag' : 'dager'}</span>
-            </span>
-          )}
-          {(timeRemaining.hours >= 0 && (timeRemaining.days > 0 || timeRemaining.hours > 0)) && (
-            <span class="countdown__unit">
-              <span class="countdown__number">{timeRemaining.hours}</span>
-              <span class="countdown__label">{timeRemaining.hours === 1 ? 'time' : 'timer'}</span>
-            </span>
-          )}
-          <span class="countdown__unit">
+      <p class="countdown__sentence">
+        {title && <span class="countdown__prefix">{title} </span>}
+        {timeRemaining.days > 0 && (
+          <>
+            <span class="countdown__number">{timeRemaining.days}</span>
+            <span class="countdown__label"> {timeRemaining.days === 1 ? 'dag' : 'dager'}</span>
+            {(timeRemaining.hours > 0 || timeRemaining.minutes > 0) && <span class="countdown__separator">, </span>}
+          </>
+        )}
+        {timeRemaining.hours > 0 && (
+          <>
+            <span class="countdown__number">{timeRemaining.hours}</span>
+            <span class="countdown__label"> {timeRemaining.hours === 1 ? 'time' : 'timer'}</span>
+            {timeRemaining.minutes > 0 && <span class="countdown__separator"> og </span>}
+          </>
+        )}
+        {timeRemaining.minutes > 0 && (
+          <>
             <span class="countdown__number">{timeRemaining.minutes}</span>
-            <span class="countdown__label">{timeRemaining.minutes === 1 ? 'minutt' : 'minutter'}</span>
-          </span>
-        </p>
-        <p class="countdown__readable" aria-hidden="true">
-          {timeRemaining.days > 0 && `${timeRemaining.days} ${timeRemaining.days === 1 ? 'dag' : 'dager'}, `}
-          {(timeRemaining.hours >= 0 && (timeRemaining.days > 0 || timeRemaining.hours > 0)) && `${timeRemaining.hours} ${timeRemaining.hours === 1 ? 'time' : 'timer'} og `}
-          {timeRemaining.minutes} {timeRemaining.minutes === 1 ? 'minutt' : 'minutter'} igjen
-        </p>
-      </div>
+            <span class="countdown__label"> {timeRemaining.minutes === 1 ? 'minutt' : 'minutter'}</span>
+          </>
+        )}
+      </p>
     )}
   </div>
 </section>
@@ -120,9 +95,10 @@ const eventId = targetEvent?._id;
 <style>
   .countdown {
     text-align: center;
-    padding: var(--space-m-l); /* Fluid 16px → 30px */
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border: 1px solid #dee2e6;
+    padding: var(--space-m-l);
+    background-color: var(--color-tint-blue-medium);
+    max-width: 40ch;
+    margin-inline: auto;
   }
 
   .countdown__display {
@@ -131,110 +107,60 @@ const eventId = targetEvent?._id;
 
   .countdown__sentence {
     margin: 0;
-    /* Migrated to fluid token: responsive 20-23px */
     font-size: var(--step-1);
     line-height: 1.4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
   }
 
-  .countdown__unit {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 60px;
+  .countdown__prefix {
+    font-weight: 400;
   }
 
   .countdown__number {
-    /* Migrated to fluid token: responsive 31-35px */
-    font-size: var(--step-3);
     font-weight: 700;
-    display: block;
   }
 
   .countdown__label {
-    /* Migrated to fluid token: responsive 13-14px */
-    font-size: var(--step--1);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 0.25rem;
+    font-weight: 400;
   }
 
-  .countdown__readable {
-    /* Migrated to fluid token: responsive 16-18px */
-    font-size: var(--step-0);
-    margin: 0.5rem 0 0 0;
-    font-style: italic;
+  .countdown__separator {
+    font-weight: 400;
   }
 
   /* Style variations */
   .countdown--large .countdown__sentence {
-    /* Migrated to fluid token: responsive 31-35px */
-    font-size: var(--step-3);
+    font-size: var(--step-2);
   }
 
   .countdown--large .countdown__number {
-    /* Migrated to fluid token: responsive 39-44px */
-    font-size: var(--step-4);
+    font-size: var(--step-3);
   }
 
   .countdown--minimal {
-    padding: var(--space-m); /* Fluid 16px → 20px */
+    padding: var(--space-m);
     background: none;
     border: none;
   }
 
   .countdown--minimal .countdown__sentence {
-    /* Migrated to fluid token: responsive 16-18px */
     font-size: var(--step-0);
-  }
-
-  .countdown--minimal .countdown__number {
-    /* Migrated to fluid token: responsive 20-23px */
-    font-size: var(--step-1);
   }
 
   .countdown__expired {
     margin: 0;
-    /* Migrated to fluid token: responsive 20-23px */
     font-size: var(--step-1);
     font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
   }
 
-  /* Responsive design - Simplified after fluid typography migration
-   * Font sizes now scale automatically via design tokens.
-   * Only layout-specific adjustments remain. */
-  @media (max-width: 768px) {
-    .countdown__sentence {
-      gap: 0.25rem;
-    }
-
-    .countdown__unit {
-      min-width: 50px;
-    }
-  }
-
-  /* High contrast mode */
   @media (prefers-contrast: high) {
     .countdown {
-      border: 2px solid #000;
-    }
-
-    .countdown__number {
+      outline: 2px solid #000;
     }
   }
 
-  /* Reduced motion support */
   @media (prefers-reduced-motion: reduce) {
     .countdown {
-      background: #f8f9fa;
+      background-color: var(--color-tint-blue-medium);
     }
   }
 </style>

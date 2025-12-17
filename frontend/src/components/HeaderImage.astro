@@ -1,0 +1,174 @@
+---
+import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import {
+  getResponsiveImageSet,
+  extractImageMetadata,
+  getLQIPUrl,
+  getOptimizedImageUrl,
+  IMAGE_QUALITY,
+  type ImageMetadata
+} from '../lib/sanityImage';
+
+interface Props {
+  image: SanityImageSource;
+  alt: string;
+  credit?: string;
+  aspectRatio?: '4:3' | '16:9' | number;
+  className?: string;
+  loading?: 'lazy' | 'eager';
+  quality?: number;
+  width?: string; // CSS width value (e.g., "min(30ch, 100%)")
+  // Visual editing props
+  _key?: string;
+  _type?: string;
+}
+
+const {
+  image,
+  alt,
+  credit,
+  aspectRatio = '4:3',
+  className = '',
+  loading = 'eager',
+  quality = IMAGE_QUALITY.CARD,
+  width = 'min(30ch, 100%)',
+  _key,
+  _type
+} = Astro.props;
+
+// Convert aspect ratio to numeric value
+const getAspectRatioValue = (ratio: string | number): number => {
+  if (typeof ratio === 'number') return ratio;
+  const [w, h] = ratio.split(':').map(Number);
+  return w / h;
+};
+
+const aspectValue = getAspectRatioValue(aspectRatio);
+
+// Header images use larger responsive breakpoints
+const imageWidths = [600, 800, 1200, 1600];
+const imageSizes = '(max-width: 768px) 100vw, 800px';
+
+// Generate responsive srcset
+const responsiveSrcset: string = image ? getResponsiveImageSet(
+  image,
+  imageWidths,
+  aspectValue,
+  quality
+) : '';
+
+// Extract metadata for placeholder
+const metadata: ImageMetadata = image ? extractImageMetadata(image) : {};
+
+// Generate LQIP placeholder for blur-up effect
+let placeholderUrl: string | null = null;
+if (image) {
+  placeholderUrl = metadata.lqip || getLQIPUrl(image);
+}
+
+// Calculate dimensions for fallback - use aspect ratio, no fixed height constraint
+const fallbackWidth = 800;
+const fallbackHeight = Math.round(fallbackWidth / aspectValue);
+
+// Generate fallback URL
+const fallbackUrl = image ? getOptimizedImageUrl(
+  image,
+  fallbackWidth,
+  fallbackHeight,
+  quality
+) : null;
+
+// Determine fetch priority
+const fetchPriority = loading === 'eager' ? 'high' : 'auto';
+---
+
+<figure
+  class={`header-image ${className}`}
+  style={`width: ${width};`}
+  data-sanity={_key ? `${_type}.${_key}` : _type}
+>
+  {image ? (
+    <img
+      src={fallbackUrl || ''}
+      srcset={responsiveSrcset}
+      alt={alt}
+      width={fallbackWidth}
+      height={fallbackHeight}
+      loading={loading}
+      decoding="async"
+      fetchpriority={fetchPriority}
+      sizes={imageSizes}
+      class="header-image-element"
+      style={`aspect-ratio: ${aspectValue}; ${placeholderUrl ? `background-image: url(${placeholderUrl}); background-size: cover; background-position: center;` : 'background-color: var(--color-gray-100, #f5f5f5);'}`}
+    />
+  ) : (
+    <div class="image-missing">
+      <span>Bilde ikke tilgjengelig</span>
+    </div>
+  )}
+
+  {credit && (
+    <figcaption class="image-caption">
+      <small class="credit-text">{credit}</small>
+    </figcaption>
+  )}
+</figure>
+
+<style>
+  /* Header image container - responsive width control */
+  .header-image {
+    position: relative;
+    margin: 0;
+    margin-inline: auto; /* Center the figure */
+    overflow: visible; /* Allow figcaption to show below */
+  }
+
+  /* Image element - fills figure, respects aspect ratio */
+  .header-image-element {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    object-position: center;
+    /* aspect-ratio set via inline style */
+    /* background-image/color set via inline style for LQIP */
+  }
+
+  /* Caption styling */
+  .image-caption {
+    margin-top: 0.5rem;
+    font-size: var(--step--1);
+  }
+
+  .credit-text {
+    display: block;
+  }
+
+  /* Missing image placeholder */
+  .image-missing {
+    background: #f5f5f5;
+    border: 2px dashed #ddd;
+    padding: var(--space-l);
+    text-align: center;
+    aspect-ratio: 4/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Accessibility: Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .header-image-element {
+      transition: none;
+      animation: none;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .image-missing {
+      background: #2a2a2a;
+      border-color: #444;
+      color: #aaa;
+    }
+  }
+</style>

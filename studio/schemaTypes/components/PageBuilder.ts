@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import { defineField, defineType } from 'sanity';
 import {
   DocumentIcon,
   ImageIcon,
@@ -14,7 +14,9 @@ import {
   CalendarIcon,
   ExpandIcon,
   ClockIcon,
-} from '@sanity/icons'
+  MenuIcon,
+  ComposeIcon,
+} from '@sanity/icons';
 
 export const pageBuilder = defineType({
   name: 'pageBuilder',
@@ -29,7 +31,7 @@ export const pageBuilder = defineType({
         {
           name: 'content',
           title: 'Innhold',
-          of: ['headingComponent', 'portableTextBlock', 'quoteComponent'],
+          of: ['headingComponent', 'portableTextBlock', 'quoteComponent', 'marqueeComponent'],
         },
         {
           name: 'media',
@@ -49,7 +51,12 @@ export const pageBuilder = defineType({
         {
           name: 'sections',
           title: 'Seksjoner',
-          of: ['artistScrollContainer', 'eventScrollContainer', 'contentScrollContainer'],
+          of: [
+            'artistScrollContainer',
+            'eventScrollContainer',
+            'contentScrollContainer',
+            'composerScrollContainer',
+          ],
         },
       ],
       views: [
@@ -74,16 +81,16 @@ export const pageBuilder = defineType({
           text: 'text',
           id: 'id',
         },
-        prepare({level, text, id}) {
-          const displayLevel = level ? level.toUpperCase() : 'H?'
-          const displayText = text || 'Ingen overskriftstekst'
-          const displayId = id?.current ? `#${id.current}` : ''
+        prepare({ level, text, id }) {
+          const displayLevel = level ? level.toUpperCase() : 'H?';
+          const displayText = text || 'Ingen overskriftstekst';
+          const displayId = id?.current ? `#${id.current}` : '';
 
           return {
             title: `${displayLevel}: ${displayText}`,
             subtitle: displayId,
             media: BlockContentIcon,
-          }
+          };
         },
       },
     },
@@ -96,16 +103,16 @@ export const pageBuilder = defineType({
           title: 'title',
           content: 'content',
         },
-        prepare({title, content}) {
-          const firstText = content?.[0]?.children?.[0]?.text || ''
-          const displayTitle = title || 'Tekst'
-          const displaySubtitle = firstText ? `${firstText.substring(0, 50)}...` : 'Ingen innhold'
+        prepare({ title, content }) {
+          const firstText = content?.[0]?.children?.[0]?.text || '';
+          const displayTitle = title || 'Tekst';
+          const displaySubtitle = firstText ? `${firstText.substring(0, 50)}...` : 'Ingen innhold';
 
           return {
             title: displayTitle,
             subtitle: displaySubtitle,
             media: TextIcon,
-          }
+          };
         },
       },
     },
@@ -118,12 +125,33 @@ export const pageBuilder = defineType({
           quote: 'quote',
           author: 'author',
         },
-        prepare({quote, author}) {
+        prepare({ quote, author }) {
           return {
             title: quote || 'Sitat',
             subtitle: author ? `– ${author}` : '',
             media: AddCommentIcon,
-          }
+          };
+        },
+      },
+    },
+    {
+      type: 'marqueeComponent',
+      title: 'Rullende tekst',
+      icon: MenuIcon,
+      preview: {
+        select: {
+          text: 'text',
+        },
+        prepare({ text }) {
+          return {
+            title: 'Rullende tekst',
+            subtitle: text
+              ? text.length > 40
+                ? `${text.substring(0, 40)}...`
+                : text
+              : 'Ingen tekst',
+            media: MenuIcon,
+          };
         },
       },
     },
@@ -139,12 +167,12 @@ export const pageBuilder = defineType({
           subtitle: 'caption',
           media: 'image',
         },
-        prepare({title, subtitle, media}) {
+        prepare({ title, subtitle, media }) {
           return {
             title: title || 'Bilde uten alt-tekst',
             subtitle: subtitle || 'Ingen bildetekst',
             media: media || ImageIcon,
-          }
+          };
         },
       },
     },
@@ -158,12 +186,12 @@ export const pageBuilder = defineType({
           subtitle: 'url',
           media: 'thumbnail',
         },
-        prepare({title, subtitle, media}) {
+        prepare({ title, subtitle, media }) {
           return {
             title: title || 'Video uten tittel',
             subtitle: subtitle || 'Ingen URL',
             media: media || PlayIcon,
-          }
+          };
         },
       },
     },
@@ -201,13 +229,13 @@ export const pageBuilder = defineType({
           style: 'style',
           fullWidth: 'fullWidth',
         },
-        prepare({title, style, fullWidth}) {
-          const widthText = fullWidth ? ' • Full bredde' : ''
+        prepare({ title, style, fullWidth }) {
+          const widthText = fullWidth ? ' • Full bredde' : '';
           return {
             title: title || 'Knapp uten tekst',
             subtitle: `${style || 'primary'}${widthText}`,
             media: BoltIcon,
-          }
+          };
         },
       },
     },
@@ -221,19 +249,20 @@ export const pageBuilder = defineType({
           description: 'description',
           layout: 'layout',
         },
-        prepare({links, description, layout}) {
-          const linkCount = links?.length || 0
-          const layoutText = {
-            'vertical': 'Vertikal',
-            'horizontal': 'Horisontal',
-            'grid': 'Rutenett'
-          }[layout || 'vertical'] || 'Vertikal'
-          const descText = description ? ' • Med beskrivelse' : ''
+        prepare({ links, description, layout }) {
+          const linkCount = links?.length || 0;
+          const layoutText =
+            {
+              vertical: 'Vertikal',
+              horizontal: 'Horisontal',
+              grid: 'Rutenett',
+            }[layout || 'vertical'] || 'Vertikal';
+          const descText = description ? ' • Med beskrivelse' : '';
           return {
             title: `Lenker (${linkCount})`,
             subtitle: `${layoutText}${descText}`,
             media: LinkIcon,
-          }
+          };
         },
       },
     },
@@ -246,12 +275,12 @@ export const pageBuilder = defineType({
           title: 'title',
           subtitle: 'content',
         },
-        prepare({title, subtitle}) {
+        prepare({ title, subtitle }) {
           return {
             title: title || 'Accordion uten tittel',
             subtitle: subtitle ? `${subtitle.substring(0, 50)}...` : 'Ingen innhold',
             media: TiersIcon,
-          }
+          };
         },
       },
     },
@@ -265,12 +294,12 @@ export const pageBuilder = defineType({
           eventTitle: 'targetEvent.title',
           style: 'style',
         },
-        prepare({title, eventTitle, style}) {
+        prepare({ title, eventTitle, style }) {
           return {
             title: title || 'Nedtelling',
             subtitle: `til ${eventTitle || 'arrangement'} • ${style || 'compact'}`,
             media: ClockIcon,
-          }
+          };
         },
       },
     },
@@ -286,13 +315,13 @@ export const pageBuilder = defineType({
           items: 'items',
           spacing: 'spacing',
         },
-        prepare({title, items, spacing}) {
-          const itemCount = items?.length || 0
+        prepare({ title, items, spacing }) {
+          const itemCount = items?.length || 0;
           return {
             title: title || 'Content Scroll Container',
             subtitle: `${itemCount} elementer • ${spacing || 'medium'} avstand`,
             media: EllipsisHorizontalIcon,
-          }
+          };
         },
       },
     },
@@ -305,13 +334,13 @@ export const pageBuilder = defineType({
           title: 'title',
           items: 'items',
         },
-        prepare({title, items}) {
-          const itemCount = items?.length || 0
+        prepare({ title, items }) {
+          const itemCount = items?.length || 0;
           return {
             title: title || 'Artist Scroll Container',
             subtitle: `${itemCount} artister (4:5 kort)`,
             media: DocumentIcon,
-          }
+          };
         },
       },
     },
@@ -324,15 +353,34 @@ export const pageBuilder = defineType({
           title: 'title',
           items: 'items',
         },
-        prepare({title, items}) {
-          const eventCount = items?.length || 0
+        prepare({ title, items }) {
+          const eventCount = items?.length || 0;
           return {
             title: title || 'Event Scroll Container',
             subtitle: `${eventCount} arrangementer (4:5 kort)`,
             media: CalendarIcon,
-          }
+          };
+        },
+      },
+    },
+    {
+      type: 'composerScrollContainer',
+      title: 'Composer Scroll Container',
+      icon: ComposeIcon,
+      preview: {
+        select: {
+          title: 'title',
+          items: 'items',
+        },
+        prepare({ title, items }) {
+          const composerCount = items?.length || 0;
+          return {
+            title: title || 'Composer Scroll Container',
+            subtitle: `${composerCount} komponister`,
+            media: ComposeIcon,
+          };
         },
       },
     },
   ],
-})
+});

@@ -7,6 +7,7 @@
  */
 
 import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
+import type { PageBuilder, Seo } from '../../../sanity/sanity.types';
 
 /**
  * Image object structure returned by Sanity queries
@@ -62,6 +63,16 @@ export interface ArtistReference {
 }
 
 /**
+ * Composer result type for event composer references
+ * Minimal fields used in event context
+ */
+export interface ComposerReference {
+  _id: string;
+  name: string;
+  image?: SanityImageObject;
+}
+
+/**
  * Full artist result type from artistBySlug and publishedArtists queries
  * Used in artist detail pages and artist listing pages
  */
@@ -70,7 +81,7 @@ export interface ArtistResult {
   _type: 'artist';
   name: string;
   slug: string;
-  cardSize?: 'stor' | 'medium' | 'liten';
+  cardSize?: 'stor' | 'medium';
   excerpt?: string;
   excerpt_no?: string;
   excerpt_en?: string;
@@ -79,8 +90,8 @@ export interface ArtistResult {
   instrument_en?: string;
   country?: string;
   image?: SanityImageObject;
-  content_no?: any[];
-  content_en?: any[];
+  content_no?: PageBuilder;
+  content_en?: PageBuilder;
   publishingStatus?: 'published' | 'draft' | 'scheduled';
   scheduledPeriod?: {
     startDate?: string;
@@ -94,7 +105,9 @@ export interface ArtistResult {
   websiteUrl?: string;
   spotifyUrl?: string;
   instagramUrl?: string;
-  seo?: any;
+  seo?: Seo;
+  // Events where this artist performs (only in detail view)
+  events?: EventResult[];
 }
 
 /**
@@ -118,6 +131,7 @@ export interface EventResult {
   eventTime?: EventTimeObject;
   venue?: VenueObject;
   artists?: ArtistReference[];
+  composers?: ComposerReference[];
   ticketType?: 'paid' | 'free' | 'info';
   ticketUrl?: string;
   ticketInfoText?: string;
@@ -127,13 +141,14 @@ export interface EventResult {
     startDate?: string;
     endDate?: string;
   };
-  content_no?: any[];
-  content_en?: any[];
-  extraContent_no?: any[];
-  extraContent_en?: any[];
+  content_no?: PageBuilder;
+  content_en?: PageBuilder;
+  extraContent_no?: PageBuilder;
+  extraContent_en?: PageBuilder;
+  description?: string;  // Coalesced from description_no/description_en
   description_no?: string;
   description_en?: string;
-  seo?: any;
+  seo?: Seo;
 }
 
 /**
@@ -163,7 +178,7 @@ export interface ArticleResult {
     name?: string;
     slug?: string;
   };
-  content_no?: any[];
-  content_en?: any[];
-  seo?: any;
+  content_no?: PageBuilder;
+  content_en?: PageBuilder;
+  seo?: Seo;
 }

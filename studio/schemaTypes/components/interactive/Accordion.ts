@@ -1,8 +1,8 @@
-import {defineField, defineType} from 'sanity'
-import {DocumentIcon, TiersIcon} from '@sanity/icons'
-import {generateQuoteHtml} from '../content/Quote'
-import {componentValidation, contentValidation} from '../../shared/validation'
-import type {AccordionData, ComponentHTMLGenerator, ValidationRule} from '../../shared/types'
+import { defineField, defineType } from 'sanity';
+import { DocumentIcon, TiersIcon } from '@sanity/icons';
+import { generateQuoteHtml } from '../content/Quote';
+import { componentValidation, contentValidation } from '../../shared/validation';
+import type { AccordionData, ComponentHTMLGenerator, ValidationRule } from '../../shared/types';
 
 export const accordionComponent = defineType({
   name: 'accordionComponent',
@@ -11,10 +11,18 @@ export const accordionComponent = defineType({
   icon: DocumentIcon,
   fields: [
     defineField({
+      name: 'title',
+      title: 'Tittel',
+      type: 'string',
+      description: 'Overskrift for nedtrekksmenyen',
+      validation: (Rule) => Rule.max(100).warning('Tittelen bør være maksimum 100 tegn'),
+    }),
+    defineField({
       name: 'description',
       title: 'Beskrivelse',
-      type: 'text',
-      description: 'Valgfri beskrivelse som vises over nedtrekksmenyen',
+      type: 'array',
+      description: 'Valgfri beskrivelse som vises under tittelen',
+      of: [{ type: 'block' }],
     }),
     defineField({
       name: 'panels',
@@ -40,13 +48,13 @@ export const accordionComponent = defineType({
               type: 'array',
               description: 'Innholdet som vises når panelet er åpent',
               of: [
-                {type: 'block'},
-                {type: 'imageComponent'},
-                {type: 'videoComponent'},
-                {type: 'buttonComponent'},
-                {type: 'title'},
-                {type: 'quoteComponent'},
-                {type: 'headingComponent'},
+                { type: 'block' },
+                { type: 'imageComponent' },
+                { type: 'videoComponent' },
+                { type: 'buttonComponent' },
+                { type: 'title' },
+                { type: 'quoteComponent' },
+                { type: 'headingComponent' },
               ],
             },
           ],
@@ -54,12 +62,12 @@ export const accordionComponent = defineType({
             select: {
               title: 'title',
             },
-            prepare({title}) {
+            prepare({ title }) {
               return {
                 title: title || 'Panel uten tittel',
                 subtitle: 'Accordion panel',
                 media: TiersIcon,
-              }
+              };
             },
           },
         },
@@ -88,38 +96,42 @@ export const accordionComponent = defineType({
   ],
   preview: {
     select: {
+      title: 'title',
       panelCount: 'panels',
     },
-    prepare({panelCount}) {
-      const count = panelCount?.length || 0
+    prepare({ title, panelCount }) {
+      const count = panelCount?.length || 0;
       return {
-        title: 'Nedtrekksmeny',
+        title: title || 'Nedtrekksmeny',
         subtitle: `${count} panel${count !== 1 ? 'er' : ''}`,
         media: TiersIcon,
-      }
+      };
     },
   },
-})
+});
 
 // Type-safe validation functions
 export const accordionValidationRules = {
   panels: contentValidation.accordionPanels as ValidationRule,
-} as const
+} as const;
 
 // Utility function to validate accordion has required content
 export function hasValidAccordionContent(data: AccordionData): boolean {
-  return !!(data.panels && data.panels.length > 0)
+  return !!(data.panels && data.panels.length > 0);
 }
 
 // Utility function to get accordion panel count
 export function getAccordionPanelCount(data: AccordionData): number {
-  return data.panels?.length || 0
+  return data.panels?.length || 0;
 }
 
 // Utility function to generate unique IDs for accordion panels
-export function generateAccordionIds(baseId: string, panelCount: number): Array<{panelId: string; buttonId: string}> {
-  return Array.from({length: panelCount}, (_, index) => ({
+export function generateAccordionIds(
+  baseId: string,
+  panelCount: number
+): Array<{ panelId: string; buttonId: string }> {
+  return Array.from({ length: panelCount }, (_, index) => ({
     panelId: `${baseId}-panel-${index}`,
     buttonId: `${baseId}-button-${index}`,
-  }))
+  }));
 }
