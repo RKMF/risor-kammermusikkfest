@@ -127,6 +127,20 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
       type="font/woff2"
       crossorigin
     />
+    <link
+      rel="preload"
+      href="/fonts/sans-serif/AkkBd_Pro.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/serif/DomaineText-Medium.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
 
     <!-- Minimal critical styles -->
     <style>
@@ -318,7 +332,7 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
     </style>
 
   </head>
-  <body>
+  <body data-last-update={new Date().toISOString()}>
     <!-- Skip navigation link for keyboard accessibility -->
     <a href="#main-content" class="skip-link">
       {currentLang === 'no' ? 'Hopp til hovedinnhold' : 'Skip to main content'}
@@ -360,6 +374,9 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
       // Make htmx available globally for all pages
       window.htmx = htmx;
     </script>
+
+    <!-- bfcache handler - refresh stale data on back/forward navigation -->
+    <script src="../scripts/bfcacheHandler.js"></script>
   </body>
 </html>
 
