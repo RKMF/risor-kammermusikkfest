@@ -325,8 +325,10 @@ export const GET: APIRoute = async ({ request, url }) => {
             <a
               href="${resetHref}"
               class="link-button"
+              data-filter-type="reset"
+              data-filter-value=""
               hx-get="/api/filter-program"
-              hx-vals='{"lang": "${language}", "date": "", "venue": ""}'
+              hx-vals="js:{lang: '${language}', date: '', venue: ''}"
               hx-target="#event-results"
               hx-swap="innerHTML show:none"
               hx-push-url="true"

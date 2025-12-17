@@ -1,10 +1,12 @@
 /**
  * Synchronizes filter button states and attributes with current URL parameters.
  *
- * This module handles URL-based filter state synchronization by updating three things:
+ * This module handles URL-based filter state synchronization by updating:
  * 1. Active CSS classes (visual feedback)
- * 2. href attributes (for progressive enhancement)
- * 3. hx-vals attributes (for htmx combined filtering)
+ * 2. href attributes (for progressive enhancement fallback)
+ *
+ * Note: hx-vals attributes use HTMX's js: prefix for dynamic evaluation at request time,
+ * so they don't need to be updated here. This approach avoids HTMX's attribute caching issue.
  *
  * This ensures that when users navigate using browser back/forward buttons or click
  * filter buttons, all button states and attributes remain synchronized with the URL.
@@ -56,31 +58,13 @@ function buildButtonHref(filterType, filterValue, currentFilters, language) {
 }
 
 /**
- * Builds the hx-vals attribute for a filter button.
- * Ensures htmx requests include both date and venue parameters.
- */
-function buildButtonHxVals(filterType, filterValue, currentFilters, language) {
-  if (filterType === 'date') {
-    return {
-      lang: language,
-      date: filterValue,
-      venue: currentFilters.venue
-    };
-  } else if (filterType === 'venue') {
-    return {
-      lang: language,
-      date: currentFilters.date,
-      venue: filterValue
-    };
-  }
-}
-
-/**
  * Synchronizes filter buttons with current URL parameters.
- * Updates three aspects of each button:
+ * Updates two aspects of each button:
  * 1. Active CSS class (for visual feedback)
  * 2. href attribute (preserves other filter when clicked)
- * 3. hx-vals attribute (ensures htmx sends both filters)
+ *
+ * Note: hx-vals are handled by HTMX's js: prefix which evaluates at request time,
+ * so they don't need to be updated here.
  */
 function syncFilterButtonsWithCurrentUrl() {
   const currentFilters = extractCurrentFilterParametersFromUrl();
@@ -111,13 +95,9 @@ function syncFilterButtonsWithCurrentUrl() {
       filterButton.classList.remove('active');
     }
 
-    // 3. Update href attribute
+    // 3. Update href attribute (for progressive enhancement fallback)
     const newHref = buildButtonHref(filterType, filterValue, currentFilters, language);
     filterButton.setAttribute('href', newHref);
-
-    // 4. Update hx-vals attribute
-    const newHxVals = buildButtonHxVals(filterType, filterValue, currentFilters, language);
-    filterButton.setAttribute('hx-vals', JSON.stringify(newHxVals));
   });
 }
 
