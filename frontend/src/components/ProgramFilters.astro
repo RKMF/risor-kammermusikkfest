@@ -34,13 +34,13 @@ const apiPath = '/api/filter-program';
         aria-label={language === 'no' ? 'Filtrer etter dato' : 'Filter by date'}
       >
         <a
-          href={`${basePath}?date=&venue=${currentVenue}`}
+          href={`${basePath}?lang=${language}&date=&venue=${currentVenue}`}
           class:list={['link-button', { active: !currentDate }]}
           aria-pressed={!currentDate}
           data-filter-type="date"
           data-filter-value=""
           hx-get={apiPath}
-          hx-vals={`js:{lang: '${language}', date: '', venue: new URLSearchParams(window.location.search).get('venue') || ''}`}
+          hx-vals={JSON.stringify({ lang: language, date: '', venue: currentVenue })}
           hx-target="#event-results"
           hx-swap="innerHTML show:none"
           hx-push-url="true"
@@ -51,13 +51,13 @@ const apiPath = '/api/filter-program';
 
         {uniqueDates.map(date => (
             <a
-              href={`${basePath}?date=${date}&venue=${currentVenue}`}
+              href={`${basePath}?lang=${language}&date=${date}&venue=${currentVenue}`}
               class:list={['link-button', { active: currentDate === date }]}
               aria-pressed={currentDate === date}
               data-filter-type="date"
               data-filter-value={date}
               hx-get={apiPath}
-              hx-vals={`js:{lang: '${language}', date: '${date}', venue: new URLSearchParams(window.location.search).get('venue') || ''}`}
+              hx-vals={JSON.stringify({ lang: language, date: date, venue: currentVenue })}
               hx-target="#event-results"
               hx-swap="innerHTML show:none"
               hx-push-url="true"
@@ -80,13 +80,13 @@ const apiPath = '/api/filter-program';
         aria-label={language === 'no' ? 'Filtrer etter sted' : 'Filter by venue'}
       >
         <a
-          href={`${basePath}?date=${currentDate}&venue=`}
+          href={`${basePath}?lang=${language}&date=${currentDate}&venue=`}
           class:list={['link-button', { active: !currentVenue }]}
           aria-pressed={!currentVenue}
           data-filter-type="venue"
           data-filter-value=""
           hx-get={apiPath}
-          hx-vals={`js:{lang: '${language}', date: new URLSearchParams(window.location.search).get('date') || '', venue: ''}`}
+          hx-vals={JSON.stringify({ lang: language, date: currentDate, venue: '' })}
           hx-target="#event-results"
           hx-swap="innerHTML show:none"
           hx-push-url="true"
@@ -98,13 +98,13 @@ const apiPath = '/api/filter-program';
         {availableVenues.map(venue => {
           return (
             <a
-              href={`${basePath}?date=${currentDate}&venue=${venue.slug}`}
+              href={`${basePath}?lang=${language}&date=${currentDate}&venue=${venue.slug}`}
               class:list={['link-button', { active: currentVenue === venue.slug }]}
               aria-pressed={currentVenue === venue.slug}
               data-filter-type="venue"
               data-filter-value={venue.slug}
               hx-get={apiPath}
-              hx-vals={`js:{lang: '${language}', date: new URLSearchParams(window.location.search).get('date') || '', venue: '${venue.slug}'}`}
+              hx-vals={JSON.stringify({ lang: language, date: currentDate, venue: venue.slug })}
               hx-target="#event-results"
               hx-swap="innerHTML show:none"
               hx-push-url="true"
