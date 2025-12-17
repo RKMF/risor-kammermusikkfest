@@ -39,8 +39,8 @@ export default defineConfig({
     port: 4321   // Your desired port
   },
 
-  // Output configuration for server rendering
-  output: 'server', // Server-rendered for API routes and dynamic content
+  // Output configuration: static pages + SSR for routes with prerender=false
+  output: 'static', // Astro 5: static is default, use prerender=false for SSR routes
   adapter: vercel(),
 
   // Modern image optimization configuration
