@@ -4,9 +4,10 @@
  * This module handles URL-based filter state synchronization by updating:
  * 1. Active CSS classes (visual feedback)
  * 2. href attributes (for progressive enhancement fallback)
+ * 3. hx-vals attributes (for HTMX AJAX requests)
  *
- * Note: hx-vals attributes use HTMX's js: prefix for dynamic evaluation at request time,
- * so they don't need to be updated here. This approach avoids HTMX's attribute caching issue.
+ * The hx-vals must be updated dynamically because HTMX caches attribute values.
+ * Using JSON.stringify ensures CSP compliance (no js: prefix evaluation needed).
  *
  * This ensures that when users navigate using browser back/forward buttons or click
  * filter buttons, all button states and attributes remain synchronized with the URL.
@@ -39,10 +40,14 @@ function getCurrentLanguage() {
 /**
  * Builds the href attribute for a filter button.
  * Ensures the button preserves the OTHER filter when clicked.
+ * Includes lang parameter for API to receive language context.
  */
 function buildButtonHref(filterType, filterValue, currentFilters, language) {
   const basePath = language === 'en' ? '/en/program' : '/program';
   const params = new URLSearchParams();
+
+  // Always include language for API
+  params.set('lang', language);
 
   if (filterType === 'date') {
     // Date button: use this date, preserve current venue
@@ -58,13 +63,36 @@ function buildButtonHref(filterType, filterValue, currentFilters, language) {
 }
 
 /**
+ * Builds the hx-vals object for a filter button.
+ * Ensures the button preserves the OTHER filter when clicked.
+ * Returns an object that will be JSON.stringify'd for the hx-vals attribute.
+ */
+function buildButtonHxVals(filterType, filterValue, currentFilters, language) {
+  if (filterType === 'date') {
+    // Date button: use this date, preserve current venue
+    return {
+      lang: language,
+      date: filterValue,
+      venue: currentFilters.venue
+    };
+  } else if (filterType === 'venue') {
+    // Venue button: preserve current date, use this venue
+    return {
+      lang: language,
+      date: currentFilters.date,
+      venue: filterValue
+    };
+  }
+  // Fallback
+  return { lang: language, date: '', venue: '' };
+}
+
+/**
  * Synchronizes filter buttons with current URL parameters.
- * Updates two aspects of each button:
+ * Updates three aspects of each button:
  * 1. Active CSS class (for visual feedback)
- * 2. href attribute (preserves other filter when clicked)
- *
- * Note: hx-vals are handled by HTMX's js: prefix which evaluates at request time,
- * so they don't need to be updated here.
+ * 2. href attribute (for progressive enhancement fallback)
+ * 3. hx-vals attribute (for HTMX AJAX requests - must be updated due to HTMX caching)
  */
 function syncFilterButtonsWithCurrentUrl() {
   const currentFilters = extractCurrentFilterParametersFromUrl();
@@ -98,6 +126,11 @@ function syncFilterButtonsWithCurrentUrl() {
     // 3. Update href attribute (for progressive enhancement fallback)
     const newHref = buildButtonHref(filterType, filterValue, currentFilters, language);
     filterButton.setAttribute('href', newHref);
+
+    // 4. Update hx-vals attribute (for HTMX AJAX requests)
+    // Must be updated because HTMX caches attribute values
+    const newHxVals = buildButtonHxVals(filterType, filterValue, currentFilters, language);
+    filterButton.setAttribute('hx-vals', JSON.stringify(newHxVals));
   });
 }
 
