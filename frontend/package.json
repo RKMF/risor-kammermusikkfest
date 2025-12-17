@@ -26,13 +26,13 @@
     "@astrojs/vercel": "8.0.4",
     "@portabletext/types": "2.0.13",
     "@sanity/astro": "3.2.10",
-    "@sanity/client": "^6.29.1",
-    "@sanity/image-url": "^1.1.0",
+    "@sanity/client": "^7.13.2",
+    "@sanity/image-url": "^2.0.2",
     "astro": "5.16.6",
     "astro-htmx": "1.0.6",
     "astro-portabletext": "^0.11.1",
     "htmx.org": "^2.0.6",
-    "sanity": "4.22.0",
+    "sanity": "5.0.1",
     "styled-components": "^6.1.18"
   },
   "devDependencies": {
