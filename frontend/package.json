@@ -24,7 +24,7 @@
     "react-dom": "^19.1.0",
     "@astrojs/sitemap": "3.6.0",
     "@astrojs/vercel": "8.0.4",
-    "@portabletext/types": "2.0.13",
+    "@portabletext/types": "4.0.0",
     "@sanity/astro": "3.2.10",
     "@sanity/client": "^6.29.1",
     "@sanity/image-url": "^1.1.0",
