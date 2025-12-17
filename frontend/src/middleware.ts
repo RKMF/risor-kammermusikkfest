@@ -26,10 +26,13 @@ function getCSPDirectives(): string {
     ].join('; ');
   }
 
-  // Strict CSP for production
+  // Production CSP - secure defaults with necessary allowances for Astro
+  // 'unsafe-inline' for scripts: Required because Astro inlines bundled scripts.
+  // This is acceptable for content sites without user-generated content or auth.
+  // If user input/auth is added later, consider nonces or script hashes.
   return [
     "default-src 'self'",
-    "script-src 'self'", // No unsafe-inline or unsafe-eval in production
+    "script-src 'self' 'unsafe-inline'", // unsafe-inline needed for Astro's bundled inline scripts
     "style-src 'self' 'unsafe-inline'", // unsafe-inline still needed for Astro scoped styles
     "img-src 'self' cdn.sanity.io data:",
     "font-src 'self' data:",
