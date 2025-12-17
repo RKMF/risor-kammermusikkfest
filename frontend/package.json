@@ -18,12 +18,12 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@astrojs/check": "0.9.4",
-    "@astrojs/react": "4.2.1",
+    "@astrojs/check": "0.9.6",
+    "@astrojs/react": "4.4.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "@astrojs/sitemap": "3.6.0",
-    "@astrojs/vercel": "8.0.4",
+    "@astrojs/vercel": "9.0.2",
     "@portabletext/types": "2.0.13",
     "@sanity/astro": "3.2.10",
     "@sanity/client": "^6.29.1",
