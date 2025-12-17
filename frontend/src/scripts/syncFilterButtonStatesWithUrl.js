@@ -173,6 +173,32 @@ function syncAriaPressed() {
  * Called once HTMX is confirmed to be available.
  */
 function setupHtmxEventListeners() {
+  // CRITICAL: Intercept requests BEFORE they're sent to inject correct params
+  // This fixes the timing bug where hx-vals are stale in production builds
+  document.body.addEventListener('htmx:configRequest', (event) => {
+    const triggerElement = event.detail.elt;
+
+    // Only handle filter buttons (elements with data-filter-type attribute)
+    if (!triggerElement.dataset || !triggerElement.dataset.filterType) return;
+
+    const filterType = triggerElement.dataset.filterType;
+    const filterValue = triggerElement.dataset.filterValue;
+    const currentFilters = extractCurrentFilterParametersFromUrl();
+    const language = getCurrentLanguage();
+
+    // Override request parameters with correct values
+    // This ensures both filters are preserved when clicking either one
+    if (filterType === 'date') {
+      event.detail.parameters.lang = language;
+      event.detail.parameters.date = filterValue;
+      event.detail.parameters.venue = currentFilters.venue; // Preserve current venue
+    } else if (filterType === 'venue') {
+      event.detail.parameters.lang = language;
+      event.detail.parameters.date = currentFilters.date; // Preserve current date
+      event.detail.parameters.venue = filterValue;
+    }
+  });
+
   // Listen for htmx history restoration events (browser back/forward buttons)
   document.body.addEventListener('htmx:historyRestore', () => {
     syncFilterButtonsWithCurrentUrl();
