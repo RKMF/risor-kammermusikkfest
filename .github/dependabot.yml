@@ -1,37 +1,33 @@
 version: 2
 updates:
-  # Frontend dependencies (Astro, Sanity client, etc.)
+  # Frontend - ALL deps in one monthly PR
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
+      interval: "monthly"
+    open-pull-requests-limit: 1
     groups:
-      astro:
+      all-frontend:
         patterns:
-          - "astro"
-          - "@astrojs/*"
-      sanity:
-        patterns:
-          - "@sanity/*"
-          - "sanity"
+          - "*"
 
-  # Studio dependencies (Sanity Studio)
+  # Studio - ALL deps in one monthly PR
   - package-ecosystem: "npm"
     directory: "/studio"
     schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 3
+      interval: "monthly"
+    open-pull-requests-limit: 1
     groups:
-      sanity-studio:
+      all-studio:
         patterns:
-          - "sanity"
-          - "@sanity/*"
+          - "*"
 
-  # GitHub Actions
+  # GitHub Actions - monthly
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      all-actions:
+        patterns:
+          - "*"
