@@ -221,37 +221,54 @@ Or configure it in Sanity project settings at [sanity.io/manage](https://manage.
 
 ---
 
-## Architecture Decision: SSG vs SSR
+## Architecture Decision: SSR for Instant Content Updates
 
 ### Current Configuration: Server-Side Rendering (SSR)
 
-⚠️ **Status**: Currently using SSR (`output: 'server'`). SSG conversion postponed until main is ready for production deployment.
+✅ **Status**: Using SSR (`output: 'server'`) with instant content updates.
 
-The site **currently uses SSR**, but **should convert to SSG/hybrid** when deploying main to production.
+The site uses SSR to provide a WordPress/Squarespace-like editing experience where content changes appear immediately after saving in Sanity Studio.
 
-### Recommended Future Configuration: Hybrid Rendering
+### Why SSR?
 
-When ready to deploy main, convert to hybrid rendering for optimal performance:
+**Instant Content Updates:**
+- ✅ Save in Sanity Studio → Refresh browser → See changes immediately
+- ✅ No waiting for builds or webhook-triggered deploys
+- ✅ Matches the experience content editors expect from traditional CMS platforms
 
-**Why SSG?**
-- ✅ **Performance**: Pre-built pages are lightning fast
-- ✅ **Cost Efficiency**: One build = 50 API requests vs thousands from visitors
-- ✅ **Reliability**: Pre-built pages can't fail; no dependency on Sanity being available
-- ✅ **Lower API Usage**: Dramatically reduces Sanity API request consumption
-- ✅ **Perfect for festival content**: Schedules, artists, news update occasionally, not every second
-
-**How Content Updates Work with SSG:**
+**How It Works:**
 1. Content editor publishes/updates in Sanity Studio
-2. Webhook triggers Vercel rebuild (1-2 minutes)
-3. Site rebuilds with fresh content from Sanity
-4. Next 10,000 visitors see pre-built pages (zero API calls to Sanity)
+2. Next page request fetches fresh content from Sanity's CDN
+3. Changes are visible immediately (no rebuild needed)
 
-**Alternative: SSR (Server-Side Rendering)**
-- Would fetch content on every page request
-- Always shows latest content instantly
-- Uses significantly more API requests
-- Better for: real-time data, e-commerce inventory, personalized content
-- Not ideal for: festival websites with relatively static content
+**Trade-offs Accepted:**
+- Slightly higher latency (~100-200ms per request vs CDN-cached static pages)
+- Site depends on Sanity being available at runtime
+- Higher Vercel costs (function invocations instead of static assets)
+
+### Caching Strategy
+
+**Application-level cache:** Disabled (`CACHE_DURATION = 0` in `dataService.ts`)
+- Sanity's CDN (`useCdn: true`) handles caching
+- No double-caching needed for a modest-traffic festival website
+
+**Sanity CDN:** Enabled
+- API responses are cached at Sanity's edge
+- Fresh content propagates within seconds
+
+### Alternative: Static Site Generation (SSG)
+
+If instant updates aren't needed and you prefer maximum performance/reliability:
+
+```javascript
+// frontend/astro.config.mjs
+output: 'static',  // Build all pages at deploy time
+```
+
+With SSG:
+- Content updates require webhook-triggered rebuilds (45+ seconds)
+- Pre-built pages are served from CDN (fastest possible)
+- Site works even if Sanity is down
 
 ---
 
@@ -299,8 +316,8 @@ Understanding your Sanity plan limits (as of 2025):
 - Available: 1 more if needed (could add `staging` for testing)
 
 **Webhooks (2):**
-- Planned: 1 webhook for production rebuilds
-- Available: 1 more for future use (notifications, integrations)
+- Not used with SSR (content updates are instant without rebuilds)
+- Available: 2 for future use if switching to SSG or for notifications
 
 ### Optimizing API Usage
 
@@ -323,35 +340,25 @@ This change:
 
 ## Webhook Configuration
 
-Webhooks enable automatic site rebuilds when content changes in Sanity Studio.
+### With SSR: Webhooks Not Required
 
-### Strategy: Production Webhook Only
+✅ **Current status:** Using SSR with instant content updates. **No webhook configured.**
+
+With SSR mode, content changes in Sanity are fetched fresh on each page request. Webhooks that trigger rebuilds are unnecessary and have been removed.
+
+### With SSG: Webhooks Required
+
+If you switch back to SSG (`output: 'static'`), webhooks become essential for content updates.
 
 **Staging (`staging` branch):**
-- ❌ **NO webhook configured**
-- Manual rebuilds for testing
-- Prevents unnecessary deploys during development
+- ❌ **NO webhook** - Manual rebuilds for testing
 
 **Production (`main` branch):**
-- ✅ **Webhook configured** (when main is deployed)
-- Auto-rebuilds on content publish
-- Content editors can publish independently
+- ✅ **Webhook required** for content updates
 
-### When to Set Up Production Webhook
+### How to Configure Webhook (Only for SSG)
 
-⚠️ **DO NOT set up the webhook until `main` is deployed to production**
-
-**Timeline:**
-1. ✅ Convert to SSG on current branch
-2. ✅ Test SSG build locally
-3. ✅ Merge to `staging` and verify
-4. ⏳ Wait until ready to deploy `main` to production
-5. ⏳ Deploy `main` to production
-6. ⏳ **THEN** configure webhook
-
-### How to Configure Webhook (Future Step)
-
-When ready to deploy `main`:
+If using SSG and need webhook-triggered rebuilds:
 
 #### 1. Get Vercel Deploy Hook URL
 
@@ -426,12 +433,12 @@ Ensure `SITE_URL` is set correctly for production:
 
 Push to `main` branch, and Vercel will automatically deploy to production.
 
-### 4. Configure Production Webhook
+### 4. Verify Instant Content Updates
 
-⚠️ **IMPORTANT**: Only after production is live:
-- Set up Vercel deploy hook for `main` branch
-- Configure webhook in Sanity (see Webhook Configuration section above)
-- Test the complete flow: Edit in Studio → Webhook → Build → Live site updates
+With SSR mode, content updates work immediately:
+- Edit content in Sanity Studio
+- Refresh the production site
+- Changes appear instantly (no webhook or rebuild needed)
 
 ---
 
@@ -529,11 +536,11 @@ vercel logs [deployment-url]
 
 ---
 
-## SSG/Hybrid Implementation Checklist
+## SSG/Hybrid Implementation Checklist (Optional)
 
-⚠️ **To be completed when main is ready for production deployment**
+ℹ️ **Only use if switching away from SSR**
 
-Use this checklist when converting from SSR to hybrid rendering:
+The site currently uses SSR for instant content updates. Use this checklist only if you want to switch to SSG (static) for maximum performance at the cost of slower content updates:
 
 ### Pre-Deployment Tasks
 
@@ -561,15 +568,11 @@ Use this checklist when converting from SSR to hybrid rendering:
 - [ ] Configure production domain in Vercel
 - [ ] Update DNS at Webhuset
 - [ ] Wait for DNS propagation
-- [ ] Create Vercel deploy hook for `main` branch
-- [ ] Configure webhook in Sanity dashboard
-- [ ] Test webhook: Edit content → Verify auto-rebuild
-- [ ] Monitor first few rebuilds for issues
+- [ ] Test instant content updates (edit in Sanity → refresh → see changes)
 
 ### Post-Deployment Monitoring
 
 - [ ] Check Sanity API usage in first week
-- [ ] Monitor Vercel build times
-- [ ] Verify webhook deliveries are successful
-- [ ] Test content editor workflow (publish → see updates)
+- [ ] Monitor Vercel function invocations (SSR mode)
+- [ ] Test content editor workflow (publish → refresh → see updates)
 - [ ] Document any issues or optimizations needed

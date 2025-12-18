@@ -2,16 +2,19 @@ import { sanityClient } from 'sanity:client';
 import { QueryBuilder, buildQueryParams, type QueryDefinition, type QueryOptions } from './queryBuilder.js';
 import { transformMultilingualDocument, detectLanguage, type Language } from '../utils/language.js';
 
-// Cache configuration - shorter cache in development
+// Development mode flag for debug logging
 const isDevelopment = import.meta.env.DEV;
 
+// Cache configuration - disabled for instant content updates
+// Sanity's CDN (useCdn: true) handles caching; no need to double-cache here.
+// With SSR mode, this allows content changes in Sanity to appear immediately.
 const CACHE_DURATION = {
-  homepage: isDevelopment ? 1 : 3600, // 1 sec dev, 1 hour prod
-  page: isDevelopment ? 1 : 7200, // 1 sec dev, 2 hours prod
-  events: isDevelopment ? 1 : 300, // 1 sec dev, 5 minutes prod
-  articles: isDevelopment ? 1 : 1800, // 1 sec dev, 30 minutes prod
-  artists: isDevelopment ? 1 : 3600, // 1 sec dev, 1 hour prod
-  default: isDevelopment ? 1 : 1800 // 1 sec dev, 30 minutes prod
+  homepage: 0,
+  page: 0,
+  events: 0,
+  articles: 0,
+  artists: 0,
+  default: 0
 };
 
 // In-memory cache
