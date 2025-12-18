@@ -1,40 +1,32 @@
 name: Deploy Sanity Studio
 
 on:
-  workflow_run:
-    workflows: ["CI"]
-    types:
-      - completed
+  push:
     branches: [main]
+    paths:
+      - 'studio/**'  # Only run when Studio files change
 
 jobs:
   deploy-studio:
     name: Deploy Sanity Studio
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v6
         with:
           node-version: 22.x
-          package-manager-cache: false  # Breaks with npm workspaces
 
-      - name: Install dependencies
-        run: cd studio && npm install
-
-      - name: Build studio
-        run: cd studio && npm run build
+      - name: Install and build
+        run: cd studio && npm install && npm run build
         env:
           SANITY_STUDIO_PROJECT_ID: ${{ secrets.SANITY_STUDIO_PROJECT_ID }}
           SANITY_STUDIO_DATASET: ${{ secrets.SANITY_STUDIO_DATASET }}
 
-      - name: Deploy to Sanity hosting
-        run: |
-          cd studio
-          npx sanity deploy --source dist
+      - name: Deploy to Sanity
+        run: cd studio && npx sanity deploy --source dist
         env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
