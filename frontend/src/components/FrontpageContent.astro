@@ -224,6 +224,11 @@ const slugEn = homepage?.slug_en?.current ? stegaClean(homepage.slug_en.current)
     display: block;
   }
 
+  /* Opera browser fix - font-size-adjust breaks SVG text rendering */
+  :global(body.is-opera) .tekst-logo :global(svg) {
+    font-size-adjust: none;
+  }
+
   /* Header links - matching Link.astro styling */
   .header-links {
     display: flex;
@@ -270,3 +275,11 @@ const slugEn = homepage?.slug_en?.current ? stegaClean(homepage.slug_en.current)
     gap: var(--space-l);
   }
 </style>
+
+<script>
+  // Detect Opera browser and add class for CSS targeting
+  // Opera's user agent contains "OPR/" (not "Opera" which is legacy)
+  if (navigator.userAgent.includes('OPR/')) {
+    document.body.classList.add('is-opera');
+  }
+</script>
