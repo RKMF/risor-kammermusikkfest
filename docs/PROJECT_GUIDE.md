@@ -497,6 +497,35 @@ cd studio && npm audit
 - Studio URL: `http://localhost:3333`
 - Frontend URL: `http://localhost:4321`
 
+### Analytics
+
+**Vercel Web Analytics and Speed Insights** are enabled for production deployments. No configuration needed - Vercel auto-detects the environment.
+
+**What's Tracked:**
+- **Web Analytics**: Page views, unique visitors, referrers, geography, device types
+- **Speed Insights**: Core Web Vitals (LCP, FID, CLS), performance metrics
+
+**View Dashboard:**
+- Vercel Dashboard > risor-kammermusikkfest-frontend > Analytics tab
+- Direct link: https://vercel.com/risor-kammermusikkfests-projects/risor-kammermusikkfest-frontend/analytics
+
+**Exclude Yourself from Tracking:**
+
+To prevent your development/testing visits from skewing analytics data, run this once in your browser console on the live site:
+
+```javascript
+// Disable tracking for this browser
+localStorage.setItem('va-disable', 'true')
+
+// To re-enable tracking later
+localStorage.removeItem('va-disable')
+```
+
+**Implementation:**
+- Components: `@vercel/analytics/astro` and `@vercel/speed-insights/astro`
+- Location: `frontend/src/layouts/Layout.astro`
+- Only runs in production (local dev is not tracked)
+
 ---
 
 ## 4. Development Workflow
