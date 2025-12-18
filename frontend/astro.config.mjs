@@ -39,8 +39,8 @@ export default defineConfig({
     port: 4321   // Your desired port
   },
 
-  // Output configuration: static pages + SSR for routes with prerender=false
-  output: 'static', // Astro 5: static is default, use prerender=false for SSR routes
+  // Output configuration: SSR for instant content updates from Sanity
+  output: 'server', // All pages server-rendered for instant content updates
   adapter: vercel(),
 
   // Modern image optimization configuration
