@@ -1,6 +1,8 @@
 ---
 import { VisualEditing } from "@sanity/astro/visual-editing";
 import { sanityClient } from "sanity:client";
+import Analytics from '@vercel/analytics/astro';
+import SpeedInsights from '@vercel/speed-insights/astro';
 import Menu from '../components/Menu.astro';
 import type { MenuItem } from '../components/Menu.astro';
 import Footer from '../components/Footer.astro';
@@ -141,6 +143,20 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
       type="font/woff2"
       crossorigin
     />
+
+    <!-- Analytics: Developer exclusion via beforeSend -->
+    <script is:inline>
+      window.webAnalyticsBeforeSend = function(event) {
+        // Exclude developers who have set va-disable in localStorage
+        if (localStorage.getItem('va-disable') === 'true') {
+          return null;
+        }
+        return event;
+      };
+    </script>
+
+    <!-- Vercel Web Analytics -->
+    <Analytics />
 
     <!-- Minimal critical styles -->
     <style>
@@ -377,6 +393,9 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
 
     <!-- bfcache handler - refresh stale data on back/forward navigation -->
     <script src="../scripts/bfcacheHandler.js"></script>
+
+    <!-- Vercel Speed Insights -->
+    <SpeedInsights />
   </body>
 </html>
 
