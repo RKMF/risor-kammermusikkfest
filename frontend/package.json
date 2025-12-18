@@ -18,28 +18,28 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@astrojs/check": "0.9.4",
-    "@astrojs/react": "4.2.1",
+    "@astrojs/check": "0.9.6",
+    "@astrojs/react": "4.4.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "@astrojs/sitemap": "3.6.0",
-    "@astrojs/vercel": "8.0.4",
-    "@portabletext/types": "2.0.13",
+    "@astrojs/vercel": "9.0.2",
+    "@portabletext/types": "4.0.0",
     "@sanity/astro": "3.2.10",
-    "@sanity/client": "^6.29.1",
-    "@sanity/image-url": "^1.1.0",
+    "@sanity/client": "^7.13.2",
+    "@sanity/image-url": "^2.0.2",
     "astro": "5.16.6",
     "astro-htmx": "1.0.6",
-    "astro-portabletext": "^0.11.1",
+    "astro-portabletext": "^0.12.0",
     "htmx.org": "^2.0.6",
-    "sanity": "4.22.0",
+    "sanity": "5.0.1",
     "styled-components": "^6.1.18"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",
-    "@vitest/ui": "^3.2.4",
+    "@vitest/ui": "^4.0.16",
     "happy-dom": "20.0.11",
-    "typescript": "5.9.2",
-    "vitest": "^3.2.4"
+    "typescript": "5.9.3",
+    "vitest": "^4.0.16"
   }
 }
