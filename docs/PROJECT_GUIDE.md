@@ -446,8 +446,26 @@ This project uses a proven, tested combination of Node.js, Astro, and Sanity ver
 
 **Automated Protection:**
 - CI pipeline runs security scans on every push and PR
-- Dependabot creates PRs for dependency updates (weekly)
 - New code with serious vulnerabilities won't deploy (your live site keeps running the previous safe version)
+
+**Manual Dependency Updates (Quarterly):**
+Every 3 months (January, April, July, October), update dependencies manually:
+```bash
+# On staging branch
+cd frontend && npm update && npm run build
+cd ../studio && npm update && npm run build
+
+# Test locally
+npm run dev:frontend  # Terminal 1
+npm run dev:studio    # Terminal 2
+
+# If working, commit and push to staging
+git add -A && git commit -m "chore: Quarterly dependency update"
+git push origin staging
+
+# Test on testing.kammermusikkfest.no
+# Then create PR: staging → main
+```
 
 **Manual Checks:**
 Before major releases or dependency updates:
@@ -506,24 +524,44 @@ cd studio && npm audit
 
 ### Branch Strategy: Two-Branch Model
 
-**Permanent Branches (Protected):**
-- `main` - Production branch (deploys to live URL)
-- `staging` - Testing/preview branch (deploys to test URL)
+**Permanent Branches:**
 
-Both branches are **protected** on GitHub:
-- Direct pushes are blocked
-- Changes require Pull Requests
-- CI checks must pass before merge
+| Branch | Purpose | URL | Protection |
+|--------|---------|-----|------------|
+| `staging` | Development & testing | testing.kammermusikkfest.no | CI required, allow direct push |
+| `main` | Production only | www.kammermusikkfest.no | CI required, require PR |
+
+**Branch Protection Settings:**
+- **staging**: CI must pass, no required reviews, direct push allowed (for quick fixes)
+- **main**: CI must pass, PR required (enforces staging → main flow), no required reviews
 
 **Temporary Branches (Your Workspace):**
 - `feature/*` - New features (e.g., `feature/ticket-sales`)
 - `fix/*` - Bug fixes (e.g., `fix/date-formatting`)
 - `chore/*` - Maintenance tasks (e.g., `chore/update-deps`)
 
-**⚠️ IMPORTANT: Where You Work**
-- ❌ **NEVER work directly in `main`** - Production only, merge via PR
-- ❌ **NEVER work directly in `staging`** - Testing only, merge via PR
-- ✅ **ALWAYS work in feature branches** - Create from staging, merge back to staging
+**⚠️ CRITICAL WORKFLOW RULES:**
+
+1. **ALL work happens on staging first**
+   - Create feature branches FROM staging
+   - Merge feature branches TO staging
+   - Test on testing.kammermusikkfest.no
+
+2. **main is ONLY updated via PR from staging**
+   - Never commit directly to main
+   - Never create feature branches from main
+   - One PR: staging → main (for releases)
+
+3. **Sync direction is ONE WAY: staging → main**
+   - Never merge main into staging
+   - If main gets ahead somehow, reset it to staging
+
+```
+feature-branch → staging → main
+                    ↓         ↓
+              testing.    www.
+              kammermusikkfest.no
+```
 
 ### Standard Workflow
 
