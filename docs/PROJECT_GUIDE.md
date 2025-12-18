@@ -528,12 +528,12 @@ cd studio && npm audit
 
 | Branch | Purpose | URL | Protection |
 |--------|---------|-----|------------|
-| `staging` | Development & testing | testing.kammermusikkfest.no | Allow direct push |
-| `main` | Production only | www.kammermusikkfest.no | Require PR |
+| `staging` | Development & testing | testing.kammermusikkfest.no | None |
+| `main` | Production only | www.kammermusikkfest.no | PR + linear history |
 
 **Branch Protection Settings:**
-- **staging**: No protection needed (Vercel validates builds automatically)
-- **main**: PR required (enforces staging → main flow), no required reviews
+- **staging**: No protection (Vercel validates builds automatically)
+- **main**: PR required + linear history (enforces staging → main flow, clean commit history)
 
 **Temporary Branches (Your Workspace):**
 - `feature/*` - New features (e.g., `feature/ticket-sales`)
