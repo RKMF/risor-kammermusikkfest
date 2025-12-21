@@ -375,8 +375,8 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
       </a>
     </div>
 
-    {/* Hide sponsor acknowledgment on sponsors page */}
-    {!Astro.url.pathname.match(/^\/(sponsorer|en\/sponsors)\/?$/) && (
+    {/* Hide sponsor acknowledgment on frontpage and sponsors page */}
+    {!Astro.url.pathname.match(/^\/(sponsorer|en\/sponsors|en)?\/?$/) && (
       <div class="sponsor-acknowledgment">
         <p class="sponsor-acknowledgment-title">
           {currentLang === 'no' ? 'Takk til alle våre sponsorer!' : 'Thank you to all our sponsors!'}

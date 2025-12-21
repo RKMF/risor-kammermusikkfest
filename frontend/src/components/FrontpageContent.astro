@@ -100,7 +100,7 @@ const slugEn = homepage?.slug_en?.current ? stegaClean(homepage.slug_en.current)
                   href={resolveLinkUrl(link, language)}
                   class="header-link hover-underline"
                 >
-                  <span class="header-link__text">{link.text}</span>
+                  <span class="header-link__text">{link.text} →</span>
                 </a>
                 {link.description && (
                   <p class="header-link__description">{link.description}</p>
@@ -205,9 +205,6 @@ const slugEn = homepage?.slug_en?.current ? stegaClean(homepage.slug_en.current)
     background-image: none;
   }
 
-  .header-link::after {
-    content: ' →';
-  }
 
   .header-link:focus-visible {
     background-color: var(--color-tint-blue-light);
