@@ -47,7 +47,7 @@ const processedLinks = links.map((link) => ({
           return (
             <li class="link-item">
               <a href={link.url} class="link hover-underline" target={target} rel={rel}>
-                <span class="link-text">{link.text}</span>
+                <span class="link-text">{link.text} →</span>
                 {link.openInNewTab && (
                   <span class="visually-hidden"> (åpnes i ny fane)</span>
                 )}
@@ -92,9 +92,6 @@ const processedLinks = links.map((link) => ({
     background-image: none;
   }
 
-  .link::after {
-    content: ' →';
-  }
 
   /* Focus state uses global styles, just add background */
   .link:focus-visible {
