@@ -39,6 +39,10 @@ export const structure = (S: StructureBuilder) =>
         .title('Artikkeloversikt')
         .icon(DocumentTextIcon)
         .child(S.document().schemaType('articlePage').documentId('articlePage')),
+      S.listItem()
+        .title('Sponsoroversikt')
+        .icon(UsersIcon)
+        .child(S.document().schemaType('sponsorPage').documentId('sponsorPage')),
       S.listItem().title('Faste sider').icon(DocumentsIcon).child(S.documentTypeList('page')),
 
       // Festivalinnhold
@@ -76,5 +80,11 @@ export const structure = (S: StructureBuilder) =>
         .icon(ComposeIcon)
         .child(
           S.documentTypeList('composer').defaultOrdering([{ field: 'name', direction: 'asc' }])
+        ),
+      S.listItem()
+        .title('Sponsorer')
+        .icon(UsersIcon)
+        .child(
+          S.documentTypeList('sponsor').defaultOrdering([{ field: 'name', direction: 'asc' }])
         ),
     ]);

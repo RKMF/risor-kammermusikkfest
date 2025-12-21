@@ -174,6 +174,15 @@ export class SanityDataService {
     );
   }
 
+  async getSponsorPage(options: QueryOptions = {}) {
+    return this.fetch(
+      QueryBuilder.sponsorPage(this.language),
+      options,
+      `sponsorPage:${this.language}`,
+      CACHE_DURATION.page
+    );
+  }
+
   // Article methods
   async getArticleBySlug(slug: string, options: QueryOptions = {}) {
     if (isDevelopment) console.log('[DataService] Getting article by slug:', slug, 'language:', this.language);

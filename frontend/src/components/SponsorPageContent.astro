@@ -1,0 +1,205 @@
+---
+import ContentPageLayout from '../layouts/ContentPageLayout.astro';
+import { createDataService } from '../lib/sanity/dataService.js';
+
+interface Props {
+  language: 'no' | 'en';
+}
+
+const { language } = Astro.props;
+
+// Language-specific configuration
+const config = {
+  no: {
+    fallbackTitle: 'Sponsorer',
+    emptyTitle: 'Ingen sponsorer',
+    emptyText: 'Kom tilbake senere for å se våre sponsorer.'
+  },
+  en: {
+    fallbackTitle: 'Sponsors',
+    emptyTitle: 'No sponsors',
+    emptyText: 'Check back later to see our sponsors.'
+  }
+}[language];
+
+// Create data service with Visual Editing support
+const dataService = createDataService(Astro.request);
+
+// Fetch sponsor page content
+const sponsorPage = await dataService.getSponsorPage();
+
+// Get selected sponsors from the page query (preserves editor's order)
+const allSponsors = sponsorPage?.selectedSponsors || [];
+
+// Split sponsors: those with logos and those without
+const sponsorsWithLogos = allSponsors.filter((s: any) => s.logo?.asset?.url);
+const sponsorsWithoutLogos = allSponsors.filter((s: any) => !s.logo?.asset?.url);
+
+// Top 3 sponsors with logos get prominent placement
+const topSponsors = sponsorsWithLogos.slice(0, 3);
+const otherSponsorsWithLogos = sponsorsWithLogos.slice(3);
+
+// Fallback values
+const pageTitle = sponsorPage?.title || config.fallbackTitle;
+
+// Check if we have any sponsors
+const hasSponsors = allSponsors.length > 0;
+
+// Helper to get logo URL - SVGs served directly, others can be optimized
+function getLogoUrl(logo: any): string {
+  if (!logo?.asset?.url) return '';
+  return logo.asset.url;
+}
+---
+
+<ContentPageLayout
+  title={pageTitle}
+  excerpt={sponsorPage?.excerpt}
+  pageDocument={sponsorPage}
+>
+  {hasSponsors ? (
+    <>
+      {topSponsors.length > 0 && (
+        <ul class="sponsors-grid sponsors-grid--top">
+          {topSponsors.map((sponsor: any) => (
+            <li>
+              <a href={sponsor.url} target="_blank" rel="noopener noreferrer">
+                <img
+                  src={getLogoUrl(sponsor.logo)}
+                  alt={sponsor.name}
+                  class="sponsor-logo sponsor-logo--top"
+                  loading="lazy"
+                />
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {otherSponsorsWithLogos.length > 0 && (
+        <ul class="sponsors-grid sponsors-grid--logos">
+          {otherSponsorsWithLogos.map((sponsor: any) => (
+            <li>
+              <a href={sponsor.url} target="_blank" rel="noopener noreferrer">
+                <img
+                  src={getLogoUrl(sponsor.logo)}
+                  alt={sponsor.name}
+                  class="sponsor-logo"
+                  loading="lazy"
+                />
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {sponsorsWithoutLogos.length > 0 && (
+        <ul class="sponsors-grid sponsors-grid--text">
+          {sponsorsWithoutLogos.map((sponsor: any) => (
+            <li>{sponsor.name}</li>
+          ))}
+        </ul>
+      )}
+    </>
+  ) : (
+    <div class="no-sponsors">
+      <h3 class="no-sponsors-title">{config.emptyTitle}</h3>
+      <p class="no-sponsors-text">{config.emptyText}</p>
+    </div>
+  )}
+</ContentPageLayout>
+
+<style>
+  ul.sponsors-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-xl);
+    margin-block: var(--space-2xl);
+    text-align: center;
+  }
+
+  ul.sponsors-grid:first-child {
+    margin-block-start: var(--space-3xl);
+  }
+
+  ul.sponsors-grid--top + ul.sponsors-grid--logos {
+    margin-block-start: var(--space-l);
+  }
+
+  ul.sponsors-grid--top {
+    gap: var(--space-xl);
+  }
+
+  ul.sponsors-grid--text {
+    gap: var(--space-m) var(--space-l);
+  }
+
+  ul.sponsors-grid > li {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  ul.sponsors-grid > li > a {
+    display: block;
+    cursor: pointer;
+  }
+
+  ul.sponsors-grid--text > li {
+    padding: var(--space-xs) var(--space-s);
+    font-size: var(--step-0);
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .sponsor-logo {
+    height: 60px;
+    width: auto;
+    max-width: 200px;
+    object-fit: contain;
+  }
+
+  .sponsor-logo--top {
+    height: 80px;
+  }
+
+  .no-sponsors {
+    text-align: center;
+    padding: var(--space-xl);
+  }
+
+  .no-sponsors-title {
+    font-size: var(--step-2);
+    margin-block-end: var(--space-s);
+  }
+
+  .no-sponsors-text {
+    font-size: var(--step-0);
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 640px) {
+    .sponsors-grid {
+      gap: var(--space-m);
+    }
+
+    .sponsors-grid--top {
+      gap: var(--space-l);
+    }
+
+    .sponsor-logo {
+      height: 48px;
+      max-width: 150px;
+    }
+
+    .sponsor-logo--top {
+      height: 60px;
+    }
+  }
+</style>

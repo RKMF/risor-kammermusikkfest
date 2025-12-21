@@ -10,6 +10,8 @@ import { venue } from './documents/venue';
 import { eventDate } from './documents/eventDate';
 import { page } from './documents/page';
 import { article } from './documents/article';
+import { sponsor } from './documents/sponsor';
+import { sponsorPage } from './documents/sponsorPage';
 
 // Importer komponenter
 import * as components from './components';
@@ -29,6 +31,8 @@ export const schemaTypes = [
   eventDate,
   page,
   article,
+  sponsor,
+  sponsorPage,
   // Objekter
   seoType,
   // Komponenter - sørg for at alle er registrert

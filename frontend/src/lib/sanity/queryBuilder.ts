@@ -535,6 +535,55 @@ const buildArtistPageQuery = (language: Language = 'no') => defineQuery(`*[_type
   }
 }`)
 
+// Helper to build sponsor base fields
+const SPONSOR_IMAGE_SELECTION = `
+  "logo": logo{
+    asset->{
+      _id,
+      url,
+      mimeType,
+      metadata {
+        dimensions {
+          width,
+          height,
+          aspectRatio
+        },
+        lqip
+      }
+    },
+    hotspot,
+    crop
+  }
+`
+
+const buildSponsorBaseFields = (): string => `
+  _id,
+  _type,
+  name,
+  ${SPONSOR_IMAGE_SELECTION},
+  url
+`
+
+const buildSponsorPageQuery = (language: Language = 'no') => defineQuery(`*[_type == "sponsorPage" && (publishingStatus != "draft" || !defined(publishingStatus))][0]{
+  _id,
+  _type,
+  ${createMultilingualField('title', language)},
+  "slug": slug.current,
+  slug_no,
+  slug_en,
+  ${createMultilingualField('excerpt', language)},
+  content_no[]{
+    ${PAGE_CONTENT_WITH_LINKS}
+  },
+  content_en[]{
+    ${PAGE_CONTENT_WITH_LINKS}
+  },
+  seo,
+  "selectedSponsors": selectedSponsors[]->{
+    ${buildSponsorBaseFields()}
+  }
+}`)
+
 const buildArticlePageQuery = (language: Language = 'no') => defineQuery(`*[_type == "articlePage" && (publishingStatus != "draft" || !defined(publishingStatus))][0]{
   _id,
   _type,
@@ -634,12 +683,12 @@ const SITE_SETTINGS_MENU_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
     _type,
     "title_no": select(
       _type == "homepage" => coalesce(title_no, "Hjem"),
-      _type in ["programPage", "artistPage", "articlePage"] => coalesce(title_no, title),
+      _type in ["programPage", "artistPage", "articlePage", "sponsorPage"] => coalesce(title_no, title),
       _type == "page" => coalesce(title_no, title_en, "Page")
     ),
     "title_en": select(
       _type == "homepage" => coalesce(title_en, "Home"),
-      _type in ["programPage", "artistPage", "articlePage"] => coalesce(title_en, title),
+      _type in ["programPage", "artistPage", "articlePage", "sponsorPage"] => coalesce(title_en, title),
       _type == "page" => coalesce(title_en, title_no, "Page")
     ),
     "slug_no": select(
@@ -647,6 +696,7 @@ const SITE_SETTINGS_MENU_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
       _type == "programPage" => "/program",
       _type == "artistPage" => "/artister",
       _type == "articlePage" => "/artikler",
+      _type == "sponsorPage" => "/sponsorer",
       _type == "page" => "/" + coalesce(slug_no.current, slug_en.current, "")
     ),
     "slug_en": select(
@@ -654,6 +704,7 @@ const SITE_SETTINGS_MENU_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
       _type == "programPage" => "/en/program",
       _type == "artistPage" => "/en/artists",
       _type == "articlePage" => "/en/articles",
+      _type == "sponsorPage" => "/en/sponsors",
       _type == "page" => "/en/" + coalesce(slug_en.current, slug_no.current, "")
     )
   },
@@ -684,26 +735,6 @@ const SITE_SETTINGS_FOOTER_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
   newsletterTitle_en,
   socialMedia[]{
     name,
-    url
-  },
-  sponsors[]{
-    name,
-    "logo": logo{
-      asset->{
-        _id,
-        url,
-        metadata {
-          dimensions {
-            width,
-            height,
-            aspectRatio
-          },
-          lqip
-        }
-      },
-      hotspot,
-      crop
-    },
     url
   },
   "symbolLogo": logos[name == "Symbol"][0]{
@@ -750,6 +781,9 @@ export const QueryBuilder = {
   },
   articlePage(language: Language = 'no'): QueryDefinition<ArticleResult[]> {
     return {query: buildArticlePageQuery(language), params: {}}
+  },
+  sponsorPage(language: Language = 'no'): QueryDefinition {
+    return {query: buildSponsorPageQuery(language), params: {}}
   },
   eventBySlug(slug: string, language: Language = 'no'): QueryDefinition<EventResult, {slug: string}> {
     return {query: buildEventBySlugQuery(language), params: {slug}}

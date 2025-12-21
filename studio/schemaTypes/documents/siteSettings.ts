@@ -1,5 +1,5 @@
 import { defineField, defineType } from 'sanity';
-import { CogIcon, ComposeIcon, ImageIcon, UsersIcon, HeartIcon, MenuIcon } from '@sanity/icons';
+import { CogIcon, ComposeIcon, ImageIcon, HeartIcon, MenuIcon } from '@sanity/icons';
 import { multilingualImageFields, imageFieldsets } from '../shared/imageFields';
 import { seoGroup } from '../objects/seoFields';
 import { componentValidation, crossFieldValidation } from '../shared/validation';
@@ -43,11 +43,6 @@ export const siteSettings = defineType({
       icon: ImageIcon,
     },
     seoGroup,
-    {
-      name: 'sponsors',
-      title: 'Sponsorer',
-      icon: UsersIcon,
-    },
   ],
   fieldsets: [
     {
@@ -150,6 +145,7 @@ export const siteSettings = defineType({
             { type: 'programPage' },
             { type: 'artistPage' },
             { type: 'articlePage' },
+            { type: 'sponsorPage' },
             { type: 'page' },
           ],
         },
@@ -290,51 +286,6 @@ export const siteSettings = defineType({
               return {
                 title: title || 'Uten navn',
                 subtitle: url || 'Ingen URL',
-              };
-            },
-          },
-        },
-      ],
-    }),
-    defineField({
-      name: 'sponsors',
-      title: 'Sponsorer',
-      type: 'array',
-      group: 'sponsors',
-      description: 'Liste over sponsorer med logo og lenke',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            defineField({
-              name: 'name',
-              title: 'Sponsornavn',
-              type: 'string',
-            }),
-            defineField({
-              name: 'logo',
-              title: 'Sponsorlogo',
-              type: 'image',
-              options: { hotspot: true },
-            }),
-            defineField({
-              name: 'url',
-              title: 'Lenke til sponsor',
-              type: 'url',
-              description: 'URL til sponsor nettside',
-            }),
-          ],
-          preview: {
-            select: {
-              title: 'name',
-              media: 'logo',
-              url: 'url',
-            },
-            prepare({ title, media, url }) {
-              return {
-                title: title || 'Uten navn',
-                subtitle: url ? 'Har lenke' : 'Ingen lenke',
-                media,
               };
             },
           },
