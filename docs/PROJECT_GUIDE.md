@@ -560,6 +560,10 @@ localStorage.removeItem('va-disable')
 | `staging` | Development & testing | testing.kammermusikkfest.no | None |
 | `main` | Production only | www.kammermusikkfest.no | PR + linear history |
 
+**⚠️ NEVER DELETE these branches** - They are permanent and connected to Vercel deployments:
+- `staging` → testing.kammermusikkfest.no
+- `main` → www.kammermusikkfest.no
+
 **Branch Protection Settings:**
 - **staging**: No protection (Vercel validates builds automatically)
 - **main**: PR required + linear history (enforces staging → main flow, clean commit history)
@@ -584,6 +588,11 @@ localStorage.removeItem('va-disable')
 3. **Sync direction is ONE WAY: staging → main**
    - Never merge main into staging
    - If main gets ahead somehow, reset it to staging
+
+4. **NEVER delete staging or main branches**
+   - These are permanent branches with Vercel deployments
+   - Use `--delete-branch` flag ONLY for feature branches
+   - If accidentally deleted, recreate immediately from the other branch
 
 ```
 feature-branch → staging → main
@@ -628,6 +637,7 @@ gh pr create --base main --head staging --title "Release: feature description"
 - **Always create feature branches from staging** (not from main)
 - **Always merge feature branches to staging first** (never directly to main)
 - **Delete feature branches immediately after merge** - keep repository clean
+- **Never delete staging or main** - only delete feature branches after merge
 - **Keep staging in sync with main** when starting new work
 - **Update your feature branch from staging** if it gets behind during development
 
