@@ -1,18 +1,16 @@
 ---
-import {buildInternalUrl, detectLanguageFromPath} from '../lib/buildInternalUrl'
-
-interface InternalLinkReference {
-  _type: string
-  slug?: string
-  slug_no?: string
-  slug_en?: string
-}
+import {resolveLinkUrl, detectLanguageFromPath} from '../lib/buildInternalUrl'
 
 interface LinkItem {
   linkType?: 'external' | 'internal'
   text: string
   url?: string
-  internalLink?: InternalLinkReference
+  internalLink?: {
+    _type: string
+    slug?: string
+    slug_no?: string
+    slug_en?: string
+  }
   description?: string
   openInNewTab?: boolean
 }
@@ -31,26 +29,11 @@ if (!links || links.length === 0) {
   return null
 }
 
-// Process links to resolve internal references to URLs
-const processedLinks = links.map((link) => {
-  let finalUrl: string | undefined
-
-  if (link.linkType === 'internal' && link.internalLink) {
-    // Build URL from internal reference
-    finalUrl = buildInternalUrl(link.internalLink, currentLanguage)
-  } else if (link.url) {
-    // Use external URL directly
-    finalUrl = link.url
-  } else {
-    // Fallback for legacy links without linkType
-    finalUrl = link.url
-  }
-
-  return {
-    ...link,
-    url: finalUrl,
-  }
-})
+// Process links using shared resolveLinkUrl function
+const processedLinks = links.map((link) => ({
+  ...link,
+  url: resolveLinkUrl(link, currentLanguage),
+}))
 ---
 
 <div class="link-component content-media-narrow">
@@ -80,9 +63,7 @@ const processedLinks = links.map((link) => {
 
 <style>
   .link-component {
-    background-color: var(--color-tint-blue-medium);
-    padding: var(--space-l);
-    margin-block: var(--space-m-l);
+    padding-block: var(--space-m);
   }
 
   .link-list {
@@ -105,14 +86,14 @@ const processedLinks = links.map((link) => {
     display: inline-flex;
     align-items: center;
     padding: var(--space-2xs) var(--space-xs);
-    /* Color inherited from global --color-link (blue) */
     font-weight: var(--font-weight-medium);
     font-size: var(--step-3);
+    line-height: var(--line-height-heading);
+    background-image: none;
   }
 
   .link::after {
     content: ' →';
-    margin-inline-start: 0.25em;
   }
 
   /* Focus state uses global styles, just add background */

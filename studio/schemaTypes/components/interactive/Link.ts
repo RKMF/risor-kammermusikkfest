@@ -9,19 +9,11 @@ export const linkComponent = defineType({
   type: 'object',
   icon: LinkIcon,
   description: 'Lag en gruppe med lenker med valgfri beskrivelsestekst',
-  groups: [
-    {
-      name: 'content',
-      title: 'Innhold',
-      default: true,
-    },
-  ],
   fields: [
     defineField({
       name: 'links',
       title: 'Lenker',
       type: 'array',
-      group: 'content',
       description: 'Legg til én eller flere lenker',
       validation: (Rule) => Rule.min(1).max(10).error('Du må ha mellom 1 og 10 lenker'),
       of: [
@@ -87,6 +79,7 @@ export const linkComponent = defineType({
                 { type: 'programPage' },
                 { type: 'artistPage' },
                 { type: 'articlePage' },
+                { type: 'sponsorPage' },
                 { type: 'page' },
                 { type: 'event' },
                 { type: 'artist' },
