@@ -620,18 +620,35 @@ git push origin feature/new-feature
 # 4. Create PR: feature/new-feature → staging
 gh pr create --base staging --title "Feature description"
 
-# 5. Review PR in Cursor IDE (GitHub Pull Requests extension)
-# - Or view in terminal: gh pr diff
-
-# 6. Merge to staging
+# 5. Merge to staging (squash merge, delete feature branch)
 gh pr merge --squash --delete-branch
 
-# 7. Test on staging URL, then promote to production
-gh pr create --base main --head staging --title "Release: feature description"
-# ⚠️ IMPORTANT: Review and merge in GitHub UI (not CLI) for production releases
+# 6. Test on testing.kammermusikkfest.no
 
-# 8. Feature branch already deleted by --delete-branch flag
+# 7. Create PR: staging → main
+gh pr create --base main --head staging --title "Release: feature description"
+
+# 8. Merge to main (squash merge, do NOT delete staging!)
+gh pr merge --squash
+
+# 9. Sync: Create PR to merge main back to staging
+gh pr create --base staging --head main --title "Sync: main → staging"
+gh pr merge --merge   # Use regular merge, not squash
 ```
+
+### Syncing Staging After Release
+
+After merging staging → main, the branches diverge because squash merge creates a new commit on main with a different SHA. To keep them in sync:
+
+1. Create a PR from main → staging (reverse direction)
+2. Merge with **regular merge** (not squash) to preserve history
+
+**Why this matters:**
+- Staging starts from latest production code for next feature
+- Prevents repeated merge conflicts on future PRs
+- Maintains consistent PR-based workflow for all changes
+
+**Why merge instead of reset?** Branch protection on staging prevents force-push. Using a PR maintains the same workflow for everything and creates an audit trail of syncs.
 
 ### Branch Management Rules
 - **Always create feature branches from staging** (not from main)
@@ -997,12 +1014,15 @@ npm run extract-schema  # Extract schema to frontend
 cd ../frontend && npm run typegen  # Generate types from schema
 
 # GitHub CLI (requires: brew install gh && gh auth login)
-gh pr create --base staging --title "Title"  # Create PR
-gh pr merge --squash --delete-branch         # Merge and cleanup
+gh pr create --base staging --title "Title"  # Create PR to staging
+gh pr merge --squash --delete-branch         # Merge feature branch
+gh pr merge --squash                         # Merge staging → main (no delete!)
 gh pr list                                   # List open PRs
 gh pr diff                                   # View PR diff
-gh issue list                                # List open issues
-gh issue create --title "Title"              # Create issue
+
+# Sync staging after release (required after each staging → main merge)
+gh pr create --base staging --head main --title "Sync: main → staging"
+gh pr merge --merge                          # Regular merge, not squash
 ```
 
 **Documentation:**
