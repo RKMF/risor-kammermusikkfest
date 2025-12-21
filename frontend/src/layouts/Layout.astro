@@ -375,6 +375,20 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
       </a>
     </div>
 
+    {/* Hide sponsor acknowledgment on sponsors page */}
+    {!Astro.url.pathname.match(/^\/(sponsorer|en\/sponsors)\/?$/) && (
+      <div class="sponsor-acknowledgment">
+        <p class="sponsor-acknowledgment-title">
+          {currentLang === 'no' ? 'Takk til alle våre sponsorer!' : 'Thank you to all our sponsors!'}
+        </p>
+        <a href={currentLang === 'no' ? '/sponsorer' : '/en/sponsors'} class="sponsor-acknowledgment-link">
+          <span class="sponsor-acknowledgment-text">
+            {currentLang === 'no' ? 'Se full oversikt her →' : 'See full overview here →'}
+          </span>
+        </a>
+      </div>
+    )}
+
     <!-- Footer -->
     <Footer currentLang={currentLang} siteSettings={siteSettings} />
 
@@ -409,9 +423,9 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
   */
 
   .back-to-top-container {
-    /* Spacing above and large spacing below */
+    /* Spacing above and below */
     margin-block-start: var(--space-l);
-    margin-block-end: calc(var(--space-3xl) * 2);
+    margin-block-end: var(--space-3xl);
 
     /* Center the link */
     text-align: center;
@@ -464,6 +478,67 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
   /* Print styles - hide back to top link */
   @media print {
     .back-to-top-container {
+      display: none !important;
+    }
+  }
+
+  /* ============================================
+     SPONSOR ACKNOWLEDGMENT
+     ============================================
+
+     Global sponsor thank-you section.
+     Appears after back-to-top, before footer on all pages.
+  */
+
+  .sponsor-acknowledgment {
+    text-align: center;
+    margin-block-end: var(--space-3xl);
+  }
+
+  .sponsor-acknowledgment-title {
+    font-weight: var(--font-weight-bold);
+    font-size: var(--step-1);
+    margin-block-end: var(--space-xs);
+  }
+
+  .sponsor-acknowledgment-link {
+    display: inline-block;
+    text-decoration: none;
+    background-image: none;
+    font-size: var(--step-1);
+  }
+
+  .sponsor-acknowledgment-text {
+    position: relative;
+  }
+
+  .sponsor-acknowledgment-text::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-end: 0;
+    inline-size: 100%;
+    block-size: 0.08em;
+    background-color: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform var(--transition-fast);
+  }
+
+  @media (hover: hover) {
+    .sponsor-acknowledgment-link:hover .sponsor-acknowledgment-text::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+
+  .sponsor-acknowledgment-link:focus-visible .sponsor-acknowledgment-text::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  @media print {
+    .sponsor-acknowledgment {
       display: none !important;
     }
   }

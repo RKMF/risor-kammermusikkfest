@@ -4,6 +4,7 @@ import DynamicComponent from './DynamicComponent.astro';
 import { createDataService } from '../lib/sanity/dataService.js';
 import { getMultilingualContent } from '../lib/utils/language.js';
 import { stegaClean } from '@sanity/client/stega';
+import { resolveLinkUrl } from '../lib/buildInternalUrl';
 import tekstLogoSvg from '../assets/tekst-logo.svg?raw';
 
 interface Props {
@@ -21,13 +22,6 @@ const config = {
     ariaNavLabel: 'Hovedlenker',
     emptyTitle: 'Velkommen til forsiden',
     emptyText: 'Ingen forside er konfigurert ennå. Gå til Sanity Studio for å opprette en forside.',
-    routes: {
-      artistPage: '/artister',
-      articlePage: '/artikler',
-      artist: '/artister',
-      article: '/artikler',
-      prefix: ''
-    }
   },
   en: {
     fallbackTitle: 'Home',
@@ -36,13 +30,6 @@ const config = {
     ariaNavLabel: 'Main links',
     emptyTitle: 'Welcome to the homepage',
     emptyText: 'No homepage is configured yet. Go to Sanity Studio to create a homepage.',
-    routes: {
-      artistPage: '/en/artists',
-      articlePage: '/en/articles',
-      artist: '/en/artists',
-      article: '/en/articles',
-      prefix: '/en'
-    }
   }
 }[language];
 
@@ -69,41 +56,6 @@ const content = homepage ? (getMultilingualContent(homepage, language) || homepa
 // Extract header links using config field name
 const headerLinks = homepage?.[config.headerLinksField] || [];
 const hasHeaderLinks = headerLinks.length > 0;
-
-// Helper to resolve internal link URLs
-function resolveInternalLinkUrl(link: any): string {
-  if (link.linkType === 'external' && link.url) {
-    return link.url;
-  }
-  if (link.linkType === 'internal' && link.internalLink) {
-    const ref = link.internalLink;
-    const slug = language === 'en'
-      ? (ref.slug_en || ref.slug_no || ref.slug)
-      : (ref.slug_no || ref.slug_en || ref.slug);
-
-    // Build URL based on document type
-    const { prefix, artistPage, articlePage, artist, article } = config.routes;
-    switch (ref._type) {
-      case 'programPage':
-        return `${prefix}/program`;
-      case 'artistPage':
-        return artistPage;
-      case 'articlePage':
-        return articlePage;
-      case 'event':
-        return `${prefix}/program/${slug}`;
-      case 'artist':
-        return `${artist}/${slug}`;
-      case 'article':
-        return `${article}/${slug}`;
-      case 'page':
-        return `${prefix}/${slug}`;
-      default:
-        return slug ? `${prefix}/${slug}` : prefix || '/';
-    }
-  }
-  return config.routes.prefix || '/';
-}
 
 // Extract slug information
 const slugNo = homepage?.slug_no?.current ? stegaClean(homepage.slug_no.current) : undefined;
@@ -145,7 +97,7 @@ const slugEn = homepage?.slug_en?.current ? stegaClean(homepage.slug_en.current)
             {headerLinks.map((link) => (
               <div class="header-link-item">
                 <a
-                  href={resolveInternalLinkUrl(link)}
+                  href={resolveLinkUrl(link, language)}
                   class="header-link hover-underline"
                 >
                   <span class="header-link__text">{link.text}</span>
@@ -249,6 +201,7 @@ const slugEn = homepage?.slug_en?.current ? stegaClean(homepage.slug_en.current)
     padding: var(--space-2xs) var(--space-xs);
     font-weight: var(--font-weight-medium);
     font-size: var(--step-3);
+    line-height: var(--line-height-heading);
     background-image: none;
   }
 

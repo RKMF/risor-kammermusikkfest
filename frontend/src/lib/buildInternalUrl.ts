@@ -3,13 +3,38 @@
  * Handles bilingual routing and all document types
  */
 
-type Language = 'no' | 'en'
+export type Language = 'no' | 'en'
 
 interface PageReference {
   _type: string
   slug?: string
   slug_no?: string
   slug_en?: string
+}
+
+interface LinkData {
+  linkType?: 'external' | 'internal'
+  url?: string
+  internalLink?: PageReference
+}
+
+/**
+ * Resolve any link (external or internal) to a URL
+ * Single source of truth for all link resolution in the project
+ */
+export function resolveLinkUrl(link: LinkData, language: Language = 'no'): string {
+  // External links - use URL directly
+  if (link.linkType === 'external' && link.url) {
+    return link.url
+  }
+
+  // Internal links - build URL from reference
+  if (link.linkType === 'internal' && link.internalLink) {
+    return buildInternalUrl(link.internalLink, language)
+  }
+
+  // Fallback for legacy links without linkType
+  return link.url || '/'
 }
 
 /**
@@ -41,6 +66,9 @@ export function buildInternalUrl(reference: PageReference, language: Language = 
     case 'articlePage':
       return language === 'en' ? '/en/articles' : '/artikler'
 
+    case 'sponsorPage':
+      return language === 'en' ? '/en/sponsors' : '/sponsorer'
+
     case 'event':
       if (!selectedSlug) return `${langPrefix}/program`
       return `${langPrefix}/program/${selectedSlug}`
@@ -58,7 +86,10 @@ export function buildInternalUrl(reference: PageReference, language: Language = 
       return `${langPrefix}/${selectedSlug}`
 
     default:
-      // Fallback for unknown types
+      // Use slug if available, otherwise homepage
+      if (selectedSlug) {
+        return `${langPrefix}/${selectedSlug}`
+      }
       console.warn(`Unknown document type for internal link: ${_type}`)
       return langPrefix || '/'
   }
