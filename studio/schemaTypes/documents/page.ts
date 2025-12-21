@@ -70,6 +70,15 @@ export const page = defineType({
         }),
     }),
     defineField({
+      name: 'excerpt_no',
+      title: 'Ingress (norsk)',
+      type: 'text',
+      description: 'Kort beskrivelse av siden på norsk (vises i lister)',
+      group: 'no',
+      rows: 2,
+      validation: componentValidation.description,
+    }),
+    defineField({
       name: 'content_no',
       title: 'Sideinnhold (norsk)',
       type: 'pageBuilder',
@@ -104,6 +113,15 @@ export const page = defineType({
           // Så sjekk standard slug-validering
           return componentValidation.slug(Rule).validate(value, context);
         }),
+    }),
+    defineField({
+      name: 'excerpt_en',
+      title: 'Excerpt (English)',
+      type: 'text',
+      description: 'Short description of the page in English (shown in lists)',
+      group: 'en',
+      rows: 2,
+      validation: componentValidation.description,
     }),
     defineField({
       name: 'content_en',
