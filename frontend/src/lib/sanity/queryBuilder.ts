@@ -257,7 +257,7 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
     ${ARTIST_IMAGE_SELECTION},
     instrument_no,
     instrument_en,
-    "instrument": coalesce(instrument_no, instrument_en),
+    ${createMultilingualField('instrument', language)},
     publishingStatus
   },
   "composers": composers[]->{
