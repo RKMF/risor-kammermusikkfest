@@ -1,9 +1,10 @@
-Restore context after compression.
+Clear conversation and restore context.
 
 ## Do This
-1. Read @docs/PROJECT_GUIDE.md
-2. Run: `git status && git branch --show-current`
-3. Run: `lsof -ti:3333,4321 || echo "No servers"`
+1. Run: `/clear`
+2. Read @docs/PROJECT_GUIDE.md
+3. Run: `git status && git branch --show-current`
+4. Run: `lsof -ti:3333,4321 || echo "No servers"`
 
 ## Rules That Get Lost
 - Read files before editing (never from memory)
