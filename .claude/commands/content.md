@@ -65,19 +65,78 @@ When creating new content, use `WebSearch` to find:
 - Notable achievements, awards, recordings
 - Recent performances, albums, collaborations
 - Quotes from interviews
+- Reviews and critical analysis
 - Connection to Risør (if applicable)
 - Related links for reference
 
 **Search strategy:**
 1. Artist/composer name + "biography"
 2. Artist/composer name + "interview"
-3. Artist/composer name + "Risør" (for festival connections)
+3. Artist/composer name + "review"
+4. Artist/composer name + "Risør" (for festival connections)
+
+**Chronological approach:** Search current year first, then work backwards. Newer references keep content up to date.
 
 Compile research into notes before writing.
 
 ---
 
-## Step 4: Write Norwegian Content
+## Step 4: Analyze Patterns from Similar Documents
+
+Query 2-3 existing published documents of the same type to understand established patterns:
+
+```groq
+*[_type == "<same-type>" && defined(content_no)][0...3]{
+  name,
+  "components": content_no[]._type
+}
+```
+
+Identify the pattern:
+- What component types are used?
+- What order/structure is typical?
+- How is content organized?
+
+Use this as a reference for consistent page architecture across similar document types.
+
+---
+
+## Step 5: Suggest Components Based on Research
+
+Analyze research findings and suggest components that match discoveries AND follow established patterns.
+
+| Research Finding | Potential Component |
+|------------------|---------------------|
+| 2+ interesting quotes | contentScrollContainer with quoteComponents |
+| 1 standout quote | Single quoteComponent |
+| Spotify artist/album | spotifyComponent |
+| YouTube performance/interview | videoComponent (placeholder) |
+| Notable photos mentioned | imageComponent (placeholder) |
+| Related festival artists | artistScrollContainer |
+| Awards/achievements list | portableTextBlock or accordionComponent |
+| Career timeline | Structured headings + text blocks |
+
+**Present suggestions with rationale:**
+
+### Suggested Content Structure for [Document Name]
+
+Based on research and patterns from similar [type] pages:
+
+1. **portableTextBlock** - Main bio/description
+2. **contentScrollContainer** - Found 3 quotes from [source] - placed after bio (matches pattern)
+3. **spotifyComponent** - Found album "[Name]" - typically at end
+4. **imageComponent** - [Description] - you'll add manually
+
+**Why this structure:**
+- Matches established [type] page pattern
+- Quotes placed in same position as other [type] pages
+- Research supports each suggested component
+
+User can accept, modify, or reject suggestions before content is written.
+
+---
+
+## Step 6: Write Norwegian Content
 
 Read and follow: `.claude/instructions/writing-style.md`
 
@@ -107,7 +166,7 @@ Read and follow: `.claude/instructions/writing-style.md`
 
 ---
 
-## Step 5: Add Components (if instructed)
+## Step 7: Add Components (following suggestions)
 
 Available pageBuilder components:
 
@@ -127,7 +186,7 @@ When adding components:
 
 ---
 
-## Step 6: Respect Field Limits
+## Step 8: Respect Field Limits
 
 | Field | Limit |
 |-------|-------|
@@ -140,7 +199,7 @@ Write content that fits within these limits. For excerpts, aim for punchy 1-2 se
 
 ---
 
-## Step 7: Present Proposed Content
+## Step 9: Present Proposed Content
 
 Show the user:
 
@@ -159,7 +218,7 @@ Show the user:
 
 ---
 
-## Step 8: Apply Changes (with approval)
+## Step 10: Apply Changes (with approval)
 
 **Ask before making any changes.**
 
@@ -169,7 +228,7 @@ If approved:
 
 ---
 
-## Step 9: Translate to English
+## Step 11: Translate to English
 
 After Norwegian content is created/approved:
 
@@ -180,7 +239,7 @@ After Norwegian content is created/approved:
 
 ---
 
-## Step 10: Final Verification
+## Step 12: Final Verification
 
 After all patches:
 1. Re-query the document
@@ -193,6 +252,8 @@ After all patches:
 
 - Norwegian is source of truth - always create NO first
 - Research before writing new content
+- Suggest components based on research findings (don't force components)
+- Reference similar documents for structural consistency
 - Follow the writing style guide strictly
 - All changes go to DRAFT
 - Ask before making changes
