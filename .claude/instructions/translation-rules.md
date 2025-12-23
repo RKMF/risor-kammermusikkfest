@@ -126,6 +126,40 @@ If no good equivalent exists, explain the meaning and suggest alternatives.
 
 ---
 
+## Third-Party Quote Translation
+
+When translating content that contains quotes from third parties (interview quotes, reviews, etc.):
+
+### Principle: Translate Transparently
+
+Third-party quotes in the Norwegian content that were originally in another language should be handled consistently in the English version.
+
+### Scenarios
+
+| Original Quote Language | In Norwegian Content | In English Content |
+|------------------------|---------------------|-------------------|
+| Norwegian | Keep as-is | Translate to English |
+| English | Translate to Norwegian | Keep original English |
+| Other (German, French, etc.) | Translated + attributed | Use same translation + attribution |
+
+### Attribution Preservation
+
+If a quote in the Norwegian content includes a translation attribution:
+- `"Sitat." [oversatt fra tysk]`
+
+The English version should maintain equivalent attribution:
+- `"Quote." [translated from German]`
+
+### Example
+
+**Norwegian source:**
+> "Jeg vil være en ærlig kunstner." [oversatt fra tysk] - Die Zeit
+
+**English translation:**
+> "I want to be an honest artist." [translated from German] - Die Zeit
+
+---
+
 ## Tone Matching
 
 | Context | Norwegian Tone | English Equivalent |
@@ -150,4 +184,5 @@ Before finalizing translation:
 - [ ] Capitalization follows English rules
 - [ ] Tone matches source register
 - [ ] No literal translations of idioms
+- [ ] Third-party quotes: attribution preserved (e.g., [translated from German])
 - [ ] Field limits respected
