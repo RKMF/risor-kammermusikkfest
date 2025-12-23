@@ -785,7 +785,7 @@ Before every commit, verify:
 - `/live-release` - Staging → main → sync → deploy studio
 - `/content <doc> [instructions]` - Research, write NO content, translate to EN
 - `/translate <doc>` - Translate/sync NO → EN content
-- `/context-refresh` - Restore context after compression
+- `/refresh` - Clear conversation and restore context
 
 **Content Style Guides:**
 - `.claude/instructions/writing-style.md` - Norwegian writing style
