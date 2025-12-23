@@ -1,8 +1,25 @@
 /**
- * TypeScript types for consistent schema development
+ * TypeScript Types - Shared type definitions for Sanity schema development
+ *
+ * Provides type safety across the Studio codebase:
+ * - Component data interfaces (GlobalComponentData, ImageData, VideoData, etc.)
+ * - Document interfaces (EventData, ArtistData, PageData, etc.)
+ * - Utility types (PublishingStatus, SupportedLanguage, etc.)
+ * - Type guards for runtime type checking (isEventData, isArtistData, etc.)
+ * - Utility functions (getLocalizedField, hasContentInLanguage, getDocumentState)
+ *
+ * Used by:
+ * - Schema definitions for consistent field typing
+ * - Preview functions for type-safe document rendering
+ * - Custom actions for document manipulation
+ * - Utility functions for content handling
+ *
+ * @see schemaTypes/shared/validation.ts - Validation patterns using these types
  */
 
-// Base component data interfaces
+// ============================================================================
+// BASE COMPONENT INTERFACES
+// ============================================================================
 export interface BaseComponentData {
   _type: string;
   _key?: string;

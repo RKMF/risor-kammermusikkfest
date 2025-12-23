@@ -1,6 +1,22 @@
 ---
+/**
+ * Footer - Site-wide footer with contact, social, and branding
+ *
+ * Renders footer content from Sanity siteSettings singleton. Fully bilingual
+ * with language-aware field selection for organization name, newsletter, etc.
+ *
+ * Sections:
+ * - Branding: Festival logo + newsletter signup link
+ * - Contact: Email, phone (formatted), address (optionally linked)
+ * - Social: Icon links to Facebook, Instagram, YouTube, Spotify
+ * - Meta: Copyright notice + developer credit
+ *
+ * @see src/lib/sanity/queryBuilder.ts - siteSettingsFooter() query
+ */
+
 import type { Language } from '../lib/utils/language.js';
 
+/** Footer content structure from Sanity siteSettings */
 export interface SiteSettings {
   email?: string;
   phone?: string;

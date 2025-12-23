@@ -288,6 +288,11 @@ export type LinkComponent = {
       _ref: string;
       _type: "reference";
       _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sponsorPage";
+    } | {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
       [internalGroqTypeReferenceTo]?: "page";
     } | {
       _ref: string;
@@ -368,44 +373,12 @@ export type ImageComponent = {
   credit?: string;
   alt?: string;
   caption?: string;
-  aspectRatio?: "1:1" | "4:5" | "9:16" | "16:9";
+  aspectRatio?: "1:1" | "4:5" | "9:16" | "4:3";
 };
 
 export type PortableTextBlock = {
   _type: "portableTextBlock";
-  content?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "normal" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
-      href?: string;
-      openInNewTab?: boolean;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  } | {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    caption?: string;
-    _type: "image";
-    _key: string;
-  }>;
+  content?: PortableText;
 };
 
 export type PortableText = Array<{
@@ -468,6 +441,51 @@ export type Title = {
   subtitle?: string;
 };
 
+export type Seo = {
+  _type: "seo";
+  title?: string;
+  description?: string;
+  indexingStatus?: "index" | "noindex";
+};
+
+export type Sponsor = {
+  _id: string;
+  _type: "sponsor";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  logo?: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  url?: string;
+};
+
+export type SanityImageCrop = {
+  _type: "sanity.imageCrop";
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+};
+
+export type SanityImageHotspot = {
+  _type: "sanity.imageHotspot";
+  x?: number;
+  y?: number;
+  height?: number;
+  width?: number;
+};
+
 export type SiteSettings = {
   _id: string;
   _type: "siteSettings";
@@ -516,6 +534,11 @@ export type SiteSettings = {
     _ref: string;
     _type: "reference";
     _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: "sponsorPage";
+  } | {
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
     [internalGroqTypeReferenceTo]?: "page";
   }>;
   logos?: Array<{
@@ -554,23 +577,6 @@ export type SiteSettings = {
   openInNewTab?: boolean;
   socialMedia?: Array<{
     name?: string;
-    url?: string;
-    _key: string;
-  }>;
-  sponsors?: Array<{
-    name?: string;
-    logo?: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
-      media?: unknown;
-      hotspot?: SanityImageHotspot;
-      crop?: SanityImageCrop;
-      _type: "image";
-    };
     url?: string;
     _key: string;
   }>;
@@ -749,6 +755,12 @@ export type ProgramPage = {
   }>;
 };
 
+export type Slug = {
+  _type: "slug";
+  current?: string;
+  source?: string;
+};
+
 export type ArtistPage = {
   _id: string;
   _type: "artistPage";
@@ -796,6 +808,29 @@ export type ArticlePage = {
   seo?: Seo;
 };
 
+export type SponsorPage = {
+  _id: string;
+  _type: "sponsorPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title_no?: string;
+  slug_no?: Slug;
+  excerpt_no?: string;
+  content_no?: PageBuilder;
+  title_en?: string;
+  slug_en?: Slug;
+  excerpt_en?: string;
+  content_en?: PageBuilder;
+  selectedSponsors?: Array<{
+    _ref: string;
+    _type: "reference";
+    _weak?: boolean;
+    _key: string;
+    [internalGroqTypeReferenceTo]?: "sponsor";
+  }>;
+};
+
 export type Page = {
   _id: string;
   _type: "page";
@@ -804,9 +839,11 @@ export type Page = {
   _rev: string;
   title_no?: string;
   slug_no?: Slug;
+  excerpt_no?: string;
   content_no?: PageBuilder;
   title_en?: string;
   slug_en?: Slug;
+  excerpt_en?: string;
   content_en?: PageBuilder;
   image?: {
     asset?: {
@@ -994,13 +1031,6 @@ export type Article = {
   seo?: Seo;
 };
 
-export type Seo = {
-  _type: "seo";
-  title?: string;
-  description?: string;
-  indexingStatus?: "index" | "noindex";
-};
-
 export type Venue = {
   _id: string;
   _type: "venue";
@@ -1054,20 +1084,15 @@ export type SanityImageDimensions = {
   aspectRatio?: number;
 };
 
-export type SanityImageHotspot = {
-  _type: "sanity.imageHotspot";
-  x?: number;
-  y?: number;
-  height?: number;
-  width?: number;
-};
-
-export type SanityImageCrop = {
-  _type: "sanity.imageCrop";
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
+export type SanityImageMetadata = {
+  _type: "sanity.imageMetadata";
+  location?: Geopoint;
+  dimensions?: SanityImageDimensions;
+  palette?: SanityImagePalette;
+  lqip?: string;
+  blurHash?: string;
+  hasAlpha?: boolean;
+  isOpaque?: boolean;
 };
 
 export type SanityFileAsset = {
@@ -1090,6 +1115,13 @@ export type SanityFileAsset = {
   path?: string;
   url?: string;
   source?: SanityAssetSourceData;
+};
+
+export type SanityAssetSourceData = {
+  _type: "sanity.assetSourceData";
+  name?: string;
+  id?: string;
+  url?: string;
 };
 
 export type SanityImageAsset = {
@@ -1115,17 +1147,6 @@ export type SanityImageAsset = {
   source?: SanityAssetSourceData;
 };
 
-export type SanityImageMetadata = {
-  _type: "sanity.imageMetadata";
-  location?: Geopoint;
-  dimensions?: SanityImageDimensions;
-  palette?: SanityImagePalette;
-  lqip?: string;
-  blurHash?: string;
-  hasAlpha?: boolean;
-  isOpaque?: boolean;
-};
-
 export type Geopoint = {
   _type: "geopoint";
   lat?: number;
@@ -1133,20 +1154,7 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type Slug = {
-  _type: "slug";
-  current?: string;
-  source?: string;
-};
-
-export type SanityAssetSourceData = {
-  _type: "sanity.assetSourceData";
-  name?: string;
-  id?: string;
-  url?: string;
-};
-
-export type AllSanitySchemaTypes = ComposerScrollContainer | EventScrollContainer | ArtistScrollContainer | ContentScrollContainer | ThreeColumnLayout | TwoColumnLayout | GridComponent | PageBuilder | CountdownComponent | AccordionComponent | LinkComponent | ButtonComponent | SpotifyComponent | VideoComponent | ImageComponent | PortableTextBlock | PortableText | HeadingComponent | MarqueeComponent | QuoteComponent | Title | SiteSettings | Composer | Homepage | ProgramPage | ArtistPage | ArticlePage | Page | Event | Artist | Article | Seo | Venue | EventDate | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | Slug | SanityAssetSourceData;
+export type AllSanitySchemaTypes = ComposerScrollContainer | EventScrollContainer | ArtistScrollContainer | ContentScrollContainer | ThreeColumnLayout | TwoColumnLayout | GridComponent | PageBuilder | CountdownComponent | AccordionComponent | LinkComponent | ButtonComponent | SpotifyComponent | VideoComponent | ImageComponent | PortableTextBlock | PortableText | HeadingComponent | MarqueeComponent | QuoteComponent | Title | Seo | Sponsor | SanityImageCrop | SanityImageHotspot | SiteSettings | Composer | Homepage | ProgramPage | Slug | ArtistPage | ArticlePage | SponsorPage | Page | Event | Artist | Article | Venue | EventDate | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./src/pages/api/countdown.ts
 // Variable: EVENT_COUNTDOWN_QUERY

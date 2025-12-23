@@ -1,4 +1,22 @@
 ---
+/**
+ * Image - Responsive Sanity image with optimized delivery
+ *
+ * Renders optimized images from Sanity with:
+ * - Responsive srcset for different viewport sizes
+ * - LQIP (Low Quality Image Placeholder) blur-up effect
+ * - Aspect ratio preservation via CSS
+ * - Automatic format negotiation (AVIF/WebP/JPG via Sanity CDN)
+ * - Height constraint on desktop to prevent excessive scroll
+ *
+ * Accepts two prop structures:
+ * - Direct: { image, alt, caption, credit, ... }
+ * - ImageComponent (from CMS): { image: { image, alt, caption, credit } }
+ *
+ * @see docs/MEDIA.md - Image optimization strategy
+ * @see src/lib/sanityImage.ts - Image URL generation utilities
+ */
+
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
 import { stegaClean } from '@sanity/client/stega';
 import {
@@ -10,7 +28,7 @@ import {
   type ImageMetadata
 } from '../lib/sanityImage';
 
-// Direct props structure (when component is used directly)
+/** Direct props structure (when component is used directly) */
 interface DirectImageProps {
   image: SanityImageSource;
   alt: string;

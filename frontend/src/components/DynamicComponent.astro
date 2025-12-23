@@ -1,13 +1,31 @@
 ---
+/**
+ * DynamicComponent - Renders CMS content blocks by type
+ *
+ * This is the gateway component for all Sanity page content. It maps each
+ * content block's _type to a registered Astro component and renders it.
+ *
+ * Unknown component types show a debug warning (visible only in development)
+ * to help editors and developers identify missing implementations.
+ *
+ * @see src/lib/componentRegistry.ts - Component type mappings
+ *
+ * @example
+ * ```astro
+ * {content.map((block) => <DynamicComponent block={block} />)}
+ * ```
+ */
+
 import { componentRegistry, isRegisteredComponent, type ContentBlock } from '../lib/componentRegistry';
 
+/** A content block from Sanity with a _type field */
 interface Props {
   block: ContentBlock;
 }
 
 const { block } = Astro.props;
 
-// Get the component for this block type
+// Look up the Astro component for this block's _type
 const Component = componentRegistry[block._type];
 const isKnownComponent = isRegisteredComponent(block._type);
 ---

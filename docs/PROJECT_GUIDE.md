@@ -228,13 +228,7 @@ export const POST_QUERY = defineQuery(`*[
 
 #### TypeScript Generation
 
-**For the Studio:**
-- ALWAYS re-run schema extraction after making schema file changes: `npx sanity@latest schema extract`
-
-**For Monorepos (studio + frontend):**
-- ALWAYS extract the schema to the frontend folder: `npx sanity@latest schema extract --path=../frontend/sanity/extract.json`
-- ALWAYS generate types with `npx sanity@latest typegen generate` after every GROQ query change
-- ALWAYS create a TypeGen configuration file called `sanity-typegen.json` at the root of the frontend codebase
+Run typegen after schema changes - handled automatically by `/dev-release`. See README for manual commands.
 
 #### Visual Editing
 
@@ -253,35 +247,24 @@ export const POST_QUERY = defineQuery(`*[
 
 ### 2.2 Astro Framework
 
-#### Architecture
-- Use SSG (Static Site Generation) for content pages
-- Use SSR (Server-Side Rendering) for dynamic features requiring real-time data
-- Components use TypeScript in `<script>` sections
-- API routes written in TypeScript (`/pages/api/*.ts`)
-- Client-side scripts written in vanilla JavaScript (`/scripts/*.js`)
+**Rendering Mode: Server-Side Rendering (SSR)**
 
-#### Component Patterns
-- Keep components simple and focused on single responsibilities
-- Use Astro components for static/server-rendered content
-- Use React only when truly needed for complex client-side interactivity
-- Prefer HTMX over React for most interactivity needs
+The site uses `output: 'server'` for instant content updates - content changes in Sanity appear immediately on refresh (no rebuild needed). This provides a WordPress-like editing experience.
 
-#### Routing
-- Use `[slug].astro` for dynamic routes
-- Keep route structure flat - avoid deep nesting
-- Bilingual routes: `/program` (Norwegian), `/en/program` (English)
-- Use `trailingSlash: 'never'` for clean URLs
+- Save in Sanity → Refresh browser → See changes instantly
+- Sanity's CDN (`useCdn: true`) handles caching
+- Trade-off: Slightly higher latency vs static pages, runtime Sanity dependency
 
-#### Performance
-- Enable prefetch for key navigation paths
-- Keep client JavaScript minimal
-- Leverage Astro's built-in optimizations (automatic image optimization, etc.)
-- Use `prefetch: { prefetchAll: false, defaultStrategy: 'viewport' }`
+To switch to Static Site Generation (SSG) for maximum performance:
+```js
+// frontend/astro.config.mjs
+output: 'static',  // Requires webhook-triggered rebuilds for content updates
+```
 
-#### Integration
-- Sanity content fetched via `createDataService()` utility
-- HTMX integration via `astro-htmx` package
-- React integration available but use sparingly
+**Other Configuration:**
+- Astro components for static content, **HTMX over React** for interactivity
+- Bilingual routes: `/path` (NO), `/en/path` (EN) with `trailingSlash: 'never'`
+- Sanity content via `createDataService()`, HTMX via `astro-htmx`
 
 ### 2.3 HTMX for Interactivity
 
@@ -330,69 +313,15 @@ export const POST_QUERY = defineQuery(`*[
 
 ### 2.4 JavaScript (Client-Side)
 
-#### Purpose
-- DOM manipulation and event handling
-- HTMX event listeners and state coordination
-- Progressive enhancement features
-- Browser-side state synchronization with URL parameters
-
-#### Best Practices
-- Keep scripts small and focused (single responsibility principle)
-- Use ES6 modules with named exports
-- Document public functions with JSDoc comments
-- Store client scripts in `/src/scripts/` directory
-- Scripts are NOT type-checked (`"checkJs": false`) - keep logic simple and testable
-- Use event delegation for dynamic content added by HTMX
-
-#### Code Structure
-```javascript
-/**
- * Brief description of what this module does
- */
-
-/**
- * Public function with JSDoc
- * @param {string} param - Description
- * @returns {void}
- */
-export function initializeSomeFeature(param) {
-  // Implementation
-}
-```
-
-#### Patterns
-- Export initialization functions that set up event listeners
-- Avoid global variables - use module scope
-- Keep compatible with modern browsers (no transpilation needed)
-- Example: `syncFilterButtonStatesWithUrl.js` for filter state management
+- Store in `/src/scripts/`, use ES6 modules with JSDoc comments
+- NOT type-checked (`checkJs: false`) - keep logic simple
+- Use event delegation for HTMX dynamic content
 
 ### 2.5 TypeScript
 
-#### Where Used
-- Sanity Studio (schemas, configuration, plugins)
-- Astro component `<script>` sections
-- API routes and endpoints (`/pages/api/*.ts`)
-- Utility libraries and data services
-- Type definitions (`.d.ts` files)
-
-#### Configuration
-- Strict mode enabled (`"strict": true`)
-- Allows JavaScript imports (`"allowJs": true`, but `"checkJs": false`)
-- Don't apply overly strict settings that break existing code
-- Use `extends: "astro/tsconfigs/strict"` for Astro-specific configs
-
-#### Type Patterns
-- Prefer `interface` for object shapes
-- Use `type` for unions, intersections, and mapped types
-- Generate Sanity types automatically using TypeGen (see section 2.1)
-- Types are generated in `frontend/sanity/sanity.types.ts` from schema extraction
-
-#### Philosophy
-- **Type safety is a professional standard** - Use TypeScript properly, not as an afterthought
-- **Strict enough to catch bugs** - Enable strict mode flags that prevent common errors
-- **Fix type errors, don't ignore them** - Type errors usually indicate real problems
-- **Pragmatic, not dogmatic** - Use `any` sparingly when dealing with truly dynamic data (e.g., CMS content), but document why
-- **Incremental improvement** - Improve types when touching code, don't let technical debt grow
+- Strict mode enabled, Sanity types auto-generated via TypeGen
+- **Fix type errors, don't ignore** - they usually indicate real problems
+- **Pragmatic, not dogmatic** - `any` sparingly for CMS content, but document why
 
 ---
 
@@ -480,10 +409,7 @@ cd studio && npm audit
 - Some upstream dependencies may have unfixed issues - track and update when fixes are available
 
 ### Server Management
-- **Always run both servers**: Studio (3333) + Frontend (4321) for Visual Editing
-- **Start servers separately** in different terminals due to Vite process management issues
-- **Check both endpoints** respond before testing Visual Editing
-- See **Section 7 Quick Reference** for startup commands
+- **Use `/preparation`** to kill existing servers and start fresh (Studio on 3333, Frontend on 4321)
 
 ### Environment Variables
 
@@ -499,32 +425,9 @@ cd studio && npm audit
 
 ### Analytics
 
-**Vercel Web Analytics and Speed Insights** are enabled for production deployments. No configuration needed - Vercel auto-detects the environment.
+Vercel Web Analytics and Speed Insights enabled for production. View at Vercel Dashboard > Analytics tab.
 
-**What's Tracked:**
-- **Web Analytics**: Page views, unique visitors, referrers, geography, device types
-- **Speed Insights**: Core Web Vitals (LCP, FID, CLS), performance metrics
-
-**View Dashboard:**
-- Vercel Dashboard > risor-kammermusikkfest-frontend > Analytics tab
-- Direct link: https://vercel.com/risor-kammermusikkfests-projects/risor-kammermusikkfest-frontend/analytics
-
-**Exclude Yourself from Tracking:**
-
-To prevent your development/testing visits from skewing analytics data, run this once in your browser console on the live site:
-
-```javascript
-// Disable tracking for this browser
-localStorage.setItem('va-disable', 'true')
-
-// To re-enable tracking later
-localStorage.removeItem('va-disable')
-```
-
-**Implementation:**
-- Components: `@vercel/analytics/astro` and `@vercel/speed-insights/astro`
-- Location: `frontend/src/layouts/Layout.astro`
-- Only runs in production (local dev is not tracked)
+**Exclude yourself:** Run `localStorage.setItem('va-disable', 'true')` in browser console on live site.
 
 ---
 
@@ -603,52 +506,9 @@ feature-branch → staging → main
 
 ### Standard Workflow
 
-```bash
-# 1. Create feature branch FROM staging
-git checkout staging
-git pull origin staging
-git checkout -b feature/new-feature
+**Use slash commands:** `/preparation`, `/dev-release`, `/live-release`
 
-# 2. Develop and commit (as many times as needed)
-git add .
-git commit -m "Add new feature"
-# Work more, commit more...
-
-# 3. Push when ready
-git push origin feature/new-feature
-
-# 4. Create PR: feature/new-feature → staging
-gh pr create --base staging --title "Feature description"
-
-# 5. Merge to staging (squash merge, delete feature branch)
-gh pr merge --squash --delete-branch
-
-# 6. Test on testing.kammermusikkfest.no
-
-# 7. Create PR: staging → main
-gh pr create --base main --head staging --title "Release: feature description"
-
-# 8. Merge to main (squash merge, do NOT delete staging!)
-gh pr merge --squash
-
-# 9. Sync: Create PR to merge main back to staging
-gh pr create --base staging --head main --title "Sync: main → staging"
-gh pr merge --merge   # Use regular merge, not squash
-```
-
-### Syncing Staging After Release
-
-After merging staging → main, the branches diverge because squash merge creates a new commit on main with a different SHA. To keep them in sync:
-
-1. Create a PR from main → staging (reverse direction)
-2. Merge with **regular merge** (not squash) to preserve history
-
-**Why this matters:**
-- Staging starts from latest production code for next feature
-- Prevents repeated merge conflicts on future PRs
-- Maintains consistent PR-based workflow for all changes
-
-**Why merge instead of reset?** Branch protection on staging prevents force-push. Using a PR maintains the same workflow for everything and creates an audit trail of syncs.
+These commands handle the full workflow including typegen, sync, and studio deployment.
 
 ### Branch Management Rules
 - **Always create feature branches from staging** (not from main)
@@ -686,96 +546,16 @@ After merging staging → main, the branches diverge because squash merge create
 
 ### Deployment Workflow
 
-**⚠️ CRITICAL: Two Separate Deployment Systems**
+**Two Separate Systems:**
 
-This project has **TWO independent deployment paths** - understand the difference to avoid confusion:
+| System | Trigger | Target |
+|--------|---------|--------|
+| **Frontend** (Vercel) | Push to any branch | `staging` → testing.kammermusikkfest.no, `main` → kammermusikkfest.no |
+| **Studio** (Sanity) | Merge to main (auto) | rkmf-cms.sanity.studio |
 
-#### Frontend Deployment (Automatic via Vercel)
-
-**What it deploys:**
-- Astro website code
-- Page components, layouts, styles
-- Client-side JavaScript
-- API routes
-
-**How it works:**
-```bash
-# 1. Commit and push changes
-git add frontend/
-git commit -m "Update frontend"
-git push origin feature/branch-name
-
-# 2. Automatic deployment happens
-# - Vercel detects push to GitHub
-# - Builds frontend automatically
-# - Creates preview URL for feature branches
-# - Deploys to production when merged to main
-```
-
-**Deployment targets:**
-- `feature/*` branches → Auto preview URLs (e.g., `project-branch-hash.vercel.app`)
-- `staging` branch → `testing.kammermusikkfest.no`
-- `main` branch → `kammermusikkfest.no` (production)
-
-**Key points:**
-- ✅ Automatic - no manual deployment needed
-- ✅ Git commit/push triggers deployment
-- ✅ Preview URLs for every branch
-- ✅ See deployment status in Vercel dashboard
-
-#### Studio Deployment (Automatic on main)
-
-**What it deploys:**
-- Sanity Studio CMS interface
-- Content schemas and document types
-- Custom actions and plugins
-- Studio configuration
-
-**How it works:**
-- When you merge Studio changes to `main`, GitHub Actions automatically deploys
-- Only triggers when files in `studio/` directory change
-- Can also deploy manually: `cd studio && npm run deploy`
-
-**Deployment target:**
-- Always deploys to: `https://rkmf-cms.sanity.studio/`
-- Single production environment (no preview URLs)
-
-**Key points:**
-- ✅ Automatic on merge to main (when studio/ files change)
-- ✅ Can also deploy manually for quick fixes
-- ⚠️ No preview URLs - test locally before merging
-
-#### Why Two Systems?
-
-**Different hosting providers:**
-- **Frontend**: Hosted on Vercel's edge network (automatic via git)
-- **Studio**: Hosted on Sanity's infrastructure (automatic via GitHub Actions on main)
-
-#### Best Practice Workflow
-
-**For All Changes (Same Workflow):**
-```bash
-# 1. Create feature branch from staging
-git checkout staging && git pull
-git checkout -b feature/my-change
-
-# 2. Make changes, test locally
-# Frontend: http://localhost:4321
-# Studio: http://localhost:3333
-
-# 3. Commit and push
-git add . && git commit -m "Description"
-git push origin feature/my-change
-
-# 4. Create PR to staging, test on testing.kammermusikkfest.no
-# 5. When ready, create PR from staging to main
-# 6. Both frontend AND studio deploy automatically on merge to main
-```
-
-**Quick Studio Hotfix (emergency only):**
-```bash
-cd studio && npm run deploy
-```
+- Frontend: Automatic preview URLs for all branches
+- Studio: No preview - test locally, auto-deploys when `studio/` files change on main
+- Manual studio deploy (emergency): `cd studio && npm run deploy`
 
 ### Git Tracking Best Practices
 
@@ -999,30 +779,18 @@ Before every commit, verify:
 - Studio: `http://localhost:3333`
 - Frontend: `http://localhost:4321`
 
-**Key Commands:**
+**Slash Commands:**
+- `/preparation <name>` - Start session: kill servers, start fresh, create branch
+- `/dev-release` - Feature → staging (includes typegen if schema changed)
+- `/live-release` - Staging → main → sync → deploy studio
+- `/sync-content <doc>` - Synchronize NO/EN bilingual content
+- `/context-refresh` - Restore context after compression
+
+**Manual Commands:**
 ```bash
-# Start servers (must run in separate terminals)
-npm run dev:studio     # Terminal 1 - Studio on :3333
-npm run dev:frontend   # Terminal 2 - Frontend on :4321
-
-# Deployment
-cd studio && npm run deploy  # Deploy studio to https://rkmf-cms.sanity.studio/
-# Frontend deploys automatically via Vercel when pushing to GitHub
-
-# Sanity TypeGen operations (run from studio folder)
-npm run extract-schema  # Extract schema to frontend
-cd ../frontend && npm run typegen  # Generate types from schema
-
-# GitHub CLI (requires: brew install gh && gh auth login)
-gh pr create --base staging --title "Title"  # Create PR to staging
-gh pr merge --squash --delete-branch         # Merge feature branch
-gh pr merge --squash                         # Merge staging → main (no delete!)
-gh pr list                                   # List open PRs
-gh pr diff                                   # View PR diff
-
-# Sync staging after release (required after each staging → main merge)
-gh pr create --base staging --head main --title "Sync: main → staging"
-gh pr merge --merge                          # Regular merge, not squash
+cd studio && npm run deploy  # Manual studio deploy (emergency only)
+gh pr list                   # List open PRs
+gh pr diff                   # View PR diff
 ```
 
 **Documentation:**

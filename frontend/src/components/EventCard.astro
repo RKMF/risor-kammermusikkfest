@@ -1,11 +1,28 @@
 ---
+/**
+ * EventCard - Compact event display for program listings
+ *
+ * Displays event summary with title, excerpt, image, date/venue, and ticket status.
+ * Used in program page listings and filtered results. Links to full event page.
+ *
+ * Ticket status rendering:
+ * - 'info' type: Shows custom badge (e.g., "Gratis")
+ * - 'sold_out': Disabled button
+ * - 'low_stock': Warning-styled buy button
+ * - default: Primary buy button
+ *
+ * @see src/lib/sanity/queries.ts - EventResult type
+ */
+
 import { formatDateWithWeekday } from '../lib/utils/dates';
 import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../lib/sanityImage';
 import { stegaClean } from '@sanity/client/stega';
 import type { EventResult } from '../lib/sanity/queries';
 
 export interface Props {
+  /** Event data from Sanity */
   event: EventResult;
+  /** Display language for labels and date formatting */
   language?: 'no' | 'en';
 }
 
@@ -28,15 +45,17 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
 ---
 
 <article class="event-card card" data-event-date={event.eventDate?.date}>
-  <h3 class="event-title">
-    <a href={eventPath} class="event-title-link card-link">
-      {stegaClean(event.title)}
-    </a>
-  </h3>
+  <hgroup>
+    <h3 class="event-title">
+      <a href={eventPath} class="event-title-link card-link">
+        {stegaClean(event.title)}
+      </a>
+    </h3>
 
-  {event.excerpt && (
-    <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
-  )}
+    {event.excerpt && (
+      <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
+    )}
+  </hgroup>
 
   {event.image?.image && (
     <div class="event-image">

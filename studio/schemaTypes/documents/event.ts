@@ -1,3 +1,23 @@
+/**
+ * Event Schema - Festival concert and event documents
+ *
+ * The most complex document type, representing festival events with:
+ * - Bilingual content (NO/EN titles, descriptions, body content)
+ * - Date/time from eventDate reference + eventTime object
+ * - Venue, artists, and composers references
+ * - Ticket information (type, URL, status)
+ * - Publishing workflow (draft/published/scheduled)
+ * - SEO and image fields
+ *
+ * Custom behaviors via document actions:
+ * - Publish syncs eventDateValue for sorting
+ * - Publish syncs artists bidirectionally
+ * - Publish offers to add to program page
+ *
+ * @see actions/compositeEventPublishAction.ts - Custom publish workflow
+ * @see docs/PROJECT_GUIDE.md - Section 2.1 Schema Design
+ */
+
 import { defineField, defineType } from 'sanity';
 import {
   CalendarIcon,
@@ -325,11 +345,11 @@ export const event = defineType({
       },
       validation: (Rule) =>
         Rule.required().custom(async (value, context) => {
-          // Først sjekk avansert slug-validering for unikhet
+          // First check custom slug validation for uniqueness
           const slugValidation = await eventSlugValidation(value, context);
           if (slugValidation !== true) return slugValidation;
 
-          // Så sjekk standard slug-validering
+          // Then check standard slug validation
           return componentValidation.slug(Rule).validate(value, context);
         }),
     }),
