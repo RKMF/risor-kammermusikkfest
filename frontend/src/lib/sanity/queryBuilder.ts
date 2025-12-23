@@ -369,6 +369,8 @@ const buildArtistBaseFields = (language: Language = 'no'): string => `
   _type,
   name,
   cardSize,
+  excerpt_no,
+  excerpt_en,
   ${createMultilingualField('excerpt', language)},
   instrument_no,
   instrument_en,

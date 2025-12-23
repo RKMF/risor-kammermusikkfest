@@ -54,7 +54,8 @@
     scroll-snap-type: var(--scroll-snap);
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
-    scroll-padding-inline: var(--scroll-padding);
+    scroll-padding-inline-start: 0;
+    scroll-padding-inline-end: var(--scroll-padding);
 
     /* Vertical padding to accommodate card hover lift effects
      * 8px provides breathing room for transform: translateY(-4px) hover
@@ -66,7 +67,6 @@
   .scroll-container > * {
     flex-shrink: 0;
     scroll-snap-align: start;
-    scroll-margin-inline-start: 0.5rem;
   }
 
   /* ============================================
@@ -157,7 +157,8 @@
   scroll-snap-type: var(--scroll-snap);
   scroll-behavior: smooth;
   overscroll-behavior-x: contain;
-  scroll-padding-inline: var(--scroll-padding);
+  scroll-padding-inline-start: 0;
+  scroll-padding-inline-end: var(--scroll-padding);
 
   /* Vertical padding - same as conditional scrollers */
   padding-block: var(--scroll-container-padding-block);
@@ -166,7 +167,6 @@
 .scroll-container--always > * {
   flex-shrink: 0;
   scroll-snap-align: start;
-  scroll-margin-inline-start: 0.5rem;
 }
 
 /* Scrollbar styling for always-active containers */
@@ -257,22 +257,6 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
     padding-block-end: 0;
-
-    /* Fade edges to indicate scrollability when scrollbar is hidden */
-    mask-image: linear-gradient(
-      to right,
-      transparent,
-      black 1rem,
-      black calc(100% - 1rem),
-      transparent
-    );
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent,
-      black 1rem,
-      black calc(100% - 1rem),
-      transparent
-    );
   }
 
   .scroll-container--hide-scrollbar::-webkit-scrollbar {

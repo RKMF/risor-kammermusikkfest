@@ -31,6 +31,8 @@ const {
 <style>
   /* CSS Variable-based width control - Kevin Powell method */
   .quote-figure {
+    position: relative; /* For quote mark positioning */
+    overflow: hidden; /* Clip the oversized quote mark */
     width: var(--component-width, min(65ch, 100% - 4rem));
     max-width: var(--component-max-width, 100%);
     margin-inline: auto;
@@ -39,7 +41,6 @@ const {
     background: var(--color-red-50); /* Lighter tint, matching accordion summary level */
     color: var(--color-red-900); /* Darkest red text */
     border: none;
-    box-shadow: var(--shadow-sm); /* Subtle depth */
 
     /* Grid layout: quote on top, attribution below */
     display: grid;
@@ -51,11 +52,28 @@ const {
     container-name: quote;
   }
 
+  /* Large decorative quote mark - background element */
+  .quote-figure::before {
+    content: "\201C"; /* Curly opening quote */
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: clamp(var(--step-6), 180cqi, 50rem); /* Fluid: 180% of container, clamped */
+    font-size-adjust: initial; /* Reset inherited adjustment */
+    font-weight: var(--font-weight-black);
+    line-height: 1;
+    color: var(--color-red-100);
+    z-index: 0; /* Behind content */
+    pointer-events: none; /* Decorative only */
+  }
+
   /* Blockquote inside figure - centered horizontally and vertically */
   .quote-component {
     margin: 0;
     justify-self: center;
     align-self: center;
+    position: relative;
+    z-index: 1; /* Above the background quote mark */
   }
 
   /* When inside a layout context, fill parent space */
@@ -66,7 +84,7 @@ const {
   }
 
   .quote-text {
-    font-size: var(--step-2); /* TODO: Explore fluid sizing with container queries later */
+    font-size: var(--step-3); /* 31-44px */
     font-weight: var(--font-weight-medium); /* 500 */
     line-height: var(--line-height-normal); /* 1.6 */
     font-style: normal; /* Modern, not italic */
@@ -79,10 +97,13 @@ const {
     display: flex;
     align-items: center;
     gap: var(--space-3xs);
-    font-size: var(--step--1); /* Fluid 13px → 14px */
+    justify-self: end; /* Right-align in grid */
+    font-size: var(--step-0); /* Fluid 18px → 23px */
     line-height: var(--line-height-tight); /* Tighter line-height */
     font-style: normal;
     color: var(--color-red-900); /* Match quote text color */
+    position: relative;
+    z-index: 1; /* Above the background quote mark */
   }
 
   .quote-author {
@@ -90,7 +111,7 @@ const {
   }
 
   .quote-source {
-    font-style: italic;
+    font-style: normal;
   }
 
   /* Container query: Adjust at narrow widths */
@@ -100,7 +121,7 @@ const {
     }
 
     .quote-text {
-      font-size: var(--step-0); /* 16px → 18px */
+      font-size: var(--step-1); /* 22-28px */
     }
   }
 
