@@ -783,8 +783,13 @@ Before every commit, verify:
 - `/preparation <name>` - Start session: kill servers, start fresh, create branch
 - `/dev-release` - Feature → staging (includes typegen if schema changed)
 - `/live-release` - Staging → main → sync → deploy studio
-- `/sync-content <doc>` - Synchronize NO/EN bilingual content
+- `/content <doc> [instructions]` - Research, write NO content, translate to EN
+- `/translate <doc>` - Translate/sync NO → EN content
 - `/context-refresh` - Restore context after compression
+
+**Content Style Guides:**
+- `.claude/instructions/writing-style.md` - Norwegian writing style
+- `.claude/instructions/translation-rules.md` - NO↔EN translation rules
 
 **Manual Commands:**
 ```bash
