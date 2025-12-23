@@ -1,5 +1,7 @@
 Prepare development environment and start new feature branch: $ARGUMENTS
 
+**Mode:** Execution required. Exit plan mode before running.
+
 Read @docs/PROJECT_GUIDE.md before proceeding.
 
 ## Step 1: Kill Existing Dev Servers

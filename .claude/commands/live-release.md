@@ -1,5 +1,7 @@
 Release staging to production: $ARGUMENTS
 
+**Mode:** Step 1 read-only, then execution required. Exit plan mode before Step 2.
+
 Flow: staging → main → sync → deploy studio (if needed)
 
 ## Step 1: Verify State

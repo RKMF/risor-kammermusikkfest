@@ -2,6 +2,8 @@ Translate and synchronize Norwegian → English content for: $ARGUMENTS
 
 **Sanity MCP:** project `dnk98dp0`, dataset `production`
 
+**Mode:** Steps 1-6 work in plan mode (analysis, draft). Exit plan mode at Step 7 to apply changes.
+
 ---
 
 ## Step 1: Find the Document
