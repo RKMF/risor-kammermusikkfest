@@ -70,11 +70,11 @@ export const eventDate = defineType({
       },
       validation: (Rule) =>
         Rule.required().custom(async (value, context) => {
-          // Først sjekk avansert slug-validering for unikhet
+          // First check custom slug validation for uniqueness
           const slugValidation = await eventDateSlugValidation(value, context);
           if (slugValidation !== true) return slugValidation;
 
-          // Så sjekk standard slug-validering
+          // Then check standard slug validation
           return componentValidation.slug(Rule).validate(value, context);
         }),
     }),
@@ -110,11 +110,11 @@ export const eventDate = defineType({
       },
       validation: (Rule) =>
         Rule.required().custom(async (value, context) => {
-          // Først sjekk avansert slug-validering for unikhet
+          // First check custom slug validation for uniqueness
           const slugValidation = await eventDateSlugValidation(value, context);
           if (slugValidation !== true) return slugValidation;
 
-          // Så sjekk standard slug-validering
+          // Then check standard slug validation
           return componentValidation.slug(Rule).validate(value, context);
         }),
     }),

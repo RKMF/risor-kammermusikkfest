@@ -21,7 +21,7 @@ const {
 // Detect current language from URL
 const currentLanguage = detectLanguage(Astro.request)
 
-// Hent faktiske event-data fra referansene
+// Fetch actual event data from references
 let eventData: EventResult[] = []
 if (events && events.length > 0) {
   const eventIds = events.map((item: any) => item._ref).filter(Boolean)
@@ -91,7 +91,7 @@ if (events && events.length > 0) {
   }
 }
 
-// Sorter arrangementer basert på valgt sortering
+// Sort events based on selected sort option
 let sortedEvents = [...eventData]
 switch (sortBy) {
   case 'date-asc':
@@ -113,11 +113,11 @@ switch (sortBy) {
     break
   case 'manual':
   default:
-    // Behold manuell rekkefølge
+    // Keep manual order (no sorting)
     break
 }
 
-// CSS-klasser basert på props
+// CSS classes based on props
 const containerClass = 'event-scroll-container'
 const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 ---

@@ -1,3 +1,21 @@
+/**
+ * Studio Desk Structure - Content navigation organization
+ *
+ * Defines how content is organized in the Studio sidebar. Structure is designed
+ * for festival editors who primarily work with events, artists, and articles.
+ *
+ * Sections:
+ * - Nettsideinnstillinger: Global site settings (singleton)
+ * - FAST INNHOLD: Listing pages and static pages (rarely edited)
+ * - FESTIVALINNHOLD: Events, artists, articles (frequently edited)
+ * - REFERANSEDATA: Supporting data - dates, venues, composers, sponsors
+ *
+ * Default orderings are set per content type for logical browsing:
+ * - Events: by date, then start time
+ * - Artists/Composers/Sponsors: alphabetically by name
+ * - Event dates/Venues: chronologically or alphabetically
+ */
+
 import { StructureBuilder } from 'sanity/desk';
 import {
   CogIcon,
@@ -16,14 +34,15 @@ export const structure = (S: StructureBuilder) =>
   S.list()
     .title('Innhold')
     .items([
-      // Nettsideinnstillinger
+      // Site-wide settings (singleton document)
       S.listItem()
         .title('Nettsideinnstillinger')
         .id('siteSettings')
         .icon(CogIcon)
         .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
 
-      // Fast innhold
+      // ========== FAST INNHOLD ==========
+      // Listing pages and static content - rarely edited after initial setup
       S.divider().title('FAST INNHOLD'),
 
       S.listItem().title('Forsider').icon(EarthGlobeIcon).child(S.documentTypeList('homepage')),
@@ -45,7 +64,8 @@ export const structure = (S: StructureBuilder) =>
         .child(S.document().schemaType('sponsorPage').documentId('sponsorPage')),
       S.listItem().title('Faste sider').icon(DocumentsIcon).child(S.documentTypeList('page')),
 
-      // Festivalinnhold
+      // ========== FESTIVALINNHOLD ==========
+      // Primary content - events, artists, and articles created each festival
       S.divider().title('FESTIVALINNHOLD'),
 
       S.listItem()
@@ -63,7 +83,8 @@ export const structure = (S: StructureBuilder) =>
         .child(S.documentTypeList('artist').defaultOrdering([{ field: 'name', direction: 'asc' }])),
       S.listItem().title('Artikler').icon(DocumentTextIcon).child(S.documentTypeList('article')),
 
-      // Referansedata
+      // ========== REFERANSEDATA ==========
+      // Supporting data referenced by events - dates, venues, composers, sponsors
       S.divider().title('REFERANSEDATA'),
       S.listItem()
         .title('Festivaldatoer')

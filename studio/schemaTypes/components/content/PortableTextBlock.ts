@@ -25,7 +25,7 @@ export const portableTextBlock = defineType({
       content: 'content',
     },
     prepare({ content }) {
-      // Hent første tekst fra portable text
+      // Get first text from portable text
       const firstText = content?.[0]?.children?.[0]?.text || '';
       const displayTitle = 'Tekst';
       const displaySubtitle = firstText ? `${firstText.substring(0, 50)}...` : 'Ingen innhold';

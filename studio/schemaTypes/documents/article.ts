@@ -1,3 +1,18 @@
+/**
+ * Article Schema - News, blog posts, and general content articles
+ *
+ * Structure:
+ * - Bilingual title, slug, excerpt, and pageBuilder content
+ * - English slug conditionally required when English content exists
+ * - Article title serves as H1 (pageBuilder content starts with body)
+ *
+ * The MirrorPortableTextInput component shows Norwegian content alongside
+ * English fields to assist translation workflow.
+ *
+ * @see docs/PROJECT_GUIDE.md - Section 2.1 Schema Design
+ * @see schemaTypes/shared/previewHelpers.ts - Status display helpers
+ */
+
 import { defineField, defineType } from 'sanity';
 import { DocumentIcon, ImageIcon, ComposeIcon, CogIcon } from '@sanity/icons';
 import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
@@ -61,11 +76,11 @@ export const article = defineType({
       },
       validation: (Rule) =>
         Rule.required().custom(async (value, context) => {
-          // Først sjekk avansert slug-validering for unikhet
+          // First check custom slug validation for uniqueness
           const slugValidation = await articleSlugValidation(value, context);
           if (slugValidation !== true) return slugValidation;
 
-          // Så sjekk standard slug-validering
+          // Then check standard slug validation
           return componentValidation.slug(Rule).validate(value, context);
         }),
     }),

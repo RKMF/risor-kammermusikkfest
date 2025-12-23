@@ -25,6 +25,13 @@ git add frontend/sanity/extract.json frontend/sanity/sanity.types.ts
 git commit -m "chore: Regenerate Sanity types"
 ```
 
+## Step 3b: TypeCheck
+```bash
+cd frontend && npm run typecheck
+cd ../studio && npx tsc --noEmit
+```
+If errors exist, fix them before proceeding. Do not push code with type errors.
+
 ## Step 4: Push and Create PR
 ```bash
 git push origin <branch-name>
@@ -52,4 +59,5 @@ Report: PR URL, whether typegen ran, remind to test before `/live-release`.
 - ALWAYS delete the feature branch after merge
 - NEVER delete staging or main branches under any circumstances
 - ALWAYS run typegen if schema files changed
+- ALWAYS run typecheck before pushing (catches errors locally)
 - Ask before committing uncommitted changes

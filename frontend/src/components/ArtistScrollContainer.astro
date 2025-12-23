@@ -18,7 +18,7 @@ const {
 // Detect current language from URL
 const currentLanguage = detectLanguage(Astro.request)
 
-// Hent faktiske artist-data fra referansene
+// Fetch actual artist data from references
 let artistData = []
 if (items && items.length > 0) {
   const artistIds = items.map((item: any) => item._ref).filter(Boolean)
@@ -76,7 +76,7 @@ if (items && items.length > 0) {
   }
 }
 
-// CSS-klasser basert på props
+// CSS classes based on props
 const containerClass = 'artist-scroll-container'
 const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 ---

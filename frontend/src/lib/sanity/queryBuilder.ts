@@ -1,7 +1,29 @@
+/**
+ * GROQ Query Builder - Central query definitions for all Sanity content.
+ *
+ * Architecture:
+ * - Component projections: Reusable GROQ fragments for each CMS component type
+ * - Language-aware builders: Functions that generate queries with correct field coalescing
+ * - QueryBuilder export: Type-safe interface for all page/content queries
+ *
+ * Key patterns:
+ * - All image fields include full asset metadata (dimensions, LQIP, palette) per MEDIA.md
+ * - Bilingual fields use createMultilingualField() for consistent language handling
+ * - Publishing status filtering excludes drafts from public queries
+ * - References are dereferenced inline with explicit projections (no blind spreading)
+ *
+ * @see docs/PROJECT_GUIDE.md - Section 2.1 GROQ Queries
+ * @see docs/MEDIA.md - Image asset projection requirements
+ */
+
 import {defineQuery} from 'groq'
 import {createMultilingualField, type Language} from '../utils/language.js'
 import type { ArtistResult, EventResult, ArticleResult } from './queries'
 
+/**
+ * Type-safe query definition with typed params and expected result.
+ * All QueryBuilder methods return this interface for consistent data fetching.
+ */
 export interface QueryDefinition<
   TResult = unknown,
   TParams extends Record<string, unknown> = Record<string, unknown>
@@ -11,14 +33,23 @@ export interface QueryDefinition<
 }
 
 // ============================================================================
-// CONTENT PROJECTIONS - Following Sanity Best Practices
+// COMPONENT PROJECTIONS
 // ============================================================================
-// No MAX_CONTENT_DEPTH or artificial limits
-// Explicit projections for each component type
-// Always use asset-> dereferencing with full metadata (per MEDIA.md)
+// Each CMS component type has an explicit GROQ projection. This avoids blind
+// spreading (...) which can pull unnecessary data and break type safety.
+//
+// Structure:
+// - Leaf components: Simple components that don't contain other components
+// - Container components: Components that nest other components (use NESTED_ITEMS)
+// - Image selections: Reusable image projections with full metadata
+//
+// Image pattern: All images include asset metadata for responsive optimization:
+// - dimensions: For aspect ratio calculations and srcset generation
+// - lqip: Low Quality Image Placeholder for loading states
+// - palette: Dominant colors for placeholder backgrounds
 // ============================================================================
 
-// Leaf components (no nesting)
+// Leaf components (no nesting) - standalone content blocks
 const IMAGE_COMPONENT = `
   _type == "imageComponent" => {
     _type,
@@ -223,7 +254,12 @@ const EVENT_DATE_SELECTION = `
   }
 `
 
-// Helper to build event base fields with language-aware coalescing
+/**
+ * Build GROQ projection for event documents with language-aware field coalescing.
+ * Includes all event data: titles, dates, venue, artists, composers, tickets, and content.
+ *
+ * @param language - Target language for field coalescing ('no' or 'en')
+ */
 const buildEventBaseFields = (language: Language = 'no'): string => `
   _id,
   _type,
@@ -322,7 +358,12 @@ const ARTIST_IMAGE_SELECTION = `
   }
 `
 
-// Helper to build artist base fields with language-aware coalescing
+/**
+ * Build GROQ projection for artist documents with language-aware field coalescing.
+ * Includes artist data: name, instrument, country, image, bio content, and publishing status.
+ *
+ * @param language - Target language for field coalescing ('no' or 'en')
+ */
 const buildArtistBaseFields = (language: Language = 'no'): string => `
   _id,
   _type,
@@ -377,7 +418,12 @@ const ARTICLE_IMAGE_SELECTION = `
   }
 `
 
-// Helper to build article base fields with language-aware coalescing
+/**
+ * Build GROQ projection for article documents with language-aware field coalescing.
+ * Includes article data: titles, slugs, excerpt, image, author, and content blocks.
+ *
+ * @param language - Target language for field coalescing ('no' or 'en')
+ */
 const buildArticleBaseFields = (language: Language = 'no'): string => `
   _id,
   _type,
@@ -406,7 +452,14 @@ const buildArticleBaseFields = (language: Language = 'no'): string => `
   seo
 `
 
-// Language-aware slug matching helper
+/**
+ * Build GROQ filter for matching slugs with language priority.
+ * For Norwegian: tries slug_no first, then slug_en, then legacy slug.
+ * For English: tries slug_en first, then slug_no, then legacy slug.
+ * This enables content to be found even when only one language slug exists.
+ *
+ * @param language - Target language determining slug priority order
+ */
 const buildSlugMatch = (language: Language = 'no'): string => {
   if (language === 'en') {
     // For English: prioritize slug_en, fallback to slug_no and legacy slug
@@ -416,7 +469,12 @@ const buildSlugMatch = (language: Language = 'no'): string => {
   return `$slug in [slug_no.current, slug_en.current, slug.current]`
 }
 
-// Helper to get correct slug projection based on language
+/**
+ * Build GROQ projection for slug field with language-aware coalescing.
+ * Returns the most appropriate slug for the requested language with fallbacks.
+ *
+ * @param language - Target language determining coalesce priority
+ */
 const buildSlugProjection = (language: Language = 'no'): string => {
   if (language === 'en') {
     return `"slug": coalesce(slug_en.current, slug_no.current, slug.current)`
@@ -766,73 +824,118 @@ const SITE_SETTINGS_TEKST_LOGO_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
   }
 }`)
 
+// ============================================================================
+// QUERY BUILDER - Public API
+// ============================================================================
+// Type-safe query builder for all page and content queries.
+// Each method returns a QueryDefinition with the query and typed params.
+//
+// Usage:
+//   const { query, params } = QueryBuilder.eventBySlug('concert-2025', 'no');
+//   const { data } = await loadQuery<EventResult>({ query, params });
+// ============================================================================
+
 export const QueryBuilder = {
+  /** Fetch the active homepage (default or scheduled) */
   homepage(): QueryDefinition {
     return {query: HOMEPAGE_QUERY, params: {}}
   },
+  /** Fetch a generic page by its slug */
   pageBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
     return {query: buildPageBySlugQuery(language), params: {slug}}
   },
+  /** Fetch program listing page with selected events */
   programPage(language: Language = 'no'): QueryDefinition<EventResult[]> {
     return {query: buildProgramPageQuery(language), params: {}}
   },
+  /** Fetch artist listing page with selected artists */
   artistPage(language: Language = 'no'): QueryDefinition<ArtistResult[]> {
     return {query: buildArtistPageQuery(language), params: {}}
   },
+  /** Fetch article listing page with articles */
   articlePage(language: Language = 'no'): QueryDefinition<ArticleResult[]> {
     return {query: buildArticlePageQuery(language), params: {}}
   },
+  /** Fetch sponsor page with selected sponsors */
   sponsorPage(language: Language = 'no'): QueryDefinition {
     return {query: buildSponsorPageQuery(language), params: {}}
   },
+  /** Fetch a single event by its slug */
   eventBySlug(slug: string, language: Language = 'no'): QueryDefinition<EventResult, {slug: string}> {
     return {query: buildEventBySlugQuery(language), params: {slug}}
   },
+  /** Fetch a single artist by their slug, including their events */
   artistBySlug(slug: string, language: Language = 'no'): QueryDefinition<ArtistResult, {slug: string}> {
     return {query: buildArtistBySlugQuery(language), params: {slug}}
   },
+  /** Fetch a single article by its slug */
   articleBySlug(slug: string, language: Language = 'no'): QueryDefinition<ArticleResult, {slug: string}> {
     return {query: buildArticleBySlugQuery(language), params: {slug}}
   },
+  /** Fetch all published articles ordered by date */
   publishedArticles(language: Language = 'no'): QueryDefinition<ArticleResult[]> {
     return {query: buildPublishedArticlesQuery(language), params: {}}
   },
+  /** Fetch all published artists ordered by name */
   publishedArtists(language: Language = 'no'): QueryDefinition<ArtistResult[]> {
     return {query: buildPublishedArtistsQuery(language), params: {}}
   },
+  /** Fetch all published events ordered by date and time */
   publishedEvents(language: Language = 'no'): QueryDefinition<EventResult[]> {
     return {query: buildPublishedEventsQuery(language), params: {}}
   },
+  /** Fetch all active event dates for program filtering */
   eventDates(): QueryDefinition {
     return {query: EVENT_DATES_QUERY, params: {}}
   },
+  /** Fetch events for a specific date (for program filtering) */
   eventsByDate(dateId: string, language: Language = 'no'): QueryDefinition<{dateId: string}> {
     return {query: buildEventsByDateQuery(language), params: {dateId}}
   },
+  /** Fetch all slugs for a document type (for static path generation) */
   slugsForType(type: string): QueryDefinition<{type: string}> {
     return {query: SLUGS_FOR_TYPE_QUERY, params: {type}}
   },
+  /** Search content by term across specified document types */
   searchContent(searchTerm: string, types: string[], language: Language = 'no'): QueryDefinition<{search: string; types: string[]}> {
     return {query: buildSearchContentQuery(language), params: {search: `*${searchTerm}*`, types}}
   },
+  /** Fetch navigation menu items from site settings */
   siteSettingsMenu(): QueryDefinition {
     return {query: SITE_SETTINGS_MENU_QUERY, params: {}}
   },
+  /** Fetch footer content from site settings */
   siteSettingsFooter(): QueryDefinition {
     return {query: SITE_SETTINGS_FOOTER_QUERY, params: {}}
   },
+  /** Fetch text logo from site settings */
   siteSettingsTekstLogo(): QueryDefinition {
     return {query: SITE_SETTINGS_TEKST_LOGO_QUERY, params: {}}
   }
 } as const
 
+/**
+ * Configuration options for Sanity query execution.
+ * Controls perspective (published vs drafts), CDN usage, and Visual Editing.
+ */
 export interface QueryOptions {
+  /** Content perspective: 'published' for live content, 'drafts' for preview */
   perspective?: 'published' | 'drafts'
+  /** Use Sanity CDN for cached responses (automatic based on perspective) */
   useCdn?: boolean
+  /** API token for authenticated requests (required for drafts) */
   token?: string
+  /** Enable Stega encoding for Visual Editing click-to-edit */
   stega?: boolean
 }
 
+/**
+ * Build query execution parameters with sensible defaults.
+ * Automatically enables CDN for published perspective, disables for drafts.
+ *
+ * @param options - Query configuration options
+ * @returns Normalized parameters for sanityClient.fetch()
+ */
 export function buildQueryParams(options: QueryOptions = {}) {
   return {
     perspective: options.perspective || 'published',

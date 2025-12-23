@@ -1,13 +1,31 @@
 ---
+/**
+ * ArtistCard - Artist display card for listings and detail pages
+ *
+ * Two size variants with different aspect ratios:
+ * - 'large': 3:4 aspect ratio, for featured displays
+ * - 'medium': Compact ratio for grid listings (default)
+ *
+ * When isDetailPage=true, the card renders without a link (already on artist page)
+ * and uses eager loading for the image (above the fold).
+ *
+ * @see docs/MEDIA.md - Image optimization strategy
+ */
+
 import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../lib/sanityImage';
 import { stegaClean } from '@sanity/client/stega';
 import type { ArtistResult } from '../lib/sanity/queries';
 
 interface Props {
+  /** Artist data from Sanity */
   artist: ArtistResult;
+  /** Display language for URL generation */
   language?: 'no' | 'en';
+  /** Card size variant affecting image aspect ratio */
   size?: 'large' | 'medium';
+  /** True when rendering on artist detail page (disables link, eager loads image) */
   isDetailPage?: boolean;
+  /** Responsive sizes attribute for image srcset */
   imageSizes?: string;
 }
 

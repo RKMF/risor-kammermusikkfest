@@ -1,9 +1,34 @@
 ---
+/**
+ * ProgramFilters - HTMX-powered date and venue filter controls
+ *
+ * Renders filter buttons for the program page. Uses HTMX for instant filtering
+ * without full page reload, with progressive enhancement (href fallback works
+ * without JavaScript).
+ *
+ * HTMX integration:
+ * - hx-get: Fetches filtered results from /api/filter-program
+ * - hx-target: Updates #event-results container
+ * - hx-push-url: Updates browser URL for bookmarkable/shareable filter state
+ * - hx-indicator: Shows loading state during request
+ *
+ * Filter state is synced with URL parameters (date=, venue=) for:
+ * - Shareable filtered views
+ * - Browser back/forward navigation
+ * - Bookmarkable filter combinations
+ *
+ * @see src/scripts/syncFilterButtonStatesWithUrl.js - Client-side state sync
+ * @see src/pages/api/filter-program.ts - Server-side filter endpoint
+ */
+
 import { formatDateWithWeekday } from '../lib/utils/dates';
 
 interface Props {
+  /** Available event dates for date filter buttons */
   availableDates: Array<{ date: string; title?: string }>;
+  /** Available venues for venue filter buttons */
   availableVenues: Array<{ slug: string; title: string }>;
+  /** Display language for labels */
   language: 'no' | 'en';
 }
 

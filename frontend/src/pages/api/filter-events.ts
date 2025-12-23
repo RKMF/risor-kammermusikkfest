@@ -46,7 +46,7 @@ interface EventResult {
   }>;
 }
 
-// Opprett Sanity Image URL Builder
+// Create Sanity Image URL Builder
 const { projectId, dataset } = sanityClient.config();
 const urlFor = (source: SanityImageSource) =>
   projectId && dataset
@@ -258,7 +258,7 @@ export const POST: APIRoute = async ({ request }) => {
       venue: filters.venue || undefined,
     });
 
-    // Generer HTML for arrangementene med antall resultater
+    // Generate HTML for events with result count
     const resultsCountText = `Viser ${events.length} arrangement${events.length === 1 ? '' : 'er'}`;
     const noResultsTitle = 'Ingen arrangementer funnet';
     const noResultsText = 'Prøv å endre filtrene eller <a href="/program" style="color: #007acc;">vis alle arrangementer</a>';
@@ -285,7 +285,7 @@ export const POST: APIRoute = async ({ request }) => {
       </div>
     `;
 
-    // Bestem riktig URL basert på valgt filter
+    // Determine correct URL based on selected filter
     let pushUrl = '/program';
     if (filters.eventDate) {
       pushUrl = `/program#tab-${filters.eventDate}`;

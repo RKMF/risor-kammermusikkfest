@@ -170,7 +170,7 @@ export const videoComponent = defineType({
     prepare({ title, subtitle, videoType, media, aspectRatio, youtubeUrl, vimeoUrl, externalUrl }) {
       const formatText = aspectRatio ? ` • Format: ${aspectRatio}` : '';
 
-      // Bestem hvilken video som skal vises i preview
+      // Determine which video to show in preview
       let previewVideo = null;
       if (videoType === 'sanity' && media) {
         previewVideo = media;

@@ -46,8 +46,10 @@ const content = getMultilingualContent(article, language) || article[config.cont
 
   <article class="article-page">
     <header class="article-header">
-      <h1>{stegaClean(article.title || '')}</h1>
-      {article.excerpt && <p class="excerpt">{stegaClean(article.excerpt)}</p>}
+      <hgroup>
+        <h1>{stegaClean(article.title || '')}</h1>
+        {article.excerpt && <p class="excerpt">{stegaClean(article.excerpt)}</p>}
+      </hgroup>
     </header>
 
     {article.image?.image && (
