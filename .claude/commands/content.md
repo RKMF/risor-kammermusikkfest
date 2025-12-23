@@ -64,8 +64,9 @@ When creating new content, use `WebSearch` to find:
 - Official biography/background
 - Notable achievements, awards, recordings
 - Recent performances, albums, collaborations
-- Quotes from interviews, reviews, and profiles
-- Reviews and critical analysis (often contain usable quotes)
+- Quotes BY the subject (from interviews, profiles) - always note source URL
+- Quotes ABOUT the subject (from reviews, critical analysis) - always note source URL
+- Reviews and critical analysis (rich source of "pull quotes")
 - Connection to Risør (if applicable)
 - Related links for reference
 
@@ -118,6 +119,9 @@ Analyze research findings and suggest components that match discoveries AND foll
 | Related festival artists | artistScrollContainer |
 | Awards/achievements list | portableTextBlock or accordionComponent |
 | Career timeline | Structured headings + text blocks |
+
+**Quote requirements:** Always include source URL for verification. Present quotes as:
+> "Quote text here." - [Source Name](URL)
 
 **Present suggestions with rationale AND visual layout:**
 
