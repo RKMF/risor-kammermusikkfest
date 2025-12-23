@@ -64,20 +64,23 @@ When creating new content, use `WebSearch` to find:
 - Official biography/background
 - Notable achievements, awards, recordings
 - Recent performances, albums, collaborations
-- Quotes from interviews
-- Reviews and critical analysis
+- Quotes from interviews, reviews, and profiles
+- Reviews and critical analysis (often contain usable quotes)
 - Connection to Risør (if applicable)
 - Related links for reference
 
-**Search strategy:**
+**Search strategy (examples):**
 1. Artist/composer name + "biography"
 2. Artist/composer name + "interview"
 3. Artist/composer name + "review"
 4. Artist/composer name + "Risør" (for festival connections)
+5. etc. - adapt searches based on what you're looking for
 
 **Chronological approach:** Search current year first, then work backwards. Newer references keep content up to date.
 
 Compile research into notes before writing.
+
+**Important:** Read through all promising search results, not just the ones that seem most relevant. Reviews, profiles, and feature articles often contain the best quotes.
 
 ---
 
@@ -116,7 +119,7 @@ Analyze research findings and suggest components that match discoveries AND foll
 | Awards/achievements list | portableTextBlock or accordionComponent |
 | Career timeline | Structured headings + text blocks |
 
-**Present suggestions with rationale:**
+**Present suggestions with rationale AND visual layout:**
 
 ### Suggested Content Structure for [Document Name]
 
@@ -126,6 +129,26 @@ Based on research and patterns from similar [type] pages:
 2. **contentScrollContainer** - Found 3 quotes from [source] - placed after bio (matches pattern)
 3. **spotifyComponent** - Found album "[Name]" - typically at end
 4. **imageComponent** - [Description] - you'll add manually
+
+**Visual page architecture:**
+
+```
+┌─────────────────────────────────────┐
+│  [IMAGE - existing hero]            │
+├─────────────────────────────────────┤
+│  PORTABLE TEXT                      │
+│  Main biography/description         │
+│  2-3 paragraphs                     │
+├─────────────────────────────────────┤
+│  ← QUOTE CAROUSEL →                 │
+│  "Quote 1..." | "Quote 2..." | ...  │
+├─────────────────────────────────────┤
+│  ♫ SPOTIFY                          │
+│  Album or artist embed              │
+└─────────────────────────────────────┘
+```
+
+Adapt the visual to match actual proposed components. This helps the user see the page flow before approving.
 
 **Why this structure:**
 - Matches established [type] page pattern
