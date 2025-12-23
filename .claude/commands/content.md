@@ -72,12 +72,35 @@ When creating new content, use `WebSearch` to find:
 - Connection to Risør (if applicable)
 - Related links for reference
 
-**Search strategy (examples):**
-1. Artist/composer name + "biography"
-2. Artist/composer name + "interview"
-3. Artist/composer name + "review"
-4. Artist/composer name + "Risør" (for festival connections)
-5. etc. - adapt searches based on what you're looking for
+**Language-aware search strategy:**
+
+1. **Determine subject's native language/country** (Norwegian, French, German, etc.)
+2. **Search native language sources FIRST:**
+   - Norwegian artists: Search `.no` domains, Norwegian media (NRK, Aftenposten, etc.)
+   - French artists: Search `.fr` domains, French media
+   - German artists: Search `.de` domains, German media
+   - etc.
+3. **Then search international sources** (.com, English-language media)
+4. **Cross-reference** findings from both language sources
+
+**Why native language first:**
+- More detailed coverage of local artists
+- Access to original interviews (not translations)
+- Cultural context and nuance
+- Recent news may not be translated yet
+
+**Example for Norwegian artist:**
+1. `[name] biografi site:no` or `[name] NRK`
+2. `[name] intervju site:no`
+3. `[name] Risør kammermusikkfest`
+4. `[name] biography` (international)
+5. `[name] interview` (international)
+
+**Example for French artist:**
+1. `[name] biographie site:fr` or `[name] Le Monde`
+2. `[name] interview site:fr`
+3. `[name] biography` (international)
+4. `[name] interview` (international)
 
 **Chronological approach:** Search current year first, then work backwards. Newer references keep content up to date.
 
@@ -155,6 +178,43 @@ AFTER content is reviewed, show layout:
 Adapt visual to match actual proposed components.
 
 User reviews content first, then sees page flow.
+
+---
+
+## Step 5b: Quote Translation & Attribution
+
+### Best Practice for Translated Quotes
+
+When using quotes from interviews/sources in languages other than Norwegian or English:
+
+**Option 1: Use English/Norwegian quotes when available (preferred)**
+- Search for interviews in English or Norwegian first
+- These require no translation attribution
+
+**Option 2: Translate and attribute**
+- If using a quote originally in another language, indicate translation
+- Format: `"Quote text here." [oversatt fra tysk/translated from German]`
+- Keep quotation marks (represents speech, even if translated)
+
+### Attribution Format
+
+| Scenario | Norwegian Format | English Format |
+|----------|-----------------|----------------|
+| Quote in original language | "Sitat." - [Kilde](URL) | "Quote." - [Source](URL) |
+| Translated quote | "Sitat." [oversatt fra tysk] - [Kilde](URL) | "Quote." [translated from German] - [Source](URL) |
+
+### When Translation is Needed
+
+1. **Must translate**: Quotes in languages readers won't understand (German, French, Italian, etc.)
+2. **Keep original**: Well-known phrases, titles, or when original wording matters
+3. **Provide both**: For linguistic analysis or when original adds value
+
+### Quality Standards
+
+- **Accuracy**: Translate meaning, not word-for-word
+- **Transparency**: Always indicate when a quote is translated
+- **Source verification**: Link to original source
+- **Cultural context**: Add [bracketed explanations] if needed for clarity
 
 ---
 
