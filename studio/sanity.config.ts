@@ -1,3 +1,21 @@
+/**
+ * Sanity Studio Configuration - Risør Kammermusikkfest CMS
+ *
+ * This is the main configuration hub for the Sanity Studio. It defines:
+ * - Plugins for content editing, preview, and asset management
+ * - Custom document actions for artist/event/article publishing workflows
+ * - Visual Editing integration with the Astro frontend
+ * - Norwegian localization with custom terminology
+ *
+ * Key customizations:
+ * - Custom publish actions sync related content (events ↔ artists)
+ * - 'Unpublish' removed in favor of publishingStatus field in Publisering tab
+ * - Delete actions check for references before allowing deletion
+ * - i18n overrides change "Publish" to "Lagre" (Save) for editor clarity
+ *
+ * @see docs/PROJECT_GUIDE.md - Section 2.1 Sanity CMS
+ */
+
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
@@ -53,13 +71,23 @@ export default defineConfig({
 
   theme: rkmfTheme,
 
+  // ============================================================================
+  // PLUGINS
+  // ============================================================================
   plugins: [
+    // Custom desk structure organizing content into logical sections
     structureTool({ structure }),
+    // GROQ query testing and debugging tool
     visionTool(),
+    // Norwegian language for Studio UI
     nbNOLocale(),
+    // Unsplash integration for stock photos
     unsplashImageAsset(),
+    // Custom placeholder text generator for content editors
     placeholderTextPlugin(),
+    // Component reference guide for editors
     componentGuideTool(),
+    // Visual Editing integration with Astro frontend
     presentationTool({
       previewUrl: {
         origin: process.env.SANITY_STUDIO_PREVIEW_URL || 'http://localhost:4321',
@@ -153,56 +181,48 @@ export default defineConfig({
     types: schemaTypes,
   },
 
+  // ============================================================================
+  // DOCUMENT ACTIONS
+  // ============================================================================
+  // Custom actions replace default Sanity behavior for key document types.
+  // Pattern: Filter out unwanted actions, then map to replace specific ones.
+  //
+  // Why remove 'unpublish'?
+  // Editors control visibility via the 'publishingStatus' field in the Publisering
+  // tab (Draft/Published). This is clearer than Sanity's built-in unpublish which
+  // creates confusing "published but invisible" states.
+  // ============================================================================
   document: {
     actions: (prev, context) => {
-      // Replace default publish action with custom actions for different document types
-
-      // Artist documents: sync events + add to artist page + custom delete
-      // Remove 'unpublish' action - editors should use Publisering tab (publishingStatus field) instead
+      // Artist: composite publish syncs events, offers to add to artist page
       if (context.schemaType === 'artist') {
         return prev
           .filter((action) => action.action !== 'unpublish')
           .map((action) => {
-            if (action.action === 'publish') {
-              // Use composite action which handles event sync and artist page dialog
-              return compositeArtistPublishAction;
-            }
-            if (action.action === 'delete') {
-              return deleteArtistAction;
-            }
+            if (action.action === 'publish') return compositeArtistPublishAction;
+            if (action.action === 'delete') return deleteArtistAction;
             return action;
           });
       }
 
-      // Event documents: sync date value + sync artists + add to program page + custom delete
-      // Remove 'unpublish' action - editors should use Publisering tab (publishingStatus field) instead
+      // Event: composite publish syncs date/artists, offers to add to program page
       if (context.schemaType === 'event') {
         return prev
           .filter((action) => action.action !== 'unpublish')
           .map((action) => {
-            if (action.action === 'publish') {
-              // Use composite action which handles date sync, artist sync, and program page dialog
-              return compositeEventPublishAction;
-            }
-            if (action.action === 'delete') {
-              return deleteEventAction;
-            }
+            if (action.action === 'publish') return compositeEventPublishAction;
+            if (action.action === 'delete') return deleteEventAction;
             return action;
           });
       }
 
-      // Article documents: add to article page + custom delete
-      // Remove 'unpublish' action - editors should use Publisering tab (publishingStatus field) instead
+      // Article: publish offers to add to article listing page
       if (context.schemaType === 'article') {
         return prev
           .filter((action) => action.action !== 'unpublish')
           .map((action) => {
-            if (action.action === 'publish') {
-              return addArticleToArticlePageAction;
-            }
-            if (action.action === 'delete') {
-              return deleteArticleAction;
-            }
+            if (action.action === 'publish') return addArticleToArticlePageAction;
+            if (action.action === 'delete') return deleteArticleAction;
             return action;
           });
       }

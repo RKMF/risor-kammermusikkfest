@@ -37,11 +37,11 @@ export const venue = defineType({
       },
       validation: (Rule) =>
         Rule.warning().custom(async (value, context) => {
-          // Først sjekk custom slug validering
+          // First check custom slug validation
           const slugValidation = await venueSlugValidation(value, context);
           if (slugValidation !== true) return slugValidation;
 
-          // Så sjekk om slug mangler, men kun hvis tittel finnes
+          // Then check if slug is missing (only if title exists)
           if (!value?.current && context.document?.title) {
             return 'Trykk generer for å lage URL';
           }
@@ -67,7 +67,7 @@ export const venue = defineType({
         })
           .warning('Må være en gyldig URL (http/https)')
           .custom((value, context) => {
-            // Hvis adresse er fylt ut, må URL også fylles ut
+            // If address is filled in, URL should also be provided
             if (context.document?.address && !value) {
               return 'Lenke-URL bør fylles ut når adresse er definert';
             }

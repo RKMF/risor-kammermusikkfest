@@ -1,3 +1,20 @@
+/**
+ * Artist Schema - Festival performer and musician documents
+ *
+ * Structure:
+ * - name: Shared identifier (same across languages)
+ * - slug: URL-friendly identifier with uniqueness validation
+ * - cardSize: Display size on artist listing page (stor/medium)
+ * - Bilingual content: excerpt, instrument, pageBuilder content per language
+ * - events: Bidirectional reference to Event documents
+ *
+ * The MirrorPortableTextInput component shows Norwegian content alongside
+ * English fields to assist translation workflow.
+ *
+ * @see docs/PROJECT_GUIDE.md - Section 2.1 Schema Design
+ * @see schemaTypes/shared/previewHelpers.ts - Status display helpers
+ */
+
 import { defineField, defineType } from 'sanity';
 import { UserIcon, ComposeIcon, CogIcon, ImageIcon } from '@sanity/icons';
 import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
@@ -68,11 +85,11 @@ export const artist = defineType({
       },
       validation: (Rule) =>
         Rule.required().custom(async (value, context) => {
-          // Først sjekk avansert slug-validering for unikhet
+          // First check custom slug validation for uniqueness
           const slugValidation = await artistSlugValidation(value, context);
           if (slugValidation !== true) return slugValidation;
 
-          // Så sjekk standard slug-validering
+          // Then check standard slug validation
           return componentValidation.slug(Rule).validate(value, context);
         }),
       group: 'basic',

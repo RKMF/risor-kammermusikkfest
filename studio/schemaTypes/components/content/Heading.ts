@@ -55,7 +55,7 @@ export const heading = defineType({
         'Unik ID for overskriften som brukes for direkte lenker til denne seksjonen. Trykk "Generer" for å lage automatisk fra overskriftsteksten.',
       options: {
         source: (doc: any, options: any) => {
-          // Hent tekst fra parent objekt
+          // Get text from parent object
           const parent = options.parent;
           return parent?.text || '';
         },

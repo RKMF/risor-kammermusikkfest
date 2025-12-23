@@ -1,5 +1,17 @@
 /**
- * Standard validation patterns for consistency across components
+ * Validation Patterns - Reusable validation rules for Sanity schemas
+ *
+ * Provides consistent validation across all schema types:
+ * - componentValidation: Common field types (title, url, email, image, slug)
+ * - contentValidation: Festival-specific rules (event capacity, accordion panels)
+ * - seoValidation: Meta tag length limits for SEO best practices
+ * - a11yValidation: Accessibility requirements (alt text, aria labels)
+ * - componentSpecificValidation: Per-component rules (button text, quote length)
+ * - crossFieldValidation: Multi-field validators (date range, conditional required)
+ *
+ * All validation messages are in Norwegian for the Norwegian-first Studio UI.
+ *
+ * @see docs/PROJECT_GUIDE.md - Section 2.1 Schema Design
  */
 
 export const componentValidation = {

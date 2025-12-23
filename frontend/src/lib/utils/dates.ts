@@ -1,3 +1,13 @@
+/**
+ * Date Formatting Utilities - Bilingual date display for the festival
+ *
+ * Provides locale-aware date formatting for Norwegian (nb-NO) and English (en-US).
+ * Used by event listings, program filters, and content display.
+ *
+ * @see src/components/ProgramFilters.astro - Filter button date display
+ * @see src/components/EventCard.astro - Event date rendering
+ */
+
 export type Language = 'no' | 'en';
 
 /**

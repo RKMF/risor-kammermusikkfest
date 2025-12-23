@@ -1,3 +1,17 @@
+/**
+ * EventScrollContainer Schema - Horizontal scrollable event card component
+ *
+ * A pageBuilder component that displays 2-8 event cards in a horizontal
+ * scroll layout. Supports configurable card display options (date, time,
+ * venue, artists) and sorting (by date, title, or manual order).
+ *
+ * Also exports utility functions for HTML generation (legacy) and
+ * validation helpers used by the schema and preview components.
+ *
+ * @see docs/PROJECT_GUIDE.md - Section 2.3 Component Patterns
+ * @see schemaTypes/shared/types.ts - EventScrollContainerData interface
+ */
+
 import { defineField, defineType } from 'sanity';
 import { CalendarIcon } from '@sanity/icons';
 import { componentValidation, contentValidation } from '../../shared/validation';
@@ -99,7 +113,10 @@ export const eventScrollContainer = defineType({
   },
 });
 
-// Funksjon for å generere HTML fra event scroll container data
+/**
+ * Generate HTML from event scroll container data (legacy SSR helper)
+ * Note: In the Astro frontend, this is handled by EventScrollContainer.astro instead
+ */
 export const generateEventScrollHtml: ComponentHTMLGenerator<EventScrollContainerData> = (
   data: EventScrollContainerData
 ): string => {
@@ -113,7 +130,7 @@ export const generateEventScrollHtml: ComponentHTMLGenerator<EventScrollContaine
     ? `card-format-${data.cardFormat.replace(':', '-')}`
     : 'card-format-16-9';
 
-  // Sorter arrangementer basert på valgt sortering
+  // Sort events based on selected sort option
   let sortedEvents = [...data.items];
   switch (data.sortBy) {
     case 'date-asc':
@@ -135,7 +152,7 @@ export const generateEventScrollHtml: ComponentHTMLGenerator<EventScrollContaine
       break;
     case 'manual':
     default:
-      // Behold manuell rekkefølge
+      // Keep manual order (no sorting)
       break;
   }
 
