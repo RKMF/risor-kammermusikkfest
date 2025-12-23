@@ -123,43 +123,36 @@ Analyze research findings and suggest components that match discoveries AND foll
 **Quote requirements:** Always include source URL for verification. Present quotes as:
 > "Quote text here." - [Source Name](URL)
 
-**Present suggestions with rationale AND visual layout:**
+**Think holistically:** What would interest a visitor to this page? Consider the full experience, not just individual components.
 
-### Suggested Content Structure for [Document Name]
+**Present in this order:**
 
-Based on research and patterns from similar [type] pages:
+### 1. Proposed Content
 
-1. **portableTextBlock** - Main bio/description
-2. **contentScrollContainer** - Found 3 quotes from [source] - placed after bio (matches pattern)
-3. **spotifyComponent** - Found album "[Name]" - typically at end
-4. **imageComponent** - [Description] - you'll add manually
+List ALL proposed content so user can review:
 
-**Visual page architecture:**
+- **Text content:** The actual paragraphs you will write
+- **Quotes:** With source URLs
+- **Media:** Spotify albums, video links, image suggestions
+- **References:** Related artists, events, links
+
+### 2. Visual Page Architecture
+
+AFTER content is reviewed, show layout:
 
 ```
 ┌─────────────────────────────────────┐
-│  [IMAGE - existing hero]            │
+│  [Component type]                   │
+│  [Brief description]                │
 ├─────────────────────────────────────┤
-│  PORTABLE TEXT                      │
-│  Main biography/description         │
-│  2-3 paragraphs                     │
-├─────────────────────────────────────┤
-│  ← QUOTE CAROUSEL →                 │
-│  "Quote 1..." | "Quote 2..." | ...  │
-├─────────────────────────────────────┤
-│  ♫ SPOTIFY                          │
-│  Album or artist embed              │
+│  [Next component]                   │
+│  [Brief description]                │
 └─────────────────────────────────────┘
 ```
 
-Adapt the visual to match actual proposed components. This helps the user see the page flow before approving.
+Adapt visual to match actual proposed components.
 
-**Why this structure:**
-- Matches established [type] page pattern
-- Quotes placed in same position as other [type] pages
-- Research supports each suggested component
-
-User can accept, modify, or reject suggestions before content is written.
+User reviews content first, then sees page flow.
 
 ---
 
