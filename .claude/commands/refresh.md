@@ -1,5 +1,7 @@
 Clear conversation and restore context.
 
+**Mode:** Mostly read-only. Can run in plan mode except /clear.
+
 ## Do This
 1. Run: `/clear`
 2. Read @docs/PROJECT_GUIDE.md

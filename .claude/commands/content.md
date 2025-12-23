@@ -2,6 +2,8 @@ Create or enhance content for: $ARGUMENTS
 
 **Sanity MCP:** project `dnk98dp0`, dataset `production`
 
+**Mode:** Steps 1-9 work in plan mode (research, draft). Exit plan mode at Step 10 to apply changes.
+
 ---
 
 ## Understanding $ARGUMENTS

@@ -1,5 +1,7 @@
 Debug: $ARGUMENTS
 
+**Mode:** Steps 1-2, 4 work in plan mode (investigate, plan). Exit plan mode at Step 3 to test/fix.
+
 ## 1. Reproduce & Evidence
 - Can you trigger it consistently? Minimal reproduction?
 - Gather: error messages, console logs, network tab

@@ -1,5 +1,7 @@
 Release current feature branch to staging: $ARGUMENTS
 
+**Mode:** Step 1 read-only, then execution required. Exit plan mode before Step 2.
+
 Flow: feature branch → staging (testing.kammermusikkfest.no)
 
 ## Step 1: Verify State
