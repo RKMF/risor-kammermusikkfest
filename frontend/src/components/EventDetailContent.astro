@@ -155,7 +155,7 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
       )}
 
       {extraContent && Array.isArray(extraContent) && extraContent.length > 0 && (
-        <section class="extra-content">
+        <section class="pagebuilder-content">
           <h2 class="sr-only">{config.additionalContent}</h2>
           {extraContent.map((block) => (
             <DynamicComponent key={block._key || block._id} block={block} />

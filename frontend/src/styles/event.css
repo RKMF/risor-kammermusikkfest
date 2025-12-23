@@ -299,6 +299,26 @@ dl.event-meta {
 }
 
 /* ============================================
+   PAGEBUILDER CONTENT SPACING
+   ============================================
+
+   Consistent spacing between DynamicComponent blocks.
+   Pattern: margin-block-end on all children, removed on last child.
+*/
+
+.pagebuilder-content {
+  margin-block-end: var(--space-3xl);
+}
+
+.pagebuilder-content > * {
+  margin-block-end: var(--space-3xl);
+}
+
+.pagebuilder-content > *:last-child {
+  margin-block-end: 0;
+}
+
+/* ============================================
    ACCESSIBILITY & MOTION PREFERENCES
    ============================================ */
 

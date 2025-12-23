@@ -85,6 +85,23 @@
 }
 
 /* ============================================
+   PAGEBUILDER CONTENT SPACING
+   ============================================
+
+   Note: Pagebuilder spacing is defined per-component to ensure
+   Astro's scoped styling with :global() works correctly:
+
+   - ArtistDetailContent.astro (scoped styles with :global())
+   - ArticleDetailContent.astro (scoped styles with :global())
+   - event.css (global CSS for EventDetailContent)
+
+   Pattern: margin-block-end on all children
+   - Space controlled on bottom of each component
+   - Last child margin removed to avoid double spacing
+   - Uses --space-3xl (64-80px) for generous component separation
+*/
+
+/* ============================================
    LAYOUT PARENT-CHILD WIDTH HANDLING
    ============================================
 

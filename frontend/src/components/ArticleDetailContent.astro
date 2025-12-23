@@ -65,7 +65,7 @@ const content = getMultilingualContent(article, language) || article[config.cont
     )}
 
     {content && Array.isArray(content) && (
-      <section class="article-content">
+      <section class="pagebuilder-content">
         <h2 class="sr-only">{config.screenReaderText}</h2>
         {content.map((block) => (
           <DynamicComponent key={block._key || block._id} block={block} />
@@ -90,8 +90,18 @@ const content = getMultilingualContent(article, language) || article[config.cont
 
   /* Excerpt styling handled by global .excerpt class in base.css */
 
-  .article-content {
+  /* Pagebuilder content spacing - generous space between components */
+  .pagebuilder-content {
     line-height: 1.6;
+    margin-block-end: var(--space-3xl);
+  }
+
+  .pagebuilder-content > :global(*) {
+    margin-block-end: var(--space-3xl);
+  }
+
+  .pagebuilder-content > :global(*:last-child) {
+    margin-block-end: 0;
   }
 
 </style>

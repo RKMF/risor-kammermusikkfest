@@ -183,38 +183,43 @@ User reviews content first, then sees page flow.
 
 ## Step 5b: Quote Translation & Attribution
 
-### Best Practice for Translated Quotes
+### Language Rules for Quotes
 
-When using quotes from interviews/sources in languages other than Norwegian or English:
+**English quotes: Keep in English**
+- Norwegians understand English - no translation needed
+- Use the original English quote for both NO and EN content
 
-**Option 1: Use English/Norwegian quotes when available (preferred)**
-- Search for interviews in English or Norwegian first
-- These require no translation attribution
-
-**Option 2: Translate and attribute**
-- If using a quote originally in another language, indicate translation
-- Format: `"Quote text here." [oversatt fra tysk/translated from German]`
-- Keep quotation marks (represents speech, even if translated)
+**Other languages (German, French, Italian, etc.):**
+- Translate to Norwegian for NO content
+- Translate to English for EN content
+- Indicate translation: `[oversatt fra tysk]` / `[translated from German]`
 
 ### Attribution Format
 
-| Scenario | Norwegian Format | English Format |
-|----------|-----------------|----------------|
-| Quote in original language | "Sitat." - [Kilde](URL) | "Quote." - [Source](URL) |
-| Translated quote | "Sitat." [oversatt fra tysk] - [Kilde](URL) | "Quote." [translated from German] - [Source](URL) |
+Always include both **author name** (forfatter) and **source** (kilde):
 
-### When Translation is Needed
+| Field | What it contains | Example |
+|-------|------------------|---------|
+| Forfatter/Author | The person who said/wrote it | Anne-Sophie Mutter |
+| Kilde/Source | Publication, website, or media | The Guardian, NRK, intervju 2023 |
 
-1. **Must translate**: Quotes in languages readers won't understand (German, French, Italian, etc.)
-2. **Keep original**: Well-known phrases, titles, or when original wording matters
-3. **Provide both**: For linguistic analysis or when original adds value
+**Norwegian format:**
+```
+"Quote text here."
+— Anne-Sophie Mutter, The Guardian
+```
+
+**In quoteComponent:**
+- `forfatter`: The person's name (e.g., "Anne-Sophie Mutter")
+- `kilde`: The publication/source (e.g., "The Guardian")
+- `cite`: Source URL for verification
 
 ### Quality Standards
 
-- **Accuracy**: Translate meaning, not word-for-word
-- **Transparency**: Always indicate when a quote is translated
-- **Source verification**: Link to original source
-- **Cultural context**: Add [bracketed explanations] if needed for clarity
+- **Always verify source URL** before including a quote
+- **Use actual author name** - not "kritiker" or "anmelder"
+- **Be specific with source** - "NRK Klassisk" not just "NRK"
+- **Add context if needed**: `[fra intervju om Beethoven-innspillingen]`
 
 ---
 
