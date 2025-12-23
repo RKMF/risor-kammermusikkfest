@@ -1,5 +1,7 @@
 Release current feature branch to staging: $ARGUMENTS
 
+**Mode:** Step 1 read-only, then execution required. Exit plan mode before Step 2.
+
 Flow: feature branch → staging (testing.kammermusikkfest.no)
 
 ## Step 1: Verify State
@@ -7,7 +9,15 @@ Flow: feature branch → staging (testing.kammermusikkfest.no)
 git status
 git branch --show-current
 ```
-Must be on feature branch (feature/*, fix/*, chore/*). If on staging or main, abort.
+
+**If on staging with uncommitted changes:**
+1. Ask user for a feature name (or derive from $ARGUMENTS)
+2. Create feature branch: `git checkout -b feature/<name>`
+3. Continue to Step 2
+
+**If on main:** Abort - should not have uncommitted work on main.
+
+**If on feature branch:** Continue to Step 2.
 
 ## Step 2: Handle Uncommitted Changes
 If uncommitted changes exist, show them and ask if they should be committed.
@@ -54,7 +64,8 @@ git checkout staging && git pull origin staging
 Report: PR URL, whether typegen ran, remind to test before `/live-release`.
 
 ## Rules
-- NEVER run from staging or main branch
+- If on staging with changes, create feature branch automatically
+- NEVER run from main branch
 - ALWAYS use squash merge
 - ALWAYS delete the feature branch after merge
 - NEVER delete staging or main branches under any circumstances

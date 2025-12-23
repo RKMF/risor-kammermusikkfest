@@ -1,5 +1,7 @@
 Expert help needed for: $ARGUMENTS
 
+**Mode:** Works entirely in plan mode. Exit only if implementing recommendations.
+
 ## Step 1: Confirm Agent
 
 Identify the domain and ask ONE brief confirmation question:

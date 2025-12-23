@@ -1,4 +1,6 @@
-Restore context after compression.
+Clear conversation and restore context.
+
+**Mode:** Read-only. Works in plan mode.
 
 ## Do This
 1. Read @docs/PROJECT_GUIDE.md
