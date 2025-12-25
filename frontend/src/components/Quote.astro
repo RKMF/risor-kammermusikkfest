@@ -95,7 +95,8 @@ const {
 
   .quote-attribution {
     display: flex;
-    align-items: center;
+    flex-direction: column; /* Author above source */
+    align-items: flex-end; /* Right-align text */
     gap: var(--space-3xs);
     justify-self: end; /* Right-align in grid */
     font-size: var(--step-0); /* Fluid 18px → 23px */
@@ -122,14 +123,6 @@ const {
 
     .quote-text {
       font-size: var(--step-1); /* 22-28px */
-    }
-  }
-
-  @container quote (max-width: 350px) {
-    .quote-attribution {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: var(--space-3xs);
     }
   }
 
