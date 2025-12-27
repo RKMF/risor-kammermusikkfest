@@ -103,11 +103,11 @@ const freeText = language === 'en' ? 'Free' : 'Gratis';
       {soldOutText}
     </span>
   ) : stegaClean(event.ticketStatus) === 'low_stock' ? (
-    <a href={stegaClean(event.ticketUrl)} class="btn btn-warning" target="_blank" rel="noopener noreferrer">
+    <a href={stegaClean(event.ticketUrl)} class="btn btn-warning" target="_blank" rel="noopener noreferrer" data-track-ticket data-concert={stegaClean(event.title)}>
       {fewTicketsText}
     </a>
   ) : (
-    <a href={stegaClean(event.ticketUrl)} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+    <a href={stegaClean(event.ticketUrl)} class="btn btn-primary" target="_blank" rel="noopener noreferrer" data-track-ticket data-concert={stegaClean(event.title)}>
       {ticketButtonText}
     </a>
   )}
