@@ -112,7 +112,7 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
         {stegaClean(event.ticketType) === 'info' ? (
           <p class="ticket-info">{stegaClean(event.ticketInfoText) || config.free}</p>
         ) : (
-          <a href={stegaClean(event.ticketUrl)} class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+          <a href={stegaClean(event.ticketUrl)} class="btn btn-primary" target="_blank" rel="noopener noreferrer" data-track-ticket data-concert={stegaClean(event.title)}>
             {config.buyTickets}
           </a>
         )}
