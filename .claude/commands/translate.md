@@ -59,51 +59,26 @@ If EN is missing structural elements that NO has:
 
 ## Step 4: Apply Translation Rules
 
-Read and follow: `.claude/instructions/translation-rules.md`
+**Reference:** `.claude/instructions/translation-rules.md` for all conventions.
 
-### Key Rules Summary:
-
-**Punctuation:**
-- NO «» or "" → EN ""
-- NO – dialogue → EN "quoted"
-- NO Oles → EN Ole's
-
-**Capitalization:**
-- Days/months: lowercase → Capitalized
-- Nationalities: lowercase → Capitalized
-- Keys: C-dur/a-moll → C Major/A Minor
-
-**Music Terminology:**
-| Norwegian | English |
-|-----------|---------|
-| Pianokonsert | Piano Concerto |
-| Strykekvartett | String Quartet |
-| C-dur | C Major |
-| a-moll | A Minor |
-| Besetning: | Performers: |
-
-**Dates/Numbers:**
-- 24. juni → June 24
-- kl. 19:00 → 7:00 PM
-- 1 000 → 1,000
+**Key areas to check:**
+- Punctuation (quotes, dashes, apostrophes)
+- Capitalization (days, months, nationalities, musical keys)
+- Music terminology (Pianokonsert → Piano Concerto, C-dur → C Major)
+- Date/number formats (24. juni → June 24)
 
 ---
 
 ## Step 5: Translate with Style
 
-Read: `.claude/instructions/writing-style.md`
+**Reference:** `.claude/instructions/writing-style.md` for tone and patterns.
 
-The English translation should:
-- Match the tone of the Norwegian (warm, playful, personal)
+**Translation goals:**
+- Match Norwegian tone (warm, playful, personal)
 - Feel native, not translated
-- Preserve the sentence rhythm (hook → development → landing)
-- Keep the direct reader address ("you" for "du/dere")
-- Maintain confident claims without hedging
+- Preserve sentence rhythm and direct reader address ("you")
 
-### Idiom Handling:
-- Find equivalent expressions, NOT literal translations
-- If no good equivalent: explain and suggest alternatives
-- Never invent idioms
+**Idioms:** Find equivalents, don't translate literally. If no equivalent exists, explain and suggest alternatives.
 
 ---
 

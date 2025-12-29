@@ -667,6 +667,14 @@ Before every commit, verify:
 **Context Compression Risk**: Technical details survive compression better than behavioral rules.
 **Solution**: Always re-read this section after compression to restore proper working patterns.
 
+### Token Efficiency
+
+**In plan mode especially:**
+- Concise by default, verbose only when clarity demands it
+- Never compromise quality for brevity - explain when uncertain
+- Avoid redundant phrasing, filler words, unnecessary summaries
+- Launch minimum agents needed (1 unless scope requires more)
+
 ### When to Use Each Agent
 
 **mdn-web-standards-expert** (`.claude/agents/mdn-web-standards-expert.md`) → HTML semantics, JavaScript patterns, Web APIs, web standards
