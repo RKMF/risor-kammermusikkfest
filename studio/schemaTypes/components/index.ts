@@ -15,10 +15,12 @@ export {
   generateTableOfContents,
   validatePortableText,
   defaultComponents,
-  type PortableTextBlock,
-  type PortableTextSpan,
-  type PortableTextMarkDefinition,
 } from './content/PortableText';
+export type {
+  PortableTextBlock,
+  PortableTextSpan,
+  PortableTextMarkDefinition,
+} from '../shared/types';
 export { portableTextBlock } from './content/PortableTextBlock';
 export { imageComponent, generateOptimizedImageUrl } from './content/Image';
 export { videoComponent } from './content/Video';
