@@ -249,14 +249,14 @@ export const pageBuilder = defineType({
           description: 'description',
           layout: 'layout',
         },
-        prepare({ links, description, layout }) {
+        prepare({ links, description, layout }: { links?: unknown[]; description?: string; layout?: string }) {
           const linkCount = links?.length || 0;
-          const layoutText =
-            {
-              vertical: 'Vertikal',
-              horizontal: 'Horisontal',
-              grid: 'Rutenett',
-            }[layout || 'vertical'] || 'Vertikal';
+          const layoutMap: Record<string, string> = {
+            vertical: 'Vertikal',
+            horizontal: 'Horisontal',
+            grid: 'Rutenett',
+          };
+          const layoutText = layoutMap[layout || 'vertical'] || 'Vertikal';
           const descText = description ? ' • Med beskrivelse' : '';
           return {
             title: `Lenker (${linkCount})`,

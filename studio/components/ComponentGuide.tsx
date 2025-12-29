@@ -164,7 +164,7 @@ export default function ComponentGuide() {
                       <Stack space={2}>
                         <Box>
                           <Text size={2} weight="semibold">
-                            <Icon style={{ display: 'inline', marginRight: 8 }} />
+                            <span style={{ display: 'inline-block', marginRight: 8 }}><Icon /></span>
                             {component.name}
                           </Text>
                         </Box>

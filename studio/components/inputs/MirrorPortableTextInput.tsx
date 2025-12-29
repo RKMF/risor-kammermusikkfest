@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
-import { ArrayInputProps, useFormValue, PatchEvent, set } from 'sanity';
+import { ArrayOfObjectsInputProps, useFormValue, PatchEvent, set } from 'sanity';
 import { Stack, Text, Button, Flex, Card } from '@sanity/ui';
 
 export function createMirrorPortableTextInput(sourceField: string) {
-  return function MirrorPortableTextInput(props: ArrayInputProps) {
+  return function MirrorPortableTextInput(props: ArrayOfObjectsInputProps) {
     const { onChange, value, renderDefault } = props;
     const sourceValue = useFormValue([sourceField]) as any[];
 

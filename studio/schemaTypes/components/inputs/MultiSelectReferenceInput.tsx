@@ -40,7 +40,7 @@ export function MultiSelectReferenceInput(props: ArrayOfObjectsInputProps) {
   const client = useClient({ apiVersion: '2025-01-01' });
 
   // Extract the reference type from schema
-  const referenceType = schemaType.of?.[0]?.to?.[0]?.name;
+  const referenceType = (schemaType as any).of?.[0]?.to?.[0]?.name as string | undefined;
 
   // Get button text based on reference type
   const getButtonText = useCallback(() => {
@@ -105,7 +105,7 @@ export function MultiSelectReferenceInput(props: ArrayOfObjectsInputProps) {
 
   // Track currently selected IDs in the array
   const currentlySelectedIds = useMemo(() => {
-    return new Set((value || []).map((ref: Reference) => ref._ref));
+    return new Set((value || []).map((ref) => (ref as Reference)._ref));
   }, [value]);
 
   // Open dialog and initialize selection state

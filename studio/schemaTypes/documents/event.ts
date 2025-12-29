@@ -29,7 +29,7 @@ import {
   CogIcon,
   CreditCardIcon,
 } from '@sanity/icons';
-import { imageComponent } from '../components/Image';
+import { imageComponent } from '../components/content/Image';
 import { eventTimeOptions } from '../../lib/timeUtils';
 import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
 import { multilingualImageFields, imageFieldsets, imageGroup } from '../shared/imageFields';

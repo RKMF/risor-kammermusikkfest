@@ -235,6 +235,7 @@ export default defineConfig({
   i18n: {
     bundles: [
       {
+        locale: 'nb-NO',
         namespace: 'studio',
         resources: customNorwegianResources,
       },
