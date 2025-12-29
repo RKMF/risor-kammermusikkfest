@@ -33,6 +33,58 @@ This guide defines the writing style for Risør Chamber Music Festival content. 
 > *"For når det er sommer for den ene, er det vinter hos den andre."* [Development - explains the contrast]
 > *"Midt under sola i Risør."* [Landing - grounds it locally, short punch]
 
+## Bindeord (Conjunctions)
+
+Use connectors purposefully to create flow and rhythm.
+
+### Konjunksjoner (Coordinating)
+
+Connect equal elements - use sparingly for punchy prose:
+
+| Word | Use | Example |
+|------|-----|---------|
+| og | Connect words/phrases | "Vivaldi og Piazzolla" |
+| men | Contrast | "kort, men intens" |
+| eller | Alternative | "konsert eller festival" |
+| for | Reason (literary) | "for når det er sommer..." |
+| så | Result | "så det blir en fin kveld" |
+
+### Subjunksjoner (Subordinating)
+
+Introduce dependent clauses - good for development sentences:
+
+| Word | Use | Example |
+|------|-----|---------|
+| at | That-clauses | "vi lover at det blir fint" |
+| når | When/timing | "når festivalen starter" |
+| fordi | Because | "fordi musikken fortjener det" |
+| hvis | If/conditional | "hvis du vil oppleve noe unikt" |
+| dersom | If/in case (formal) | "dersom du ønsker billetter" |
+| selv om | Even though | "selv om sommeren er kort" |
+| mens | While | "mens sola skinner" |
+| derimot | However/on the other hand | "Vivaldi derimot valgte høsten" |
+| likevel | Nevertheless | "likevel var det verdt det" |
+| dessuten | Besides/moreover | "dessuten får du oppleve..." |
+| enten...eller | Either...or | "enten konsert eller omvisning" |
+
+### Og/å-regelen
+
+A common error in Norwegian. See [Språkrådet: Å eller og](https://sprakradet.no/godt-og-korrekt-sprak/rettskriving-og-grammatikk/a-eller-og/) for the authoritative reference.
+
+| Word | Function | Example |
+|------|----------|---------|
+| **og** | "and" - connects things | "epler og appelsiner" |
+| **å** | "to" - before verbs (infinitive) | "å spise", "å oppleve" |
+
+**Test:** Can you replace it with "and"? Use **og**. Does it come before a verb? Use **å**.
+
+| Correct | Wrong |
+|---------|-------|
+| "Jeg liker **å** spise" | ~~"Jeg liker og spise"~~ |
+| "spise **og** drikke" | ~~"spise å drikke"~~ |
+| "for **å** sikre deg billetter" | ~~"for og sikre deg billetter"~~ |
+| "Vivaldi **og** Piazzolla" | ~~"Vivaldi å Piazzolla"~~ |
+
 ## What to AVOID
 
 - Formal/stiff language

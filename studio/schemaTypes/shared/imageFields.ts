@@ -1,4 +1,4 @@
-import { defineField } from 'sanity';
+import { defineField, FieldDefinition } from 'sanity';
 import { ImageIcon } from '@sanity/icons';
 import { componentValidation, componentSpecificValidation, seoValidation } from './validation';
 import type { ValidationRule, SchemaGroup } from './types';
@@ -108,7 +108,7 @@ export const singleImageFields = (
     language?: 'no' | 'en' | 'both';
     required?: boolean;
   } = {}
-) => {
+): FieldDefinition[] => {
   const {
     title = 'Bilde',
     description = 'Last opp et bilde',
@@ -116,7 +116,7 @@ export const singleImageFields = (
     required = false,
   } = options;
 
-  const fields = [
+  const fields: FieldDefinition[] = [
     defineField({
       name: fieldNamePrefix,
       title,

@@ -64,7 +64,7 @@ export const linkComponent = defineType({
                     return 'URL er påkrevd for eksterne lenker';
                   }
                   if (value) {
-                    return buttonURLValidation(value, context);
+                    return buttonURLValidation(value);
                   }
                   return true;
                 }),

@@ -73,13 +73,13 @@ export const buttonComponent = defineType({
       style: 'style',
       fullWidth: 'fullWidth',
     },
-    prepare({ title, style, fullWidth }) {
-      const styleDesc =
-        {
-          primary: 'Primær',
-          secondary: 'Sekundær',
-          outline: 'Utkant',
-        }[style || 'primary'] || 'Primær';
+    prepare({ title, style, fullWidth }: { title?: string; style?: string; fullWidth?: boolean }) {
+      const styleMap: Record<string, string> = {
+        primary: 'Primær',
+        secondary: 'Sekundær',
+        outline: 'Utkant',
+      };
+      const styleDesc = styleMap[style || 'primary'] || 'Primær';
 
       const widthText = fullWidth ? ' • Full bredde' : '';
 

@@ -3,6 +3,24 @@ import { DocumentIcon, PlayIcon } from '@sanity/icons';
 import { componentValidation } from '../../shared/validation';
 import type { VideoData, ComponentHTMLGenerator, ValidationRule } from '../../shared/types';
 
+// Helper functions to extract video IDs from URLs
+function extractYouTubeId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /youtube\.com\/shorts\/([^&\n?#]+)/,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
+function extractVimeoId(url: string): string | null {
+  const match = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  return match ? match[1] : null;
+}
+
 export const videoComponent = defineType({
   name: 'videoComponent',
   title: 'Video',
