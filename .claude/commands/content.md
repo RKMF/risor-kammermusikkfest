@@ -61,52 +61,20 @@ Determine what needs to be done:
 
 ## Step 3: Research (if needed)
 
-When creating new content, use `WebSearch` to find:
+**Reference:** `.claude/instructions/research.md` for sources and methodology.
 
-- Official biography/background
-- Notable achievements, awards, recordings
-- Recent performances, albums, collaborations
-- Quotes BY the subject (from interviews, profiles) - always note source URL
-- Quotes ABOUT the subject (from reviews, critical analysis) - always note source URL
-- Reviews and critical analysis (rich source of "pull quotes")
-- Connection to Risør (if applicable)
-- Related links for reference
+**What to find:**
+- Biographical facts, achievements, artistic identity
+- Quotes BY the subject (from interviews) - note author + source + URL
+- Quotes ABOUT the subject (from reviews, critics) - note author + source + URL
+- Connection to Norway/Risør (if applicable)
 
-**Language-aware search strategy:**
+**Search strategy:**
+1. Native language sources first (Norwegian artist → `.no` domains, NRK, etc.)
+2. Then international sources
+3. Current year first, work backwards
 
-1. **Determine subject's native language/country** (Norwegian, French, German, etc.)
-2. **Search native language sources FIRST:**
-   - Norwegian artists: Search `.no` domains, Norwegian media (NRK, Aftenposten, etc.)
-   - French artists: Search `.fr` domains, French media
-   - German artists: Search `.de` domains, German media
-   - etc.
-3. **Then search international sources** (.com, English-language media)
-4. **Cross-reference** findings from both language sources
-
-**Why native language first:**
-- More detailed coverage of local artists
-- Access to original interviews (not translations)
-- Cultural context and nuance
-- Recent news may not be translated yet
-
-**Example for Norwegian artist:**
-1. `[name] biografi site:no` or `[name] NRK`
-2. `[name] intervju site:no`
-3. `[name] Risør kammermusikkfest`
-4. `[name] biography` (international)
-5. `[name] interview` (international)
-
-**Example for French artist:**
-1. `[name] biographie site:fr` or `[name] Le Monde`
-2. `[name] interview site:fr`
-3. `[name] biography` (international)
-4. `[name] interview` (international)
-
-**Chronological approach:** Search current year first, then work backwards. Newer references keep content up to date.
-
-Compile research into notes before writing.
-
-**Important:** Read through all promising search results, not just the ones that seem most relevant. Reviews, profiles, and feature articles often contain the best quotes.
+**Important:** Read through reviews and feature articles - they contain the best quotes.
 
 ---
 
@@ -145,6 +113,14 @@ Analyze research findings and suggest components that match discoveries AND foll
 | Awards/achievements list | portableTextBlock or accordionComponent |
 | Career timeline | Structured headings + text blocks |
 
+### Required: References Accordion
+
+**Always add at the end of the page.**
+
+An `accordionComponent` titled "Alle referanser" (NO) / "All references" (EN) containing links to all sources used. See `quotes.md` for attribution format.
+
+This allows users to verify content and explore further. Especially important for artist pages.
+
 **Quote requirements:** Always include source URL for verification. Present quotes as:
 > "Quote text here." - [Source Name](URL)
 
@@ -181,75 +157,28 @@ User reviews content first, then sees page flow.
 
 ---
 
-## Step 5b: Quote Translation & Attribution
+## Step 5b: Quote Handling
 
-### Language Rules for Quotes
+**Reference:** `.claude/instructions/quotes.md` for finding, evaluating, and attributing quotes.
 
-**English quotes: Keep in English**
-- Norwegians understand English - no translation needed
-- Use the original English quote for both NO and EN content
-
-**Other languages (German, French, Italian, etc.):**
-- Translate to Norwegian for NO content
-- Translate to English for EN content
-- Indicate translation: `[oversatt fra tysk]` / `[translated from German]`
-
-### Attribution Format
-
-Always include both **author name** (forfatter) and **source** (kilde):
-
-| Field | What it contains | Example |
-|-------|------------------|---------|
-| Forfatter/Author | The person who said/wrote it | Anne-Sophie Mutter |
-| Kilde/Source | Publication, website, or media | The Guardian, NRK, intervju 2023 |
-
-**Norwegian format:**
-```
-"Quote text here."
-— Anne-Sophie Mutter, The Guardian
-```
-
-**In quoteComponent:**
-- `forfatter`: The person's name (e.g., "Anne-Sophie Mutter")
-- `kilde`: The publication/source (e.g., "The Guardian")
-- `cite`: Source URL for verification
-
-### Quality Standards
-
-- **Always verify source URL** before including a quote
-- **Use actual author name** - not "kritiker" or "anmelder"
-- **Be specific with source** - "NRK Klassisk" not just "NRK"
-- **Add context if needed**: `[fra intervju om Beethoven-innspillingen]`
+**Key points:**
+- English quotes: Keep in English for both NO and EN
+- Other languages: Translate + indicate source (`[oversatt fra tysk]`)
+- Always capture: Author + Source + URL
+- In quoteComponent: `forfatter`, `kilde`, `cite` fields
 
 ---
 
 ## Step 6: Write Norwegian Content
 
-Read and follow: `.claude/instructions/writing-style.md`
-
-### Style Summary:
+**Reference:** `.claude/instructions/writing-style.md` for tone, patterns, and grammar.
 
 **Voice:** Warm, confident, personal - like speaking to a friend who loves music.
 
-**Patterns:**
-- Bold superlatives ("verdens viktigste", "en av de fremste")
-- Direct address ("du", "dere", "deg")
-- Inclusive "we" ("vi", "vår")
-- Playful wit and unexpected imagery
-- Short, punchy sentences
-- Two-sentence structure: setup + payoff
-
-**Sentence rhythm:**
-1. Opening hook - bold claim or intriguing setup
-2. Development - brief elaboration or contrast
-3. Landing - short punch, often with "du/dere" or promise
-
-**Avoid:**
-- Formal/stiff language
-- Passive voice
-- Lengthy explanations
-- Hedging ("kanskje", "muligens")
-- Corporate-speak
+**Quick checklist:**
+- Bold superlatives, direct address ("du/dere"), inclusive "vi"
+- Short, punchy sentences with setup + payoff rhythm
+- Avoid: formal language, passive voice, hedging ("kanskje", "muligens")
 
 ---
 
@@ -275,14 +204,9 @@ When adding components:
 
 ## Step 8: Respect Field Limits
 
-| Field | Limit |
-|-------|-------|
-| name | 1-100 characters |
-| excerpt_no/en | max 150 characters |
-| imageAlt_no/en | 1-125 characters |
-| slug | max 96 characters |
+**Reference:** `.claude/instructions/writing-style.md` for field limits.
 
-Write content that fits within these limits. For excerpts, aim for punchy 1-2 sentences.
+Write content that fits within schema limits. For excerpts, aim for punchy 1-2 sentences.
 
 ---
 
@@ -317,11 +241,13 @@ If approved:
 
 ## Step 11: Translate to English
 
+**Reference:** `.claude/instructions/translation-rules.md` for all conventions.
+
 After Norwegian content is created/approved:
 
-1. Automatically use `/translate` command logic
-2. Apply translation rules from `.claude/instructions/translation-rules.md`
-3. Create matching EN content
+1. Apply translation rules (punctuation, capitalization, music terminology, dates)
+2. Match Norwegian tone - feel native, not translated
+3. Create matching EN content for all fields
 4. Present both NO and EN for final approval
 
 ---
