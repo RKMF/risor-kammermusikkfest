@@ -1,0 +1,200 @@
+/* ============================================
+   SCROLL NAVIGATION BUTTONS
+   Grouped prev/next arrows for horizontal scroll containers
+   ============================================
+
+   Philosophy:
+   - Progressive enhancement: scroll containers work without JS
+   - Buttons added for mouse-only users who can't swipe/trackpad scroll
+   - Smart visibility: hidden when not needed (at boundaries, no overflow)
+   - Proportional sizing: button size matches content scale
+   - Grouped layout: both buttons side-by-side for faster back-and-forth
+   - Non-intrusive: buttons outside content, never overlay
+
+   Usage (card containers - buttons below):
+   <section class="content-scroll-container">
+     <div class="scroll-container-wrapper">
+       <ul class="scroll-container">...</ul>
+     </div>
+     <nav class="scroll-nav scroll-nav--large">...</nav>
+   </section>
+
+   Usage (filter rows - buttons inline):
+   <div class="filter-row">
+     <div class="scroll-container-wrapper">
+       <div class="filter-buttons">...</div>
+     </div>
+     <nav class="scroll-nav scroll-nav--small">...</nav>
+   </div>
+
+   Accessibility:
+   - WCAG 2.2 minimum target size: 24x24px (all sizes exceed this)
+   - Focus-visible outline for keyboard users
+   - aria-label on buttons for screen readers
+   - Disabled state uses pointer-events: none + reduced opacity
+   - Respects prefers-reduced-motion
+   - Hidden on touch devices (users can swipe)
+   ============================================ */
+
+/* ============================================
+   WRAPPER - No special positioning needed
+   ============================================ */
+
+.scroll-container-wrapper {
+  /* Content flows naturally, no position: relative needed */
+}
+
+/* ============================================
+   NAVIGATION CONTAINER - Normal document flow
+   ============================================ */
+
+.scroll-nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-xs);
+  margin-block-start: var(--space-s);
+}
+
+/* Touch devices: hide buttons (users can swipe) */
+@media (pointer: coarse) {
+  .scroll-nav {
+    display: none;
+  }
+}
+
+/* ============================================
+   BUTTON BASE STYLES (matches .link-button)
+   ============================================ */
+
+.scroll-nav__btn {
+  /* Reset */
+  appearance: none;
+  border: none;
+  font: inherit;
+
+  /* Layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Sizing - set by variant classes */
+  aspect-ratio: 1;
+
+  /* Appearance - matches .link-button filter buttons */
+  background-color: var(--color-tint-blue-light);
+  border: 1px solid var(--color-blue);
+  border-radius: 0; /* Sharp corners - matches design system */
+  cursor: pointer;
+
+  /* Icon color */
+  color: var(--color-blue);
+
+  /* Transitions */
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+/* Hover state - matches .link-button:hover */
+@media (hover: hover) {
+  .scroll-nav__btn:hover {
+    background-color: var(--color-tint-green-light);
+  }
+}
+
+/* Active/pressed state */
+.scroll-nav__btn:active {
+  background-color: var(--color-neutral-200);
+}
+
+/* Focus state for keyboard users */
+.scroll-nav__btn:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   SIZE VARIANTS - Proportional to content
+   ============================================ */
+
+/* Medium - for card carousels (events, artists, content) */
+.scroll-nav--medium .scroll-nav__btn {
+  width: 36px;
+  height: 36px;
+  font-size: var(--step-0); /* 18-23px */
+}
+
+/* Small - for filter buttons */
+.scroll-nav--small .scroll-nav__btn {
+  width: 28px;
+  height: 28px;
+  font-size: var(--step--1); /* 15-18px */
+}
+
+/* ============================================
+   SMART VISIBILITY STATES
+   Set by JavaScript based on scroll position
+   ============================================ */
+
+/* At boundary (start or end) - disable but show */
+.scroll-nav__btn[data-at-boundary="true"] {
+  opacity: 0.3;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* No overflow - hide entire nav */
+.scroll-nav[data-no-overflow="true"] {
+  display: none;
+}
+
+/* ============================================
+   ARROW STYLES (Unicode arrows)
+   ============================================ */
+
+.scroll-nav__btn span {
+  line-height: 1;
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-nav__btn {
+    transition: none;
+  }
+}
+
+/* ============================================
+   FILTER ROW LAYOUT (inline buttons)
+   ============================================
+
+   For filter sections where buttons should appear
+   inline at the end of each row, not below.
+*/
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.filter-row .scroll-container-wrapper {
+  flex: 1;
+  min-width: 0; /* Allow shrinking below content size */
+}
+
+.filter-row .scroll-nav {
+  flex-shrink: 0;
+  margin-block-start: 0; /* No top margin when inline */
+}
+
+/* Touch devices: hide filter nav too */
+@media (pointer: coarse) {
+  .filter-row .scroll-nav {
+    display: none;
+  }
+}

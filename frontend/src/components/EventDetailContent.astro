@@ -5,6 +5,7 @@ import HeaderImage from '../components/HeaderImage.astro';
 import ArtistCard from '../components/ArtistCard.astro';
 import ComposerCard from '../components/ComposerCard.astro';
 import Spotify from '../components/Spotify.astro';
+import ScrollNavigation from '../components/ScrollNavigation.astro';
 import PortableText from '../components/PortableText.astro';
 import EventSchema from '../components/structured-data/EventSchema.astro';
 import { formatDateWithWeekday } from '../lib/utils/dates';
@@ -146,11 +147,14 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
       {event.spotifyItems && event.spotifyItems.length > 0 && (
         <section class="spotify-section">
           <h2 class="spotify-title">{config.listenMusic}</h2>
-          <ul class="scroll-container scroll-container--always scroll-container--spotify scroll-container--styled-scrollbar">
-            {event.spotifyItems.map((item) => (
-              <li><Spotify {...item} height={152} /></li>
-            ))}
-          </ul>
+          <div class="scroll-container-wrapper">
+            <ul class="scroll-container scroll-container--always scroll-container--spotify scroll-container--styled-scrollbar">
+              {event.spotifyItems.map((item) => (
+                <li><Spotify {...item} height={152} /></li>
+              ))}
+            </ul>
+          </div>
+          <ScrollNavigation size="medium" ariaLabel={language === 'no' ? 'Bla gjennom musikk' : 'Scroll through music'} />
         </section>
       )}
 
@@ -166,11 +170,14 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
       {event.composers && event.composers.length > 0 && (
         <section class="composers-section">
           <h2 class="composers-title">{config.composers}</h2>
-          <div class="composer-section scroll-container scroll-container--always scroll-container--styled-scrollbar">
-            {event.composers.map((composer) => (
-              <ComposerCard composer={composer} lang={language} />
-            ))}
+          <div class="scroll-container-wrapper">
+            <div class="composer-section scroll-container scroll-container--always scroll-container--styled-scrollbar">
+              {event.composers.map((composer) => (
+                <ComposerCard composer={composer} lang={language} />
+              ))}
+            </div>
           </div>
+          <ScrollNavigation size="medium" ariaLabel={language === 'no' ? 'Bla gjennom komponister' : 'Scroll through composers'} />
         </section>
       )}
 
@@ -192,11 +199,14 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
           </svg>
 
           <h2 class="artists-title">{config.artists}</h2>
-          <div class="artist-section scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar">
-            {event.artists.filter(Boolean).map((artist) => (
-              <ArtistCard artist={artist} language={language} size="medium" />
-            ))}
+          <div class="scroll-container-wrapper">
+            <div class="artist-section scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar">
+              {event.artists.filter(Boolean).map((artist) => (
+                <ArtistCard artist={artist} language={language} size="medium" />
+              ))}
+            </div>
           </div>
+          <ScrollNavigation size="medium" ariaLabel={language === 'no' ? 'Bla gjennom artister' : 'Scroll through artists'} />
         </section>
       )}
   </article>

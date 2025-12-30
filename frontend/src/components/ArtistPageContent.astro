@@ -1,6 +1,7 @@
 ---
 import ContentPageLayout from '../layouts/ContentPageLayout.astro';
 import ArtistCard from '../components/ArtistCard.astro';
+import ScrollNavigation from '../components/ScrollNavigation.astro';
 import { createDataService } from '../lib/sanity/dataService.js';
 import { stegaClean } from '@sanity/client/stega';
 import '../styles/artist-card.css';
@@ -66,20 +67,30 @@ const hasArtists = allArtists.length > 0;
 
       {/* Large Artists Section */}
       {largeArtists.length > 0 && (
-        <div class="artist-section artist-section--large scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
-          {largeArtists.map((artist) => (
-            <ArtistCard artist={artist} language={language} size="large" />
-          ))}
-        </div>
+        <>
+          <div class="scroll-container-wrapper">
+            <div class="artist-section artist-section--large scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
+              {largeArtists.map((artist) => (
+                <ArtistCard artist={artist} language={language} size="medium" />
+              ))}
+            </div>
+          </div>
+          <ScrollNavigation size="medium" ariaLabel={language === 'no' ? 'Bla gjennom hovedartister' : 'Scroll through featured artists'} />
+        </>
       )}
 
       {/* Medium Artists Section */}
       {mediumArtists.length > 0 && (
-        <div class="artist-section artist-section--medium scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
-          {mediumArtists.map((artist) => (
-            <ArtistCard artist={artist} language={language} size="medium" />
-          ))}
-        </div>
+        <>
+          <div class="scroll-container-wrapper">
+            <div class="artist-section artist-section--medium scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
+              {mediumArtists.map((artist) => (
+                <ArtistCard artist={artist} language={language} size="medium" />
+              ))}
+            </div>
+          </div>
+          <ScrollNavigation size="medium" ariaLabel={language === 'no' ? 'Bla gjennom artister' : 'Scroll through artists'} />
+        </>
       )}
     </div>
   ) : (

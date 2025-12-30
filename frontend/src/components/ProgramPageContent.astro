@@ -2,6 +2,7 @@
 import ContentPageLayout from '../layouts/ContentPageLayout.astro';
 import ProgramFilters from '../components/ProgramFilters.astro';
 import EventCard from '../components/EventCard.astro';
+import ScrollNavigation from '../components/ScrollNavigation.astro';
 import FestivalSchema from '../components/structured-data/FestivalSchema.astro';
 import { createDataService } from '../lib/sanity/dataService.js';
 import { formatDateWithWeekday } from '../lib/utils/dates';
@@ -157,16 +158,19 @@ const resetButtonText = language === 'no' ? 'Nullstill filtre' : 'Reset filters'
         filteredDates.map(({ date, displayTitle, events: dateEvents }) => (
         <section class="content-section date-section" data-date={date}>
           <h2 class="date-title">{stegaClean(displayTitle)}</h2>
-          <div
-            class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar"
-            role="region"
-            tabindex="0"
-            aria-label={language === 'no' ? 'Arrangementer' : 'Events'}
-          >
-            {dateEvents.map((event) => (
-              <EventCard event={event} language={language} />
-            ))}
+          <div class="scroll-container-wrapper">
+            <div
+              class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar"
+              role="region"
+              tabindex="0"
+              aria-label={language === 'no' ? 'Arrangementer' : 'Events'}
+            >
+              {dateEvents.map((event) => (
+                <EventCard event={event} language={language} />
+              ))}
+            </div>
           </div>
+          <ScrollNavigation size="medium" ariaLabel={language === 'no' ? 'Bla gjennom arrangementer' : 'Scroll through events'} />
         </section>
       ))
     ) : (
