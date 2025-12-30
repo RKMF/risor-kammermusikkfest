@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import DynamicComponent from '../components/DynamicComponent.astro';
 import ArtistCard from '../components/ArtistCard.astro';
 import EventCard from '../components/EventCard.astro';
+import ScrollNavigation from '../components/ScrollNavigation.astro';
 import { getMultilingualContent } from '../lib/utils/language.js';
 import type { ArtistResult } from '../lib/sanity/queries';
 import { stegaClean } from '@sanity/client/stega';
@@ -73,11 +74,14 @@ const excerpt = artist[config.excerptField];
     {artist.events && artist.events.length > 0 && (
       <section class="artist-events">
         <h2 class="artist-events-title">{config.concertsTitle}</h2>
-        <div class="scroll-container scroll-container--always scroll-container--event-cards scroll-container--styled-scrollbar">
-          {artist.events.map((event) => (
-            <EventCard event={event} language={language} />
-          ))}
+        <div class="scroll-container-wrapper">
+          <div class="scroll-container scroll-container--always scroll-container--event-cards scroll-container--styled-scrollbar">
+            {artist.events.map((event) => (
+              <EventCard event={event} language={language} />
+            ))}
+          </div>
         </div>
+        <ScrollNavigation size="medium" ariaLabel={language === 'no' ? 'Bla gjennom konserter' : 'Scroll through concerts'} />
       </section>
     )}
   </article>

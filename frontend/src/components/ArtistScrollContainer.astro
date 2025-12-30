@@ -1,6 +1,7 @@
 ---
 import { sanityClient } from "sanity:client";
 import ArtistCard from './ArtistCard.astro';
+import ScrollNavigation from './ScrollNavigation.astro';
 import { detectLanguage } from '../lib/utils/language.js';
 
 interface Props {
@@ -83,22 +84,25 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
 <section class={`${containerClass} ${scrollbarClass}`}>
   {title && <h2 class="artist-scroll-title">{title}</h2>}
-  <ul
-    class="artist-list scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar"
-    role="region"
-    tabindex="0"
-    aria-label={currentLanguage === 'no' ? 'Artister' : 'Artists'}
-  >
-    {artistData.map((artist) => {
-        if (!artist) return null
+  <div class="scroll-container-wrapper">
+    <ul
+      class="artist-list scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar"
+      role="region"
+      tabindex="0"
+      aria-label={currentLanguage === 'no' ? 'Artister' : 'Artists'}
+    >
+      {artistData.map((artist) => {
+          if (!artist) return null
 
-        return (
-          <li class="artist-item">
-            <ArtistCard artist={artist} language={currentLanguage} size="medium" />
-          </li>
-        )
-      })}
-  </ul>
+          return (
+            <li class="artist-item">
+              <ArtistCard artist={artist} language={currentLanguage} size="medium" />
+            </li>
+          )
+        })}
+    </ul>
+  </div>
+  <ScrollNavigation size="medium" ariaLabel={currentLanguage === 'no' ? 'Bla gjennom artister' : 'Scroll through artists'} />
 </section>
 
 <style>
