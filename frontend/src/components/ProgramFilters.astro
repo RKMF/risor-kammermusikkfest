@@ -22,6 +22,7 @@
  */
 
 import { formatDateWithWeekday } from '../lib/utils/dates';
+import ScrollNavigation from './ScrollNavigation.astro';
 
 interface Props {
   /** Available event dates for date filter buttons */
@@ -51,95 +52,101 @@ const apiPath = '/api/filter-program';
 <section id="filter-container" role="search" aria-label={language === 'no' ? 'Filter arrangementer' : 'Filter events'}>
   <!-- DATE FILTER SECTION -->
   {uniqueDates.length > 0 && (
-    <div class="date-filter">
-      <div
-        class="date-filter-buttons"
-        role="region"
-        tabindex="0"
-        aria-label={language === 'no' ? 'Filtrer etter dato' : 'Filter by date'}
-      >
-        <a
-          href={`${basePath}?lang=${language}&date=&venue=${currentVenue}`}
-          class:list={['link-button', { active: !currentDate }]}
-          aria-pressed={!currentDate}
-          data-filter-type="date"
-          data-filter-value=""
-          hx-get={apiPath}
-          hx-vals={JSON.stringify({ lang: language, date: '', venue: currentVenue })}
-          hx-target="#event-results"
-          hx-swap="innerHTML show:none"
-          hx-push-url="true"
-          hx-indicator="#filter-loading"
+    <div class="date-filter filter-row">
+      <div class="scroll-container-wrapper">
+        <div
+          class="date-filter-buttons"
+          role="region"
+          tabindex="0"
+          aria-label={language === 'no' ? 'Filtrer etter dato' : 'Filter by date'}
         >
-          {language === 'no' ? 'Alle datoer' : 'All dates'}
-        </a>
+          <a
+            href={`${basePath}?lang=${language}&date=&venue=${currentVenue}`}
+            class:list={['link-button', { active: !currentDate }]}
+            aria-pressed={!currentDate}
+            data-filter-type="date"
+            data-filter-value=""
+            hx-get={apiPath}
+            hx-vals={JSON.stringify({ lang: language, date: '', venue: currentVenue })}
+            hx-target="#event-results"
+            hx-swap="innerHTML show:none"
+            hx-push-url="true"
+            hx-indicator="#filter-loading"
+          >
+            {language === 'no' ? 'Alle datoer' : 'All dates'}
+          </a>
 
-        {uniqueDates.map(date => (
-            <a
-              href={`${basePath}?lang=${language}&date=${date}&venue=${currentVenue}`}
-              class:list={['link-button', { active: currentDate === date }]}
-              aria-pressed={currentDate === date}
-              data-filter-type="date"
-              data-filter-value={date}
-              hx-get={apiPath}
-              hx-vals={JSON.stringify({ lang: language, date: date, venue: currentVenue })}
-              hx-target="#event-results"
-              hx-swap="innerHTML show:none"
-              hx-push-url="true"
-              hx-indicator="#filter-loading"
-            >
-              {formatDateWithWeekday(date, language)}
-            </a>
-        ))}
+          {uniqueDates.map(date => (
+              <a
+                href={`${basePath}?lang=${language}&date=${date}&venue=${currentVenue}`}
+                class:list={['link-button', { active: currentDate === date }]}
+                aria-pressed={currentDate === date}
+                data-filter-type="date"
+                data-filter-value={date}
+                hx-get={apiPath}
+                hx-vals={JSON.stringify({ lang: language, date: date, venue: currentVenue })}
+                hx-target="#event-results"
+                hx-swap="innerHTML show:none"
+                hx-push-url="true"
+                hx-indicator="#filter-loading"
+              >
+                {formatDateWithWeekday(date, language)}
+              </a>
+          ))}
+        </div>
       </div>
+      <ScrollNavigation size="small" ariaLabel={language === 'no' ? 'Bla i datofilter' : 'Scroll date filters'} />
     </div>
   )}
 
   <!-- VENUE FILTER SECTION -->
   {availableVenues.length > 0 && (
-    <div class="venue-filter">
-      <div
-        class="venue-filter-buttons"
-        role="region"
-        tabindex="0"
-        aria-label={language === 'no' ? 'Filtrer etter sted' : 'Filter by venue'}
-      >
-        <a
-          href={`${basePath}?lang=${language}&date=${currentDate}&venue=`}
-          class:list={['link-button', { active: !currentVenue }]}
-          aria-pressed={!currentVenue}
-          data-filter-type="venue"
-          data-filter-value=""
-          hx-get={apiPath}
-          hx-vals={JSON.stringify({ lang: language, date: currentDate, venue: '' })}
-          hx-target="#event-results"
-          hx-swap="innerHTML show:none"
-          hx-push-url="true"
-          hx-indicator="#filter-loading"
+    <div class="venue-filter filter-row">
+      <div class="scroll-container-wrapper">
+        <div
+          class="venue-filter-buttons"
+          role="region"
+          tabindex="0"
+          aria-label={language === 'no' ? 'Filtrer etter sted' : 'Filter by venue'}
         >
-          {language === 'no' ? 'Alle steder' : 'All venues'}
-        </a>
+          <a
+            href={`${basePath}?lang=${language}&date=${currentDate}&venue=`}
+            class:list={['link-button', { active: !currentVenue }]}
+            aria-pressed={!currentVenue}
+            data-filter-type="venue"
+            data-filter-value=""
+            hx-get={apiPath}
+            hx-vals={JSON.stringify({ lang: language, date: currentDate, venue: '' })}
+            hx-target="#event-results"
+            hx-swap="innerHTML show:none"
+            hx-push-url="true"
+            hx-indicator="#filter-loading"
+          >
+            {language === 'no' ? 'Alle steder' : 'All venues'}
+          </a>
 
-        {availableVenues.map(venue => {
-          return (
-            <a
-              href={`${basePath}?lang=${language}&date=${currentDate}&venue=${venue.slug}`}
-              class:list={['link-button', { active: currentVenue === venue.slug }]}
-              aria-pressed={currentVenue === venue.slug}
-              data-filter-type="venue"
-              data-filter-value={venue.slug}
-              hx-get={apiPath}
-              hx-vals={JSON.stringify({ lang: language, date: currentDate, venue: venue.slug })}
-              hx-target="#event-results"
-              hx-swap="innerHTML show:none"
-              hx-push-url="true"
-              hx-indicator="#filter-loading"
-            >
-              {venue.title}
-            </a>
-          );
-        })}
+          {availableVenues.map(venue => {
+            return (
+              <a
+                href={`${basePath}?lang=${language}&date=${currentDate}&venue=${venue.slug}`}
+                class:list={['link-button', { active: currentVenue === venue.slug }]}
+                aria-pressed={currentVenue === venue.slug}
+                data-filter-type="venue"
+                data-filter-value={venue.slug}
+                hx-get={apiPath}
+                hx-vals={JSON.stringify({ lang: language, date: currentDate, venue: venue.slug })}
+                hx-target="#event-results"
+                hx-swap="innerHTML show:none"
+                hx-push-url="true"
+                hx-indicator="#filter-loading"
+              >
+                {venue.title}
+              </a>
+            );
+          })}
+        </div>
       </div>
+      <ScrollNavigation size="small" ariaLabel={language === 'no' ? 'Bla i stedfilter' : 'Scroll venue filters'} />
     </div>
   )}
 

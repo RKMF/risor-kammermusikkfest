@@ -1,6 +1,7 @@
 ---
 import { sanityClient } from "sanity:client";
 import ComposerCard from './ComposerCard.astro';
+import ScrollNavigation from './ScrollNavigation.astro';
 import { detectLanguage } from '../lib/utils/language.js';
 
 interface Props {
@@ -66,22 +67,25 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
 <section class={`${containerClass} ${scrollbarClass}`}>
   {title && <h2 class="composer-scroll-title">{title}</h2>}
-  <ul
-    class="composer-list scroll-container scroll-container--always scroll-container--styled-scrollbar"
-    role="region"
-    tabindex="0"
-    aria-label={currentLanguage === 'no' ? 'Komponister' : 'Composers'}
-  >
-    {composerData.map((composer) => {
-        if (!composer) return null
+  <div class="scroll-container-wrapper">
+    <ul
+      class="composer-list scroll-container scroll-container--always scroll-container--styled-scrollbar"
+      role="region"
+      tabindex="0"
+      aria-label={currentLanguage === 'no' ? 'Komponister' : 'Composers'}
+    >
+      {composerData.map((composer) => {
+          if (!composer) return null
 
-        return (
-          <li class="composer-item">
-            <ComposerCard composer={composer} lang={currentLanguage} />
-          </li>
-        )
-      })}
-  </ul>
+          return (
+            <li class="composer-item">
+              <ComposerCard composer={composer} lang={currentLanguage} />
+            </li>
+          )
+        })}
+    </ul>
+  </div>
+  <ScrollNavigation size="medium" ariaLabel={currentLanguage === 'no' ? 'Bla gjennom komponister' : 'Scroll through composers'} />
 </section>
 
 <style>

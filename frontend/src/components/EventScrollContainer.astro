@@ -2,6 +2,7 @@
 import { sanityClient } from "sanity:client";
 import { detectLanguage } from "../lib/utils/language.js";
 import EventCard from './EventCard.astro';
+import ScrollNavigation from './ScrollNavigation.astro';
 import type { EventResult } from '../lib/sanity/queries';
 
 interface Props {
@@ -124,22 +125,25 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
 <section class={`${containerClass} ${scrollbarClass}`}>
   {title && <h2 class="event-scroll-title">{title}</h2>}
-  <ul
-    class="event-list scroll-container scroll-container--always scroll-container--event-cards scroll-container--styled-scrollbar"
-    role="region"
-    tabindex="0"
-    aria-label={currentLanguage === 'no' ? 'Arrangementer' : 'Events'}
-  >
-    {sortedEvents.map((event) => {
-        if (!event) return null
+  <div class="scroll-container-wrapper">
+    <ul
+      class="event-list scroll-container scroll-container--always scroll-container--event-cards scroll-container--styled-scrollbar"
+      role="region"
+      tabindex="0"
+      aria-label={currentLanguage === 'no' ? 'Arrangementer' : 'Events'}
+    >
+      {sortedEvents.map((event) => {
+          if (!event) return null
 
-        return (
-          <li class="event-item">
-            <EventCard event={event} language={currentLanguage} />
-          </li>
-        )
-      })}
-  </ul>
+          return (
+            <li class="event-item">
+              <EventCard event={event} language={currentLanguage} />
+            </li>
+          )
+        })}
+    </ul>
+  </div>
+  <ScrollNavigation size="medium" ariaLabel={currentLanguage === 'no' ? 'Bla gjennom arrangementer' : 'Scroll through events'} />
 </section>
 
 <style>

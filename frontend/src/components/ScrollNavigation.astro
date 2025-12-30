@@ -1,0 +1,61 @@
+---
+/**
+ * ScrollNavigation - Grouped prev/next navigation buttons for scroll containers.
+ *
+ * Provides accessible navigation buttons for horizontal scroll containers,
+ * enabling mouse-only users to navigate content.
+ *
+ * Usage:
+ *   <div class="scroll-container-wrapper">
+ *     <div class="scroll-container">...</div>
+ *     <ScrollNavigation size="medium" />
+ *   </div>
+ *
+ * Sizes:
+ *   - medium (36px): Card carousels (events, artists, content)
+ *   - small (28px): Filter buttons
+ *
+ * Requires:
+ *   - Parent must have class="scroll-container-wrapper"
+ *   - Sibling scroll container must have class="scroll-container"
+ *   - CSS: scroll-navigation.css
+ *   - JS: scrollNavigation.js (initScrollNavigation)
+ */
+
+interface Props {
+  /** Button size variant */
+  size?: 'medium' | 'small'
+  /** Accessible label for the navigation region */
+  ariaLabel?: string
+  /** Additional CSS classes */
+  className?: string
+}
+
+const {
+  size = 'medium',
+  ariaLabel = 'Bla i innhold',
+  className = '',
+} = Astro.props
+---
+
+<nav
+  class:list={['scroll-nav', `scroll-nav--${size}`, className]}
+  aria-label={ariaLabel}
+>
+  <button
+    type="button"
+    class="scroll-nav__btn"
+    data-direction="prev"
+    aria-label="Bla til venstre"
+  >
+    <span aria-hidden="true">←</span>
+  </button>
+  <button
+    type="button"
+    class="scroll-nav__btn"
+    data-direction="next"
+    aria-label="Bla til høyre"
+  >
+    <span aria-hidden="true">→</span>
+  </button>
+</nav>

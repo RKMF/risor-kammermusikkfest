@@ -1,6 +1,7 @@
 ---
 import DynamicComponent from './DynamicComponent.astro'
 import Image from './Image.astro'
+import ScrollNavigation from './ScrollNavigation.astro'
 import { IMAGE_QUALITY } from '../lib/sanityImage'
 import { stegaClean } from '@sanity/client/stega'
 
@@ -35,49 +36,52 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
 <section class={`content-scroll-container ${scrollbarClass} ${className}`} {...sanityAttributes}>
   {title && <h2 class="scroll-container-title">{title}</h2>}
 
-  <ul
-    class="scroll-list scroll-container scroll-container--always scroll-container--content scroll-container--hide-scrollbar"
-    role="region"
-    tabindex="0"
-    aria-label={title || 'Innhold'}
-  >
-    {items.map((item) => {
-      if (!item) return null
+  <div class="scroll-container-wrapper">
+    <ul
+      class="scroll-list scroll-container scroll-container--always scroll-container--content scroll-container--hide-scrollbar"
+      role="region"
+      tabindex="0"
+      aria-label={title || 'Innhold'}
+    >
+      {items.map((item) => {
+        if (!item) return null
 
-      // Handle imageComponent items with inline rendering
-      if (item._type === 'imageComponent' && item.image) {
-        const imageSource = item.image
-        const imageAlt = stegaClean(item.alt || '')
+        // Handle imageComponent items with inline rendering
+        if (item._type === 'imageComponent' && item.image) {
+          const imageSource = item.image
+          const imageAlt = stegaClean(item.alt || '')
 
+          return (
+            <li class="scroll-item">
+              {imageSource ? (
+                <Image
+                  image={imageSource}
+                  alt={imageAlt}
+                  size="small"
+                  aspectRatio="4:5"
+                  loading="lazy"
+                  quality={IMAGE_QUALITY.CARD}
+                  className="scroll-image"
+                />
+              ) : (
+                <div class="image-placeholder">
+                  <span>Bilde ikke tilgjengelig</span>
+                </div>
+              )}
+            </li>
+          )
+        }
+
+        // Handle other component types with DynamicComponent
         return (
           <li class="scroll-item">
-            {imageSource ? (
-              <Image
-                image={imageSource}
-                alt={imageAlt}
-                size="small"
-                aspectRatio="4:5"
-                loading="lazy"
-                quality={IMAGE_QUALITY.CARD}
-                className="scroll-image"
-              />
-            ) : (
-              <div class="image-placeholder">
-                <span>Bilde ikke tilgjengelig</span>
-              </div>
-            )}
+            <DynamicComponent block={item} />
           </li>
         )
-      }
-
-      // Handle other component types with DynamicComponent
-      return (
-        <li class="scroll-item">
-          <DynamicComponent block={item} />
-        </li>
-      )
-    })}
-  </ul>
+      })}
+    </ul>
+  </div>
+  <ScrollNavigation size="medium" ariaLabel={title ? `Bla i ${title.toLowerCase()}` : 'Bla i innhold'} />
 </section>
 
 <style>

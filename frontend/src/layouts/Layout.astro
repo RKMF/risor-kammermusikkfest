@@ -21,6 +21,7 @@ import '../styles/primitives.css'; // Layout primitives (Center, Stack, Cluster)
 import '../styles/base.css';
 import '../styles/utilities.css';
 import '../styles/scroll-containers.css'; // Scroll container patterns
+import '../styles/scroll-navigation.css'; // Scroll navigation buttons
 import '../styles/components.css';
 import '../styles/layouts.css';
 import '../styles/artist-card.css';
@@ -410,6 +411,12 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
 
     <!-- Ticket click tracking for concert popularity ranking -->
     <script src="../scripts/ticketTracking.js"></script>
+
+    <!-- Scroll navigation buttons for horizontal scroll containers -->
+    <script>
+      import { initScrollNavigation } from '../scripts/scrollNavigation.js';
+      initScrollNavigation();
+    </script>
 
     <!-- Vercel Speed Insights -->
     <SpeedInsights />
