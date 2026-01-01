@@ -14,9 +14,9 @@
    - Optimized for web delivery
 
    Font loading strategy:
-   - font-display: swap - Critical brand fonts (headings)
-     Shows fallback immediately, swaps when custom font loads
-   - font-display: optional - Body text for optimal Core Web Vitals
+   - font-display: fallback - Headings (Domaine Text)
+     Short wait (~100ms), then system font. Minimal CLS on visible content.
+   - font-display: optional - Body text (Akkurat Pro)
      Only uses custom font if already cached, prevents layout shift
 
    Performance:
@@ -112,7 +112,7 @@
   src: url('/fonts/serif/DomaineText-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: fallback;
 }
 
 @font-face {
@@ -120,7 +120,7 @@
   src: url('/fonts/serif/DomaineText-RegularItalic.woff2') format('woff2');
   font-weight: 400;
   font-style: italic;
-  font-display: swap;
+  font-display: fallback;
 }
 
 @font-face {
@@ -128,7 +128,7 @@
   src: url('/fonts/serif/DomaineText-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
-  font-display: swap;
+  font-display: fallback;
 }
 
 @font-face {
@@ -136,7 +136,7 @@
   src: url('/fonts/serif/DomaineText-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
-  font-display: swap;
+  font-display: fallback;
 }
 
 @font-face {
@@ -144,5 +144,5 @@
   src: url('/fonts/serif/DomaineText-BoldItalic.woff2') format('woff2');
   font-weight: 700;
   font-style: italic;
-  font-display: swap;
+  font-display: fallback;
 }
