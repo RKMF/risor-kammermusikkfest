@@ -812,7 +812,7 @@ const SITE_SETTINGS_FOOTER_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
 }`)
 
 const SITE_SETTINGS_TEKST_LOGO_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
-  "tekstLogo": logos[name == "Tekst-logo"][0]{
+  "tekstLogo": logos[name == "Ny logo"][0]{
     name,
     "image": image{
       asset->{

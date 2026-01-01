@@ -5,7 +5,8 @@ import { createDataService } from '../lib/sanity/dataService.js';
 import { getMultilingualContent } from '../lib/utils/language.js';
 import { stegaClean } from '@sanity/client/stega';
 import { resolveLinkUrl } from '../lib/buildInternalUrl';
-import tekstLogoSvg from '../assets/tekst-logo.svg?raw';
+import { sanityClient } from 'sanity:client';
+import { QueryBuilder } from '../lib/sanity/queryBuilder.js';
 
 interface Props {
   language: 'no' | 'en';
@@ -60,6 +61,27 @@ const hasHeaderLinks = headerLinks.length > 0;
 // Extract slug information
 const slugNo = homepage?.slug_no?.current ? stegaClean(homepage.slug_no.current) : undefined;
 const slugEn = homepage?.slug_en?.current ? stegaClean(homepage.slug_en.current) : undefined;
+
+// Fetch logo SVG from Sanity and process colors
+let tekstLogoSvg = '';
+try {
+  const { query: logoQuery, params: logoParams } = QueryBuilder.siteSettingsTekstLogo();
+  const logoData = await sanityClient.fetch<{ tekstLogo?: { image?: { asset?: { url?: string } } } }>(logoQuery, logoParams);
+  const logoUrl = logoData?.tekstLogo?.image?.asset?.url;
+
+  if (logoUrl) {
+    const response = await fetch(logoUrl);
+    if (response.ok) {
+      let svgContent = await response.text();
+      // Replace all fill colors with currentColor for CSS control
+      svgContent = svgContent.replace(/fill:\s*rgb\([^)]+\)/g, 'fill:currentColor');
+      svgContent = svgContent.replace(/fill:\s*#[0-9a-fA-F]{3,6}/g, 'fill:currentColor');
+      tekstLogoSvg = svgContent;
+    }
+  }
+} catch (error) {
+  console.error('Failed to fetch logo SVG:', error);
+}
 ---
 
 <Layout
@@ -162,12 +184,12 @@ const slugEn = homepage?.slug_en?.current ? stegaClean(homepage.slug_en.current)
     justify-content: center;
   }
 
-  /* Static blue logo - fluid sizing */
+  /* Logo - fluid sizing, color controlled by token */
   .tekst-logo {
     width: 100%;
     max-width: clamp(280px, 50vw, 400px);
     aspect-ratio: 4 / 5;
-    color: #1B198F;
+    color: var(--color-blue);
   }
 
   .tekst-logo :global(svg) {
