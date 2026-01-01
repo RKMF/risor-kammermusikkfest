@@ -41,6 +41,19 @@ const allArtists = (artistsPage?.selectedArtists || []).filter(Boolean);
 const largeArtists = allArtists.filter((artist) => stegaClean(artist.cardSize) === 'stor');
 const mediumArtists = allArtists.filter((artist) => stegaClean(artist.cardSize) === 'medium');
 
+// Chunk arrays into rows of 3 (matches wide-screen grid row size)
+// Each row becomes its own scroll container on narrow screens
+function chunkArray<T>(arr: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) {
+    chunks.push(arr.slice(i, i + size));
+  }
+  return chunks;
+}
+
+const largeArtistRows = chunkArray(largeArtists, 3);
+const mediumArtistRows = chunkArray(mediumArtists, 3);
+
 // Fallback values
 const pageTitle = artistsPage?.title || config.fallbackTitle;
 
@@ -65,33 +78,33 @@ const hasArtists = allArtists.length > 0;
         </defs>
       </svg>
 
-      {/* Large Artists Section */}
-      {largeArtists.length > 0 && (
+      {/* Large Artists Section - Each row is its own scroll container */}
+      {largeArtistRows.map((row) => (
         <>
           <div class="scroll-container-wrapper">
             <div class="artist-section artist-section--large scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
-              {largeArtists.map((artist) => (
-                <ArtistCard artist={artist} language={language} size="medium" />
+              {row.map((artist) => (
+                <ArtistCard artist={artist} language={language} size="large" />
               ))}
             </div>
           </div>
           <ScrollNavigation size="medium" ariaLabel={language === 'no' ? 'Bla gjennom hovedartister' : 'Scroll through featured artists'} />
         </>
-      )}
+      ))}
 
-      {/* Medium Artists Section */}
-      {mediumArtists.length > 0 && (
+      {/* Medium Artists Section - Each row is its own scroll container */}
+      {mediumArtistRows.map((row) => (
         <>
           <div class="scroll-container-wrapper">
             <div class="artist-section artist-section--medium scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
-              {mediumArtists.map((artist) => (
+              {row.map((artist) => (
                 <ArtistCard artist={artist} language={language} size="medium" />
               ))}
             </div>
           </div>
           <ScrollNavigation size="medium" ariaLabel={language === 'no' ? 'Bla gjennom artister' : 'Scroll through artists'} />
         </>
-      )}
+      ))}
     </div>
   ) : (
     <div class="no-artists">
