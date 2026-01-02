@@ -570,7 +570,7 @@ const HOMEPAGE_QUERY = defineQuery(`*[_type == "homepage" && (
 }`)
 
 // Language-aware query builders
-const buildPageBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "page" && ${buildSlugMatch(language)}][0]{
+const buildPageBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "page" && ${buildSlugMatch(language)} && ${LISTING_FILTER}][0]{
   _id,
   _type,
   ${createMultilingualField('title', language)},
@@ -699,7 +699,7 @@ const buildArticlePageQuery = (language: Language = 'no') => defineQuery(`*[_typ
   )
 }`)
 
-const buildEventBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "event" && ${buildSlugMatch(language)}][0]{
+const buildEventBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "event" && ${buildSlugMatch(language)} && ${LISTING_FILTER}][0]{
   ${buildEventBaseFields(language)}
 }`)
 
@@ -721,7 +721,7 @@ const buildArtistBySlugQuery = (language: Language = 'no') => defineQuery(`*[_ty
   }
 }`)
 
-const buildArticleBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "article" && ${buildSlugMatch(language)}][0]{
+const buildArticleBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "article" && ${buildSlugMatch(language)} && ${LISTING_FILTER}][0]{
   ${buildArticleBaseFields(language)}
 }`)
 
@@ -760,7 +760,7 @@ const SLUGS_FOR_TYPE_QUERY = defineQuery(`*[_type == $type && (defined(slug.curr
   }
 }`)
 
-const buildSearchContentQuery = (language: Language = 'no') => defineQuery(`*[_type in $types && (
+const buildSearchContentQuery = (language: Language = 'no') => defineQuery(`*[_type in $types && ${LISTING_FILTER} && (
   coalesce(title_no, title_en, title) match $search ||
   coalesce(excerpt_no, excerpt_en, excerpt) match $search
 )] | order(_updatedAt desc){
