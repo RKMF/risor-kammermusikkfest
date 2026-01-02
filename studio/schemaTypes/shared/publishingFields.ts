@@ -29,6 +29,7 @@ export const publishingStatusField = (groupName = 'publishing') =>
     options: {
       list: [
         { title: 'Synlig på nett umiddelbart', value: 'published' },
+        { title: 'Kun synlig på testside', value: 'staging' },
         { title: 'Lagre uten å bli synlig på nett', value: 'draft' },
         { title: 'Planlegg periode', value: 'scheduled' },
       ],

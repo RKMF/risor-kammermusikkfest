@@ -861,7 +861,7 @@ export type Page = {
   imageCredit_en?: string;
   imageAlt_no?: string;
   imageAlt_en?: string;
-  publishingStatus?: "published" | "draft" | "scheduled";
+  publishingStatus?: "published" | "staging" | "draft" | "scheduled";
   scheduledPeriod?: {
     startDate?: string;
     endDate?: string;
@@ -939,7 +939,7 @@ export type Event = {
   excerpt_en?: string;
   description_en?: PortableText;
   extraContent_en?: PageBuilder;
-  publishingStatus?: "published" | "draft" | "scheduled";
+  publishingStatus?: "published" | "staging" | "draft" | "scheduled";
   scheduledPeriod?: {
     startDate?: string;
     endDate?: string;
@@ -978,7 +978,7 @@ export type Artist = {
   imageCredit_en?: string;
   imageAlt_no?: string;
   imageAlt_en?: string;
-  publishingStatus?: "published" | "draft" | "scheduled";
+  publishingStatus?: "published" | "staging" | "draft" | "scheduled";
   scheduledPeriod?: {
     startDate?: string;
     endDate?: string;
@@ -1023,7 +1023,7 @@ export type Article = {
   imageCredit_en?: string;
   imageAlt_no?: string;
   imageAlt_en?: string;
-  publishingStatus?: "published" | "draft" | "scheduled";
+  publishingStatus?: "published" | "staging" | "draft" | "scheduled";
   scheduledPeriod?: {
     startDate?: string;
     endDate?: string;

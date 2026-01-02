@@ -47,6 +47,12 @@ export function getPublishingStatusText(
   const isPublished = _id && !_id.startsWith('drafts.');
   let statusText = isPublished ? 'Publisert' : 'Utkast';
 
+  // Handle staging status
+  if (publishingStatus === 'staging') {
+    statusText = 'Staging';
+    return statusText;
+  }
+
   // Handle scheduled content timing
   if (publishingStatus === 'scheduled' && scheduledStart && scheduledEnd) {
     const now = new Date();
