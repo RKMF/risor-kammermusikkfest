@@ -20,6 +20,40 @@ import {defineQuery} from 'groq'
 import {createMultilingualField, type Language} from '../utils/language.js'
 import type { ArtistResult, EventResult, ArticleResult } from './queries'
 
+// ============================================================================
+// ENVIRONMENT-AWARE PUBLISHING FILTERS
+// ============================================================================
+// On staging (testing.kammermusikkfest.no), show both "staging" and "published" content.
+// On production (www.kammermusikkfest.no), show only "published" content.
+// Set PUBLIC_SITE_ENV in Vercel: "staging" for testing site, "production" for live site.
+// ============================================================================
+
+const isStaging = import.meta.env.PUBLIC_SITE_ENV === 'staging'
+
+/**
+ * Filter for listing pages - excludes drafts, includes staging on testing site.
+ * Use for: programPage, artistPage, articlePage, sponsorPage, publishedArticles, publishedArtists
+ */
+const LISTING_FILTER = isStaging
+  ? `(publishingStatus in ["staging", "published", "scheduled"] || !defined(publishingStatus))`
+  : `(publishingStatus != "draft" || !defined(publishingStatus))`
+
+/**
+ * Filter for strict "published only" content - includes staging on testing site.
+ * Use for: publishedEvents, eventsByDate, selectedEvents, selectedArtists
+ */
+const PUBLISHED_FILTER = isStaging
+  ? `(publishingStatus in ["staging", "published"] || !defined(publishingStatus))`
+  : `(publishingStatus == "published" || !defined(publishingStatus))`
+
+/**
+ * Filter for dereferenced arrays (artist[]-> or selectedEvents[]->).
+ * Checks publishingStatus on the referenced document.
+ */
+const REF_PUBLISHED_FILTER = isStaging
+  ? `(@->publishingStatus in ["staging", "published"] || !defined(@->publishingStatus))`
+  : `(@->publishingStatus == "published" || !defined(@->publishingStatus))`
+
 /**
  * Type-safe query definition with typed params and expected result.
  * All QueryBuilder methods return this interface for consistent data fetching.
@@ -286,7 +320,7 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
     city,
     "slug": slug.current
   },
-  "artists": artist[defined(@->) && (@->publishingStatus == "published" || !defined(@->publishingStatus))]->{
+  "artists": artist[defined(@->) && ${REF_PUBLISHED_FILTER}]->{
     _id,
     name,
     "slug": slug.current,
@@ -555,7 +589,7 @@ const buildPageBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type
 }`)
 
 // Language-aware query builders for listing pages
-const buildProgramPageQuery = (language: Language = 'no') => defineQuery(`*[_type == "programPage" && (publishingStatus != "draft" || !defined(publishingStatus))][0]{
+const buildProgramPageQuery = (language: Language = 'no') => defineQuery(`*[_type == "programPage" && ${LISTING_FILTER}][0]{
   _id,
   _type,
   ${createMultilingualField('title', language)},
@@ -570,12 +604,12 @@ const buildProgramPageQuery = (language: Language = 'no') => defineQuery(`*[_typ
     ${PAGE_CONTENT_WITH_LINKS}
   },
   seo,
-  "selectedEvents": selectedEvents[defined(@->) && (@->publishingStatus == "published" || !defined(@->publishingStatus))]->{
+  "selectedEvents": selectedEvents[defined(@->) && ${REF_PUBLISHED_FILTER}]->{
     ${buildEventBaseFields(language)}
   }
 }`)
 
-const buildArtistPageQuery = (language: Language = 'no') => defineQuery(`*[_type == "artistPage" && (publishingStatus != "draft" || !defined(publishingStatus))][0]{
+const buildArtistPageQuery = (language: Language = 'no') => defineQuery(`*[_type == "artistPage" && ${LISTING_FILTER}][0]{
   _id,
   _type,
   ${createMultilingualField('title', language)},
@@ -590,7 +624,7 @@ const buildArtistPageQuery = (language: Language = 'no') => defineQuery(`*[_type
     ${PAGE_CONTENT_WITH_LINKS}
   },
   seo,
-  "selectedArtists": selectedArtists[defined(@->) && (@->publishingStatus == "published" || !defined(@->publishingStatus))]->{
+  "selectedArtists": selectedArtists[defined(@->) && ${REF_PUBLISHED_FILTER}]->{
     ${buildArtistBaseFields(language)}
   }
 }`)
@@ -624,7 +658,7 @@ const buildSponsorBaseFields = (): string => `
   url
 `
 
-const buildSponsorPageQuery = (language: Language = 'no') => defineQuery(`*[_type == "sponsorPage" && (publishingStatus != "draft" || !defined(publishingStatus))][0]{
+const buildSponsorPageQuery = (language: Language = 'no') => defineQuery(`*[_type == "sponsorPage" && ${LISTING_FILTER}][0]{
   _id,
   _type,
   ${createMultilingualField('title', language)},
@@ -644,7 +678,7 @@ const buildSponsorPageQuery = (language: Language = 'no') => defineQuery(`*[_typ
   }
 }`)
 
-const buildArticlePageQuery = (language: Language = 'no') => defineQuery(`*[_type == "articlePage" && (publishingStatus != "draft" || !defined(publishingStatus))][0]{
+const buildArticlePageQuery = (language: Language = 'no') => defineQuery(`*[_type == "articlePage" && ${LISTING_FILTER}][0]{
   _id,
   _type,
   ${createMultilingualField('title', language)},
@@ -660,8 +694,8 @@ const buildArticlePageQuery = (language: Language = 'no') => defineQuery(`*[_typ
   },
   seo,
   "articles": select(
-    count(selectedArticles) > 0 => selectedArticles[defined(@->) && (@->publishingStatus == "published" || !defined(@->publishingStatus))]->{${buildArticleBaseFields(language)}},
-    *[_type == "article" && publishingStatus != "draft"] | order(publishedAt desc){${buildArticleBaseFields(language)}}
+    count(selectedArticles) > 0 => selectedArticles[defined(@->) && ${REF_PUBLISHED_FILTER}]->{${buildArticleBaseFields(language)}},
+    *[_type == "article" && ${LISTING_FILTER}] | order(publishedAt desc){${buildArticleBaseFields(language)}}
   )
 }`)
 
@@ -669,7 +703,7 @@ const buildEventBySlugQuery = (language: Language = 'no') => defineQuery(`*[_typ
   ${buildEventBaseFields(language)}
 }`)
 
-const buildArtistBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "artist" && slug.current == $slug && (publishingStatus != "draft" || !defined(publishingStatus))][0]{
+const buildArtistBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "artist" && slug.current == $slug && ${LISTING_FILTER}][0]{
   ${buildArtistBaseFields(language)},
   instagram,
   facebook,
@@ -678,7 +712,7 @@ const buildArtistBySlugQuery = (language: Language = 'no') => defineQuery(`*[_ty
   websiteUrl,
   spotifyUrl,
   instagramUrl,
-  "events": *[_type == "event" && references(^._id) && publishingStatus == "published"] | order(eventDate->date asc, eventTime.startTime asc){
+  "events": *[_type == "event" && references(^._id) && ${PUBLISHED_FILTER}] | order(eventDate->date asc, eventTime.startTime asc){
     ${buildEventBaseFields(language)},
     ticketType,
     ticketUrl,
@@ -691,15 +725,15 @@ const buildArticleBySlugQuery = (language: Language = 'no') => defineQuery(`*[_t
   ${buildArticleBaseFields(language)}
 }`)
 
-const buildPublishedArticlesQuery = (language: Language = 'no') => defineQuery(`*[_type == "article" && publishingStatus != "draft"] | order(publishedAt desc){
+const buildPublishedArticlesQuery = (language: Language = 'no') => defineQuery(`*[_type == "article" && ${LISTING_FILTER}] | order(publishedAt desc){
   ${buildArticleBaseFields(language)}
 }`)
 
-const buildPublishedArtistsQuery = (language: Language = 'no') => defineQuery(`*[_type == "artist" && publishingStatus != "draft"] | order(name asc){
+const buildPublishedArtistsQuery = (language: Language = 'no') => defineQuery(`*[_type == "artist" && ${LISTING_FILTER}] | order(name asc){
   ${buildArtistBaseFields(language)}
 }`)
 
-const buildPublishedEventsQuery = (language: Language = 'no') => defineQuery(`*[_type == "event" && publishingStatus == "published"] | order(eventDate->date asc, eventTime.startTime asc){
+const buildPublishedEventsQuery = (language: Language = 'no') => defineQuery(`*[_type == "event" && ${PUBLISHED_FILTER}] | order(eventDate->date asc, eventTime.startTime asc){
   ${buildEventBaseFields(language)}
 }`)
 
@@ -715,7 +749,7 @@ const EVENT_DATES_QUERY = defineQuery(`*[_type == "eventDate" && isActive == tru
   "slug_en": slug_en.current
 }`)
 
-const buildEventsByDateQuery = (language: Language = 'no') => defineQuery(`*[_type == "event" && publishingStatus == "published" && eventDate._ref == $dateId] | order(eventTime.startTime asc){
+const buildEventsByDateQuery = (language: Language = 'no') => defineQuery(`*[_type == "event" && ${PUBLISHED_FILTER} && eventDate._ref == $dateId] | order(eventTime.startTime asc){
   ${buildEventBaseFields(language)}
 }`)
 
