@@ -36,7 +36,7 @@ const isStaging = import.meta.env.PUBLIC_SITE_ENV === 'staging'
  */
 const LISTING_FILTER = isStaging
   ? `(publishingStatus in ["staging", "published", "scheduled"] || !defined(publishingStatus))`
-  : `(publishingStatus != "draft" || !defined(publishingStatus))`
+  : `(publishingStatus in ["published", "scheduled"] || !defined(publishingStatus))`
 
 /**
  * Filter for strict "published only" content - includes staging on testing site.
