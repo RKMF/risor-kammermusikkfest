@@ -148,29 +148,15 @@ const SCROLL_CONTAINER_SELECTORS = [
 
 /**
  * Finds the navigation element for a scroll container.
- * Nav can be in multiple locations depending on layout:
- * - Sibling of wrapper (inline layout)
- * - Child of wrapper (legacy)
- * - Sibling of wrapper's parent within filter-section (gutter layout)
+ * Nav can be either a sibling (new layout) or child (legacy) of wrapper.
  * @param {HTMLElement} wrapper - The wrapper element
  * @returns {HTMLElement|null} The nav element or null
  */
 function findNavForWrapper(wrapper) {
-  // First check: nav as next sibling (inline layout - buttons beside content)
+  // First check: nav as next sibling (new layout - buttons outside content)
   const nextSibling = wrapper.nextElementSibling;
   if (nextSibling?.classList.contains('scroll-nav')) {
     return nextSibling;
-  }
-
-  // Second check: nav within filter-section (gutter layout)
-  // Structure: .filter-section > .filter-row > .scroll-container-wrapper
-  //            .filter-section > .scroll-nav--gutter
-  const filterSection = wrapper.closest('.filter-section');
-  if (filterSection) {
-    const gutterNav = filterSection.querySelector('.scroll-nav--gutter');
-    if (gutterNav) {
-      return gutterNav;
-    }
   }
 
   // Fallback: nav as child (legacy layout)
