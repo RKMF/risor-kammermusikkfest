@@ -53,15 +53,17 @@ const content = getMultilingualContent(article, language) || article[config.cont
     </header>
 
     {article.image?.image && (
-      <HeaderImage
-        image={article.image.image}
-        alt={stegaClean(article.image.alt || article.title || '')}
-        credit={article.image.credit ? stegaClean(article.image.credit) : undefined}
-        aspectRatio="16:9"
-        loading="eager"
-        quality={IMAGE_QUALITY.HERO}
-        width="min(60ch, 100%)"
-      />
+      <section class="article-image">
+        <HeaderImage
+          image={article.image.image}
+          alt={stegaClean(article.image.alt || article.title || '')}
+          credit={article.image.credit ? stegaClean(article.image.credit) : undefined}
+          aspectRatio="4:3"
+          loading="eager"
+          quality={IMAGE_QUALITY.CARD}
+          width="100%"
+        />
+      </section>
     )}
 
     {content && Array.isArray(content) && (
@@ -89,6 +91,18 @@ const content = getMultilingualContent(article, language) || article[config.cont
   }
 
   /* Excerpt styling handled by global .excerpt class in base.css */
+
+  /* Article image - constrained and centered */
+  .article-image {
+    max-width: min(100%, 600px);
+    margin-inline: auto; /* Center horizontally */
+    margin-block-end: var(--space-3xl);
+  }
+
+  .article-image :global(.header-image) {
+    width: 100%;
+    margin: 0;
+  }
 
   /* Pagebuilder content spacing - generous space between components */
   .pagebuilder-content {
