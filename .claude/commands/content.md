@@ -16,6 +16,8 @@ Examples:
 - `/content tine thing helseth` → Research and write full content
 - `/content romeo og julie "add contentScrollContainer with 3 quotes"` → Add specific components
 - `/content haydn-konserten` → Fill empty fields with researched content
+- `/content validate artists` → Check all events for instrument mismatches
+- `/content validate artists Back to the Future` → Check specific event
 
 ---
 
@@ -43,6 +45,14 @@ Query by document type, name, ID, or description:
   image
 }
 ```
+
+---
+
+## Step 1b: Detect Validation Mode
+
+If $ARGUMENTS starts with "validate artists":
+- Skip directly to **Validation Workflow** section at the end of this document
+- Otherwise continue with normal content workflow (Step 2 onwards)
 
 ---
 
@@ -220,8 +230,8 @@ Show the user:
 > [proposed text]
 
 **content_no:**
-1. [component type]: [content summary]
-2. [component type]: [content summary]
+- [component type]: [content summary]
+- [component type]: [content summary]
 ...
 
 **Placeholders for manual addition:**
@@ -236,6 +246,54 @@ Show the user:
 If approved:
 1. Use Sanity MCP `patch_document` to update NO fields
 2. All changes go to DRAFT (never auto-publish)
+
+---
+
+## Step 10b: Efficient Patching Rules
+
+**Principle: Patch the minimum necessary structure.**
+
+1. **Always query the DRAFT first** (`drafts.<id>`) to see current content before patching
+
+2. **For simple fields** (excerpt, title, description arrays):
+   - Replace only the specific field, not parent objects
+   - Example: `set: [{path: "excerpt_en", value: "..."}]`
+
+3. **For nested structures** (accordions, content arrays):
+   - **DO:** Patch only the changed nested field when possible
+   - **DON'T:** Rebuild entire parent component to change one child field
+   - If you must replace a parent, replace the smallest parent that contains your change
+
+4. **For complex components with unchanged siblings:**
+   - Bad: Replace entire `extraContent_en` array (includes all accordion panels)
+   - Good: Replace only `extraContent_en[0].description` if only description changed
+
+5. **Token efficiency checklist:**
+   - Am I only sending the fields that changed?
+   - Am I avoiding re-sending unchanged nested content?
+   - Could I patch a smaller parent structure?
+
+6. **Path syntax:**
+
+   Works:
+   ```
+   set: [{path: "excerpt_en", value: "New text"}]
+   set: [{path: "description_en", value: [{_key: "...", _type: "block", ...}]}]
+   ```
+
+   Doesn't work (nested child paths):
+   ```
+   set: [{path: "description_en[_key==\"abc\"].children[0].text", value: "..."}]
+   ```
+
+   When nested paths fail, replace the smallest parent that contains your change.
+
+7. **Fallback hierarchy** (prefer top, avoid bottom):
+   1. Single field value
+   2. Single array item
+   3. Entire field array (e.g., `description_en`)
+   4. Parent component (e.g., single accordion in `extraContent_en`)
+   5. Entire parent array (LAST RESORT)
 
 ---
 
@@ -264,6 +322,7 @@ After all patches:
 ## Rules
 
 - Norwegian is source of truth - always create NO first
+- Use bullet points for lists, never numbered lists
 - Research before writing new content
 - Suggest components based on research findings (don't force components)
 - Reference similar documents for structural consistency
@@ -272,3 +331,95 @@ After all patches:
 - Ask before making changes
 - Leave clear placeholders for manual media additions
 - Always translate to EN after creating NO content
+
+---
+
+## Validation Workflow (for "validate artists" mode)
+
+Use this workflow when $ARGUMENTS starts with "validate artists".
+
+### Step V1: Find Events to Validate
+
+If event name provided after "validate artists":
+```groq
+*[_type == "event" && (title_no match "<query>*" || title_en match "<query>*")][0]{
+  _id,
+  title_no,
+  title_en,
+  extraContent_no
+}
+```
+
+If no event name (validate all):
+```groq
+*[_type == "event" && defined(extraContent_no)]{
+  _id,
+  title_no,
+  title_en,
+  extraContent_no
+}
+```
+
+---
+
+### Step V2: Extract Performer Listings
+
+Parse `extraContent_no` accordion panels for bullet list items matching pattern:
+- "Name, instrument" (e.g., "Håvard Gimse, cembalo")
+
+Look for text in Portable Text blocks within accordion panels that follow the "Besetning:" heading.
+
+---
+
+### Step V3: Cross-Reference Artists
+
+For each performer name found, query the artist document:
+```groq
+*[_type == "artist" && name match "<performer-name>*"][0]{
+  _id,
+  name,
+  instrument_no,
+  instrument_en
+}
+```
+
+Compare:
+- Instrument in program text (from Step V2)
+- Instrument in artist profile (`instrument_no`)
+
+---
+
+### Step V4: Report Findings
+
+Present results in this format:
+
+```
+## Validation Report: [Event Name]
+
+### Summary: X matches | Y mismatches | Z not found
+
+| Performer | Program Says | Artist Profile Says | Status |
+|-----------|--------------|---------------------|--------|
+| Håvard Gimse | cembalo | Piano | Mismatch |
+| Tine Thing Helseth | trompet | Trompet | OK |
+| Guest Artist | fiolin | - | Not Found |
+
+### Notes
+- Mismatches may be intentional (artist plays multiple instruments for different pieces)
+- "Not Found" means no artist document matches that name in the CMS
+```
+
+---
+
+### Step V5: Offer Fixes
+
+For each mismatch, ask what action to take:
+
+1. **"Update program to match artist profile?"** - Change program text to use artist's registered instrument
+2. **"Leave as-is (intentional for this piece)?"** - No changes, artist plays different instrument for this specific work
+3. **"Note for manual review"** - Flag for content editor to decide
+
+For "Not Found" entries:
+- These may be guest artists without CMS profiles
+- Or typos in the performer name
+- Ask user if they want to create an artist document or correct the spelling
