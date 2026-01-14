@@ -1,5 +1,6 @@
 ---
 import { detectLanguage } from '../lib/utils/language.js';
+import { stegaClean } from '@sanity/client/stega';
 
 export interface Props {
   videoType: 'sanity' | 'youtube' | 'vimeo' | 'external'
@@ -33,9 +34,13 @@ const {
   className = ''
 } = Astro.props
 
-// Calculate aspect ratio
-const [width, height] = aspectRatio.split(':').map(Number)
+// Calculate aspect ratio (stegaClean removes Sanity Visual Editing encoding)
+const cleanedRatio = stegaClean(aspectRatio)
+const [width, height] = cleanedRatio.split(':').map(Number)
 const aspectRatioValue = `${width}/${height}`
+
+// Determine format category for CSS sizing
+const format = width > height ? 'landscape' : width === height ? 'square' : 'portrait'
 
 // Helper functions to extract video IDs
 function extractYouTubeId(url: string): string | null {
@@ -95,7 +100,11 @@ const videoText = {
 ---
 
 {videoType && videoSource ? (
-  <figure class={`video-component ${className}`} data-component="video">
+  <figure
+    class={`video-component ${className}`}
+    data-component="video"
+    data-video-type={videoType}
+  >
     {videoType === 'sanity' && (
       <video
         controls={controls}
@@ -105,6 +114,7 @@ const videoText = {
         preload="none"
         playsinline
         class="video-element"
+        data-format={format}
         aria-label={title || 'Video'}
         style={`aspect-ratio: ${aspectRatioValue};`}
       >
@@ -115,27 +125,27 @@ const videoText = {
     )}
 
     {videoType === 'youtube' && (
-      <iframe
-        loading="lazy"
-        src={`${videoSource}?autoplay=${autoplay ? 1 : 0}&mute=${muted ? 1 : 0}&controls=${controls ? 1 : 0}&loop=${loop ? 1 : 0}&rel=0`}
-        title={title || videoText.youtubeTitle}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowFullscreen
-        class="video-element"
-        style={`aspect-ratio: ${aspectRatioValue};`}
-      ></iframe>
+      <div class="video-wrapper" data-format={format} style={`--aspect-w: ${width}; --aspect-h: ${height};`}>
+        <iframe
+          loading="lazy"
+          src={`${videoSource}?autoplay=${autoplay ? 1 : 0}&mute=${muted ? 1 : 0}&controls=${controls ? 1 : 0}&loop=${loop ? 1 : 0}&rel=0`}
+          title={title || videoText.youtubeTitle}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullscreen
+        ></iframe>
+      </div>
     )}
 
     {videoType === 'vimeo' && (
-      <iframe
-        loading="lazy"
-        src={`${videoSource}?autoplay=${autoplay ? 1 : 0}&muted=${muted ? 1 : 0}&controls=${controls ? 1 : 0}&loop=${loop ? 1 : 0}&dnt=1`}
-        title={title || videoText.vimeoTitle}
-        allow="autoplay; fullscreen; picture-in-picture"
-        allowFullscreen
-        class="video-element"
-        style={`aspect-ratio: ${aspectRatioValue};`}
-      ></iframe>
+      <div class="video-wrapper" data-format={format} style={`--aspect-w: ${width}; --aspect-h: ${height};`}>
+        <iframe
+          loading="lazy"
+          src={`${videoSource}?autoplay=${autoplay ? 1 : 0}&muted=${muted ? 1 : 0}&controls=${controls ? 1 : 0}&loop=${loop ? 1 : 0}&dnt=1`}
+          title={title || videoText.vimeoTitle}
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullscreen
+        ></iframe>
+      </div>
     )}
 
     {videoType === 'external' && (
@@ -147,6 +157,7 @@ const videoText = {
         preload="none"
         playsinline
         class="video-element"
+        data-format={format}
         aria-label={title || 'Video'}
         style={`aspect-ratio: ${aspectRatioValue};`}
       >
@@ -181,7 +192,7 @@ const videoText = {
 <style>
   /* CSS Variable-based width control - Kevin Powell method */
   .video-component {
-    width: var(--component-width, min(55ch, 100% - 4rem));
+    width: var(--component-width, min(75ch, 100% - 4rem));
     max-width: var(--component-max-width, 100%);
     margin-inline: auto;
     margin-block: var(--space-l); /* Fluid 24px → 30px */
@@ -219,10 +230,60 @@ const videoText = {
     line-height: 1.6;
   }
 
+  /* Grid wrapper for iframe videos - creates explicit sizing context */
+  .video-wrapper {
+    display: grid;
+    grid-template: 1fr / 1fr;
+    aspect-ratio: var(--aspect-w, 16) / var(--aspect-h, 9);
+    max-inline-size: 100%;
+    margin-inline: auto; /* Center when narrower than container */
+    background: #000;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Format-specific sizing constraints */
+  .video-wrapper[data-format="landscape"] {
+    max-block-size: calc(var(--space-3xl) * 6); /* ~384-480px - wide videos can be taller */
+  }
+
+  .video-wrapper[data-format="square"] {
+    max-block-size: calc(var(--space-3xl) * 5); /* ~320-400px */
+  }
+
+  .video-wrapper[data-format="portrait"] {
+    max-block-size: calc(var(--space-3xl) * 7); /* ~448-560px - tall videos need more height */
+  }
+
+  /* Iframe fills the grid cell */
+  .video-wrapper iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /* Base styles for video elements (native <video> tags) */
   .video-element {
     width: 100%;
+    height: auto;
+    margin-inline: auto; /* Center when narrower than container */
     border: none;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Format-specific sizing for native videos */
+  .video-element[data-format="landscape"] {
+    max-block-size: calc(var(--space-3xl) * 6); /* ~384-480px */
+  }
+
+  .video-element[data-format="square"] {
+    max-block-size: calc(var(--space-3xl) * 5); /* ~320-400px */
+  }
+
+  .video-element[data-format="portrait"] {
+    max-block-size: calc(var(--space-3xl) * 7); /* ~448-560px */
   }
 
   /* Inside scroll containers: width calculated from height + aspect-ratio */
