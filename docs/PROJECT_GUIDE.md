@@ -332,7 +332,7 @@ output: 'static',  // Requires webhook-triggered rebuilds for content updates
 - **Never upgrade Node.js** without testing both studio and frontend first
 - Prefer even-numbered LTS versions (20, 22, 24) over odd versions (21, 23)
 
-### Version Compatibility (December 2024)
+### Version Compatibility (January 2025)
 
 This project uses a proven, tested combination of Node.js, Astro, and Sanity versions:
 
@@ -341,22 +341,22 @@ This project uses a proven, tested combination of Node.js, Astro, and Sanity ver
 |-----------|---------|-----|
 | Node.js | 22.x LTS | Best compatibility with all deps, LTS support until 2027 |
 | Astro | 5.16.x | Latest stable, requires Node 20.3+ or 22+ |
-| Sanity Studio | 4.x | Node 20.19+ required (only breaking change from v3) |
+| Sanity Studio | 5.x | Content Agent support, React 19.2 required |
 | @sanity/astro | 3.2.x | Visual Editing integration |
 | @sanity/client | 6.x | API client for content fetching |
 
 **Compatibility Matrix:**
 | Component | Minimum Node.js | Recommended |
 |-----------|-----------------|-------------|
-| Sanity v4 | 20.19+ | 22.x |
+| Sanity v5 | 20.19+ | 22.x |
 | Astro 5.8+ | 20.3.0+ | 22.x |
 | Vercel | 20.x or 22.x | 22.x |
 
 **Why These Versions:**
 - **Node 22.x**: All dependencies officially support it, LTS until April 2027
 - **Astro 5.x**: Stable, mature, with excellent Sanity integration
-- **Sanity 4.x**: The v3→v4 upgrade ONLY changes Node.js requirements, nothing else
-- **Frontend sanity package**: Uses v3.x as peer dependency for @sanity/astro (this is correct)
+- **Sanity 5.x**: Content Agent access, React 19.2 requirement (already met)
+- **Frontend sanity package**: Used for TypeGen only, not runtime
 
 **Upgrade Guidelines:**
 - Minor version updates (5.16 → 5.17): Generally safe, run `npm update`
@@ -773,6 +773,32 @@ Before every commit, verify:
 - **IDE MCP** - VS Code language diagnostics (`getDiagnostics`)
 
 **Principle**: Use MCP when it provides actual value - not "because we can"
+
+### Sanity Content Agent
+
+Content Agent is an AI assistant in Sanity Studio (requires v5+) that understands your schema and can perform bulk operations, content audits, web research, and content generation.
+
+**Access:** Available at dashboard.sanity.io for your project after Studio v5 upgrade.
+
+**Pricing:** Consumption-based AI Credits (included with Growth/Enterprise plans, overages billed).
+
+**When to use Content Agent vs MCP:**
+
+| Task | Content Agent | MCP (Claude) |
+|------|---------------|--------------|
+| Natural language queries | Yes | No (requires GROQ) |
+| Web research + content creation | Yes | No |
+| Non-technical user access | Yes (in Studio UI) | No (requires Claude) |
+| Bulk document edits | Yes | Yes |
+| Content audits | Yes | Yes (via GROQ) |
+| Programmatic operations | No | Yes |
+
+**Example audit queries:**
+- "Find all artists missing English biography"
+- "List events without alt text on images"
+- "Show articles with empty meta descriptions"
+
+**Note:** All Content Agent changes are staged for human review before publishing.
 
 ---
 
