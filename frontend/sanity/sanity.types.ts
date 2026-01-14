@@ -13,29 +13,40 @@
  */
 
 // Source: schema.json
+export type Accessibility = {
+  ariaLabel?: string;
+  ariaDescribedBy?: string;
+};
+
+export type ComposerReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "composer";
+};
+
 export type ComposerScrollContainer = {
   _type: "composerScrollContainer";
   title?: string;
   items?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
     _key: string;
-    [internalGroqTypeReferenceTo]?: "composer";
-  }>;
+  } & ComposerReference>;
   showScrollbar?: boolean;
+};
+
+export type EventReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "event";
 };
 
 export type EventScrollContainer = {
   _type: "eventScrollContainer";
   title?: string;
   items?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
     _key: string;
-    [internalGroqTypeReferenceTo]?: "event";
-  }>;
+  } & EventReference>;
   showScrollbar?: boolean;
   showDate?: boolean;
   showTime?: boolean;
@@ -44,16 +55,19 @@ export type EventScrollContainer = {
   sortBy?: "date-asc" | "date-desc" | "title-asc" | "manual";
 };
 
+export type ArtistReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "artist";
+};
+
 export type ArtistScrollContainer = {
   _type: "artistScrollContainer";
   title?: string;
   items?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
     _key: string;
-    [internalGroqTypeReferenceTo]?: "artist";
-  }>;
+  } & ArtistReference>;
   showScrollbar?: boolean;
 };
 
@@ -252,10 +266,56 @@ export type AccordionComponent = {
     _type: "accordionPanel";
     _key: string;
   }>;
-  accessibility?: {
-    ariaLabel?: string;
-    ariaDescribedBy?: string;
-  };
+  accessibility?: Accessibility;
+};
+
+export type HomepageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "homepage";
+};
+
+export type ProgramPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "programPage";
+};
+
+export type ArtistPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "artistPage";
+};
+
+export type ArticlePageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "articlePage";
+};
+
+export type SponsorPageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sponsorPage";
+};
+
+export type PageReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "page";
+};
+
+export type ArticleReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "article";
 };
 
 export type LinkComponent = {
@@ -264,52 +324,7 @@ export type LinkComponent = {
     linkType?: "external" | "internal";
     text?: string;
     url?: string;
-    internalLink?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "homepage";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "programPage";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "artistPage";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "articlePage";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sponsorPage";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "page";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "event";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "artist";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "article";
-    };
+    internalLink?: HomepageReference | ProgramPageReference | ArtistPageReference | ArticlePageReference | SponsorPageReference | PageReference | EventReference | ArtistReference | ArticleReference;
     description?: string;
     openInNewTab?: boolean;
     _type: "link";
@@ -331,16 +346,18 @@ export type SpotifyComponent = {
   spotifyUrl?: string;
 };
 
+export type SanityFileAssetReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sanity.fileAsset";
+};
+
 export type VideoComponent = {
   _type: "videoComponent";
   videoType?: "sanity" | "youtube" | "vimeo" | "external";
   video?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.fileAsset";
-    };
+    asset?: SanityFileAssetReference;
     media?: unknown;
     _type: "file";
   };
@@ -356,15 +373,17 @@ export type VideoComponent = {
   loop?: boolean;
 };
 
+export type SanityImageAssetReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+};
+
 export type ImageComponent = {
   _type: "imageComponent";
   image?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -400,12 +419,7 @@ export type PortableText = Array<{
   _type: "block";
   _key: string;
 } | {
-  asset?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-  };
+  asset?: SanityImageAssetReference;
   media?: unknown;
   hotspot?: SanityImageHotspot;
   crop?: SanityImageCrop;
@@ -456,12 +470,7 @@ export type Sponsor = {
   _rev: string;
   name?: string;
   logo?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -486,6 +495,13 @@ export type SanityImageHotspot = {
   width?: number;
 };
 
+export type EventDateReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "eventDate";
+};
+
 export type SiteSettings = {
   _id: string;
   _type: "siteSettings";
@@ -498,58 +514,13 @@ export type SiteSettings = {
   organizationName_en?: string;
   description_en?: string;
   newsletterTitle_en?: string;
-  startDate?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "eventDate";
-  };
-  endDate?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "eventDate";
-  };
-  menuItems?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "homepage";
-  } | {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "programPage";
-  } | {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "artistPage";
-  } | {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "articlePage";
-  } | {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "sponsorPage";
-  } | {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "page";
-  }>;
+  startDate?: EventDateReference;
+  endDate?: EventDateReference;
+  menuItems?: Array<HomepageReference | ProgramPageReference | ArtistPageReference | ArticlePageReference | SponsorPageReference | PageReference>;
   logos?: Array<{
     name?: string;
     image?: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
@@ -559,12 +530,7 @@ export type SiteSettings = {
     _key: string;
   }>;
   favicon?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -582,12 +548,7 @@ export type SiteSettings = {
   }>;
   newsletterUrl?: string;
   featuredImage?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -610,12 +571,7 @@ export type Composer = {
   description_no?: PortableText;
   description_en?: PortableText;
   image?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -639,42 +595,7 @@ export type Homepage = {
     text?: string;
     description?: string;
     url?: string;
-    internalLink?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "programPage";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "artistPage";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "articlePage";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "page";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "event";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "artist";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "article";
-    };
+    internalLink?: ProgramPageReference | ArtistPageReference | ArticlePageReference | PageReference | EventReference | ArtistReference | ArticleReference;
     _type: "headerLink";
     _key: string;
   }>;
@@ -684,42 +605,7 @@ export type Homepage = {
     text?: string;
     description?: string;
     url?: string;
-    internalLink?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "programPage";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "artistPage";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "articlePage";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "page";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "event";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "artist";
-    } | {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "article";
-    };
+    internalLink?: ProgramPageReference | ArtistPageReference | ArticlePageReference | PageReference | EventReference | ArtistReference | ArticleReference;
     _type: "headerLinkEn";
     _key: string;
   }>;
@@ -747,12 +633,8 @@ export type ProgramPage = {
   excerpt_en?: string;
   content_en?: PageBuilder;
   selectedEvents?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
     _key: string;
-    [internalGroqTypeReferenceTo]?: "event";
-  }>;
+  } & EventReference>;
 };
 
 export type Slug = {
@@ -776,12 +658,8 @@ export type ArtistPage = {
   excerpt_en?: string;
   content_en?: PageBuilder;
   selectedArtists?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
     _key: string;
-    [internalGroqTypeReferenceTo]?: "artist";
-  }>;
+  } & ArtistReference>;
 };
 
 export type ArticlePage = {
@@ -799,13 +677,16 @@ export type ArticlePage = {
   excerpt_en?: string;
   content_en?: PageBuilder;
   selectedArticles?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
     _key: string;
-    [internalGroqTypeReferenceTo]?: "article";
-  }>;
+  } & ArticleReference>;
   seo?: Seo;
+};
+
+export type SponsorReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sponsor";
 };
 
 export type SponsorPage = {
@@ -823,12 +704,8 @@ export type SponsorPage = {
   excerpt_en?: string;
   content_en?: PageBuilder;
   selectedSponsors?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
     _key: string;
-    [internalGroqTypeReferenceTo]?: "sponsor";
-  }>;
+  } & SponsorReference>;
 };
 
 export type Page = {
@@ -846,12 +723,7 @@ export type Page = {
   excerpt_en?: string;
   content_en?: PageBuilder;
   image?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -869,43 +741,32 @@ export type Page = {
   seo?: Seo;
 };
 
+export type VenueReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "venue";
+};
+
 export type Event = {
   _id: string;
   _type: "event";
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  eventDate?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "eventDate";
-  };
+  eventDate?: EventDateReference;
   eventTime?: {
     startTime?: "06:00" | "06:15" | "06:30" | "06:45" | "07:00" | "07:15" | "07:30" | "07:45" | "08:00" | "08:15" | "08:30" | "08:45" | "09:00" | "09:15" | "09:30" | "09:45" | "10:00" | "10:15" | "10:30" | "10:45" | "11:00" | "11:15" | "11:30" | "11:45" | "12:00" | "12:15" | "12:30" | "12:45" | "13:00" | "13:15" | "13:30" | "13:45" | "14:00" | "14:15" | "14:30" | "14:45" | "15:00" | "15:15" | "15:30" | "15:45" | "16:00" | "16:15" | "16:30" | "16:45" | "17:00" | "17:15" | "17:30" | "17:45" | "18:00" | "18:15" | "18:30" | "18:45" | "19:00" | "19:15" | "19:30" | "19:45" | "20:00" | "20:15" | "20:30" | "20:45" | "21:00" | "21:15" | "21:30" | "21:45" | "22:00" | "22:15" | "22:30" | "22:45" | "23:00" | "23:15" | "23:30" | "23:45";
     endTime?: "06:00" | "06:15" | "06:30" | "06:45" | "07:00" | "07:15" | "07:30" | "07:45" | "08:00" | "08:15" | "08:30" | "08:45" | "09:00" | "09:15" | "09:30" | "09:45" | "10:00" | "10:15" | "10:30" | "10:45" | "11:00" | "11:15" | "11:30" | "11:45" | "12:00" | "12:15" | "12:30" | "12:45" | "13:00" | "13:15" | "13:30" | "13:45" | "14:00" | "14:15" | "14:30" | "14:45" | "15:00" | "15:15" | "15:30" | "15:45" | "16:00" | "16:15" | "16:30" | "16:45" | "17:00" | "17:15" | "17:30" | "17:45" | "18:00" | "18:15" | "18:30" | "18:45" | "19:00" | "19:15" | "19:30" | "19:45" | "20:00" | "20:15" | "20:30" | "20:45" | "21:00" | "21:15" | "21:30" | "21:45" | "22:00" | "22:15" | "22:30" | "22:45" | "23:00" | "23:15" | "23:30" | "23:45";
   };
   eventDateValue?: string;
-  venue?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "venue";
-  };
+  venue?: VenueReference;
   artist?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
     _key: string;
-    [internalGroqTypeReferenceTo]?: "artist";
-  }>;
+  } & ArtistReference>;
   composers?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
     _key: string;
-    [internalGroqTypeReferenceTo]?: "composer";
-  }>;
+  } & ComposerReference>;
   spotifyItems?: Array<{
     _key: string;
   } & SpotifyComponent>;
@@ -914,12 +775,7 @@ export type Event = {
   ticketInfoText?: string;
   ticketStatus?: "available" | "low_stock" | "sold_out";
   image?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -963,12 +819,7 @@ export type Artist = {
   instrument_en?: string;
   content_en?: PageBuilder;
   image?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -984,12 +835,8 @@ export type Artist = {
     endDate?: string;
   };
   events?: Array<{
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
     _key: string;
-    [internalGroqTypeReferenceTo]?: "event";
-  }>;
+  } & EventReference>;
   seo?: Seo;
 };
 
@@ -1008,12 +855,7 @@ export type Article = {
   excerpt_en?: string;
   content_en?: PageBuilder;
   image?: {
-    asset?: {
-      _ref: string;
-      _type: "reference";
-      _weak?: boolean;
-      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-    };
+    asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
@@ -1154,7 +996,7 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type AllSanitySchemaTypes = ComposerScrollContainer | EventScrollContainer | ArtistScrollContainer | ContentScrollContainer | ThreeColumnLayout | TwoColumnLayout | GridComponent | PageBuilder | CountdownComponent | AccordionComponent | LinkComponent | ButtonComponent | SpotifyComponent | VideoComponent | ImageComponent | PortableTextBlock | PortableText | HeadingComponent | MarqueeComponent | QuoteComponent | Title | Seo | Sponsor | SanityImageCrop | SanityImageHotspot | SiteSettings | Composer | Homepage | ProgramPage | Slug | ArtistPage | ArticlePage | SponsorPage | Page | Event | Artist | Article | Venue | EventDate | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
+export type AllSanitySchemaTypes = Accessibility | ComposerReference | ComposerScrollContainer | EventReference | EventScrollContainer | ArtistReference | ArtistScrollContainer | ContentScrollContainer | ThreeColumnLayout | TwoColumnLayout | GridComponent | PageBuilder | CountdownComponent | AccordionComponent | HomepageReference | ProgramPageReference | ArtistPageReference | ArticlePageReference | SponsorPageReference | PageReference | ArticleReference | LinkComponent | ButtonComponent | SpotifyComponent | SanityFileAssetReference | VideoComponent | SanityImageAssetReference | ImageComponent | PortableTextBlock | PortableText | HeadingComponent | MarqueeComponent | QuoteComponent | Title | Seo | Sponsor | SanityImageCrop | SanityImageHotspot | EventDateReference | SiteSettings | Composer | Homepage | ProgramPage | Slug | ArtistPage | ArticlePage | SponsorReference | SponsorPage | Page | VenueReference | Event | Artist | Article | Venue | EventDate | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./src/pages/api/countdown.ts
 // Variable: EVENT_COUNTDOWN_QUERY
@@ -1180,12 +1022,7 @@ export type FILTER_EVENTS_QUERYResult = Array<{
   slug: string | null;
   image: {
     image: {
-      asset?: {
-        _ref: string;
-        _type: "reference";
-        _weak?: boolean;
-        [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
-      };
+      asset?: SanityImageAssetReference;
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
