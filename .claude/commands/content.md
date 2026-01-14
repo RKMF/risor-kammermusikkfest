@@ -21,6 +21,22 @@ Examples:
 
 ---
 
+## Step 0: Efficient Querying Rules
+
+**Use projections by default.** Full document fetches consume 5-15k tokens.
+
+| Task | Approach |
+|------|----------|
+| Find document | `query_documents` with `{_id, _type, name, excerpt_no}` |
+| Check specific fields | `query_documents` with only those fields |
+| Mirror NO→EN | `query_documents` with `{excerpt_no, excerpt_en, content_no, content_en}` |
+| Verify after patch | `query_documents` with patched fields only |
+| Full exploration | `get_document` (only when structure unknown) |
+
+**Rule:** Before any query, ask "What fields do I actually need?"
+
+---
+
 ## Step 1: Find the Document
 
 Query by document type, name, ID, or description:
