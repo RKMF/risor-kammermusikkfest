@@ -152,7 +152,9 @@ dl.event-meta {
 }
 
 /* Larger ticket button on event pages */
-.event-info-box .btn-primary {
+.event-info-box .btn-primary,
+.event-info-box .btn-warning,
+.event-info-box .btn-disabled {
   padding: var(--space-m) var(--space-xl); /* 16-20px vertical, 32-40px horizontal */
   font-size: var(--step-1); /* 22-28px - larger text */
 }

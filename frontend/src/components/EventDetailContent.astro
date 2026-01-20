@@ -8,6 +8,7 @@ import Spotify from '../components/Spotify.astro';
 import ScrollNavigation from '../components/ScrollNavigation.astro';
 import PortableText from '../components/PortableText.astro';
 import EventSchema from '../components/structured-data/EventSchema.astro';
+import TicketButton from './TicketButton.astro';
 import { formatDateWithWeekday } from '../lib/utils/dates';
 import { getMultilingualContent } from '../lib/utils/language.js';
 import { IMAGE_QUALITY } from '../lib/sanityImage';
@@ -110,13 +111,14 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
           </dl>
         </div>
 
-        {stegaClean(event.ticketType) === 'info' ? (
-          <p class="ticket-info">{stegaClean(event.ticketInfoText) || config.free}</p>
-        ) : (
-          <a href={stegaClean(event.ticketUrl)} class="btn btn-primary" target="_blank" rel="noopener noreferrer" data-track-ticket data-concert={stegaClean(event.title)}>
-            {config.buyTickets}
-          </a>
-        )}
+        <TicketButton
+          ticketType={event.ticketType}
+          ticketStatus={event.ticketStatus}
+          ticketUrl={event.ticketUrl}
+          ticketInfoText={event.ticketInfoText}
+          eventTitle={event.title}
+          language={language}
+        />
       </header>
 
       <section class="main-event-info">
