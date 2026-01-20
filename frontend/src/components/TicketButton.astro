@@ -1,0 +1,54 @@
+---
+/**
+ * TicketButton - Shared ticket button/badge component
+ *
+ * Renders ticket purchase buttons or info badges based on ticket type and status.
+ * Used by EventCard and EventDetailContent for consistent ticket display.
+ *
+ * Ticket status rendering:
+ * - 'info' type: Shows custom badge text (e.g., "Gratis")
+ * - 'sold_out': Disabled button
+ * - 'low_stock': Warning-styled buy button
+ * - default: Primary buy button
+ */
+
+import { stegaClean } from '@sanity/client/stega';
+
+interface Props {
+  ticketType?: string;
+  ticketStatus?: string;
+  ticketUrl?: string;
+  ticketInfoText?: string;
+  eventTitle?: string;
+  language: 'no' | 'en';
+}
+
+const { ticketType, ticketStatus, ticketUrl, ticketInfoText, eventTitle, language } = Astro.props;
+
+const labels = {
+  no: { buy: 'Kjøp billetter her', few: 'Få billetter igjen', sold: 'Utsolgt', free: 'Gratis' },
+  en: { buy: 'Buy tickets', few: 'Few tickets left', sold: 'Sold out', free: 'Free' }
+}[language];
+
+const cleanType = stegaClean(ticketType);
+const cleanStatus = stegaClean(ticketStatus);
+const cleanUrl = stegaClean(ticketUrl);
+const cleanInfoText = stegaClean(ticketInfoText);
+const cleanTitle = stegaClean(eventTitle);
+---
+
+{cleanType === 'info' ? (
+  <span class="ticket-badge">{cleanInfoText || labels.free}</span>
+) : cleanStatus === 'sold_out' ? (
+  <span class="btn btn-disabled" role="button" aria-disabled="true">
+    {labels.sold}
+  </span>
+) : cleanStatus === 'low_stock' ? (
+  <a href={cleanUrl} class="btn btn-warning" target="_blank" rel="noopener noreferrer" data-track-ticket data-concert={cleanTitle}>
+    {labels.few}
+  </a>
+) : (
+  <a href={cleanUrl} class="btn btn-primary" target="_blank" rel="noopener noreferrer" data-track-ticket data-concert={cleanTitle}>
+    {labels.buy}
+  </a>
+)}
