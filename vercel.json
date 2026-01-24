@@ -2,5 +2,52 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install --legacy-peer-deps",
   "framework": "astro",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/kmfarkivet/:path*",
+      "destination": "/program",
+      "permanent": true
+    },
+    {
+      "source": "/konserter/:path*",
+      "destination": "/program",
+      "permanent": true
+    },
+    {
+      "source": "/arkiv_cat/:path*",
+      "destination": "/program",
+      "permanent": true
+    },
+    {
+      "source": "/dato/:path*",
+      "destination": "/program",
+      "permanent": true
+    },
+    {
+      "source": "/en/kmfarkivet/:path*",
+      "destination": "/en/program",
+      "permanent": true
+    },
+    {
+      "source": "/en/konserter/:path*",
+      "destination": "/en/program",
+      "permanent": true
+    },
+    {
+      "source": "/risor/:path*.aspx",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/wp-login.php",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/feed",
+      "destination": "/",
+      "permanent": true
+    }
+  ]
 }
