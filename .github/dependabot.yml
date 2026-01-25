@@ -1,0 +1,26 @@
+version: 2
+updates:
+  # Check npm dependencies in root
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    groups:
+      # Group Sanity packages together for coordinated updates
+      sanity:
+        patterns:
+          - "@sanity/*"
+          - "sanity"
+          - "sanity-*"
+      # Group Astro packages together
+      astro:
+        patterns:
+          - "@astrojs/*"
+          - "astro"
+          - "astro-*"
+    # Ignore patch updates for stability, focus on minor/major
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]

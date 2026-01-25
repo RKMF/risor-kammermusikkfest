@@ -26,7 +26,7 @@
       "@/*": ["./src/*"],
       "@/lib/*": ["./src/lib/*"],
       "@/components/*": ["./src/components/*"],
-      "@/studio-types": ["../studio/schemaTypes/shared/types.ts"]
+      "@/studio-types": ["./sanity/sanity.types.ts"]
     }
   }
 }

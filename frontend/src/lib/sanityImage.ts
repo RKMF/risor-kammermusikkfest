@@ -10,9 +10,21 @@
  * - Multi-format picture element support
  */
 
-import imageUrlBuilder from '@sanity/image-url'
-import type { SanityImageSource } from '@sanity/image-url/lib/types/types'
+import imageUrlBuilder, { type SanityImageSource } from '@sanity/image-url'
 import { sanityClient } from 'sanity:client'
+
+/**
+ * Type guard to check if source is a wrapper object containing an image property
+ */
+function isImageWrapper(source: unknown): source is { image: SanityImageSource } {
+  return (
+    typeof source === 'object' &&
+    source !== null &&
+    'image' in source &&
+    source.image !== null &&
+    source.image !== undefined
+  )
+}
 
 /**
  * Standardized image quality levels for consistent optimization
@@ -99,7 +111,7 @@ export function getImageBuilder(source: SanityImageSource) {
 
   // Handle nested image objects like {"alt":null,"image":null}
   // If source has an 'image' property, use that as the actual source
-  const actualSource = (source as any)?.image || source
+  const actualSource = isImageWrapper(source) ? source.image : source
 
   // If the actual source is still null/undefined, return null
   if (!actualSource || actualSource === null) {

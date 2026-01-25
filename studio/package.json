@@ -19,12 +19,12 @@
   ],
   "dependencies": {
     "@sanity/locale-nb-no": "^1.1.23",
-    "@sanity/vision": "5.0.0",
+    "@sanity/vision": "4.22.0",
     "react": "^19.2.2",
     "react-dom": "^19.2.2",
     "react-is": "^19.2.3",
-    "sanity": "5.0.0",
-    "sanity-plugin-asset-source-unsplash": "7.0.0",
+    "sanity": "4.22.0",
+    "sanity-plugin-asset-source-unsplash": "6.0.0",
     "styled-components": "6.1.19"
   },
   "devDependencies": {
