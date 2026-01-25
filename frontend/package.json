@@ -22,7 +22,7 @@
     "@astrojs/react": "4.2.1",
     "@astrojs/sitemap": "3.6.0",
     "@astrojs/vercel": "8.0.4",
-    "@portabletext/types": "2.0.13",
+    "@portabletext/types": "4.0.1",
     "@sanity/astro": "3.2.10",
     "@sanity/client": "^7.6.0",
     "@sanity/image-url": "^2.0.0",
