@@ -1,7 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import DynamicComponent from './DynamicComponent.astro';
-import Countdown from './Countdown.astro';
 import { createDataService } from '../lib/sanity/dataService.js';
 import { getMultilingualContent } from '../lib/utils/language.js';
 import { stegaClean } from '@sanity/client/stega';
@@ -139,12 +138,6 @@ try {
       </div>
       </>
     )}
-
-    {/* Temporary hardcoded countdown for testing */}
-    <Countdown
-      targetDate="2026-06-23T12:00:00"
-      title="Festivalen starter om"
-    />
 
     {/* PageBuilder content - rendered below hero */}
     {content && Array.isArray(content) && content.length > 0 && (
