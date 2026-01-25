@@ -103,7 +103,7 @@ export default defineConfig({
       useCdn: false, // for statiske builds
       apiVersion: '2025-01-01', // Use latest API version
       stega: {
-        studioUrl: 'http://localhost:3333'
+        studioUrl: process.env.SANITY_STUDIO_URL || 'http://localhost:3333'
       },
     }),
     sitemap({

@@ -6,7 +6,7 @@
  * for components consuming Sanity data.
  */
 
-import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
+import type { SanityImageSource } from '@sanity/image-url';
 import type { PageBuilder, Seo } from '../../../sanity/sanity.types';
 
 /**

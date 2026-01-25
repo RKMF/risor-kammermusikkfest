@@ -3,7 +3,7 @@ import type { APIRoute } from 'astro';
 import {defineQuery} from 'groq';
 import { sanityClient } from 'sanity:client';
 import imageUrlBuilder from '@sanity/image-url';
-import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
+import type { SanityImageSource } from '@sanity/image-url';
 import {
   rateLimit,
   validateContentType,
