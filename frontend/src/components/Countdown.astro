@@ -65,29 +65,24 @@ if (timeRemaining.expired && hideWhenComplete) {
         {completedMessage}
       </p>
     ) : (
-      <p class="countdown__sentence">
-        {title && <span class="countdown__prefix">{title} </span>}
-        {timeRemaining.days > 0 && (
-          <>
-            <span class="countdown__number">{timeRemaining.days}</span>
-            <span class="countdown__label"> {timeRemaining.days === 1 ? 'dag' : 'dager'}</span>
-            {(timeRemaining.hours > 0 || timeRemaining.minutes > 0) && <span class="countdown__separator">, </span>}
-          </>
-        )}
-        {timeRemaining.hours > 0 && (
-          <>
-            <span class="countdown__number">{timeRemaining.hours}</span>
-            <span class="countdown__label"> {timeRemaining.hours === 1 ? 'time' : 'timer'}</span>
-            {timeRemaining.minutes > 0 && <span class="countdown__separator"> og </span>}
-          </>
-        )}
-        {timeRemaining.minutes > 0 && (
-          <>
-            <span class="countdown__number">{timeRemaining.minutes}</span>
-            <span class="countdown__label"> {timeRemaining.minutes === 1 ? 'minutt' : 'minutter'}</span>
-          </>
-        )}
-      </p>
+      <>
+        {title && <p class="countdown__title">{title}</p>}
+        <p class="countdown__timer">
+          {timeRemaining.days > 0 && (
+            <>
+              <span class="countdown__number">{timeRemaining.days}</span>
+              <span class="countdown__label"> {timeRemaining.days === 1 ? 'dag' : 'dager'}</span>
+              {timeRemaining.hours > 0 && <span class="countdown__separator"> og </span>}
+            </>
+          )}
+          {timeRemaining.hours > 0 && (
+            <>
+              <span class="countdown__number">{timeRemaining.hours}</span>
+              <span class="countdown__label"> {timeRemaining.hours === 1 ? 'time' : 'timer'}</span>
+            </>
+          )}
+        </p>
+      </>
     )}
   </div>
 </section>
@@ -95,24 +90,28 @@ if (timeRemaining.expired && hideWhenComplete) {
 <style>
   .countdown {
     text-align: center;
-    padding: var(--space-m-l);
-    background-color: var(--color-tint-blue-medium);
-    max-width: 40ch;
+    background-color: var(--color-green-100);
+    padding: 1.5em 2em;
+    max-width: 60ch;
     margin-inline: auto;
+    color: var(--color-green-800);
   }
 
   .countdown__display {
     position: relative;
   }
 
-  .countdown__sentence {
-    margin: 0;
-    font-size: var(--step-1);
-    line-height: 1.4;
+  .countdown__title {
+    margin: 0 0 var(--space-xs) 0;
+    font-size: var(--step-3);
+    font-weight: 400;
+    line-height: 1.2;
   }
 
-  .countdown__prefix {
-    font-weight: 400;
+  .countdown__timer {
+    margin: 0;
+    font-size: var(--step-3);
+    line-height: 1.3;
   }
 
   .countdown__number {
@@ -128,39 +127,25 @@ if (timeRemaining.expired && hideWhenComplete) {
   }
 
   /* Style variations */
-  .countdown--large .countdown__sentence {
-    font-size: var(--step-2);
-  }
-
-  .countdown--large .countdown__number {
+  .countdown--large .countdown__title {
     font-size: var(--step-3);
   }
 
-  .countdown--minimal {
-    padding: var(--space-m);
-    background: none;
-    border: none;
+  .countdown--large .countdown__timer {
+    font-size: var(--step-4);
   }
 
-  .countdown--minimal .countdown__sentence {
-    font-size: var(--step-0);
+  .countdown--minimal .countdown__title {
+    font-size: var(--step-1);
+  }
+
+  .countdown--minimal .countdown__timer {
+    font-size: var(--step-2);
   }
 
   .countdown__expired {
     margin: 0;
-    font-size: var(--step-1);
+    font-size: var(--step-2);
     font-weight: 600;
-  }
-
-  @media (prefers-contrast: high) {
-    .countdown {
-      outline: 2px solid #000;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .countdown {
-      background-color: var(--color-tint-blue-medium);
-    }
   }
 </style>
