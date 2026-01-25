@@ -56,6 +56,7 @@ export const pageBuilder = defineType({
             'eventScrollContainer',
             'contentScrollContainer',
             'composerScrollContainer',
+            'articleScrollContainer',
           ],
         },
       ],
@@ -378,6 +379,25 @@ export const pageBuilder = defineType({
             title: title || 'Composer Scroll Container',
             subtitle: `${composerCount} komponister`,
             media: ComposeIcon,
+          };
+        },
+      },
+    },
+    {
+      type: 'articleScrollContainer',
+      title: 'Artikkelkarusell',
+      icon: DocumentTextIcon,
+      preview: {
+        select: {
+          title: 'title',
+          items: 'items',
+        },
+        prepare({ title, items }) {
+          const articleCount = items?.length || 0;
+          return {
+            title: title || 'Artikkelkarusell',
+            subtitle: `${articleCount} artikler`,
+            media: DocumentTextIcon,
           };
         },
       },

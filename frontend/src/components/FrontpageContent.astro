@@ -23,6 +23,7 @@ const config = {
     ariaNavLabel: 'Hovedlenker',
     emptyTitle: 'Velkommen til forsiden',
     emptyText: 'Ingen forside er konfigurert ennå. Gå til Sanity Studio for å opprette en forside.',
+    tagline: 'Den beste musikken,<br />med de beste artistene,<br />i den beste sommerbyen!',
   },
   en: {
     fallbackTitle: 'Home',
@@ -31,6 +32,7 @@ const config = {
     ariaNavLabel: 'Main links',
     emptyTitle: 'Welcome to the homepage',
     emptyText: 'No homepage is configured yet. Go to Sanity Studio to create a homepage.',
+    tagline: 'The best music,<br />with the best artists,<br />in the best summer town!',
   }
 }[language];
 
@@ -104,7 +106,9 @@ try {
 
     {/* Hero section - logo always shown, links conditional */}
     {tekstLogoSvg && (
-      <div class={`homepage-hero ${hasHeaderLinks ? 'homepage-hero--with-links' : ''}`}>
+      <>
+        <h1 class="homepage-tagline" set:html={config.tagline} />
+        <div class={`homepage-hero ${hasHeaderLinks ? 'homepage-hero--with-links' : ''}`}>
         <div class="tekst-logo-container">
           <div
             class="tekst-logo"
@@ -132,6 +136,7 @@ try {
           </nav>
         )}
       </div>
+      </>
     )}
 
     {/* PageBuilder content - rendered below hero */}
@@ -148,6 +153,16 @@ try {
 <style>
   .no-content {
     margin: 0;
+  }
+
+  /* Homepage tagline - h1 above hero */
+  .homepage-tagline {
+    font-size: clamp(var(--step-2), 5vw, var(--step-4));
+    text-align: center;
+    margin-block: var(--space-l) var(--space-l);
+    color: var(--color-blue);
+    max-width: 20ch;
+    margin-inline: auto;
   }
 
   /* Page layout styling */

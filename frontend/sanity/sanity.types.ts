@@ -18,6 +18,23 @@ export type Accessibility = {
   ariaDescribedBy?: string;
 };
 
+export type ArticleReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "article";
+};
+
+export type ArticleScrollContainer = {
+  _type: "articleScrollContainer";
+  title?: string;
+  items?: Array<{
+    _key: string;
+  } & ArticleReference>;
+  showScrollbar?: boolean;
+  sortBy?: "date-desc" | "date-asc" | "title-asc" | "manual";
+};
+
 export type ComposerReference = {
   _ref: string;
   _type: "reference";
@@ -199,7 +216,9 @@ export type PageBuilder = Array<{
   _key: string;
 } & EventScrollContainer | {
   _key: string;
-} & ComposerScrollContainer>;
+} & ComposerScrollContainer | {
+  _key: string;
+} & ArticleScrollContainer>;
 
 export type CountdownComponent = {
   _type: "countdownComponent";
@@ -309,13 +328,6 @@ export type PageReference = {
   _type: "reference";
   _weak?: boolean;
   [internalGroqTypeReferenceTo]?: "page";
-};
-
-export type ArticleReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "article";
 };
 
 export type LinkComponent = {
@@ -996,7 +1008,7 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type AllSanitySchemaTypes = Accessibility | ComposerReference | ComposerScrollContainer | EventReference | EventScrollContainer | ArtistReference | ArtistScrollContainer | ContentScrollContainer | ThreeColumnLayout | TwoColumnLayout | GridComponent | PageBuilder | CountdownComponent | AccordionComponent | HomepageReference | ProgramPageReference | ArtistPageReference | ArticlePageReference | SponsorPageReference | PageReference | ArticleReference | LinkComponent | ButtonComponent | SpotifyComponent | SanityFileAssetReference | VideoComponent | SanityImageAssetReference | ImageComponent | PortableTextBlock | PortableText | HeadingComponent | MarqueeComponent | QuoteComponent | Title | Seo | Sponsor | SanityImageCrop | SanityImageHotspot | EventDateReference | SiteSettings | Composer | Homepage | ProgramPage | Slug | ArtistPage | ArticlePage | SponsorReference | SponsorPage | Page | VenueReference | Event | Artist | Article | Venue | EventDate | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
+export type AllSanitySchemaTypes = Accessibility | ArticleReference | ArticleScrollContainer | ComposerReference | ComposerScrollContainer | EventReference | EventScrollContainer | ArtistReference | ArtistScrollContainer | ContentScrollContainer | ThreeColumnLayout | TwoColumnLayout | GridComponent | PageBuilder | CountdownComponent | AccordionComponent | HomepageReference | ProgramPageReference | ArtistPageReference | ArticlePageReference | SponsorPageReference | PageReference | LinkComponent | ButtonComponent | SpotifyComponent | SanityFileAssetReference | VideoComponent | SanityImageAssetReference | ImageComponent | PortableTextBlock | PortableText | HeadingComponent | MarqueeComponent | QuoteComponent | Title | Seo | Sponsor | SanityImageCrop | SanityImageHotspot | EventDateReference | SiteSettings | Composer | Homepage | ProgramPage | Slug | ArtistPage | ArticlePage | SponsorReference | SponsorPage | Page | VenueReference | Event | Artist | Article | Venue | EventDate | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./src/pages/api/countdown.ts
 // Variable: EVENT_COUNTDOWN_QUERY
