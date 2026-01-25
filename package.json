@@ -16,7 +16,8 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
     "check-deps": "npm ls 2>&1 | grep -i 'peer dep\\|UNMET' || echo 'All peer deps satisfied'",
-    "check-deps:root": "npm ls 2>&1 | grep -i 'peer dep\\|UNMET' || echo 'All peer deps satisfied'"
+    "check-deps:root": "npm ls 2>&1 | grep -i 'peer dep\\|UNMET' || echo 'All peer deps satisfied'",
+    "typegen": "cd studio && npx sanity schema extract --path=../frontend/sanity/extract.json && npx sanity typegen generate --config-path=../frontend/sanity-typegen.json"
   },
   "dependencies": {
     "react": "^19.2.2",

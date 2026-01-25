@@ -7,7 +7,7 @@
  * @see docs/PROJECT_GUIDE.md - Section 2.1 Sanity CMS
  */
 
-import { type QueryParams } from "sanity";
+import { type QueryParams } from "@sanity/client";
 import { sanityClient } from "sanity:client";
 
 /**

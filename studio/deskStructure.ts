@@ -16,7 +16,7 @@
  * - Event dates/Venues: chronologically or alphabetically
  */
 
-import { StructureBuilder } from 'sanity/desk';
+import { StructureBuilder } from 'sanity/structure';
 import {
   CogIcon,
   DocumentTextIcon,
