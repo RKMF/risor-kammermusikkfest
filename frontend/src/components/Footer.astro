@@ -214,15 +214,9 @@ function getSocialIcon(name: string): string | undefined {
     </p>
 
     <!-- Developer Credit -->
-    <a
-      href="https://www.magefolelsen.no"
-      class="footer-developer-credit hover-underline"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <span class="footer-link-text">{developerCreditText}</span>
-      <span class="visually-hidden"> {newTabText}</span>
-    </a>
+    <p class="footer-developer-credit">
+      {developerCreditText}
+    </p>
   </div>
 
 </footer>
@@ -387,9 +381,6 @@ function getSocialIcon(name: string): string | undefined {
     display: inline-block;
   }
 
-  .footer-developer-credit::after {
-    content: ' →';
-  }
 
   /* ============================================
      ACCESSIBILITY UTILITIES
