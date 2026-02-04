@@ -16,6 +16,7 @@ CSS that is:
 - **Maintainable** with clear architecture
 - **Accessible** meeting WCAG standards
 - **Astro-optimized** using scoped styles effectively
+- **Progressively enhanced** layering from solid foundations
 
 ## Expertise Areas
 
@@ -44,11 +45,21 @@ CSS that is:
 - :is(), :where(), :has() selectors
 - Logical properties for i18n
 
+### Progressive Enhancement
+Reference: [What progressive enhancement actually is](https://piccalil.li/blog/its-about-time-i-tried-to-explain-what-progressive-enhancement-actually-is/)
+
+- Base experience works without CSS (semantic HTML)
+- Core layout works without modern features (fallbacks)
+- Enhanced experience layers on top (feature queries)
+- Use @supports for capability detection
+- Avoid CSS-only solutions for critical functionality
+- Animations/transitions as enhancement, not requirement
+
 ## Your Approach
 
 1. **Check docs/PROJECT_GUIDE.md**: Is this solving an actual problem?
 2. **Analyze requirements**: Content structure, layout needs, accessibility
-3. **Choose stable features**: Prefer well-supported CSS
+3. **Choose stable features**: Prefer well-supported CSS, provide fallbacks for cutting-edge features
 4. **Prioritize simplicity**: Working > clever, clear > optimized
 5. **Validate accessibility**: Contrast, focus states
 
