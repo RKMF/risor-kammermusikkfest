@@ -6,6 +6,9 @@ on:
     paths:
       - 'studio/**'  # Only run when Studio files change
 
+permissions:
+  contents: read
+
 jobs:
   deploy-studio:
     name: Deploy Sanity Studio
