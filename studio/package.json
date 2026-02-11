@@ -19,16 +19,16 @@
   ],
   "dependencies": {
     "@sanity/locale-nb-no": "^1.1.23",
-    "@sanity/vision": "4.22.0",
+    "@sanity/vision": "5.9.0",
     "react": "^19.2.2",
     "react-dom": "^19.2.2",
     "react-is": "^19.2.3",
-    "sanity": "4.22.0",
-    "sanity-plugin-asset-source-unsplash": "6.0.0",
+    "sanity": "5.9.0",
+    "sanity-plugin-asset-source-unsplash": "7.0.3",
     "styled-components": "6.1.19"
   },
   "devDependencies": {
-    "@sanity/eslint-config-studio": "^5.0.2",
+    "@sanity/eslint-config-studio": "^6.0.0",
     "eslint": "^9.28",
     "happy-dom": "20.0.11",
     "prettier": "^3.5",
