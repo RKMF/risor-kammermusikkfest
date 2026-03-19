@@ -1,0 +1,19 @@
+This repository uses project-scoped MCP configuration.
+
+When MCP tools are available in this repo, use these targets by default:
+- Sanity project `dnk98dp0`, dataset `production`
+- GitHub repository `RKMF/risor-kammermusikkfest`
+- Vercel team `risor-kammermusikkfests-projects`, project `risor-kammermusikkfest-frontend`
+
+MCP scoping rules:
+- Prefer MCP tools over CLI when MCP can do the job.
+- Prefer repo-scoped MCP access over account-wide access.
+- For Vercel, prefer the scoped MCP connection configured for this repo instead of a generic `https://mcp.vercel.com` connection.
+- For GitHub, operate on `RKMF/risor-kammermusikkfest` unless the user explicitly asks for another repository.
+- For Sanity, operate on project `dnk98dp0` and dataset `production` unless the user explicitly asks for another project or dataset.
+- If an MCP server is connected but appears to point at a different account, team, project, repository, or dataset, stop and say so instead of guessing.
+
+Verification hints:
+- GitHub remote for this repo is `https://github.com/RKMF/risor-kammermusikkfest.git`
+- Preferred Vercel MCP endpoint is `https://mcp.vercel.com/risor-kammermusikkfests-projects/risor-kammermusikkfest-frontend`
+- Sanity MCP endpoint is `https://mcp.sanity.io`

@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "sanity": {
+      "url": "https://mcp.sanity.io"
+    },
+    "github": {
+      "url": "https://api.githubcopilot.com/mcp/"
+    },
+    "vercel": {
+      "url": "https://mcp.vercel.com/risor-kammermusikkfests-projects/risor-kammermusikkfest-frontend"
+    }
+  }
+}

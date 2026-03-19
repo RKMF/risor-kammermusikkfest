@@ -734,17 +734,17 @@ Before every commit, verify:
 - List and manage issues
 - View diffs and comments
 
-**Workflow with Claude:**
+**Workflow with an AI agent:**
 
 *Feature → Staging (standard workflow):*
-1. Claude implements changes on feature branch
-2. Claude commits and pushes
-3. Claude creates PR via `gh pr create --base staging`
+1. The agent implements changes on feature branch
+2. The agent commits and pushes
+3. The agent creates PR via `gh pr create --base staging`
 4. User reviews in Cursor IDE or terminal (`gh pr diff`)
-5. User says "merge" → Claude merges via `gh pr merge`
+5. User says "merge" → the agent merges via `gh pr merge`
 
 *Staging → Main (production release):*
-1. Claude creates PR via `gh pr create --base main --head staging`
+1. The agent creates PR via `gh pr create --base main --head staging`
 2. **User reviews and merges directly in GitHub** (not via CLI)
 3. Production deployment requires explicit human approval in GitHub UI
 
@@ -755,7 +755,7 @@ Before every commit, verify:
 **Review Options (for staging merges):**
 - **Cursor IDE**: GitHub Pull Requests extension shows PRs in sidebar with inline diff
 - **Terminal**: `gh pr diff` shows full diff
-- **Claude summary**: Claude can summarize changes on request
+- **Agent summary**: the agent can summarize changes on request
 
 ### MCP Server Usage
 
@@ -763,6 +763,24 @@ Before every commit, verify:
 1. **MCP servers FIRST** - Always use available MCP servers as primary source
 2. **WebFetch/WebSearch as fallback** - Only when MCP not available or doesn't cover the need
 3. **CLI commands last** - Only when neither MCP nor WebFetch solve the problem
+
+**Repo MCP Targets:**
+- **Sanity MCP**
+  - Project: `dnk98dp0`
+  - Dataset: `production`
+- **Vercel MCP**
+  - Team slug: `risor-kammermusikkfests-projects`
+  - Project slug: `risor-kammermusikkfest-frontend`
+  - Preferred scoped endpoint: `https://mcp.vercel.com/risor-kammermusikkfests-projects/risor-kammermusikkfest-frontend`
+- **GitHub MCP**
+  - Owner: `RKMF`
+  - Repository: `risor-kammermusikkfest`
+
+**Scoping Rule:**
+- Configure MCP servers at the workspace or project level when the client supports it.
+- Prefer project-scoped or repo-scoped MCP connections over account-wide connections.
+- Do not assume opening this folder automatically scopes MCP access. The client configuration must enforce the scope.
+- This repo uses repo-local Cursor config in `.cursor/mcp.json` plus repo instructions in `.cursorrules`.
 
 **Available MCP Servers:**
 - **Sanity MCP** - Direct CMS operations (verified working):
@@ -773,15 +791,32 @@ Before every commit, verify:
   - Semantic search via embeddings indices
   - Best practices via `list_sanity_rules` and `get_sanity_rules`
   - Authentication: Uses OAuth (`npx sanity login` credentials)
+  - Project targeting for this repo: use project `dnk98dp0`, dataset `production`
 - **Vercel MCP** - Deployment and hosting operations:
   - Deploy projects (`deploy_to_vercel`)
   - List and inspect deployments, projects, teams
   - Get build logs for debugging failed deployments
   - Fetch protected Vercel URLs
   - Check domain availability
+  - Authentication: Uses OAuth in browser during setup or login
+  - Project targeting for this repo: use team `risor-kammermusikkfests-projects`, project `risor-kammermusikkfest-frontend`
+  - Preferred endpoint for this repo: `https://mcp.vercel.com/risor-kammermusikkfests-projects/risor-kammermusikkfest-frontend`
+  - Avoid the general account-wide endpoint `https://mcp.vercel.com` for this repo when a scoped connection is available
+  - Security: Prefer OAuth over manual tokens and never commit local Vercel credentials or `.vercel/`
 - **Astro Docs MCP** - Search Astro documentation (`search_astro_docs`)
 - **GitHub MCP** - Repository operations, issues, PRs, code search
+  - Repository targeting for this repo: use `RKMF/risor-kammermusikkfest`
 - **IDE MCP** - VS Code language diagnostics (`getDiagnostics`)
+
+**Repo-Local Cursor Setup:**
+- File: `.cursor/mcp.json`
+- Servers configured for this repo:
+  - `sanity` → `https://mcp.sanity.io`
+  - `github` → `https://api.githubcopilot.com/mcp/`
+  - `vercel` → `https://mcp.vercel.com/risor-kammermusikkfests-projects/risor-kammermusikkfest-frontend`
+- File: `.cursorrules`
+  - Reinforces the default Sanity, GitHub, and Vercel targets so new sessions in this repo use the correct project context
+- After adding or changing MCP config, restart the Cursor chat/session and complete any OAuth login prompts shown by the client
 
 **Principle**: Use MCP when it provides actual value - not "because we can"
 
@@ -797,11 +832,11 @@ Content Agent is an AI assistant in Sanity Studio (requires v5+) that understand
 
 **When to use Content Agent vs MCP:**
 
-| Task | Content Agent | MCP (Claude) |
+| Task | Content Agent | MCP |
 |------|---------------|--------------|
 | Natural language queries | Yes | No (requires GROQ) |
 | Web research + content creation | Yes | No |
-| Non-technical user access | Yes (in Studio UI) | No (requires Claude) |
+| Non-technical user access | Yes (in Studio UI) | No (requires an MCP-capable client) |
 | Bulk document edits | Yes | Yes |
 | Content audits | Yes | Yes (via GROQ) |
 | Programmatic operations | No | Yes |
@@ -846,7 +881,7 @@ gh pr diff                   # View PR diff
 ```
 
 **Documentation:**
-- Claude MCP: https://docs.claude.com/en/docs/claude-code/mcp
+- Model Context Protocol: https://modelcontextprotocol.io
 - Astro Docs: https://docs.astro.build
 - Sanity Docs: https://www.sanity.io/docs
 - HTMX Docs: https://htmx.org
