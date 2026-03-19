@@ -59,7 +59,7 @@ Before making **ANY** change, evaluate in this order:
 - Fix security vulnerabilities immediately
 - Write tests for critical functionality (auth, payments, data validation)
 - Follow TypeScript best practices and maintain type safety
-- Keep dependencies updated for security (use `npm audit`)
+- Review dependencies regularly for security issues and upstream changes
 - Use proper error handling and logging
 - Validate and sanitize all user input
 - Follow WCAG accessibility standards
@@ -90,7 +90,7 @@ Before making **ANY** change, evaluate in this order:
 
 1. **Confusing "simple" with "amateur"** → Simple means focused, not shortcuts
 2. **Skipping tests for "speed"** → Always test critical paths and security
-3. **Ignoring security updates** → Run `npm audit fix` regularly
+3. **Ignoring security updates** → Review `npm audit` output and update intentionally
 4. **Breaking Visual Editing** → Test preview after any Sanity config changes
 5. **Removing bilingual support** → Keep `nbNOLocale()` and proper i18n structure
 6. **Over-engineering** → Don't add enterprise patterns not needed at this scale
@@ -332,44 +332,51 @@ output: 'static',  // Requires webhook-triggered rebuilds for content updates
 - **Never upgrade Node.js** without testing both studio and frontend first
 - Prefer even-numbered LTS versions (20, 22, 24) over odd versions (21, 23)
 
-### Version Compatibility (January 2025)
+### Version Compatibility (Current Baseline)
 
-This project uses a proven, tested combination of Node.js, Astro, and Sanity versions:
+The supported baseline is the versions currently pinned in the repo and verified in this project, not the latest available upstream versions.
 
-**Current Versions:**
-| Component | Version | Why |
-|-----------|---------|-----|
-| Node.js | 22.x LTS | Best compatibility with all deps, LTS support until 2027 |
-| Astro | 5.16.x | Latest stable, requires Node 20.3+ or 22+ |
-| Sanity Studio | 5.x | Content Agent support, React 19.2 required |
-| @sanity/astro | 3.2.x | Visual Editing integration |
-| @sanity/client | 6.x | API client for content fetching |
+**Current Baseline:**
+| Component | Version | Notes |
+|-----------|---------|-------|
+| Node.js | 22.x LTS | Project standard for local dev and CI |
+| Astro | 5.16.6 | Current frontend baseline |
+| Sanity Studio | 4.22.0 | Current supported Studio baseline |
+| @sanity/astro | 3.2.10 | Visual Editing integration |
+| @sanity/client | 7.6.x | Runtime content API client |
 
-**Compatibility Matrix:**
-| Component | Minimum Node.js | Recommended |
-|-----------|-----------------|-------------|
-| Sanity v5 | 20.19+ | 22.x |
-| Astro 5.8+ | 20.3.0+ | 22.x |
-| Vercel | 20.x or 22.x | 22.x |
+**Baseline Principles:**
+- The pinned versions in `package.json` are the source of truth.
+- New features available in newer upstream majors are not considered supported until this repo is upgraded and verified.
+- Content Agent and other Sanity v5+ features are roadmap capabilities, not current baseline behavior.
 
-**Why These Versions:**
-- **Node 22.x**: All dependencies officially support it, LTS until April 2027
-- **Astro 5.x**: Stable, mature, with excellent Sanity integration
-- **Sanity 5.x**: Content Agent access, React 19.2 requirement (already met)
-- **Frontend sanity package**: Used for TypeGen only, not runtime
+### Update Policy
 
-**Upgrade Guidelines:**
-- Minor version updates (5.16 → 5.17): Generally safe, run `npm update`
-- Major version updates (Astro 5 → 6): Wait for stability, test thoroughly
-- Node.js updates: Stick to even LTS versions, test both studio and frontend
-- Always run `npm run build` after any dependency changes
+Use a balanced update strategy:
+
+- **Patch and minor updates**: review regularly and adopt when verification passes
+- **Major updates**: treat as dedicated migration work, not routine dependency maintenance
+- **Node.js updates**: stay on even LTS versions and verify both Studio and frontend before changing
+- **Security advisories**: prioritize them, but do not apply fixes blindly
+
+### Future Upgrade Path
+
+Sanity v5+ is a future migration path for capabilities such as Content Agent.
+
+Rules:
+
+- Do not describe Sanity v5+ features as available in the current baseline
+- Do not roll a Sanity major upgrade into routine quarterly maintenance
+- Upgrade only in a dedicated branch/PR with compatibility verification
+- Verify custom document actions, Presentation/Visual Editing, schema extraction, and editorial workflows before adoption
 
 ### Dependency Management
-- **Use `npm install --legacy-peer-deps`** for dependency conflicts
-- **Update for security and stability** - prioritize security patches and minor updates from trusted sources
-- **Sanity Studio updates** - keep reasonably current to get security fixes and bug improvements
-- **Avoid major version jumps** - update incrementally (4.4 → 4.5 → 4.6, not 4.4 → 5.0)
-- **Test after any dependency changes** - both studio and frontend must work
+- Use `npm install` as the default install path
+- Use `--legacy-peer-deps` only as a temporary troubleshooting workaround, not standard practice
+- Update for security and stability, but prefer intentional upgrades over broad `npm update` churn
+- Keep Sanity reasonably current within the supported major
+- Treat major version changes as migrations with explicit verification
+- Test after any dependency changes: both Studio and frontend must work
 
 ### Security Checks
 
@@ -377,36 +384,40 @@ This project uses a proven, tested combination of Node.js, Astro, and Sanity ver
 - Vercel runs builds on every push - if build fails, deployment is blocked
 - New code with serious vulnerabilities won't deploy (your live site keeps running the previous safe version)
 
-**Manual Dependency Updates (Quarterly):**
-Every 3 months (January, April, July, October), update dependencies manually:
+**Dependency Review Cadence:**
+Every 3 months (January, April, July, October), review dependency updates manually:
 ```bash
-# On staging branch
-cd frontend && npm update && npm run build
-cd ../studio && npm update && npm run build
+# 1. Inspect candidate updates
+npm outdated
+npm run --workspaces=false check-deps:root
 
-# Test locally
-npm run dev:frontend  # Terminal 1
-npm run dev:studio    # Terminal 2
-
-# If working, commit and push to staging
-git add -A && git commit -m "chore: Quarterly dependency update"
-git push origin staging
-
-# Test on testing.kammermusikkfest.no
-# Then create PR: staging → main
+# 2. Apply only the updates you intend to take
+# 3. Verify the project after every dependency change
+npm run build --workspace=frontend
+npm run test --workspace=studio -- --run
 ```
 
 **Manual Checks:**
-Before major releases or dependency updates:
+Before major releases or dependency updates, review:
 ```bash
 cd frontend && npm audit
 cd studio && npm audit
 ```
 
+Additional verification after dependency changes:
+
+- run the frontend locally
+- run the Studio locally
+- verify Visual Editing / Presentation
+- verify event publishing and custom document actions
+- verify Sanity type generation if schemas or Sanity packages changed
+- treat frontend tests as a useful signal, but not the sole dependency gate until the current baseline failures are fixed
+
 **Handling Issues:**
 - Serious issues must be fixed before merging
 - Minor issues should be evaluated for actual risk in our context
 - Some upstream dependencies may have unfixed issues - track and update when fixes are available
+- Do not rely on `npm audit fix` as an automatic maintenance strategy
 
 ### Server Management
 - **Use `/preparation`** to kill existing servers and start fresh (Studio on 3333, Frontend on 4321)
@@ -618,7 +629,7 @@ When you clone this repo fresh, or after pulling schema changes, regenerate gene
 
 ```bash
 # Install dependencies
-npm install --legacy-peer-deps
+npm install
 
 # Generate Sanity types
 cd studio && npm run extract-schema
@@ -658,7 +669,7 @@ Before every commit, verify:
 ✅ **Agent Verification**: ALWAYS check `.claude/agents/` directory for actual agent names before invoking (ignore system prompt agent names)
 ✅ **Agent Rules**: Read relevant files in `.claude/agents/` for specific agent guidance
 ✅ **MCP Usage**: Use MCP servers when they provide value over CLI
-✅ **Dependencies**: Keep stable, use Node.js 22.x LTS, npm --legacy-peer-deps
+✅ **Dependencies**: Keep stable, use Node.js 22.x LTS, upgrade intentionally
 ✅ **Simplicity First**: Working code > "better" code, simple > complex
 ✅ **Visual Editing**: Maintain compatibility, test after changes
 ✅ **Bilingual Support**: Norwegian default, English optional
@@ -778,7 +789,9 @@ Before every commit, verify:
 
 Content Agent is an AI assistant in Sanity Studio (requires v5+) that understands your schema and can perform bulk operations, content audits, web research, and content generation.
 
-**Access:** Available at dashboard.sanity.io for your project after Studio v5 upgrade.
+**Current Status in This Repo:** Not part of the current supported baseline. This repo is pinned to Sanity Studio `4.22.0`.
+
+**Access:** Available only after a future Studio v5+ migration is completed and verified in this project.
 
 **Pricing:** Consumption-based AI Credits (included with Growth/Enterprise plans, overages billed).
 
