@@ -1,0 +1,102 @@
+---
+const content = {
+  title: '404 - Page not found',
+  heading: 'Page not found',
+  message:
+    'Sorry, we cannot find the page you are looking for. The page may have been moved or deleted. Please check the URL or go back to the homepage.',
+  homeLink: 'Go to homepage',
+  programLink: 'See the program',
+  homeHref: '/en',
+  programHref: '/en/program',
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{content.title}</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f6f1;
+        --text: #111;
+        --muted: #525252;
+        --accent: #1b198f;
+        --accent-soft: #e5e6ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        font-family: system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        width: min(680px, 100%);
+        padding: 40px 32px;
+        background: #fff;
+        border: 1px solid rgba(17, 17, 17, 0.08);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(3rem, 8vw, 5rem);
+        line-height: 1;
+      }
+
+      h2 {
+        margin: 12px 0 0;
+        font-size: clamp(1.5rem, 4vw, 2.2rem);
+      }
+
+      p {
+        margin: 20px 0 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      a {
+        display: inline-block;
+        padding: 12px 16px;
+        text-decoration: none;
+        color: var(--text);
+        background: var(--accent-soft);
+      }
+
+      a:first-child {
+        color: #fff;
+        background: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>404</h1>
+      <h2>{content.heading}</h2>
+      <p>{content.message}</p>
+      <nav>
+        <a href={content.homeHref}>{content.homeLink}</a>
+        <a href={content.programHref}>{content.programLink}</a>
+      </nav>
+    </main>
+  </body>
+</html>

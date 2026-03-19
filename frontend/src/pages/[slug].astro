@@ -8,7 +8,7 @@ const dataService = createDataService(Astro.request);
 const page = await dataService.getPageBySlug(Astro.params.slug);
 
 if (!page) {
-  return Astro.redirect('/404');
+  return new Response(null, { status: 404 });
 }
 ---
 
