@@ -128,9 +128,14 @@ describe('Security Utilities', () => {
     })
 
     describe('validateDate', () => {
+      beforeEach(() => {
+        vi.useFakeTimers()
+        vi.setSystemTime(new Date('2026-03-19T12:00:00Z'))
+      })
+
       it('accepts valid dates', () => {
         expect(InputValidator.validateDate('2025-01-01')).toBe('2025-01-01')
-        expect(InputValidator.validateDate('2024-12-31')).toBe('2024-12-31')
+        expect(InputValidator.validateDate('2028-12-30')).toBe('2028-12-30')
       })
 
       it('rejects invalid date formats', () => {
@@ -142,14 +147,18 @@ describe('Security Utilities', () => {
 
       it('rejects dates outside reasonable range', () => {
         // Too far in the past
-        expect(InputValidator.validateDate('2020-01-01')).toBe(null)
+        expect(InputValidator.validateDate('2024-12-31')).toBe(null)
         // Too far in the future  
-        expect(InputValidator.validateDate('2030-01-01')).toBe(null)
+        expect(InputValidator.validateDate('2029-01-01')).toBe(null)
       })
 
       it('handles null and empty values', () => {
         expect(InputValidator.validateDate(null)).toBe(null)
         expect(InputValidator.validateDate('')).toBe(null)
+      })
+
+      afterEach(() => {
+        vi.useRealTimers()
       })
     })
 
@@ -172,17 +181,22 @@ describe('Security Utilities', () => {
 
   describe('getCORSHeaders', () => {
     beforeEach(() => {
-      vi.stubEnv('ALLOWED_ORIGINS', 'https://example.com,https://test.com')
+      vi.stubEnv('PUBLIC_SITE_URL', 'https://kammermusikkfest.no')
     })
 
     it('sets allowed origin for valid origins', () => {
-      const headers = getCORSHeaders('https://example.com') as Record<string, string>
-      expect(headers['Access-Control-Allow-Origin']).toBe('https://example.com')
+      const headers = getCORSHeaders('https://kammermusikkfest.no') as Record<string, string>
+      expect(headers['Access-Control-Allow-Origin']).toBe('https://kammermusikkfest.no')
+    })
+
+    it('allows the www variant for production domains', () => {
+      const headers = getCORSHeaders('https://www.kammermusikkfest.no') as Record<string, string>
+      expect(headers['Access-Control-Allow-Origin']).toBe('https://www.kammermusikkfest.no')
     })
 
     it('uses default origin for invalid origins', () => {
       const headers = getCORSHeaders('https://malicious.com') as Record<string, string>
-      expect(headers['Access-Control-Allow-Origin']).toBe('https://example.com')
+      expect(headers['Access-Control-Allow-Origin']).toBe('https://kammermusikkfest.no')
     })
 
     it('includes standard CORS headers', () => {
