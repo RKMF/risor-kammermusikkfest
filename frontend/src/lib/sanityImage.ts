@@ -10,7 +10,7 @@
  * - Multi-format picture element support
  */
 
-import imageUrlBuilder, { type SanityImageSource } from '@sanity/image-url'
+import { createImageUrlBuilder, type SanityImageSource } from '@sanity/image-url'
 import { sanityClient } from 'sanity:client'
 
 /**
@@ -125,7 +125,7 @@ export function getImageBuilder(source: SanityImageSource) {
     return null
   }
 
-  return imageUrlBuilder({ projectId, dataset }).image(actualSource)
+  return createImageUrlBuilder({ projectId, dataset }).image(actualSource)
 }
 
 /**
