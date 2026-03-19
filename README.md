@@ -64,6 +64,8 @@ Create `frontend/.env.local` from `.env.example` with your Sanity API token.
 | [MEDIA.md](docs/MEDIA.md) | Image/video handling |
 | [SECURITY.md](docs/SECURITY.md) | Pre-commit hooks |
 
+MCP targets and usage rules for this repo are documented in `docs/PROJECT_GUIDE.md` under `MCP Server Usage`. Repo-local Cursor/Codex MCP setup lives in `.cursor/mcp.json`, with repo scoping instructions in `.cursorrules`.
+
 ## Building
 
 ```bash
