@@ -30,7 +30,7 @@ npm run dev:frontend  # http://localhost:4321
 │   │   ├── scripts/   # Client-side JavaScript
 │   │   └── styles/    # CSS (self-documenting tokens)
 │   └── sanity/        # Generated types
-├── studio/            # Sanity Studio v3
+├── studio/            # Sanity Studio (current baseline pinned in package.json)
 │   └── schemaTypes/
 └── docs/              # Documentation
 ```
@@ -38,8 +38,16 @@ npm run dev:frontend  # http://localhost:4321
 ## Tech Stack
 
 - **Astro 5** - SSG/SSR with HTMX for interactivity
-- **Sanity Studio v3** - CMS with Visual Editing
+- **Sanity Studio** - CMS with Visual Editing
 - **TypeScript** - Type-safe development
+
+Current supported baseline:
+
+- `frontend`: Astro `5.16.6`
+- `studio`: Sanity `4.22.0`
+- Node.js: `22.x` LTS
+
+New Sanity major features are evaluated separately and adopted only after compatibility verification in this project.
 
 ## Configuration
 
