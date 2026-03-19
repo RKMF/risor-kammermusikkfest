@@ -6,17 +6,17 @@ import { createDataService } from '../../lib/sanity/dataService.js';
 import type { ArtistResult } from '../../lib/sanity/queries';
 
 const { slug } = Astro.params;
-if (!slug) return Astro.redirect('/404');
+if (!slug) return new Response(null, { status: 404 });
 
 const dataService = createDataService(Astro.request);
 let artist: ArtistResult | null = null;
 
 try {
   artist = await dataService.getArtistBySlug(slug);
-  if (!artist) return Astro.redirect('/404');
+  if (!artist) return new Response(null, { status: 404 });
 } catch (error) {
   console.error(`Error loading artist "${slug}":`, error);
-  return Astro.redirect('/404');
+  return new Response(null, { status: 404 });
 }
 ---
 
