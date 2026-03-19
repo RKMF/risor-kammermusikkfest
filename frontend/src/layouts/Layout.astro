@@ -76,6 +76,8 @@ const symbolLogo = menuData?.symbolLogo;
 // Fetch footer settings from Sanity
 const { query: footerQuery, params: footerParams } = QueryBuilder.siteSettingsFooter();
 const siteSettings = await sanityClient.fetch<SiteSettings>(footerQuery, footerParams);
+const faviconUrl = siteSettings?.favicon?.asset?.url || '/favicon.svg';
+const faviconMimeType = siteSettings?.favicon?.asset?.mimeType || 'image/svg+xml';
 
 // Check if Visual Editing should be enabled
 const visualEditingEnabled = import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ENABLED === 'true';
@@ -88,7 +90,9 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type={faviconMimeType} href={faviconUrl} />
+    <link rel="shortcut icon" href={faviconUrl} />
+    <link rel="apple-touch-icon" href={faviconUrl} />
     <meta name="generator" content={Astro.generator} />
 
     <!-- SEO Meta Tags, Open Graph, Twitter Cards -->
@@ -540,4 +544,3 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
     }
   }
 </style>
-

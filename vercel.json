@@ -5,6 +5,16 @@
   "outputDirectory": "dist",
   "redirects": [
     {
+      "source": "/favicon.ico",
+      "destination": "/apple-touch-icon.png",
+      "permanent": true
+    },
+    {
+      "source": "/apple-touch-icon-precomposed.png",
+      "destination": "/apple-touch-icon.png",
+      "permanent": true
+    },
+    {
       "source": "/kmfarkivet/:path*",
       "destination": "/program",
       "permanent": true
@@ -25,6 +35,16 @@
       "permanent": true
     },
     {
+      "source": "/konsertdato/:path*",
+      "destination": "/program",
+      "permanent": true
+    },
+    {
+      "source": "/utovere/:path*",
+      "destination": "/artister",
+      "permanent": true
+    },
+    {
       "source": "/en/kmfarkivet/:path*",
       "destination": "/en/program",
       "permanent": true
@@ -32,6 +52,11 @@
     {
       "source": "/en/konserter/:path*",
       "destination": "/en/program",
+      "permanent": true
+    },
+    {
+      "source": "/en/utovere/:path*",
+      "destination": "/en/artists",
       "permanent": true
     },
     {

@@ -831,6 +831,13 @@ const SITE_SETTINGS_FOOTER_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
     name,
     url
   },
+  favicon{
+    asset->{
+      _id,
+      url,
+      mimeType
+    }
+  },
   "symbolLogo": logos[name == "Symbol"][0]{
     name,
     "image": image{
