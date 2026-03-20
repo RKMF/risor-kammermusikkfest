@@ -8,6 +8,19 @@ import type { MiddlewareHandler } from 'astro';
  */
 
 const isDevelopment = import.meta.env.DEV;
+const isStagingSite = import.meta.env.PUBLIC_SITE_ENV === 'staging';
+const GONE_PATHS = new Set([
+  '/support',
+  '/hjelp',
+  '/bedrift',
+  '/firma',
+  '/stoette',
+  '/kundesenter',
+  '/kundeservice',
+  '/kunde-service',
+  '/kontakt-oss',
+  '/finn-oss',
+]);
 
 // Content Security Policy configuration
 function getCSPDirectives(): string {
@@ -47,6 +60,18 @@ function getCSPDirectives(): string {
 }
 
 export const onRequest: MiddlewareHandler = async (context, next) => {
+  const pathname = new URL(context.request.url).pathname.toLowerCase();
+
+  if (GONE_PATHS.has(pathname)) {
+    return new Response(null, {
+      status: 410,
+      headers: {
+        'Cache-Control': 'public, max-age=3600',
+        'X-Robots-Tag': 'noindex, nofollow',
+      },
+    });
+  }
+
   const response = await next();
 
   // Clone response to modify headers
@@ -71,6 +96,9 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
   }
   if (!modifiedResponse.headers.has('Permissions-Policy')) {
     modifiedResponse.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  }
+  if (isStagingSite) {
+    modifiedResponse.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
   }
 
   return modifiedResponse;
