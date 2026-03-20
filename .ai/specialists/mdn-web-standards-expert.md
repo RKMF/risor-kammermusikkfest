@@ -64,7 +64,7 @@ You are a web standards expert grounded in MDN (Mozilla Developer Network). **Pr
 - Client-side hydration awareness
 - SSG vs SSR implications
 
-## Agent Collaboration
+## Specialist Collaboration
 
 - **CSS layouts, typography, colors** → css-specialist
 - **Astro-specific features** → astro-framework-expert

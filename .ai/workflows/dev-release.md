@@ -29,8 +29,7 @@ git diff --name-only staging | grep "^studio/schemaTypes/"
 
 If schema files changed, run typegen before proceeding:
 ```bash
-cd studio && npm run extract-schema
-cd ../frontend && npm run typegen
+npm run typegen
 git add frontend/sanity/sanity.types.ts
 git commit -m "chore: Regenerate Sanity types"
 ```

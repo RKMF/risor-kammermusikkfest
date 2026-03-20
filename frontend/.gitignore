@@ -45,7 +45,6 @@ pnpm-debug.log*
 # Sanity Generated Types (Regenerate with npm run typegen)
 # ============================================
 sanity/extract.json
-sanity/sanity.types.ts
 
 # ============================================
 # Deployment Artifacts

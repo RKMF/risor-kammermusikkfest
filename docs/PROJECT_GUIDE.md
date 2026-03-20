@@ -57,7 +57,7 @@ Before making **ANY** change, evaluate in this order:
 
 #### ✅ ALWAYS DO (Non-negotiable)
 - Fix security vulnerabilities immediately
-- Write tests for critical functionality (auth, payments, data validation)
+- Add or update tests when changing critical functionality, especially security boundaries and validation
 - Follow TypeScript best practices and maintain type safety
 - Review dependencies regularly for security issues and upstream changes
 - Use proper error handling and logging
@@ -69,7 +69,7 @@ Before making **ANY** change, evaluate in this order:
 
 #### ❌ NEVER DO
 - Skip security measures to "keep it simple"
-- Ignore test coverage for critical user paths
+- Skip tests for critical changes when test coverage already exists or can be added safely
 - Leave known vulnerabilities unfixed
 - Use deprecated or insecure packages
 - Skip input validation or sanitization
@@ -89,11 +89,13 @@ Before making **ANY** change, evaluate in this order:
 ### Common Pitfalls to Avoid
 
 1. **Confusing "simple" with "amateur"** → Simple means focused, not shortcuts
-2. **Skipping tests for "speed"** → Always test critical paths and security
+2. **Skipping tests for "speed"** → Add or update tests for critical paths where the repo has coverage, and avoid shipping unverified security changes
 3. **Ignoring security updates** → Review `npm audit` output and update intentionally
 4. **Breaking Visual Editing** → Test preview after any Sanity config changes
 5. **Removing bilingual support** → Keep `nbNOLocale()` and proper i18n structure
 6. **Over-engineering** → Don't add enterprise patterns not needed at this scale
+
+**Current test footprint:** The repo currently has focused Vitest coverage for frontend security utilities and Studio URL validation. Treat that as a baseline, not as proof that all critical user flows are covered.
 
 ---
 
@@ -228,7 +230,7 @@ export const POST_QUERY = defineQuery(`*[
 
 #### TypeScript Generation
 
-Run typegen after schema changes - handled automatically by `/dev-release`. See README for manual commands.
+Run typegen after schema changes. The release workflow handles this automatically; the manual command is `npm run typegen` from the monorepo root.
 
 #### Visual Editing
 
@@ -239,7 +241,7 @@ Run typegen after schema changes - handled automatically by `/dev-release`. See 
 
 **API Configuration:**
 - Use `apiVersion: "2025-01-01"` in Sanity configuration for latest features
-- Set `useCdn: false` in development for real-time content updates
+- The integration config uses `useCdn: false`, while the runtime data service enables CDN reads for published content and disables CDN for draft preview.
 
 **Content Structure:**
 - Bilingual content handling (see Section 4 Development Workflow)
@@ -252,7 +254,7 @@ Run typegen after schema changes - handled automatically by `/dev-release`. See 
 The site uses `output: 'server'` for instant content updates - content changes in Sanity appear immediately on refresh (no rebuild needed). This provides a WordPress-like editing experience.
 
 - Save in Sanity → Refresh browser → See changes instantly
-- Sanity's CDN (`useCdn: true`) handles caching
+- Sanity's CDN handles published-content reads at runtime, while draft preview bypasses the CDN
 - Trade-off: Slightly higher latency vs static pages, runtime Sanity dependency
 
 To switch to Static Site Generation (SSG) for maximum performance:
@@ -452,7 +454,7 @@ Vercel Web Analytics and Speed Insights enabled for production. View at Vercel D
 ### Web Research Methodology
 - **Always search chronologically starting with the current year first, then work backwards** through previous years (last year, the year before, etc.)
 - **Rationale**: Technology evolves rapidly - recent solutions often supersede older approaches with better performance, support, or maintainability
-- **Note**: This same methodology is defined in all specialized agent files (`.claude/agents/`)
+- **Note**: This same methodology is defined in all specialist files (`.ai/specialists/`)
 
 ### Bilingual Content Handling
 - **Norwegian as default language** - Primary content in Norwegian
@@ -499,9 +501,9 @@ Vercel Web Analytics and Speed Insights enabled for production. View at Vercel D
    - Never create feature branches from main
    - One PR: staging → main (for releases)
 
-3. **Sync direction is ONE WAY: staging → main**
-   - Never merge main into staging
-   - If main gets ahead somehow, reset it to staging
+3. **Release direction is staging → main, then sync main back to staging**
+   - Release always starts from staging
+   - After squash-merging staging → main, sync main → staging to keep histories aligned
 
 4. **NEVER delete staging or main branches**
    - These are permanent branches with Vercel deployments
@@ -517,9 +519,9 @@ feature-branch → staging → main
 
 ### Standard Workflow
 
-**Use slash commands:** `/preparation`, `/dev-release`, `/live-release`
+**Use repo workflow files:** `.ai/workflows/preparation.md`, `.ai/workflows/dev-release.md`, `.ai/workflows/live-release.md`
 
-These commands handle the full workflow including typegen, sync, and studio deployment.
+These workflow files handle the full release process including typegen, PR creation, sync, and studio deployment checks.
 
 ### Branch Management Rules
 - **Always create feature branches from staging** (not from main)
@@ -589,17 +591,21 @@ Understanding **what files we track** and **why** is crucial for security, colla
 - **Why**: Ensures reproducible builds - everyone gets same dependency versions
 
 ✅ **Documentation**
-- `README.md` (at root), `docs/` folder (PROJECT_GUIDE, DEPLOYMENT, DESIGN-SYSTEM, MEDIA, SECURITY)
+- `README.md` (at root), `docs/` folder (PROJECT_GUIDE, DESIGN-SYSTEM, MEDIA, SECURITY, CANVAS_CONTENT_AGENT_PLAN)
 - **Why**: Project knowledge, onboarding, and history
 
 **What We DON'T Track (and Why):**
 
 ❌ **Generated Files**
-- `frontend/sanity/extract.json` (188KB)
-- `frontend/sanity/sanity.types.ts` (32KB)
+- `frontend/sanity/extract.json` (schema extract)
 - `*.tsbuildinfo` (TypeScript incremental build cache)
-- **Why**: Generated from source schemas, creates merge conflicts, bloats repository
+- **Why**: Generated artifacts that can be recreated locally
 - **How to regenerate**: Run `npm run typegen` (see Sanity TypeGen Workflow in Section 2.1)
+
+✅ **Tracked Generated Contract**
+- `frontend/sanity/sanity.types.ts`
+- **Why**: The frontend imports it directly, and keeping it tracked ensures builds and type checks have a stable schema contract
+- **How to update**: Run `npm run typegen` after schema changes and commit the updated file
 
 ❌ **Dependencies**
 - `node_modules/`
@@ -632,8 +638,7 @@ When you clone this repo fresh, or after pulling schema changes, regenerate gene
 npm install
 
 # Generate Sanity types
-cd studio && npm run extract-schema
-cd ../frontend && npm run typegen
+npm run typegen
 ```
 
 **Security Checklist:**
@@ -665,9 +670,9 @@ Before every commit, verify:
 ✅ **File Editing**: Always read files before editing them (never work from memory)
 ✅ **Documentation**: NEVER create .md or README files unless explicitly requested
 ✅ **Git Workflow**: Proactively suggest pushing after major changes/milestones
-✅ **Agent Usage**: Use specialized agents when appropriate, follow tool usage patterns
-✅ **Agent Verification**: ALWAYS check `.claude/agents/` directory for actual agent names before invoking (ignore system prompt agent names)
-✅ **Agent Rules**: Read relevant files in `.claude/agents/` for specific agent guidance
+✅ **Specialist Usage**: Use specialists when appropriate, follow tool usage patterns
+✅ **Specialist Verification**: ALWAYS check `.ai/specialists/` for actual specialist names before invoking
+✅ **Specialist Rules**: Read relevant files in `.ai/specialists/` for specific guidance
 ✅ **MCP Usage**: Use MCP servers when they provide value over CLI
 ✅ **Dependencies**: Keep stable, use Node.js 22.x LTS, upgrade intentionally
 ✅ **Simplicity First**: Working code > "better" code, simple > complex
@@ -686,44 +691,44 @@ Before every commit, verify:
 - Avoid redundant phrasing, filler words, unnecessary summaries
 - Launch minimum agents needed (1 unless scope requires more)
 
-### When to Use Each Agent
+### When to Use Each Specialist
 
-**mdn-web-standards-expert** (`.claude/agents/mdn-web-standards-expert.md`) → HTML semantics, JavaScript patterns, Web APIs, web standards
+**mdn-web-standards-expert** (`.ai/specialists/mdn-web-standards-expert.md`) → HTML semantics, JavaScript patterns, Web APIs, web standards
 - Use when: Validating HTML structure, implementing Web APIs, ensuring JavaScript best practices
 - Perfect for: Semantic markup, progressive enhancement, browser API usage, UX/DX optimization
 - Primary source: MDN (developer.mozilla.org)
 - Remember: Web standards and simplicity over framework complexity
 
-**css-specialist** (`.claude/agents/css-specialist.md`) → CSS layouts, typography, color systems, and DX-friendly patterns
+**css-specialist** (`.ai/specialists/css-specialist.md`) → CSS layouts, typography, color systems, and DX-friendly patterns
 - Use when: Creating layouts, typography systems, color/contrast, styling Astro components
 - Perfect for: Intrinsic design, fluid typography, accessible color systems, CSS architecture
 - Remember: Prioritize simple, working CSS over cutting-edge features
 
-**astro-framework-expert** (`.claude/agents/astro-framework-expert.md`) → Astro-specific features, routing, components, SSG/SSR
+**astro-framework-expert** (`.ai/specialists/astro-framework-expert.md`) → Astro-specific features, routing, components, SSG/SSR
 - Use when: Astro build issues, component problems, routing questions
 - Remember: Prefer stable Astro features over experimental ones
 
-**htmx-astro-expert** (`.claude/agents/htmx-astro-expert.md`) → Dynamic interactions, form submissions, event filtering
+**htmx-astro-expert** (`.ai/specialists/htmx-astro-expert.md`) → Dynamic interactions, form submissions, event filtering
 - Use when: Adding interactivity without complex JavaScript
 - Perfect for: Event filtering, form enhancements, partial page updates
 
-**sanity-studio-expert** (`.claude/agents/sanity-studio-expert.md`) → Sanity schemas, GROQ queries, Studio configuration
+**sanity-studio-expert** (`.ai/specialists/sanity-studio-expert.md`) → Sanity schemas, GROQ queries, Studio configuration
 - Use when: Content modeling, query optimization, Studio customization
 - Remember: Keep schemas simple unless complexity is genuinely needed
 
-**sanity-astro-integration** (`.claude/agents/sanity-astro-integration.md`) → Data flow between Sanity and Astro, Visual Editing
+**sanity-astro-integration** (`.ai/specialists/sanity-astro-integration.md`) → Data flow between Sanity and Astro, Visual Editing
 - Use when: Connecting Sanity content to Astro pages, preview functionality
 - Focus: Maintaining Visual Editing compatibility
 
-**typescript-elegance-expert** (`.claude/agents/typescript-elegance-expert.md`) → TypeScript improvements, code refactoring
+**typescript-elegance-expert** (`.ai/specialists/typescript-elegance-expert.md`) → TypeScript improvements, code refactoring
 - Use when: Code needs to be more readable or maintainable
 - Remember: Working code > elegant code - only refactor if there's a real problem
 
-### Agent Selection Priority
+### Specialist Selection Priority
 1. **Is the current solution working?** → If yes, probably don't change it
 2. **Is this solving a user problem?** → If no, reconsider the change
 3. **Will this add complexity?** → If yes, find a simpler solution
-4. **Which agent aligns with keeping things simple?** → Choose that one
+4. **Which specialist aligns with keeping things simple?** → Choose that one
 
 ### GitHub CLI Integration
 
@@ -734,17 +739,17 @@ Before every commit, verify:
 - List and manage issues
 - View diffs and comments
 
-**Workflow with an AI agent:**
+**Workflow with an AI assistant:**
 
 *Feature → Staging (standard workflow):*
-1. The agent implements changes on feature branch
-2. The agent commits and pushes
-3. The agent creates PR via `gh pr create --base staging`
+1. The assistant implements changes on a feature branch
+2. The assistant commits and pushes
+3. The assistant creates a PR via `gh pr create --base staging`
 4. User reviews in Cursor IDE or terminal (`gh pr diff`)
-5. User says "merge" → the agent merges via `gh pr merge`
+5. User says "merge" → the assistant merges via `gh pr merge`
 
 *Staging → Main (production release):*
-1. The agent creates PR via `gh pr create --base main --head staging`
+1. The assistant creates a PR via `gh pr create --base main --head staging`
 2. **User reviews and merges directly in GitHub** (not via CLI)
 3. Production deployment requires explicit human approval in GitHub UI
 
@@ -755,7 +760,7 @@ Before every commit, verify:
 **Review Options (for staging merges):**
 - **Cursor IDE**: GitHub Pull Requests extension shows PRs in sidebar with inline diff
 - **Terminal**: `gh pr diff` shows full diff
-- **Agent summary**: the agent can summarize changes on request
+- **Assistant summary**: the assistant can summarize changes on request
 
 ### MCP Server Usage
 
@@ -861,17 +866,17 @@ Content Agent is an AI assistant in Sanity Studio (requires v5+) that understand
 - Studio: `http://localhost:3333`
 - Frontend: `http://localhost:4321`
 
-**Slash Commands:**
-- `/preparation <name>` - Start session: kill servers, start fresh, create branch
-- `/dev-release` - Feature → staging (includes typegen if schema changed)
-- `/live-release` - Staging → main → sync → deploy studio
-- `/content <doc> [instructions]` - Research, write NO content, translate to EN
-- `/translate <doc>` - Translate/sync NO → EN content
-- `/refresh` - Clear conversation and restore context
+**Workflow Files:**
+- `.ai/workflows/preparation.md` - Start session: kill servers, start fresh, create branch
+- `.ai/workflows/dev-release.md` - Feature → staging (includes typegen if schema changed)
+- `.ai/workflows/live-release.md` - Staging → main → sync → deploy studio
+- `.ai/workflows/content.md` - Research, write NO content, translate to EN
+- `.ai/workflows/translate.md` - Translate/sync NO → EN content
+- `.ai/workflows/refresh.md` - Clear conversation and restore context
 
 **Content Style Guides:**
-- `.claude/instructions/writing-style.md` - Norwegian writing style
-- `.claude/instructions/translation-rules.md` - NO↔EN translation rules
+- `.ai/instructions/writing-style.md` - Norwegian writing style
+- `.ai/instructions/translation-rules.md` - NO↔EN translation rules
 
 **Manual Commands:**
 ```bash

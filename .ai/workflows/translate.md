@@ -74,7 +74,7 @@ If EN is missing structural elements that NO has:
 
 ## Step 4: Apply Translation Rules
 
-**Reference:** `.claude/instructions/translation-rules.md` for all conventions.
+**Reference:** `.ai/instructions/translation-rules.md` for all conventions.
 
 **Key areas to check:**
 - Punctuation (quotes, dashes, apostrophes)
@@ -86,7 +86,7 @@ If EN is missing structural elements that NO has:
 
 ## Step 5: Translate with Style
 
-**Reference:** `.claude/instructions/writing-style.md` for tone and patterns.
+**Reference:** `.ai/instructions/writing-style.md` for tone and patterns.
 
 **Translation goals:**
 - Match Norwegian tone (warm, playful, personal)
