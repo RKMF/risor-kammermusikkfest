@@ -568,6 +568,7 @@ These workflow files handle the full release process including typegen, PR creat
 
 - Frontend: Automatic preview URLs for all branches
 - Studio: No preview - test locally, auto-deploys when `studio/` files change on main
+- GitHub Actions: Third-party actions are pinned to full SHAs and reviewed manually when workflow or runtime changes are made
 - Manual studio deploy (emergency): `cd studio && npm run deploy`
 
 ### Git Tracking Best Practices
