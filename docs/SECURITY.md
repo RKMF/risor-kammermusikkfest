@@ -97,7 +97,8 @@ This bypasses ALL security checks. Use sparingly.
 | Risk | Mitigation |
 |------|------------|
 | **Overprivileged `GITHUB_TOKEN`** | Every workflow declares an explicit `permissions` block scoped to the minimum needed (e.g., `contents: read`). This prevents a compromised step from writing to the repo, creating releases, or accessing other scopes. |
-| **Mutable action tags** | Third-party actions are pinned to full commit SHAs instead of version tags (e.g., `actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744` rather than `@v4`). Tags can be moved after the fact; SHAs cannot. A comment after the SHA notes the version for readability. |
+| **Mutable action tags** | Third-party actions are pinned to full commit SHAs instead of version tags (e.g., `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` rather than `@v6`). Tags can be moved after the fact; SHAs cannot. Version comments are optional and must only be kept when they have been verified against the exact pinned commit. |
+| **Unsafe dependency installation in privileged workflows** | Workflows that use deploy secrets install dependencies from the lockfile with `npm ci` and disable automatic package-manager caching in `actions/setup-node`. This keeps installs deterministic and avoids unnecessary cache behavior in privileged jobs. |
 | **Secrets in workflow files** | Deploy credentials (`SANITY_AUTH_TOKEN`, `SANITY_STUDIO_PROJECT_ID`, etc.) are stored as encrypted GitHub repository secrets and injected via `${{ secrets.* }}`. They never appear in workflow YAML or logs. |
 
 ### Workflow: Deploy Sanity Studio
@@ -107,6 +108,8 @@ File: `.github/workflows/deploy.yml`
 - **Trigger:** Pushes to `main` that change files under `studio/`
 - **Permissions:** `contents: read` (checkout only; deploy uses a separate `SANITY_AUTH_TOKEN`)
 - **Actions pinned to SHA:** `actions/checkout`, `actions/setup-node`
+- **Install strategy:** Uses `npm ci` from the workspace root and builds/deploys the `studio` workspace only
+- **Maintenance:** Action SHAs are updated manually during workflow/security review or when the workflow runtime changes. This repo does not rely on Dependabot for action pin updates.
 
 ---
 
