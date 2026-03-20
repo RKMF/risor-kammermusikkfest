@@ -2,13 +2,13 @@ Expert help needed for: $ARGUMENTS
 
 **Mode:** Works entirely in plan mode. Exit only if implementing recommendations.
 
-## Step 1: Confirm Agent
+## Step 1: Confirm Specialist
 
 Identify the domain and ask ONE brief confirmation question:
 
-"Is this about [topic]? Use [agent]?"
+"Is this about [topic]? Use [specialist]?"
 
-| Domain | Agent |
+| Domain | Specialist |
 |--------|-------|
 | CSS, styling, layout, typography, colors | css-specialist |
 | HTML semantics, accessibility, web APIs, vanilla JS | mdn-web-standards-expert |
@@ -18,6 +18,6 @@ Identify the domain and ask ONE brief confirmation question:
 | Sanity + Astro integration, data fetching, Visual Editing | sanity-astro-integration |
 | TypeScript, type safety, code elegance | typescript-elegance-expert |
 
-## Step 2: Apply Agent Expertise
+## Step 2: Apply Specialist Expertise
 
-Once confirmed, read `.claude/agents/[selected-agent].md` and apply that agent's expertise to help with: $ARGUMENTS
+Once confirmed, read `.ai/specialists/[selected-specialist].md` and apply that specialist's expertise to help with: $ARGUMENTS

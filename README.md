@@ -11,8 +11,7 @@ Bilingual (Norwegian/English) festival website built with Astro and Sanity CMS.
 npm install
 
 # Generate Sanity types (required after clone)
-cd studio && npm run extract-schema
-cd ../frontend && npm run typegen
+npm run typegen
 
 # Start development servers (in separate terminals)
 npm run dev:studio    # http://localhost:3333
@@ -53,7 +52,7 @@ New Sanity major features are evaluated separately and adopted only after compat
 
 Project ID: `dnk98dp0` | Dataset: `production`
 
-Create `frontend/.env.local` from `.env.example` with your Sanity API token.
+Create `frontend/.env.local` from `frontend/.env.example` and fill in the required values.
 
 ## Documentation
 

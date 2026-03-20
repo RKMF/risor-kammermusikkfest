@@ -1,4 +1,4 @@
-# Sanity Agent Toolkit Rules
+# Sanity Toolkit Rules
 
 The Sanity MCP server provides 20+ best-practice rules that complement this project's custom agents. These rules contain specific, actionable patterns for writing Sanity code.
 
