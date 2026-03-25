@@ -11,6 +11,7 @@ const isDevelopment = import.meta.env.DEV;
 const CACHE_DURATION = {
   homepage: 0,
   page: 0,
+  slugIndex: 60,
   events: 0,
   articles: 0,
   artists: 0,
@@ -74,7 +75,8 @@ export class SanityDataService {
     options: QueryOptions = {},
     cacheKey?: string,
     cacheDuration?: number,
-    transformMultilingual: boolean = true
+    transformMultilingual: boolean = true,
+    bypassCache: boolean = false
   ): Promise<T> {
     const mergedOptions = { ...this.defaultOptions, ...options };
     const queryParams = buildQueryParams(mergedOptions);
@@ -84,10 +86,12 @@ export class SanityDataService {
     const finalCacheKey = cacheKey || getCacheKey(query, { ...params, ...queryParams, lang: this.language });
 
     // Check cache first
-    const cached = getFromCache(finalCacheKey);
-    if (cached) {
-      if (isDevelopment) console.log('[DataService] Returning cached result for:', finalCacheKey);
-      return cached;
+    if (!bypassCache) {
+      const cached = getFromCache(finalCacheKey);
+      if (cached !== null) {
+        if (isDevelopment) console.log('[DataService] Returning cached result for:', finalCacheKey);
+        return cached;
+      }
     }
 
     // Fetch from Sanity with error handling
@@ -114,6 +118,49 @@ export class SanityDataService {
     setCache(finalCacheKey, transformedData, duration);
 
     return transformedData;
+  }
+
+  private getSlugIndexCacheKey(kind: string, options: QueryOptions = {}): string {
+    const mergedOptions = { ...this.defaultOptions, ...options };
+    return `slug-index:${kind}:${this.language}:${mergedOptions.perspective ?? 'published'}`
+  }
+
+  private async getSlugIndex(
+    kind: 'page' | 'article' | 'artist' | 'event',
+    options: QueryOptions = {},
+    bypassCache: boolean = false
+  ): Promise<Set<string>> {
+    const definition = {
+      page: QueryBuilder.pageSlugs(this.language),
+      article: QueryBuilder.articleSlugs(this.language),
+      artist: QueryBuilder.artistSlugs(),
+      event: QueryBuilder.eventSlugs(this.language),
+    }[kind]
+
+    const slugs = await this.fetch(
+      definition,
+      options,
+      this.getSlugIndexCacheKey(kind, options),
+      CACHE_DURATION.slugIndex,
+      false,
+      bypassCache
+    )
+
+    return new Set((slugs as string[]).filter((slug): slug is string => typeof slug === 'string' && slug.length > 0))
+  }
+
+  private async hasKnownSlug(
+    kind: 'page' | 'article' | 'artist' | 'event',
+    slug: string,
+    options: QueryOptions = {}
+  ): Promise<boolean> {
+    const cachedSlugs = await this.getSlugIndex(kind, options)
+    if (cachedSlugs.has(slug)) {
+      return true
+    }
+
+    const refreshedSlugs = await this.getSlugIndex(kind, options, true)
+    return refreshedSlugs.has(slug)
   }
 
   // Transform data to include language-aware fields
@@ -145,6 +192,10 @@ export class SanityDataService {
     );
     if (isDevelopment) console.log('[DataService.getPageBySlug] Result:', result ? 'Found' : 'NULL');
     return result;
+  }
+
+  async hasPageSlug(slug: string, options: QueryOptions = {}) {
+    return this.hasKnownSlug('page', slug, options)
   }
 
   async getProgramPage(options: QueryOptions = {}) {
@@ -196,6 +247,10 @@ export class SanityDataService {
     return result;
   }
 
+  async hasArticleSlug(slug: string, options: QueryOptions = {}) {
+    return this.hasKnownSlug('article', slug, options)
+  }
+
   async getPublishedArticles(options: QueryOptions = {}) {
     return this.fetch(
       QueryBuilder.publishedArticles(),
@@ -215,6 +270,10 @@ export class SanityDataService {
     );
   }
 
+  async hasArtistSlug(slug: string, options: QueryOptions = {}) {
+    return this.hasKnownSlug('artist', slug, options)
+  }
+
   // Event methods
   async getEventBySlug(slug: string, options: QueryOptions = {}) {
     if (isDevelopment) console.log('[DataService] Fetching event with slug:', slug, 'language:', this.language);
@@ -226,6 +285,10 @@ export class SanityDataService {
     );
     if (isDevelopment) console.log('[DataService] Event query result:', result ? 'Found' : 'Not found');
     return result;
+  }
+
+  async hasEventSlug(slug: string, options: QueryOptions = {}) {
+    return this.hasKnownSlug('event', slug, options)
   }
 
   // Slug generation for static paths

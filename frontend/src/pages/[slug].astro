@@ -3,9 +3,26 @@ export const prerender = false;
 
 import ContentPageLayout from '../layouts/ContentPageLayout.astro';
 import { createDataService } from '../lib/sanity/dataService.js';
+import { InputValidator } from '../lib/security.js';
+
+const slug = InputValidator.validateSlug(Astro.params.slug ?? null);
+if (!slug) {
+  return new Response(null, { status: 404 });
+}
 
 const dataService = createDataService(Astro.request);
-const page = await dataService.getPageBySlug(Astro.params.slug);
+let page = null;
+
+try {
+  const hasPageSlug = await dataService.hasPageSlug(slug);
+  if (!hasPageSlug) {
+    return new Response(null, { status: 404 });
+  }
+
+  page = await dataService.getPageBySlug(slug);
+} catch (error) {
+  console.error(`Error loading page "${slug}":`, error);
+}
 
 if (!page) {
   return new Response(null, { status: 404 });

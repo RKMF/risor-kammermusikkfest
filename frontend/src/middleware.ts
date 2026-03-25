@@ -9,6 +9,8 @@ import type { MiddlewareHandler } from 'astro';
 
 const isDevelopment = import.meta.env.DEV;
 const isStagingSite = import.meta.env.PUBLIC_SITE_ENV === 'staging';
+const PROBE_PATH_PREFIXES = ['/wp-admin', '/vendor', '/cgi-bin'] as const;
+const PROBE_PATH_EXACT = new Set(['/wp-login.php', '/xmlrpc.php', '/.env']);
 const GONE_PATHS = new Set([
   '/support',
   '/hjelp',
@@ -21,6 +23,45 @@ const GONE_PATHS = new Set([
   '/kontakt-oss',
   '/finn-oss',
 ]);
+const MISS_CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=300';
+const DYNAMIC_DETAIL_ROUTE_PATTERNS = [
+  /^\/[a-z0-9-]+$/,
+  /^\/en\/[a-z0-9-]+$/,
+  /^\/artikler\/[a-z0-9-]+$/,
+  /^\/artister\/[a-z0-9-]+$/,
+  /^\/program\/[a-z0-9-]+$/,
+  /^\/en\/articles\/[a-z0-9-]+$/,
+  /^\/en\/artists\/[a-z0-9-]+$/,
+  /^\/en\/program\/[a-z0-9-]+$/,
+];
+
+export function isDynamicDetailRoutePath(pathname: string): boolean {
+  return DYNAMIC_DETAIL_ROUTE_PATTERNS.some((pattern) => pattern.test(pathname));
+}
+
+export function buildMissHeaders(): HeadersInit {
+  return {
+    'Cache-Control': MISS_CACHE_CONTROL,
+    'X-Robots-Tag': 'noindex, nofollow',
+  };
+}
+
+export function getEarlyResponseStatus(pathname: string): 404 | 410 | null {
+  if (GONE_PATHS.has(pathname)) {
+    return 410;
+  }
+
+  if (
+    PROBE_PATH_EXACT.has(pathname) ||
+    pathname.startsWith('/.env.') ||
+    pathname.endsWith('.php') ||
+    PROBE_PATH_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
+  ) {
+    return 404;
+  }
+
+  return null;
+}
 
 // Content Security Policy configuration
 function getCSPDirectives(): string {
@@ -61,14 +102,12 @@ function getCSPDirectives(): string {
 
 export const onRequest: MiddlewareHandler = async (context, next) => {
   const pathname = new URL(context.request.url).pathname.toLowerCase();
+  const earlyResponseStatus = getEarlyResponseStatus(pathname);
 
-  if (GONE_PATHS.has(pathname)) {
+  if (earlyResponseStatus) {
     return new Response(null, {
-      status: 410,
-      headers: {
-        'Cache-Control': 'public, max-age=3600',
-        'X-Robots-Tag': 'noindex, nofollow',
-      },
+      status: earlyResponseStatus,
+      headers: buildMissHeaders(),
     });
   }
 
@@ -99,6 +138,12 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
   }
   if (isStagingSite) {
     modifiedResponse.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+  }
+  if ((modifiedResponse.status === 404 || modifiedResponse.status === 410) && isDynamicDetailRoutePath(pathname)) {
+    modifiedResponse.headers.set('Cache-Control', MISS_CACHE_CONTROL);
+    if (!modifiedResponse.headers.has('X-Robots-Tag')) {
+      modifiedResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    }
   }
 
   return modifiedResponse;
