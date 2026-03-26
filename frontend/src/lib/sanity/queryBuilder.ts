@@ -518,6 +518,13 @@ const buildSlugProjection = (language: Language = 'no'): string => {
   return `"slug": coalesce(slug_no.current, slug_en.current, slug.current)`
 }
 
+const buildSlugFieldSelection = (language: Language = 'no'): string => {
+  if (language === 'en') {
+    return 'coalesce(slug_en.current, slug_no.current, slug.current)'
+  }
+  return 'coalesce(slug_no.current, slug_en.current, slug.current)'
+}
+
 // Queries
 const HOMEPAGE_QUERY = defineQuery(`*[_type == "homepage" && (
   homePageType == "default" ||
@@ -587,6 +594,10 @@ const buildPageBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type
   },
   seo
 }`)
+
+const buildPageSlugsQuery = (language: Language = 'no') => defineQuery(`*[_type == "page" && defined(${buildSlugFieldSelection(language)}) && ${LISTING_FILTER}]{
+  "slug": ${buildSlugFieldSelection(language)}
+}.slug`)
 
 // Language-aware query builders for listing pages
 const buildProgramPageQuery = (language: Language = 'no') => defineQuery(`*[_type == "programPage" && ${LISTING_FILTER}][0]{
@@ -703,6 +714,10 @@ const buildEventBySlugQuery = (language: Language = 'no') => defineQuery(`*[_typ
   ${buildEventBaseFields(language)}
 }`)
 
+const buildEventSlugsQuery = (language: Language = 'no') => defineQuery(`*[_type == "event" && defined(${buildSlugFieldSelection(language)}) && ${LISTING_FILTER}]{
+  "slug": ${buildSlugFieldSelection(language)}
+}.slug`)
+
 const buildArtistBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "artist" && slug.current == $slug && ${LISTING_FILTER}][0]{
   ${buildArtistBaseFields(language)},
   instagram,
@@ -721,9 +736,17 @@ const buildArtistBySlugQuery = (language: Language = 'no') => defineQuery(`*[_ty
   }
 }`)
 
+const buildArtistSlugsQuery = defineQuery(`*[_type == "artist" && defined(slug.current) && ${LISTING_FILTER}]{
+  "slug": slug.current
+}.slug`)
+
 const buildArticleBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type == "article" && ${buildSlugMatch(language)} && ${LISTING_FILTER}][0]{
   ${buildArticleBaseFields(language)}
 }`)
+
+const buildArticleSlugsQuery = (language: Language = 'no') => defineQuery(`*[_type == "article" && defined(${buildSlugFieldSelection(language)}) && ${LISTING_FILTER}]{
+  "slug": ${buildSlugFieldSelection(language)}
+}.slug`)
 
 const buildPublishedArticlesQuery = (language: Language = 'no') => defineQuery(`*[_type == "article" && ${LISTING_FILTER}] | order(publishedAt desc){
   ${buildArticleBaseFields(language)}
@@ -887,6 +910,9 @@ export const QueryBuilder = {
   pageBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
     return {query: buildPageBySlugQuery(language), params: {slug}}
   },
+  pageSlugs(language: Language = 'no'): QueryDefinition<string[]> {
+    return {query: buildPageSlugsQuery(language), params: {}}
+  },
   /** Fetch program listing page with selected events */
   programPage(language: Language = 'no'): QueryDefinition<EventResult[]> {
     return {query: buildProgramPageQuery(language), params: {}}
@@ -907,13 +933,22 @@ export const QueryBuilder = {
   eventBySlug(slug: string, language: Language = 'no'): QueryDefinition<EventResult, {slug: string}> {
     return {query: buildEventBySlugQuery(language), params: {slug}}
   },
+  eventSlugs(language: Language = 'no'): QueryDefinition<string[]> {
+    return {query: buildEventSlugsQuery(language), params: {}}
+  },
   /** Fetch a single artist by their slug, including their events */
   artistBySlug(slug: string, language: Language = 'no'): QueryDefinition<ArtistResult, {slug: string}> {
     return {query: buildArtistBySlugQuery(language), params: {slug}}
   },
+  artistSlugs(): QueryDefinition<string[]> {
+    return {query: buildArtistSlugsQuery, params: {}}
+  },
   /** Fetch a single article by its slug */
   articleBySlug(slug: string, language: Language = 'no'): QueryDefinition<ArticleResult, {slug: string}> {
     return {query: buildArticleBySlugQuery(language), params: {slug}}
+  },
+  articleSlugs(language: Language = 'no'): QueryDefinition<string[]> {
+    return {query: buildArticleSlugsQuery(language), params: {}}
   },
   /** Fetch all published articles ordered by date */
   publishedArticles(language: Language = 'no'): QueryDefinition<ArticleResult[]> {

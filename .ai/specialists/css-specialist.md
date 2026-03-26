@@ -81,7 +81,7 @@ Reference: [What progressive enhancement actually is](https://piccalil.li/blog/i
 
 Use logical properties, organize by category, include brief comments for non-obvious techniques.
 
-## Agent Collaboration
+## Specialist Collaboration
 
 - **HTML structure** → mdn-web-standards-expert
 - **Astro components** → astro-framework-expert

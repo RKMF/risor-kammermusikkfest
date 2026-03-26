@@ -87,7 +87,7 @@ Determine what needs to be done:
 
 ## Step 3: Research (if needed)
 
-**Reference:** `.claude/instructions/research.md` for sources and methodology.
+**Reference:** `.ai/instructions/research.md` for sources and methodology.
 
 **What to find:**
 - Biographical facts, achievements, artistic identity

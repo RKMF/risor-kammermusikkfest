@@ -3,9 +3,26 @@ export const prerender = false;
 
 import ArticleDetailContent from '../../../components/ArticleDetailContent.astro';
 import { createDataService } from '../../../lib/sanity/dataService.js';
+import { InputValidator } from '../../../lib/security.js';
+
+const slug = InputValidator.validateSlug(Astro.params.slug ?? null);
+if (!slug) {
+  return new Response(null, { status: 404 });
+}
 
 const dataService = createDataService(Astro.request);
-const article = await dataService.getArticleBySlug(Astro.params.slug);
+let article = null;
+
+try {
+  const hasArticleSlug = await dataService.hasArticleSlug(slug);
+  if (!hasArticleSlug) {
+    return new Response(null, { status: 404 });
+  }
+
+  article = await dataService.getArticleBySlug(slug);
+} catch (error) {
+  console.error(`Error loading article "${slug}":`, error);
+}
 
 if (!article) {
   return new Response(null, { status: 404 });
