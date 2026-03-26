@@ -76,6 +76,24 @@
   position: relative;
 }
 
+@media (pointer: fine) {
+  .date-filter-buttons,
+  .venue-filter-buttons {
+    cursor: grab;
+    user-select: none;
+  }
+
+  .date-filter-buttons.is-dragging,
+  .venue-filter-buttons.is-dragging {
+    cursor: grabbing;
+  }
+
+  .date-filter-buttons.is-dragging .link-button,
+  .venue-filter-buttons.is-dragging .link-button {
+    pointer-events: none;
+  }
+}
+
 /* Button sizing */
 .date-filter-buttons .link-button,
 .venue-filter-buttons .link-button {
