@@ -3,9 +3,26 @@ export const prerender = false;
 
 import EventDetailContent from '../../../components/EventDetailContent.astro';
 import { createDataService } from '../../../lib/sanity/dataService.js';
+import { InputValidator } from '../../../lib/security.js';
+
+const slug = InputValidator.validateSlug(Astro.params.slug ?? null);
+if (!slug) {
+  return new Response(null, { status: 404 });
+}
 
 const dataService = createDataService(Astro.request);
-const event = await dataService.getEventBySlug(Astro.params.slug);
+let event = null;
+
+try {
+  const hasEventSlug = await dataService.hasEventSlug(slug);
+  if (!hasEventSlug) {
+    return new Response(null, { status: 404 });
+  }
+
+  event = await dataService.getEventBySlug(slug);
+} catch (error) {
+  console.error(`Error loading event "${slug}":`, error);
+}
 
 if (!event) {
   return new Response(null, { status: 404 });
