@@ -44,6 +44,14 @@ declare module 'sanity' {
 }
 
 declare module '@sanity/types' {
+  interface ReferenceOptions {
+    /**
+     * Sort order for reference field pickers
+     * @see https://www.sanity.io/docs/reference-type
+     */
+    sort?: ReadonlyArray<SanitySortOption>
+  }
+
   interface ReferenceBaseOptions {
     /**
      * Sort order for reference field pickers

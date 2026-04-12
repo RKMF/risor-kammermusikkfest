@@ -6,7 +6,7 @@
  */
 
 import type { APIRoute } from 'astro';
-import { sanityClient } from 'sanity:client';
+import { sanityClient } from '../lib/sanity/client';
 
 const SITE_URL = import.meta.env.SITE_URL || 'https://kammermusikkfest.no';
 

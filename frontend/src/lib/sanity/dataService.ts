@@ -1,4 +1,4 @@
-import { sanityClient } from 'sanity:client';
+import { sanityClient } from './client';
 import { QueryBuilder, buildQueryParams, type QueryDefinition, type QueryOptions } from './queryBuilder.js';
 import { transformMultilingualDocument, detectLanguage, type Language } from '../utils/language.js';
 
@@ -316,20 +316,16 @@ export class SanityDataService {
 
 }
 
-// Create default instance with Visual Editing support
+// Create a request-aware data service for published content.
 export function createDataService(request?: Request): SanityDataService {
-  const perspective = request?.headers.get('cookie')?.includes('sanity-preview-mode=true')
-    ? 'drafts'
-    : 'published';
-
   // Detect language from request
   const language = detectLanguage(request);
 
   return new SanityDataService({
-    perspective,
-    useCdn: perspective === 'published',
+    perspective: 'published',
+    useCdn: true,
     token: import.meta.env.SANITY_API_READ_TOKEN,
-    stega: import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ENABLED === 'true'
+    stega: false
   }, language);
 }
 

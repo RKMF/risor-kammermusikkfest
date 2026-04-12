@@ -10,10 +10,9 @@ export default defineCliConfig({
    */
   deployment: {
     /**
-     * Enable auto-updates for studios.
-     * Learn more at https://www.sanity.io/docs/cli#auto-updates
+     * Keep Studio builds deterministic and avoid remote auto-update checks at build time.
      */
-    autoUpdates: true,
+    autoUpdates: false,
   },
   /**
    * The hostname for deploying the studio to Sanity hosting.

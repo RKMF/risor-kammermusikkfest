@@ -1,6 +1,5 @@
 ---
-import { VisualEditing } from "@sanity/astro/visual-editing";
-import { sanityClient } from "sanity:client";
+import { sanityClient } from "../lib/sanity/client";
 import Analytics from '@vercel/analytics/astro';
 import SpeedInsights from '@vercel/speed-insights/astro';
 import Menu from '../components/Menu.astro';
@@ -79,10 +78,6 @@ const siteSettings = await sanityClient.fetch<SiteSettings>(footerQuery, footerP
 const faviconUrl = siteSettings?.favicon?.asset?.url || '/favicon.svg';
 const faviconMimeType = siteSettings?.favicon?.asset?.mimeType || 'image/svg+xml';
 
-// Check if Visual Editing should be enabled
-const visualEditingEnabled = import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ENABLED === 'true';
-const hasPreviewMode = Astro.cookies.get('sanity-preview-mode')?.value === 'true';
-const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
 ---
 
 <!DOCTYPE html>
@@ -386,9 +381,6 @@ const enableVisualEditing = visualEditingEnabled && hasPreviewMode;
 
     <!-- Structured Data: Organization Schema (site-wide) -->
     <OrganizationSchema />
-
-    <!-- Visual Editing Component -->
-    {enableVisualEditing && <VisualEditing enabled={true} zIndex={1000} />}
 
     <!-- HTMX - Load from npm package and make globally available -->
     <script>

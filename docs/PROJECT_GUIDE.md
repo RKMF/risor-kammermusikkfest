@@ -25,7 +25,7 @@ This is a **professional festival website in production**. Security, quality, an
 - Tested, maintainable, and secure architecture
 - Simple, focused design addressing actual requirements
 - Bilingual support (Norwegian/English) with proper i18n practices
-- Visual Editing workflow for content management
+- Editorial workflows managed directly in Studio schemas and document actions
 
 ### What This Project IS NOT
 - An excuse to skip best practices or cut corners
@@ -91,7 +91,7 @@ Before making **ANY** change, evaluate in this order:
 1. **Confusing "simple" with "amateur"** → Simple means focused, not shortcuts
 2. **Skipping tests for "speed"** → Add or update tests for critical paths where the repo has coverage, and avoid shipping unverified security changes
 3. **Ignoring security updates** → Review `npm audit` output and update intentionally
-4. **Breaking Visual Editing** → Test preview after any Sanity config changes
+4. **Breaking editorial workflows** → Test Studio startup, document actions, and publishing after Sanity config changes
 5. **Removing bilingual support** → Keep `nbNOLocale()` and proper i18n structure
 6. **Over-engineering** → Don't add enterprise patterns not needed at this scale
 
@@ -232,16 +232,15 @@ export const POST_QUERY = defineQuery(`*[
 
 Run typegen after schema changes. The release workflow handles this automatically; the manual command is `npm run typegen` from the monorepo root.
 
-#### Visual Editing
+#### Sanity Runtime Integration
 
 **Requirements:**
 - Both servers running (see Section 3 Server Management)
-- Preview mode cookie: `sanity-preview-mode=true`
 - Environment variables configured (see Section 3 Environment Variables)
 
 **API Configuration:**
 - Use `apiVersion: "2025-01-01"` in Sanity configuration for latest features
-- The integration config uses `useCdn: false`, while the runtime data service enables CDN reads for published content and disables CDN for draft preview.
+- The runtime data service uses CDN reads for published content and an explicit shared client configuration.
 
 **Content Structure:**
 - Bilingual content handling (see Section 4 Development Workflow)
@@ -343,14 +342,13 @@ The supported baseline is the versions currently pinned in the repo and verified
 |-----------|---------|-------|
 | Node.js | 22.x LTS | Project standard for local dev and CI |
 | Astro | 5.16.6 | Current frontend baseline |
-| Sanity Studio | 4.22.0 | Current supported Studio baseline |
-| @sanity/astro | 3.2.10 | Visual Editing integration |
-| @sanity/client | 7.6.x | Runtime content API client |
+| Sanity Studio | 5.0.0 | Current supported Studio baseline in this repo |
+| @sanity/client | 7.13.x | Runtime content API client |
 
 **Baseline Principles:**
 - The pinned versions in `package.json` are the source of truth.
 - New features available in newer upstream majors are not considered supported until this repo is upgraded and verified.
-- Content Agent and other Sanity v5+ features are roadmap capabilities, not current baseline behavior.
+- Content Agent requires a newer upstream Studio release than the registry version currently available in this environment.
 
 ### Update Policy
 
@@ -370,7 +368,7 @@ Rules:
 - Do not describe Sanity v5+ features as available in the current baseline
 - Do not roll a Sanity major upgrade into routine quarterly maintenance
 - Upgrade only in a dedicated branch/PR with compatibility verification
-- Verify custom document actions, Presentation/Visual Editing, schema extraction, and editorial workflows before adoption
+- Verify custom document actions, schema extraction, and editorial workflows before adoption
 
 ### Dependency Management
 - Use `npm install` as the default install path
@@ -410,7 +408,6 @@ Additional verification after dependency changes:
 
 - run the frontend locally
 - run the Studio locally
-- verify Visual Editing / Presentation
 - verify event publishing and custom document actions
 - verify Sanity type generation if schemas or Sanity packages changed
 - treat frontend tests as a useful signal, but not the sole dependency gate until the current baseline failures are fixed
@@ -426,9 +423,8 @@ Additional verification after dependency changes:
 
 ### Environment Variables
 
-**Required for Visual Editing:**
-- `SANITY_API_READ_TOKEN` - API token with read permissions
-- `PUBLIC_SANITY_VISUAL_EDITING_ENABLED=true` - Enables Visual Editing features
+**Required for runtime content fetches:**
+- `SANITY_API_READ_TOKEN` - API token with read permissions when CDN access is insufficient
 
 **Sanity Configuration:**
 - Project ID: `dnk98dp0`
@@ -677,7 +673,7 @@ Before every commit, verify:
 ✅ **MCP Usage**: Use MCP servers when they provide value over CLI
 ✅ **Dependencies**: Keep stable, use Node.js 22.x LTS, upgrade intentionally
 ✅ **Simplicity First**: Working code > "better" code, simple > complex
-✅ **Visual Editing**: Maintain compatibility, test after changes
+✅ **Editorial Workflows**: Keep Studio editing, document actions, and published-content fetches working
 ✅ **Bilingual Support**: Norwegian default, English optional
 ✅ **No Emojis**: Never use emojis unless explicitly requested by user
 
@@ -717,9 +713,9 @@ Before every commit, verify:
 - Use when: Content modeling, query optimization, Studio customization
 - Remember: Keep schemas simple unless complexity is genuinely needed
 
-**sanity-astro-integration** (`.ai/specialists/sanity-astro-integration.md`) → Data flow between Sanity and Astro, Visual Editing
-- Use when: Connecting Sanity content to Astro pages, preview functionality
-- Focus: Maintaining Visual Editing compatibility
+**sanity-astro-integration** (`.ai/specialists/sanity-astro-integration.md`) → Data flow between Sanity and Astro
+- Use when: Connecting Sanity content to Astro pages or debugging frontend content fetching
+- Focus: Stable runtime integration and editorial workflows
 
 **typescript-elegance-expert** (`.ai/specialists/typescript-elegance-expert.md`) → TypeScript improvements, code refactoring
 - Use when: Code needs to be more readable or maintainable
