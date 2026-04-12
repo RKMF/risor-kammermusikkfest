@@ -23,7 +23,6 @@ import { unsplashImageAsset } from 'sanity-plugin-asset-source-unsplash';
 import { schemaTypes } from './schemaTypes';
 import { structure } from './deskStructure';
 import { placeholderTextPlugin } from './plugins/placeholderTextPlugin';
-import { componentGuideTool } from './plugins/componentGuideTool';
 import { compositeArtistPublishAction } from './actions/compositeArtistPublishAction';
 import { compositeEventPublishAction } from './actions/compositeEventPublishAction';
 import { addArticleToArticlePageAction } from './actions/addArticleToArticlePageAction';
@@ -83,8 +82,6 @@ export default defineConfig({
     unsplashImageAsset(),
     // Custom placeholder text generator for content editors
     placeholderTextPlugin(),
-    // Component reference guide for editors
-    componentGuideTool(),
   ],
 
   schema: {
