@@ -11,7 +11,7 @@
  */
 
 import { createImageUrlBuilder, type SanityImageSource } from '@sanity/image-url'
-import { sanityClient } from 'sanity:client'
+import { sanityClient } from './sanity/client'
 
 /**
  * Type guard to check if source is a wrapper object containing an image property

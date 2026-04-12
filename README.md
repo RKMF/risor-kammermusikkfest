@@ -37,7 +37,7 @@ npm run dev:frontend  # http://localhost:4321
 ## Tech Stack
 
 - **Astro 5** - SSG/SSR with HTMX for interactivity
-- **Sanity Studio** - CMS with Visual Editing
+- **Sanity Studio** - CMS for editorial workflows
 - **TypeScript** - Type-safe development
 
 Current supported baseline:

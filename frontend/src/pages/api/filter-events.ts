@@ -1,7 +1,7 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import {defineQuery} from 'groq';
-import { sanityClient } from 'sanity:client';
+import { sanityClient } from '../../lib/sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import type { SanityImageSource } from '@sanity/image-url';
 import {
