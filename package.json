@@ -23,7 +23,7 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-is": "^19.2.3",
-    "sanity": "5.0.0",
+    "sanity": "5.20.0",
     "styled-components": "^6.1.19"
   },
   "devDependencies": {
@@ -31,6 +31,6 @@
     "@types/react": "19.1.8"
   },
   "overrides": {
-    "sanity": "5.0.0"
+    "sanity": "5.20.0"
   }
 }
