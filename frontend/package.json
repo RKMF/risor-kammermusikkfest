@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "astro dev --port 4321",
     "build": "npm run typecheck && astro build",
-    "typecheck": "npx -p typescript tsc --noEmit",
+    "typecheck": "npx -p typescript@5.9.3 tsc --noEmit",
     "preview": "astro preview",
     "astro": "astro",
     "typegen": "echo 'Run npm run typegen from the monorepo root instead' && exit 1",
@@ -34,7 +34,8 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-is": "^19.2.3",
-    "styled-components": "^6.1.19"
+    "styled-components": "^6.1.19",
+    "vite": "7.3.2"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",
