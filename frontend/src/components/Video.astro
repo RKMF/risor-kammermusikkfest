@@ -34,7 +34,7 @@ const {
   className = ''
 } = Astro.props
 
-// Calculate aspect ratio (stegaClean removes Sanity Visual Editing encoding)
+// Calculate aspect ratio after removing any stega encoding characters.
 const cleanedRatio = stegaClean(aspectRatio)
 const [width, height] = cleanedRatio.split(':').map(Number)
 const aspectRatioValue = `${width}/${height}`

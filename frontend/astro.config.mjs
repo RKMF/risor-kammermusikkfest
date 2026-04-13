@@ -25,12 +25,6 @@ export default defineConfig({
     defaultStrategy: 'viewport'
   },
 
-  // Enhanced security configuration for 2025
-  experimental: {
-    // Disable CSP for Visual Editing development
-    // csp: true,
-  },
-
   // Dev server configuration
   server: {
     host: true,  // Allow connections from other devices (like your iPhone)
@@ -96,7 +90,7 @@ export default defineConfig({
   integrations: [
     react(),
     sitemap({
-      // Filter out API routes and preview pages
+      // Filter out API routes and error pages
       filter: (page) =>
         !page.includes('/api/') &&
         !page.includes('/404') &&

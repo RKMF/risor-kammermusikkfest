@@ -18,9 +18,8 @@ function getRobotsText(): string {
     'User-agent: *',
     'Allow: /',
     '',
-    '# Keep preview and API endpoints out of crawler queues',
+    '# Keep API endpoints out of crawler queues',
     'Disallow: /api/',
-    'Disallow: /preview',
     '',
     `Sitemap: ${SITE_URL}/sitemap.xml`,
   ].join('\n');

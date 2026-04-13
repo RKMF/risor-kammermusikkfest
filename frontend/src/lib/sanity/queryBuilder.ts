@@ -994,16 +994,16 @@ export const QueryBuilder = {
 
 /**
  * Configuration options for Sanity query execution.
- * Controls perspective (published vs drafts), CDN usage, and Visual Editing.
+ * Controls perspective and token usage for Sanity reads.
  */
 export interface QueryOptions {
-  /** Content perspective: 'published' for live content, 'drafts' for preview */
+  /** Content perspective for the query execution context */
   perspective?: 'published' | 'drafts'
   /** Use Sanity CDN for cached responses (automatic based on perspective) */
   useCdn?: boolean
   /** API token for authenticated requests (required for drafts) */
   token?: string
-  /** Enable Stega encoding for Visual Editing click-to-edit */
+  /** Enable Stega encoding when explicitly needed by a caller */
   stega?: boolean
 }
 

@@ -19,7 +19,7 @@ const { language } = Astro.props;
 // Language-specific paths
 const basePath = language === 'no' ? '/program' : '/en/program';
 
-// Create data service with Visual Editing support
+// Shared data service for language-aware Sanity reads
 const dataService = createDataService(Astro.request);
 
 // Clear cache in development to ensure fresh data

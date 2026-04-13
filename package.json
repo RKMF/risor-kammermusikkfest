@@ -19,16 +19,7 @@
     "check-deps:root": "npm ls --workspaces=false 2>&1 | grep -i 'peer dep\\|UNMET' || echo 'All peer deps satisfied'",
     "typegen": "cd studio && npx sanity schema extract --path=../frontend/sanity/extract.json && npx sanity typegen generate --config-path=../frontend/sanity-typegen.json"
   },
-  "dependencies": {
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "react-is": "^19.2.3",
-    "sanity": "5.20.0",
-    "styled-components": "^6.1.19"
-  },
   "devDependencies": {
-    "typescript": "5.9.3",
-    "@types/react": "19.1.8",
     "vite": "7.3.1"
   },
   "overrides": {
