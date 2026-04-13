@@ -9,8 +9,7 @@ interface Props {
 }
 
 const props = Astro.props;
-// Clean the level and text values to remove any invisible Unicode characters (stega encoding)
-// These characters are added by Sanity's Visual Editing overlays for content tracking
+// Clean the level and text values to remove invisible stega encoding characters.
 const cleanLevel = props.level?.replace(/[\u200B-\u200D\uFEFF\u2060\u180E]/g, '').trim() as Props['level'];
 const cleanText = props.text?.replace(/[\u200B-\u200D\uFEFF\u2060\u180E]/g, '').trim() || '';
 const { id, className = '', _key, _type } = props;
