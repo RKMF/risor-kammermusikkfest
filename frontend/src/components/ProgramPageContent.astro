@@ -158,7 +158,7 @@ const resetButtonText = language === 'no' ? 'Nullstill filtre' : 'Reset filters'
         filteredDates.map(({ date, displayTitle, events: dateEvents }) => (
         <section class="content-section date-section" data-date={date}>
           <h2 class="date-title">{stegaClean(displayTitle)}</h2>
-          <div class="scroll-container-wrapper">
+          <div class="scroll-container-wrapper" data-scroll-step="item">
             <div
               class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar"
               role="region"

@@ -305,7 +305,7 @@ export const GET: APIRoute = async ({ request, url }) => {
         return `
           <section class="content-section date-section" data-date="${date}">
             <h2 class="date-title">${stegaClean(displayTitle)}</h2>
-            <div class="scroll-container-wrapper">
+            <div class="scroll-container-wrapper" data-scroll-step="item">
               <div class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar" role="region" tabindex="0" aria-label="${eventsLabel}">
                 ${eventCardsHtml}
               </div>

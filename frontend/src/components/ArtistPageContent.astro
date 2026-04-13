@@ -81,7 +81,7 @@ const hasArtists = allArtists.length > 0;
       {/* Large Artists Section - Each row is its own scroll container */}
       {largeArtistRows.map((row) => (
         <>
-          <div class="scroll-container-wrapper">
+          <div class="scroll-container-wrapper" data-scroll-step="item">
             <div class="artist-section artist-section--large scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
               {row.map((artist) => (
                 <ArtistCard artist={artist} language={language} size="large" />
@@ -95,7 +95,7 @@ const hasArtists = allArtists.length > 0;
       {/* Medium Artists Section - Each row is its own scroll container */}
       {mediumArtistRows.map((row) => (
         <>
-          <div class="scroll-container-wrapper">
+          <div class="scroll-container-wrapper" data-scroll-step="item">
             <div class="artist-section artist-section--medium scroll-container scroll-container--artist-cards scroll-container--styled-scrollbar">
               {row.map((artist) => (
                 <ArtistCard artist={artist} language={language} size="medium" />
