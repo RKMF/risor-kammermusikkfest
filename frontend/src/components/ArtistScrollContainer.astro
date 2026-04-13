@@ -84,7 +84,7 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 
 <section class={`${containerClass} ${scrollbarClass}`}>
   {title && <h2 class="artist-scroll-title">{title}</h2>}
-  <div class="scroll-container-wrapper">
+  <div class="scroll-container-wrapper" data-scroll-step="item">
     <ul
       class="artist-list scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar"
       tabindex="0"

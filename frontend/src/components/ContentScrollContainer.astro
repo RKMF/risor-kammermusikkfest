@@ -36,7 +36,7 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
 <section class={`content-scroll-container ${scrollbarClass} ${className}`} {...sanityAttributes}>
   {title && <h2 class="scroll-container-title">{title}</h2>}
 
-  <div class="scroll-container-wrapper">
+  <div class="scroll-container-wrapper" data-scroll-step="item">
     <ul
       class="scroll-list scroll-container scroll-container--always scroll-container--content scroll-container--hide-scrollbar"
       tabindex="0"

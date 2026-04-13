@@ -17,12 +17,6 @@
  */
 
 /**
- * Scroll amount as a fraction of container width.
- * 0.8 = scroll 80% of visible width per click.
- */
-const SCROLL_FRACTION = 0.8;
-
-/**
  * Debounce delay for scroll event handling (ms).
  * Prevents excessive updates during continuous scrolling.
  */
@@ -57,15 +51,6 @@ function prefersReducedMotion() {
 }
 
 /**
- * Calculates the scroll amount based on container width.
- * @param {HTMLElement} container - The scroll container
- * @returns {number} Scroll amount in pixels
- */
-function getScrollAmount(container) {
-  return container.clientWidth * SCROLL_FRACTION;
-}
-
-/**
  * Determines if the container is at the start boundary.
  * @param {HTMLElement} container - The scroll container
  * @returns {boolean} True if at or near the start
@@ -94,12 +79,87 @@ function hasOverflow(container) {
 }
 
 /**
+ * Resolves which stepping strategy a wrapper should use.
+ * Defaults to item-based movement for content carousels.
+ * @param {HTMLElement} wrapper - The wrapper containing container and nav
+ * @returns {'item' | 'page'} Step strategy
+ */
+function getStepMode(wrapper) {
+  return wrapper.dataset.scrollStep === 'page' ? 'page' : 'item';
+}
+
+/**
+ * Resolves scroll snap items inside a container.
+ * Handles wrappers that use display: contents on intermediate list items.
+ * @param {HTMLElement} container - The scroll container
+ * @returns {HTMLElement[]} Concrete scroll targets
+ */
+function getScrollItems(container) {
+  return Array.from(container.children)
+    .map((child) => {
+      if (!(child instanceof HTMLElement)) return null;
+
+      if (window.getComputedStyle(child).display === 'contents') {
+        return child.firstElementChild instanceof HTMLElement ? child.firstElementChild : null;
+      }
+
+      return child;
+    })
+    .filter((item, index, items) => item && items.indexOf(item) === index);
+}
+
+/**
+ * Computes an item's left scroll position relative to its scroll container.
+ * @param {HTMLElement} container - The scroll container
+ * @param {HTMLElement} item - The target item
+ * @returns {number} ScrollLeft value needed to align the item to the start edge
+ */
+function getItemStart(container, item) {
+  const containerRect = container.getBoundingClientRect();
+  const itemRect = item.getBoundingClientRect();
+  return itemRect.left - containerRect.left + container.scrollLeft;
+}
+
+/**
+ * Clamps a target scroll position to the container's scrollable range.
+ * @param {HTMLElement} container - The scroll container
+ * @param {number} position - Desired scroll position
+ * @returns {number} Valid scroll position
+ */
+function clampScrollPosition(container, position) {
+  const maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
+  return Math.min(Math.max(position, 0), maxScroll);
+}
+
+/**
+ * Finds the index of the item currently anchored at or just before the viewport start.
+ * @param {HTMLElement} container - The scroll container
+ * @param {HTMLElement[]} items - Candidate snap items
+ * @returns {number} Active item index
+ */
+function getActiveItemIndex(container, items) {
+  const currentScroll = container.scrollLeft;
+  let activeIndex = 0;
+
+  items.forEach((item, index) => {
+    const itemStart = clampScrollPosition(container, getItemStart(container, item));
+    if (itemStart <= currentScroll + BOUNDARY_TOLERANCE) {
+      activeIndex = index;
+    }
+  });
+
+  return activeIndex;
+}
+
+/**
  * Updates the visibility state of navigation buttons.
  * Sets data attributes that CSS uses for styling.
  * @param {HTMLElement} container - The scroll container
  * @param {HTMLElement} nav - The navigation element
+ * @param {'item' | 'page'} stepMode - Step strategy for this carousel
+ * @param {HTMLElement[]} items - Concrete scroll targets
  */
-function updateButtonStates(container, nav) {
+function updateButtonStates(container, nav, stepMode, items = []) {
   const prevBtn = nav.querySelector('[data-direction="prev"]');
   const nextBtn = nav.querySelector('[data-direction="next"]');
 
@@ -109,6 +169,23 @@ function updateButtonStates(container, nav) {
     return;
   } else {
     nav.dataset.noOverflow = 'false';
+  }
+
+  if (stepMode === 'item' && items.length > 0) {
+    const activeIndex = getActiveItemIndex(container, items);
+    const lastIndex = items.length - 1;
+    const lastItemStart = clampScrollPosition(container, getItemStart(container, items[lastIndex]));
+
+    if (prevBtn) {
+      prevBtn.dataset.atBoundary = activeIndex <= 0 && isAtStart(container) ? 'true' : 'false';
+    }
+    if (nextBtn) {
+      nextBtn.dataset.atBoundary =
+        activeIndex >= lastIndex || container.scrollLeft >= lastItemStart - BOUNDARY_TOLERANCE
+          ? 'true'
+          : 'false';
+    }
+    return;
   }
 
   // Update boundary states
@@ -124,14 +201,31 @@ function updateButtonStates(container, nav) {
  * Scrolls the container in the specified direction.
  * @param {HTMLElement} container - The scroll container
  * @param {'prev' | 'next'} direction - Scroll direction
+ * @param {'item' | 'page'} stepMode - Step strategy for this carousel
+ * @param {HTMLElement[]} items - Concrete scroll targets
  */
-function scrollContainer(container, direction) {
-  const amount = getScrollAmount(container);
-  const scrollAmount = direction === 'prev' ? -amount : amount;
+function scrollContainer(container, direction, stepMode, items = []) {
+  const behavior = prefersReducedMotion() ? 'instant' : 'smooth';
 
+  if (stepMode === 'item' && items.length > 0) {
+    const activeIndex = getActiveItemIndex(container, items);
+    const targetIndex =
+      direction === 'prev'
+        ? Math.max(0, activeIndex - 1)
+        : Math.min(items.length - 1, activeIndex + 1);
+    const targetPosition = clampScrollPosition(container, getItemStart(container, items[targetIndex]));
+
+    container.scrollTo({
+      left: targetPosition,
+      behavior,
+    });
+    return;
+  }
+
+  const scrollAmount = container.clientWidth * 0.8 * (direction === 'prev' ? -1 : 1);
   container.scrollBy({
     left: scrollAmount,
-    behavior: prefersReducedMotion() ? 'instant' : 'smooth'
+    behavior,
   });
 }
 
@@ -176,13 +270,15 @@ function setupScrollContainer(wrapper) {
   if (!container || !nav) return;
 
   wrapper.dataset.scrollNavInitialized = 'true';
+  const stepMode = getStepMode(wrapper);
+  const getItems = () => getScrollItems(container);
 
   // Initial state update
-  updateButtonStates(container, nav);
+  updateButtonStates(container, nav, stepMode, getItems());
 
   // Debounced scroll handler
   const handleScroll = debounce(() => {
-    updateButtonStates(container, nav);
+    updateButtonStates(container, nav, stepMode, getItems());
   }, SCROLL_DEBOUNCE_MS);
 
   // Listen for scroll events
@@ -190,7 +286,7 @@ function setupScrollContainer(wrapper) {
 
   // Listen for resize (container might gain/lose overflow)
   const resizeObserver = new ResizeObserver(() => {
-    updateButtonStates(container, nav);
+    updateButtonStates(container, nav, stepMode, getItems());
   });
   resizeObserver.observe(container);
 
@@ -201,7 +297,7 @@ function setupScrollContainer(wrapper) {
 
     const direction = button.dataset.direction;
     if (direction === 'prev' || direction === 'next') {
-      scrollContainer(container, direction);
+      scrollContainer(container, direction, stepMode, getItems());
     }
   });
 }
