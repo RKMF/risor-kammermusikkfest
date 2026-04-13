@@ -60,6 +60,11 @@
   .scroll-nav {
     display: none;
   }
+
+  /* Program page event carousels still need visible nav on phones. */
+  #program-content .date-section > .scroll-nav.scroll-nav--medium {
+    display: flex;
+  }
 }
 
 /* ============================================
