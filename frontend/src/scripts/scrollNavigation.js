@@ -168,10 +168,14 @@ function findNavForWrapper(wrapper) {
  * @param {HTMLElement} wrapper - The wrapper containing container and nav
  */
 function setupScrollContainer(wrapper) {
+  if (wrapper.dataset.scrollNavInitialized === 'true') return;
+
   const container = wrapper.querySelector(SCROLL_CONTAINER_SELECTORS);
   const nav = findNavForWrapper(wrapper);
 
   if (!container || !nav) return;
+
+  wrapper.dataset.scrollNavInitialized = 'true';
 
   // Initial state update
   updateButtonStates(container, nav);
@@ -212,38 +216,6 @@ function initAllScrollContainers() {
 }
 
 /**
- * Waits for HTMX to be available on the window object.
- * @returns {Promise<boolean>} Resolves true if HTMX found, false if timeout
- */
-function waitForHtmx() {
-  return new Promise((resolve) => {
-    if (typeof window !== 'undefined' && window.htmx) {
-      resolve(true);
-      return;
-    }
-
-    let attempts = 0;
-    const maxAttempts = 10;
-    const baseDelay = 50;
-
-    function checkHtmx() {
-      attempts++;
-      if (typeof window !== 'undefined' && window.htmx) {
-        resolve(true);
-        return;
-      }
-      if (attempts >= maxAttempts) {
-        resolve(false);
-        return;
-      }
-      setTimeout(checkHtmx, baseDelay + (attempts * 50));
-    }
-
-    setTimeout(checkHtmx, baseDelay);
-  });
-}
-
-/**
  * Initializes scroll navigation.
  *
  * Sets up:
@@ -252,17 +224,12 @@ function waitForHtmx() {
  *
  * Call this once on page load.
  */
-export async function initScrollNavigation() {
+export function initScrollNavigation() {
   // Initialize existing containers
   initAllScrollContainers();
 
-  // Wait for HTMX and set up reinit on content swaps
-  const htmxAvailable = await waitForHtmx();
-
-  if (htmxAvailable) {
-    // Reinitialize after HTMX swaps new content
-    document.body.addEventListener('htmx:afterSettle', () => {
-      initAllScrollContainers();
-    });
-  }
+  // Reinitialize after HTMX swaps new content
+  document.body.addEventListener('htmx:afterSettle', () => {
+    initAllScrollContainers();
+  });
 }

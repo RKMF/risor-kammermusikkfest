@@ -11,6 +11,7 @@
     "typecheck": "npx -p typescript@5.9.3 tsc --noEmit",
     "preview": "astro preview",
     "astro": "astro",
+    "sync:htmx": "node ./scripts/sync-htmx.mjs",
     "typegen": "echo 'Run npm run typegen from the monorepo root instead' && exit 1",
     "test": "vitest",
     "test:watch": "vitest --watch",
