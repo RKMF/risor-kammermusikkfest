@@ -145,6 +145,10 @@ const faviconMimeType = siteSettings?.favicon?.asset?.mimeType || 'image/svg+xml
     <!-- Vercel Web Analytics -->
     <Analytics />
 
+    <!-- Configure HTMX via its documented meta config and load the self-hosted browser build. -->
+    <meta name="htmx-config" content='{"allowEval":false,"allowScriptTags":false}' />
+    <script is:inline src="/vendor/htmx.min.js" defer></script>
+
     <!-- Minimal critical styles -->
     <style>
       /* ============================================
@@ -381,15 +385,6 @@ const faviconMimeType = siteSettings?.favicon?.asset?.mimeType || 'image/svg+xml
 
     <!-- Structured Data: Organization Schema (site-wide) -->
     <OrganizationSchema />
-
-    <!-- HTMX - Load from npm package and make globally available -->
-    <script>
-      import * as htmx from 'htmx.org';
-      const htmxInstance = htmx.default ?? htmx;
-      htmxInstance.config.allowEval = false;
-      // Make htmx available globally for all pages
-      window.htmx = htmxInstance;
-    </script>
 
     <!-- bfcache handler - refresh stale data on back/forward navigation -->
     <script src="../scripts/bfcacheHandler.js"></script>
