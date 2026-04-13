@@ -3,20 +3,30 @@ name: Validate Frontend
 on:
   pull_request:
     paths:
+      - 'package.json'
       - 'frontend/package.json'
       - 'package-lock.json'
+      - 'vercel.json'
+      - 'frontend/astro.config.mjs'
+      - 'frontend/tsconfig.json'
+      - 'frontend/src/**'
       - 'frontend/scripts/**'
+      - 'frontend/public/**'
       - 'frontend/public/vendor/htmx.min.js'
-      - 'frontend/src/layouts/Layout.astro'
   push:
     branches-ignore:
       - main
     paths:
+      - 'package.json'
       - 'frontend/package.json'
       - 'package-lock.json'
+      - 'vercel.json'
+      - 'frontend/astro.config.mjs'
+      - 'frontend/tsconfig.json'
+      - 'frontend/src/**'
       - 'frontend/scripts/**'
+      - 'frontend/public/**'
       - 'frontend/public/vendor/htmx.min.js'
-      - 'frontend/src/layouts/Layout.astro'
 
 permissions:
   contents: read

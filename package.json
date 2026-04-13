@@ -7,6 +7,7 @@
     "frontend"
   ],
   "scripts": {
+    "prepare": "node ./scripts/setup-git-hooks.mjs",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:studio": "cd studio && npm run dev",
     "build": "npm run build --workspace=frontend && npm run build --workspace=studio",
