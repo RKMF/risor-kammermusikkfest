@@ -1,0 +1,46 @@
+name: Validate Frontend
+
+on:
+  pull_request:
+    paths:
+      - 'frontend/package.json'
+      - 'package-lock.json'
+      - 'frontend/scripts/**'
+      - 'frontend/public/vendor/htmx.min.js'
+      - 'frontend/src/layouts/Layout.astro'
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - 'frontend/package.json'
+      - 'package-lock.json'
+      - 'frontend/scripts/**'
+      - 'frontend/public/vendor/htmx.min.js'
+      - 'frontend/src/layouts/Layout.astro'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-frontend:
+    name: Validate Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check HTMX asset sync
+        run: npm run check:htmx --workspace=frontend
+
+      - name: Build frontend
+        run: npm run build --workspace=frontend
