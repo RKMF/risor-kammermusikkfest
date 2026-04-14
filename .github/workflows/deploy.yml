@@ -34,6 +34,6 @@ jobs:
           SANITY_STUDIO_DATASET: ${{ secrets.SANITY_STUDIO_DATASET }}
 
       - name: Deploy to Sanity
-        run: npm run deploy --workspace=studio -- --source dist
+        run: npm run deploy --workspace=studio -- dist --yes
         env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}

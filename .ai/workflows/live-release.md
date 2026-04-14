@@ -2,12 +2,12 @@ Release `staging` to production: $ARGUMENTS
 
 **Mode:** Verify state first, then execute the production release steps.
 
-Flow: `staging` → `main` → sync `main` back to `staging` → verify Studio deployment if relevant
+Flow: `staging` → `main` → verify content parity between `main` and `staging` → verify Studio deployment if relevant
 
 ## Use This When
 - `staging` has already been tested and is ready for production
 - the next step is a production PR into `main`
-- the local repo is ready to finish the release and resync branch history
+- the local repo is ready to finish the release and confirm `main` and `staging` still match in content after the squash merge
 
 ## Step 1: Verify Current State
 Run:
@@ -36,15 +36,20 @@ gh pr merge --squash
 Use squash merge for `staging` → `main`.
 Do not use `--delete-branch`; `staging` must remain.
 
-## Step 4: Sync Main Back to Staging
-After a squash merge, branch histories diverge. Sync them immediately:
+## Step 4: Check `main` and `staging` Content Parity
+After a squash merge, branch histories diverge. In this repository, protected branches currently disallow merge commits, so do not assume a `main` → `staging` sync PR is possible.
+
+Run:
 
 ```bash
-gh pr create --base staging --head main --title "Sync: main → staging"
-gh pr merge --merge
+git fetch origin main staging
+git diff --stat origin/main..origin/staging
 ```
 
-Use a regular merge for `main` → `staging` sync, not squash.
+Interpret the result:
+- if the diff is empty, `main` and `staging` are already aligned in content and no sync PR is needed
+- if the diff is not empty, stop and inspect before creating any follow-up PR
+- only create a `main` → `staging` sync PR if repository policy allows the required merge method
 
 ## Step 5: Update Local Branches
 ```bash
@@ -64,7 +69,7 @@ If Studio files changed:
 ## Step 7: Report Outcome
 Report:
 - production PR URL
-- whether `main` and `staging` are synced locally
+- whether `main` and `staging` are content-identical locally
 - whether Studio files changed
 - whether Studio deployment needs follow-up
 - production URL and Studio URL if relevant
@@ -73,5 +78,5 @@ Report:
 - release to production only from `staging`
 - never delete `staging` or `main`
 - use squash merge for `staging` → `main`
-- use regular merge for `main` → `staging`
-- always complete the sync-back step after production release
+- verify `main` and `staging` content parity after the production merge
+- do not force a `main` → `staging` sync step that conflicts with current branch protection rules
