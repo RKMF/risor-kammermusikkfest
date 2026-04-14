@@ -1,66 +1,6 @@
-/* Base Styles - Typography, Links, Forms, Accessibility
- *
- * Foundation styles for text, links, form elements, and accessibility patterns.
- * These styles are applied globally to establish consistent base styling.
- *
- * Extracted from global.css as part of CSS architecture refactor.
- */
+/* Global base styles for text, links, forms, and accessibility. */
 
-/* ============================================
-   BASE TYPOGRAPHY
-   ============================================
-
-   GLOBAL SPACING PHILOSOPHY:
-
-   This project uses a hybrid spacing approach combining:
-   1. Global element margins (headings, paragraphs, lists)
-   2. Composition utilities (.stack, .cluster from primitives.css)
-   3. Utility classes (logical properties from utilities.css)
-
-   KEY PRINCIPLES:
-
-   1. ZERO SPECIFICITY (:where() wrapper)
-      - All global margins wrapped in :where() for zero specificity
-      - Components can override without specificity battles
-      - Simple class beats global default: .card p { margin: 0; }
-
-   2. PROXIMITY PRINCIPLE (different top/bottom margins)
-      - Headings: MORE space above (24-30px), LESS below (8-10px)
-      - Rationale: Headings "belong" to content below them
-      - Creates natural visual grouping and section separation
-      - This is standard typographic best practice
-
-   3. VERTICAL RHYTHM (consistent spacing scale)
-      - Paragraphs & lists: Equal top/bottom (12-15px fluid)
-      - Based on Utopia fluid spacing system (tokens.css)
-      - WCAG compliant: max ≤ 2.5× min for zoom accessibility
-
-   4. EDGE HANDLING (first/last-child resets)
-      - :first-child { margin-top: 0; } prevents double-spacing
-      - :last-child { margin-bottom: 0; } prevents unwanted gaps
-      - Works at any nesting level
-
-   WHEN TO USE WHAT:
-
-   - Global margins (current): Automatic spacing, works out of the box
-   - .stack utilities: Explicit spacing via parent container
-   - Margin utilities: One-off adjustments (.mbs-4, .mbe-2)
-
-   MIGRATION PATH (for future):
-   When you find components frequently overriding global margins,
-   consider using composition patterns instead:
-
-   Instead of:
-     .card p { margin: 0; }
-
-   Consider:
-     <div class="card stack">
-       <p>Content flows naturally</p>
-     </div>
-
-   Working code in production beats theoretical perfection.
-   This spacing system is professional, accessible, and maintainable.
-   */
+/* Base typography and default element spacing. */
 
 /* Body defaults */
 body {
@@ -70,7 +10,6 @@ body {
   color: var(--color-blue);
   background-color: var(--color-background);
 
-  /* Modern CSS typography - Optical sizing for body text */
   font-size-adjust: var(--font-size-adjust-body);
 }
 
@@ -79,40 +18,17 @@ body {
   color: inherit;
 }
 
-/* Headings - Enhanced typographic hierarchy
- *
- * Font sizes follow Major Third (1.250) ratio for visual harmony.
- * Letter-spacing provides optical refinement (tighter for large text).
- * Line-height optimized per heading level for readability and visual impact.
- * Font weight creates clear differentiation across hierarchy levels.
- *
- * Hierarchy layers (from strongest to subtlest):
- * 1. Size (Major Third scale)
- * 2. Weight (bold → medium progression)
- * 3. Line-height (tight display → relaxed body)
- * 4. Letter-spacing (negative → neutral → positive)
- *
- * SPACING PHILOSOPHY:
- * - :where() wrapper provides ZERO specificity - components can easily override
- * - Different top/bottom margins follow proximity principle (headings belong to content below)
- * - More space above (24-30px) separates sections
- * - Less space below (8-10px) connects headings to their content
- */
+/* Headings use zero-specificity defaults so components can override them easily. */
 :where(h1, h2, h3, h4, h5, h6) {
   font-family: var(--font-family-heading);
   font-weight: var(--font-weight-bold);
-  line-height: 1.25;  /* Slightly generous spacing prevents clipping of Norwegian characters (Å, Æ, Ø) */
+  line-height: 1.25;
   margin-top: var(--space-6);
   margin-bottom: var(--space-3);
 
-  /* Modern CSS typography - Optical sizing for headings */
   font-size-adjust: var(--font-size-adjust-heading);
 
-  /* REMOVED: text-box-trim (clips Norwegian characters Å, Æ, Ø)
-   * Browser support: 28% (Chrome/Edge 120+, no Firefox/Safari as of 2025)
-   * Issue: Clips tall glyphs and diacritics with no workaround
-   * Decision: Revisit when browser support improves and bugs are fixed
-   */
+  /* Avoid text-box-trim here; it clips Norwegian characters in current browsers. */
 }
 
 h1 {

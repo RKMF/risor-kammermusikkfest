@@ -1,21 +1,4 @@
-/**
- * Synchronizes filter button states and attributes with current URL parameters.
- *
- * This module handles URL-based filter state synchronization by updating:
- * 1. Active CSS classes (visual feedback)
- * 2. href attributes (for progressive enhancement fallback)
- * 3. hx-vals attributes (for HTMX AJAX requests)
- *
- * The hx-vals must be updated dynamically because HTMX caches attribute values.
- * Using JSON.stringify ensures CSP compliance (no js: prefix evaluation needed).
- *
- * This ensures that when users navigate using browser back/forward buttons or click
- * filter buttons, all button states and attributes remain synchronized with the URL.
- *
- * Usage:
- *   import { initializeFilterButtonStateSynchronization } from './syncFilterButtonStatesWithUrl.js';
- *   initializeFilterButtonStateSynchronization();
- */
+/** Keep program filter buttons synchronized with the current URL and HTMX state. */
 
 /**
  * Extracts current filter parameters from the URL query string.
@@ -29,32 +12,20 @@ function extractCurrentFilterParametersFromUrl() {
   };
 }
 
-/**
- * Detects the current page language from the URL path.
- * Returns 'en' for English pages (/en/*), 'no' for Norwegian pages.
- */
 function getCurrentLanguage() {
   return window.location.pathname.startsWith('/en/') ? 'en' : 'no';
 }
 
-/**
- * Builds the href attribute for a filter button.
- * Ensures the button preserves the OTHER filter when clicked.
- * Includes lang parameter for API to receive language context.
- */
 function buildButtonHref(filterType, filterValue, currentFilters, language) {
   const basePath = language === 'en' ? '/en/program' : '/program';
   const params = new URLSearchParams();
 
-  // Always include language for API
   params.set('lang', language);
 
   if (filterType === 'date') {
-    // Date button: use this date, preserve current venue
     params.set('date', filterValue);
     params.set('venue', currentFilters.venue);
   } else if (filterType === 'venue') {
-    // Venue button: preserve current date, use this venue
     params.set('date', currentFilters.date);
     params.set('venue', filterValue);
   }
@@ -62,28 +33,20 @@ function buildButtonHref(filterType, filterValue, currentFilters, language) {
   return `${basePath}?${params.toString()}`;
 }
 
-/**
- * Builds the hx-vals object for a filter button.
- * Ensures the button preserves the OTHER filter when clicked.
- * Returns an object that will be JSON.stringify'd for the hx-vals attribute.
- */
 function buildButtonHxVals(filterType, filterValue, currentFilters, language) {
   if (filterType === 'date') {
-    // Date button: use this date, preserve current venue
     return {
       lang: language,
       date: filterValue,
       venue: currentFilters.venue
     };
   } else if (filterType === 'venue') {
-    // Venue button: preserve current date, use this venue
     return {
       lang: language,
       date: currentFilters.date,
       venue: filterValue
     };
   }
-  // Fallback
   return { lang: language, date: '', venue: '' };
 }
 
@@ -98,37 +61,30 @@ function syncFilterButtonsWithCurrentUrl() {
   const currentFilters = extractCurrentFilterParametersFromUrl();
   const language = getCurrentLanguage();
 
-  // Find all filter buttons (both date and venue filters)
   const allFilterButtons = document.querySelectorAll('[data-filter-type][data-filter-value]');
 
   allFilterButtons.forEach((filterButton) => {
     const filterType = filterButton.dataset.filterType;
     const filterValue = filterButton.dataset.filterValue;
 
-    // 1. Determine if this button should be active based on current URL params
     let shouldBeActive = false;
 
     if (filterType === 'date') {
-      // Match button's date value with current URL date parameter
       shouldBeActive = filterValue === currentFilters.date;
     } else if (filterType === 'venue') {
-      // Match button's venue value with current URL venue parameter
       shouldBeActive = filterValue === currentFilters.venue;
     }
 
-    // 2. Update active class
     if (shouldBeActive) {
       filterButton.classList.add('active');
     } else {
       filterButton.classList.remove('active');
     }
 
-    // 3. Update href attribute (for progressive enhancement fallback)
     const newHref = buildButtonHref(filterType, filterValue, currentFilters, language);
     filterButton.setAttribute('href', newHref);
 
-    // 4. Update hx-vals attribute (for HTMX AJAX requests)
-    // Must be updated because HTMX caches attribute values
+    // HTMX caches attribute values, so keep hx-vals aligned with the current URL state.
     const newHxVals = buildButtonHxVals(filterType, filterValue, currentFilters, language);
     filterButton.setAttribute('hx-vals', JSON.stringify(newHxVals));
   });
@@ -173,12 +129,10 @@ function syncAriaPressed() {
  * Called once HTMX is confirmed to be available.
  */
 function setupHtmxEventListeners() {
-  // CRITICAL: Intercept requests BEFORE they're sent to inject correct params
-  // This fixes the timing bug where hx-vals are stale in production builds
+  // Intercept requests before send so both filters survive each click reliably.
   document.body.addEventListener('htmx:configRequest', (event) => {
     const triggerElement = event.detail.elt;
 
-    // Only handle filter buttons (elements with data-filter-type attribute)
     if (!triggerElement.dataset || !triggerElement.dataset.filterType) return;
 
     const filterType = triggerElement.dataset.filterType;
@@ -186,31 +140,26 @@ function setupHtmxEventListeners() {
     const currentFilters = extractCurrentFilterParametersFromUrl();
     const language = getCurrentLanguage();
 
-    // Override request parameters with correct values
-    // This ensures both filters are preserved when clicking either one
     if (filterType === 'date') {
       event.detail.parameters.lang = language;
       event.detail.parameters.date = filterValue;
-      event.detail.parameters.venue = currentFilters.venue; // Preserve current venue
+      event.detail.parameters.venue = currentFilters.venue;
     } else if (filterType === 'venue') {
       event.detail.parameters.lang = language;
-      event.detail.parameters.date = currentFilters.date; // Preserve current date
+      event.detail.parameters.date = currentFilters.date;
       event.detail.parameters.venue = filterValue;
     }
   });
 
-  // Listen for htmx history restoration events (browser back/forward buttons)
   document.body.addEventListener('htmx:historyRestore', () => {
     syncFilterButtonsWithCurrentUrl();
     syncAriaPressed();
   });
 
-  // Listen for htmx request start (show loading state)
   document.body.addEventListener('htmx:beforeRequest', () => {
     setLoadingAriaState(true);
   });
 
-  // Always clear busy state after the request cycle, even if the swap fails.
   document.body.addEventListener('htmx:afterRequest', () => {
     setLoadingAriaState(false);
   });
@@ -219,8 +168,6 @@ function setupHtmxEventListeners() {
     setLoadingAriaState(false);
   });
 
-  // Listen for htmx content swaps (filter button clicks)
-  // This fires after htmx updates the URL and completes the swap
   document.body.addEventListener('htmx:afterSettle', () => {
     syncFilterButtonsWithCurrentUrl();
     syncAriaPressed();
@@ -238,15 +185,11 @@ function setupHtmxEventListeners() {
  * - initial page load (bookmarked/shared URLs)
  */
 export function initializeFilterButtonStateSynchronization() {
-  // Perform initial sync immediately (doesn't need HTMX)
-  // This handles bookmarked/shared URLs
   syncFilterButtonsWithCurrentUrl();
   syncAriaPressed();
 
   setupHtmxEventListeners();
 
-  // Fallback: Listen for popstate for back/forward navigation
-  // This keeps the progressive enhancement path working even if HTMX fails to load.
   window.addEventListener('popstate', () => {
     syncFilterButtonsWithCurrentUrl();
     syncAriaPressed();
