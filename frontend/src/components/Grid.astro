@@ -44,7 +44,7 @@ const itemCount = items.length
 const columnsNumber = parseInt(columns)
 const isOdd = itemCount % columnsNumber !== 0
 
-// Sanity Visual Editing attributes
+// Preserve Sanity block identity in the rendered markup.
 const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
 ---
 

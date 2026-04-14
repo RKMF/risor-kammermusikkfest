@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { defineQuery } from 'groq';
-import { sanityClient } from 'sanity:client';
+import { sanityClient } from '../../lib/sanity/client';
 
 /**
  * Health Check Endpoint

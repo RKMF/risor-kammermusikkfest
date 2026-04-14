@@ -4,75 +4,45 @@ Bilingual (Norwegian/English) festival website built with Astro and Sanity CMS.
 
 ## Quick Start
 
-**Prerequisites:** Node.js v22.x LTS (or v20.19.0+)
+Use Node.js `22.x` LTS.
 
 ```bash
-# Install dependencies
 npm install
-
-# Generate Sanity types (required after clone)
 npm run typegen
-
-# Start development servers (in separate terminals)
 npm run dev:studio    # http://localhost:3333
 npm run dev:frontend  # http://localhost:4321
 ```
 
-## Project Structure
+Create `frontend/.env.local` from `frontend/.env.example` before running the frontend against real content.
 
-```
-├── frontend/          # Astro 5 application
-│   ├── src/
-│   │   ├── components/
-│   │   ├── layouts/
-│   │   ├── pages/
-│   │   ├── scripts/   # Client-side JavaScript
-│   │   └── styles/    # CSS (self-documenting tokens)
-│   └── sanity/        # Generated types
-├── studio/            # Sanity Studio (current baseline pinned in package.json)
-│   └── schemaTypes/
-└── docs/              # Documentation
-```
-
-## Tech Stack
-
-- **Astro 5** - SSG/SSR with HTMX for interactivity
-- **Sanity Studio** - CMS with Visual Editing
-- **TypeScript** - Type-safe development
-
-Current supported baseline:
-
-- `frontend`: Astro `5.16.6`
-- `studio`: Sanity `4.22.0`
-- Node.js: `22.x` LTS
-
-New Sanity major features are evaluated separately and adopted only after compatibility verification in this project.
-
-## Configuration
-
-Project ID: `dnk98dp0` | Dataset: `production`
-
-Create `frontend/.env.local` from `frontend/.env.example` and fill in the required values.
-
-## Documentation
-
-| File | Purpose |
-|------|---------|
-| [PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md) | Comprehensive development guide |
-| [DESIGN-SYSTEM.md](docs/DESIGN-SYSTEM.md) | Layout decision trees |
-| [MEDIA.md](docs/MEDIA.md) | Image/video handling |
-| [SECURITY.md](docs/SECURITY.md) | Pre-commit hooks |
-
-MCP targets and usage rules for this repo are documented in `docs/PROJECT_GUIDE.md` under `MCP Server Usage`. Repo-local Cursor/Codex MCP setup lives in `.cursor/mcp.json`, with repo scoping instructions in `.cursorrules`.
-
-## Building
+## Core Scripts
 
 ```bash
-npm run build              # Build all
-npm run build --workspace=frontend
-npm run build --workspace=studio
+npm run build
+npm run test
+npm run lint
+npm run typecheck
 ```
 
----
+Deployment flow: `feature/* -> staging -> main`
 
-For detailed workflows, git strategy, and AI guidelines, see **[PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md)**.
+## Repo Layout
+
+```
+frontend/   Astro frontend and generated Sanity types
+studio/     Sanity Studio and schema definitions
+docs/       Human-facing project documentation
+.ai/        AI workflows, instructions, specialists, and memory
+```
+
+## Read Next
+
+- [docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md) for the full developer handbook
+- [AGENTS.md](AGENTS.md) for the minimal repo briefing used by AI assistants
+- [.ai/README.md](.ai/README.md) for repo-owned AI workflows and instructions
+
+## Build
+
+```bash
+npm run build
+```

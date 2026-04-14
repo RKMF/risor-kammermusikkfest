@@ -57,7 +57,7 @@ const content = pageContent?.length
 const slugNo = pageDocument?.slug_no?.current ? stegaClean(pageDocument.slug_no.current) : undefined;
 const slugEn = pageDocument?.slug_en?.current ? stegaClean(pageDocument.slug_en.current) : undefined;
 
-// Clean title for browser tab (keep raw title in h1 for Visual Editing)
+// Clean title for browser tab while preserving the original page heading content.
 const cleanTitle = stegaClean(title);
 ---
 

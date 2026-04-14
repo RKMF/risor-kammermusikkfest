@@ -1,10 +1,4 @@
-/* Utility Classes - Spacing, Display, Flexbox, Grid
- *
- * Single-purpose utility classes for common layout patterns.
- * Prefer composition over creation of new component classes.
- *
- * Extracted from global.css as part of CSS architecture refactor.
- */
+/* Shared utility classes. */
 
 /* ============================================
    TEXT ALIGNMENT
@@ -57,22 +51,7 @@
 .font-semibold { font-weight: var(--font-weight-semibold); }
 .font-bold { font-weight: var(--font-weight-bold); }
 
-/* ============================================
-   TYPOGRAPHIC HIERARCHY UTILITIES
-   ============================================
-
-   Semantic classes for creating visual hierarchy using
-   the enhanced typography system (size, weight, line-height, letter-spacing).
-
-   These utilities combine multiple properties to create distinct
-   hierarchy levels. Use when semantic HTML headings (h1-h6) aren't
-   appropriate but visual hierarchy is needed.
-
-   Examples:
-   - Hero sections with oversized text (.text-display)
-   - Lead paragraphs in articles (.text-lead)
-   - UI labels and metadata (.text-label, .text-caption)
-*/
+/* Typographic hierarchy utilities. */
 
 /* Display text - Largest impact, hero sections, festival announcements */
 .text-display {
@@ -82,7 +61,6 @@
   line-height: var(--line-height-display);   /* 1.1 - tight for impact */
   letter-spacing: var(--tracking-tighter);   /* -0.025em - optical tightening */
 
-  /* Modern CSS typography - Optical sizing */
   font-size-adjust: var(--font-size-adjust-heading);
 }
 
@@ -94,7 +72,6 @@
   line-height: var(--line-height-display);   /* 1.1 */
   letter-spacing: var(--tracking-tight);     /* -0.015em */
 
-  /* Modern CSS typography - Optical sizing */
   font-size-adjust: var(--font-size-adjust-heading);
 }
 
@@ -106,7 +83,6 @@
   line-height: var(--line-height-subhead);   /* 1.3 - comfortable reading */
   letter-spacing: var(--tracking-normal);    /* 0 */
 
-  /* Modern CSS typography - Optical sizing */
   font-size-adjust: var(--font-size-adjust-body);
 }
 
@@ -119,7 +95,6 @@
   letter-spacing: var(--tracking-wide);      /* 0.02em - improved legibility */
   text-transform: uppercase;                 /* UI convention */
 
-  /* Modern CSS typography - Optical sizing */
   font-size-adjust: var(--font-size-adjust-body);
 }
 
@@ -132,7 +107,6 @@
   letter-spacing: var(--tracking-normal);    /* 0 */
   color: var(--color-neutral-600);           /* Subtle de-emphasis */
 
-  /* Modern CSS typography - Optical sizing */
   font-size-adjust: var(--font-size-adjust-body);
 }
 
@@ -146,17 +120,10 @@
   letter-spacing: var(--tracking-normal);    /* 0 */
   color: var(--color-neutral-700);           /* Slightly de-emphasized */
 
-  /* Modern CSS typography - Optical sizing */
   font-size-adjust: var(--font-size-adjust-heading);
 }
 
-/* ============================================
-   LOGICAL SPACING UTILITIES
-   ============================================
-
-   Better for internationalization than physical properties.
-   Uses block (vertical) and inline (horizontal) directions.
-*/
+/* Logical spacing utilities. */
 
 /* Margin block start (top in LTR) */
 .mbs-0 { margin-block-start: var(--space-0); }
@@ -220,13 +187,7 @@
 .pie-3 { padding-inline-end: var(--space-3); }
 .pie-4 { padding-inline-end: var(--space-4); }
 
-/* ============================================
-   LEGACY SPACING UTILITIES
-   ============================================
-
-   Kept for compatibility with existing code.
-   Use logical properties (above) for new code.
-*/
+/* Legacy spacing utilities kept for existing code. */
 
 .mt-0 { margin-top: var(--space-0); }
 .mt-1 { margin-top: var(--space-1); }

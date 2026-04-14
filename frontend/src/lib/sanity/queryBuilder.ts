@@ -1,32 +1,10 @@
-/**
- * GROQ Query Builder - Central query definitions for all Sanity content.
- *
- * Architecture:
- * - Component projections: Reusable GROQ fragments for each CMS component type
- * - Language-aware builders: Functions that generate queries with correct field coalescing
- * - QueryBuilder export: Type-safe interface for all page/content queries
- *
- * Key patterns:
- * - All image fields include full asset metadata (dimensions, LQIP, palette) per MEDIA.md
- * - Bilingual fields use createMultilingualField() for consistent language handling
- * - Publishing status filtering excludes drafts from public queries
- * - References are dereferenced inline with explicit projections (no blind spreading)
- *
- * @see docs/PROJECT_GUIDE.md - Section 2.1 GROQ Queries
- * @see docs/MEDIA.md - Image asset projection requirements
- */
+/** Central GROQ query definitions and reusable projections. */
 
 import {defineQuery} from 'groq'
 import {createMultilingualField, type Language} from '../utils/language.js'
 import type { ArtistResult, EventResult, ArticleResult } from './queries'
 
-// ============================================================================
-// ENVIRONMENT-AWARE PUBLISHING FILTERS
-// ============================================================================
-// On staging (testing.kammermusikkfest.no), show both "staging" and "published" content.
-// On production (www.kammermusikkfest.no), show only "published" content.
-// Set PUBLIC_SITE_ENV in Vercel: "staging" for testing site, "production" for live site.
-// ============================================================================
+// Staging can see staging + published content; production sees published content only.
 
 const isStaging = import.meta.env.PUBLIC_SITE_ENV === 'staging'
 
@@ -66,22 +44,7 @@ export interface QueryDefinition<
   params: TParams
 }
 
-// ============================================================================
-// COMPONENT PROJECTIONS
-// ============================================================================
-// Each CMS component type has an explicit GROQ projection. This avoids blind
-// spreading (...) which can pull unnecessary data and break type safety.
-//
-// Structure:
-// - Leaf components: Simple components that don't contain other components
-// - Container components: Components that nest other components (use NESTED_ITEMS)
-// - Image selections: Reusable image projections with full metadata
-//
-// Image pattern: All images include asset metadata for responsive optimization:
-// - dimensions: For aspect ratio calculations and srcset generation
-// - lqip: Low Quality Image Placeholder for loading states
-// - palette: Dominant colors for placeholder backgrounds
-// ============================================================================
+// Keep component projections explicit to avoid over-fetching and weak typing.
 
 // Leaf components (no nesting) - standalone content blocks
 const IMAGE_COMPONENT = `
@@ -994,16 +957,16 @@ export const QueryBuilder = {
 
 /**
  * Configuration options for Sanity query execution.
- * Controls perspective (published vs drafts), CDN usage, and Visual Editing.
+ * Controls perspective and token usage for Sanity reads.
  */
 export interface QueryOptions {
-  /** Content perspective: 'published' for live content, 'drafts' for preview */
+  /** Content perspective for the query execution context */
   perspective?: 'published' | 'drafts'
   /** Use Sanity CDN for cached responses (automatic based on perspective) */
   useCdn?: boolean
   /** API token for authenticated requests (required for drafts) */
   token?: string
-  /** Enable Stega encoding for Visual Editing click-to-edit */
+  /** Enable Stega encoding when explicitly needed by a caller */
   stega?: boolean
 }
 

@@ -4,8 +4,6 @@ import vercel from '@astrojs/vercel';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 
-import sanity from '@sanity/astro';
-
 // https://astro.build/config
 export default defineConfig({
   site: process.env.SITE_URL || 'http://localhost:4321',
@@ -25,12 +23,6 @@ export default defineConfig({
   prefetch: {
     prefetchAll: false,
     defaultStrategy: 'viewport'
-  },
-
-  // Enhanced security configuration for 2025
-  experimental: {
-    // Disable CSP for Visual Editing development
-    // csp: true,
   },
 
   // Dev server configuration
@@ -97,20 +89,10 @@ export default defineConfig({
 
   integrations: [
     react(),
-    sanity({
-      projectId: process.env.PUBLIC_SANITY_PROJECT_ID || 'dnk98dp0',
-      dataset: process.env.PUBLIC_SANITY_DATASET || 'production',
-      useCdn: false, // for statiske builds
-      apiVersion: '2025-01-01', // Use latest API version
-      stega: {
-        studioUrl: process.env.SANITY_STUDIO_URL || 'http://localhost:3333'
-      },
-    }),
     sitemap({
-      // Filter out API routes and preview pages
+      // Filter out API routes and error pages
       filter: (page) =>
         !page.includes('/api/') &&
-        !page.includes('/preview') &&
         !page.includes('/404') &&
         !page.includes('/500'),
       // i18n support - match Astro i18n config

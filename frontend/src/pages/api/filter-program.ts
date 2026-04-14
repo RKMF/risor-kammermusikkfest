@@ -297,12 +297,27 @@ export const GET: APIRoute = async ({ request, url }) => {
           .join('');
 
         const eventsLabel = language === 'no' ? 'Arrangementer' : 'Events';
+        const scrollNavLabel = language === 'no'
+          ? 'Bla gjennom arrangementer'
+          : 'Scroll through events';
+        const scrollPrevLabel = language === 'no' ? 'Bla til venstre' : 'Scroll left';
+        const scrollNextLabel = language === 'no' ? 'Bla til høyre' : 'Scroll right';
         return `
           <section class="content-section date-section" data-date="${date}">
             <h2 class="date-title">${stegaClean(displayTitle)}</h2>
-            <div class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar" role="region" tabindex="0" aria-label="${eventsLabel}">
-              ${eventCardsHtml}
+            <div class="scroll-container-wrapper" data-scroll-step="item">
+              <div class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar" role="region" tabindex="0" aria-label="${eventsLabel}">
+                ${eventCardsHtml}
+              </div>
             </div>
+            <nav class="scroll-nav scroll-nav--medium" aria-label="${scrollNavLabel}">
+              <button type="button" class="scroll-nav__btn" data-direction="prev" aria-label="${scrollPrevLabel}">
+                <span aria-hidden="true">←</span>
+              </button>
+              <button type="button" class="scroll-nav__btn" data-direction="next" aria-label="${scrollNextLabel}">
+                <span aria-hidden="true">→</span>
+              </button>
+            </nav>
           </section>
         `;
       });

@@ -1,6 +1,6 @@
 # Media Handling
 
-Images and videos from Sanity. Component props and options are documented in TypeScript interfaces - see `sanityImage.ts`, `Image.astro`, `Video.astro`.
+Images and videos come from Sanity and depend on a stable query contract. For implementation details, see `frontend/src/lib/sanityImage.ts`, `frontend/src/lib/sanity/queryBuilder.ts`, `frontend/src/components/Image.astro`, and `frontend/src/components/Video.astro`.
 
 ```
 Sanity CMS → GROQ queries → sanityImage.ts / Video.astro → Components
@@ -30,23 +30,6 @@ Always fetch complete metadata for optimization:
 
 ---
 
-## Scroll Container Pattern
-
-For custom layouts needing responsive srcsets (see `ArtistScrollContainer.astro`):
-
-```astro
----
-import { getResponsiveImageSet, getOptimizedImageUrl, IMAGE_QUALITY } from '../lib/sanityImage';
-
-const srcset = getResponsiveImageSet(imageData, [240, 300, 320], 4/5, IMAGE_QUALITY.CARD);
-const fallback = getOptimizedImageUrl(imageData, 300, 375, IMAGE_QUALITY.CARD);
----
-
-<img src={fallback} srcset={srcset} sizes="(max-width: 768px) 240px, 300px" ... />
-```
-
----
-
 ## Video GROQ Pattern (Required)
 
 ```groq
@@ -72,9 +55,9 @@ Videos are automatically fetched via `queryBuilder.ts` spread operator.
 
 ---
 
-## Visual Editing
+## Why This Matters
 
-Both images and videos maintain Visual Editing compatibility:
+Both images and videos preserve the Sanity metadata needed by the current rendering pipeline:
 - GROQ queries include `_id`, `_type`, `_key`
-- Components preserve `data-sanity` attributes
-- The `...` spread in `buildContentProjection()` preserves Sanity metadata
+- image queries include dimensions, `lqip`, `blurHash`, `hotspot`, and `crop`
+- the frontend utilities depend on that metadata for responsive images and placeholders

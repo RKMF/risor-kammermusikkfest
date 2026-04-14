@@ -1,78 +1,28 @@
 Translate and synchronize Norwegian → English content for: $ARGUMENTS
 
-**Sanity MCP:** project `dnk98dp0`, dataset `production`
+**Mode:** Analyze, draft, then apply only after approval.
 
-**Mode:** Steps 1-6 work in plan mode (analysis, draft). Exit plan mode at Step 7 to apply changes.
+Assumes `AGENTS.md` has already been read for repo-wide constraints.
 
----
+## Use This When
+- English fields are missing or outdated
+- Norwegian content already exists and should be mirrored into English
+- the task is translation or structural sync, not original content creation
 
-## Step 0: Efficient Querying Rules
+## Step 1: Find the Document and Bilingual Fields
+- query only the Norwegian and English fields needed for the task
+- treat Norwegian as source of truth unless the user explicitly says otherwise
 
-**Use projections by default.** Full document fetches consume 5-15k tokens.
+## Step 2: Compare Structure Before Translating
+- inspect the full `_no` and `_en` structure, not just component counts
+- identify:
+  - text that needs translation
+  - structural gaps in English
+  - cases where English has content but Norwegian does not
 
-| Task | Approach |
-|------|----------|
-| Find document | `query_documents` with `{_id, _type, name, title_no}` |
-| Check bilingual fields | `query_documents` with `{excerpt_no, excerpt_en, content_no, content_en}` |
-| Verify after patch | `query_documents` with patched fields only |
-| Full exploration | `get_document` (only when structure unknown) |
+If English is missing structure that Norwegian already has, report that first. Use `.ai/workflows/content.md` only if new source-side content or new structure must be created.
 
-**Rule:** Before any query, ask "What fields do I actually need?"
-
----
-
-## Step 1: Find the Document
-
-Query by document type, name, ID, or description provided in $ARGUMENTS.
-
-```groq
-*[_type == "<type>" && (name match "<query>*" || title_no match "<query>*")][0]{
-  _id,
-  _type,
-  name,
-  title_no,
-  title_en,
-  excerpt_no,
-  excerpt_en,
-  content_no,
-  content_en,
-  // ... other bilingual fields
-}
-```
-
----
-
-## Step 2: Analyze Content State
-
-Compare ALL bilingual field pairs (`_no`/`_en`):
-
-| State | Action |
-|-------|--------|
-| NO has content, EN empty | Translate NO → EN |
-| NO has content, EN has content | Verify translation quality |
-| NO empty, EN has content | Flag as problem (NO is source of truth) |
-| Both empty | Nothing to translate |
-
-**Critical: Deep content inspection required.**
-- Do NOT trust component counts alone
-- Inspect FULL content of every nested structure
-- Check pageBuilder arrays item-by-item
-- Compare rich text blocks completely
-
----
-
-## Step 3: Check for Structural Differences
-
-If EN is missing structural elements that NO has:
-
-1. Report the missing elements
-2. Ask user: "EN is missing [X components]. Should I use `/content` to create them?"
-3. If approved, use `/content $ARGUMENTS "create missing EN components"` to add structure
-4. Then continue with translation
-
----
-
-## Step 4: Apply Translation Rules
+## Step 3: Apply Translation Rules
 
 **Reference:** `.ai/instructions/translation-rules.md` for all conventions.
 
@@ -82,9 +32,7 @@ If EN is missing structural elements that NO has:
 - Music terminology (Pianokonsert → Piano Concerto, C-dur → C Major)
 - Date/number formats (24. juni → June 24)
 
----
-
-## Step 5: Translate with Style
+## Step 4: Translate with Style
 
 **Reference:** `.ai/instructions/writing-style.md` for tone and patterns.
 
@@ -95,9 +43,7 @@ If EN is missing structural elements that NO has:
 
 **Idioms:** Find equivalents, don't translate literally. If no equivalent exists, explain and suggest alternatives.
 
----
-
-## Step 6: Report Findings
+## Step 5: Report Findings
 
 Present to user:
 
@@ -116,34 +62,24 @@ Present to user:
 **Proposed changes:**
 - [field]: [current EN] → [proposed EN]
 
----
-
-## Step 7: Apply Changes (with approval)
+## Step 6: Apply Approved Changes
 
 **Ask before making any changes.**
 
 If approved:
-1. Use Sanity MCP `patch_document` to update EN fields
-2. All changes go to DRAFT (never auto-publish)
-3. Maintain component order from NO
-4. Keep references (images, links, artist refs) identical
+- patch only the English draft fields that changed
+- maintain component order from Norwegian
+- keep references, media, and linked entities aligned unless the user says otherwise
 
----
-
-## Step 8: Verify
+## Step 7: Verify
 
 After patching:
-1. Re-query the document
-2. Confirm EN now matches NO structure
-3. Report completion
-
----
+- re-query the changed English fields
+- confirm the approved translation and structure are present
+- report any remaining structural or source-content gaps
 
 ## Rules
-
 - Norwegian is source of truth
-- EN must mirror NO structure exactly
-- All changes go to DRAFT
-- Ask before making changes
-- Respect field limits (excerpt: 150 chars, etc.)
-- If structural elements missing, reference `/content` to create them
+- English should mirror Norwegian structure unless the user requests a deliberate difference
+- all changes stay in draft until the normal editorial publish flow
+- if source-side Norwegian content is missing, stop and resolve that first

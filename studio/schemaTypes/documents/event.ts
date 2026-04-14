@@ -107,7 +107,7 @@ export const event = defineType({
       group: 'basic',
       options: {
         sort: [{ field: 'date', direction: 'asc' }],
-      },
+      } as any,
       validation: (Rule) =>
         Rule.warning().custom((value) => {
           if (!value) {

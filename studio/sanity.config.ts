@@ -2,9 +2,8 @@
  * Sanity Studio Configuration - Risør Kammermusikkfest CMS
  *
  * This is the main configuration hub for the Sanity Studio. It defines:
- * - Plugins for content editing, preview, and asset management
+ * - Plugins for content editing and asset management
  * - Custom document actions for artist/event/article publishing workflows
- * - Visual Editing integration with the Astro frontend
  * - Norwegian localization with custom terminology
  *
  * Key customizations:
@@ -19,13 +18,11 @@
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
-import { presentationTool } from 'sanity/presentation';
 import { nbNOLocale } from '@sanity/locale-nb-no';
 import { unsplashImageAsset } from 'sanity-plugin-asset-source-unsplash';
 import { schemaTypes } from './schemaTypes';
 import { structure } from './deskStructure';
 import { placeholderTextPlugin } from './plugins/placeholderTextPlugin';
-import { componentGuideTool } from './plugins/componentGuideTool';
 import { compositeArtistPublishAction } from './actions/compositeArtistPublishAction';
 import { compositeEventPublishAction } from './actions/compositeEventPublishAction';
 import { addArticleToArticlePageAction } from './actions/addArticleToArticlePageAction';
@@ -85,96 +82,6 @@ export default defineConfig({
     unsplashImageAsset(),
     // Custom placeholder text generator for content editors
     placeholderTextPlugin(),
-    // Component reference guide for editors
-    componentGuideTool(),
-    // Visual Editing integration with Astro frontend
-    presentationTool({
-      previewUrl: {
-        origin: process.env.SANITY_STUDIO_PREVIEW_URL || 'http://localhost:4321',
-        previewMode: {
-          enable: '/api/draft-mode/enable',
-          disable: '/api/draft-mode/disable',
-        },
-      },
-      resolve: {
-        locations: {
-          // Artist pages
-          artist: {
-            select: {
-              title: 'name',
-              slug: 'slug.current',
-            },
-            resolve: (doc) => ({
-              locations: [
-                {
-                  title: doc?.title || 'Untitled artist',
-                  href: `/artister/${doc?.slug}`,
-                },
-                {
-                  title: `${doc?.title || 'Untitled artist'} (EN)`,
-                  href: `/en/artists/${doc?.slug}`,
-                },
-              ],
-            }),
-          },
-          // Event pages
-          event: {
-            select: {
-              title_no: 'title_no',
-              title_en: 'title_en',
-              slug_no: 'slug_no.current',
-              slug_en: 'slug_en.current',
-            },
-            resolve: (doc) => ({
-              locations: [
-                {
-                  title: doc?.title_no || 'Untitled event',
-                  href: `/program/${doc?.slug_no}`,
-                },
-                ...(doc?.slug_en
-                  ? [
-                      {
-                        title: doc?.title_en || 'Untitled event (EN)',
-                        href: `/en/program/${doc?.slug_en}`,
-                      },
-                    ]
-                  : []),
-              ],
-            }),
-          },
-          // Article pages
-          article: {
-            select: {
-              title: 'title',
-              slug: 'slug.current',
-            },
-            resolve: (doc) => ({
-              locations: [
-                {
-                  title: doc?.title || 'Untitled article',
-                  href: `/artikler/${doc?.slug}`,
-                },
-              ],
-            }),
-          },
-          // Homepage
-          homepage: {
-            select: {
-              title: 'title',
-              isDefault: 'isDefault',
-            },
-            resolve: (doc) => ({
-              locations: [
-                {
-                  title: doc?.title || 'Homepage',
-                  href: '/',
-                },
-              ],
-            }),
-          },
-        },
-      },
-    }),
   ],
 
   schema: {
