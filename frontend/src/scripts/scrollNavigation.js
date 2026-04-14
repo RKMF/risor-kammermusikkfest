@@ -1,31 +1,7 @@
-/**
- * Scroll Navigation - Handles horizontal scroll container navigation buttons.
- *
- * Provides navigation buttons (prev/next arrows) for horizontal scroll containers,
- * enabling mouse-only users to navigate content that would otherwise require
- * a trackpad or horizontal scroll wheel.
- *
- * Features:
- * - Smart visibility: hides buttons at scroll boundaries
- * - No-overflow detection: hides buttons when content fits
- * - Smooth scrolling with prefers-reduced-motion support
- * - HTMX integration: reinitializes after content swaps
- *
- * Usage:
- *   import { initScrollNavigation } from './scrollNavigation.js';
- *   initScrollNavigation();
- */
+/** Horizontal scroll navigation for carousels and filter rows. */
 
-/**
- * Debounce delay for scroll event handling (ms).
- * Prevents excessive updates during continuous scrolling.
- */
 const SCROLL_DEBOUNCE_MS = 50;
 
-/**
- * Tolerance in pixels for boundary detection.
- * Accounts for sub-pixel rendering differences.
- */
 const BOUNDARY_TOLERANCE = 2;
 
 /**
@@ -78,22 +54,12 @@ function hasOverflow(container) {
   return container.scrollWidth > container.clientWidth + BOUNDARY_TOLERANCE;
 }
 
-/**
- * Resolves which stepping strategy a wrapper should use.
- * Defaults to item-based movement for content carousels.
- * @param {HTMLElement} wrapper - The wrapper containing container and nav
- * @returns {'item' | 'page'} Step strategy
- */
+/** Resolve whether a wrapper scrolls by item or by page width. */
 function getStepMode(wrapper) {
   return wrapper.dataset.scrollStep === 'page' ? 'page' : 'item';
 }
 
-/**
- * Resolves scroll snap items inside a container.
- * Handles wrappers that use display: contents on intermediate list items.
- * @param {HTMLElement} container - The scroll container
- * @returns {HTMLElement[]} Concrete scroll targets
- */
+/** Resolve concrete scroll targets, including wrappers that use `display: contents`. */
 function getScrollItems(container) {
   return Array.from(container.children)
     .map((child) => {
@@ -163,7 +129,6 @@ function updateButtonStates(container, nav, stepMode, items = []) {
   const prevBtn = nav.querySelector('[data-direction="prev"]');
   const nextBtn = nav.querySelector('[data-direction="next"]');
 
-  // Check if content overflows
   if (!hasOverflow(container)) {
     nav.dataset.noOverflow = 'true';
     return;
@@ -188,7 +153,6 @@ function updateButtonStates(container, nav, stepMode, items = []) {
     return;
   }
 
-  // Update boundary states
   if (prevBtn) {
     prevBtn.dataset.atBoundary = isAtStart(container) ? 'true' : 'false';
   }
@@ -229,10 +193,6 @@ function scrollContainer(container, direction, stepMode, items = []) {
   });
 }
 
-/**
- * Selectors for scrollable container elements.
- * Includes main scroll containers and filter button containers.
- */
 const SCROLL_CONTAINER_SELECTORS = [
   '.scroll-container',
   '.scroll-container--always',
@@ -240,20 +200,13 @@ const SCROLL_CONTAINER_SELECTORS = [
   '.venue-filter-buttons'
 ].join(', ');
 
-/**
- * Finds the navigation element for a scroll container.
- * Nav can be either a sibling (new layout) or child (legacy) of wrapper.
- * @param {HTMLElement} wrapper - The wrapper element
- * @returns {HTMLElement|null} The nav element or null
- */
 function findNavForWrapper(wrapper) {
-  // First check: nav as next sibling (new layout - buttons outside content)
+  // Prefer the current sibling layout, then fall back to the legacy nested one.
   const nextSibling = wrapper.nextElementSibling;
   if (nextSibling?.classList.contains('scroll-nav')) {
     return nextSibling;
   }
 
-  // Fallback: nav as child (legacy layout)
   return wrapper.querySelector('.scroll-nav');
 }
 
@@ -273,24 +226,19 @@ function setupScrollContainer(wrapper) {
   const stepMode = getStepMode(wrapper);
   const getItems = () => getScrollItems(container);
 
-  // Initial state update
   updateButtonStates(container, nav, stepMode, getItems());
 
-  // Debounced scroll handler
   const handleScroll = debounce(() => {
     updateButtonStates(container, nav, stepMode, getItems());
   }, SCROLL_DEBOUNCE_MS);
 
-  // Listen for scroll events
   container.addEventListener('scroll', handleScroll, { passive: true });
 
-  // Listen for resize (container might gain/lose overflow)
   const resizeObserver = new ResizeObserver(() => {
     updateButtonStates(container, nav, stepMode, getItems());
   });
   resizeObserver.observe(container);
 
-  // Handle button clicks
   nav.addEventListener('click', (event) => {
     const button = event.target.closest('.scroll-nav__btn');
     if (!button) return;
@@ -311,20 +259,9 @@ function initAllScrollContainers() {
   wrappers.forEach(setupScrollContainer);
 }
 
-/**
- * Initializes scroll navigation.
- *
- * Sets up:
- * - Initial scroll containers on the page
- * - HTMX event listener to reinitialize after content swaps
- *
- * Call this once on page load.
- */
 export function initScrollNavigation() {
-  // Initialize existing containers
   initAllScrollContainers();
 
-  // Reinitialize after HTMX swaps new content
   document.body.addEventListener('htmx:afterSettle', () => {
     initAllScrollContainers();
   });

@@ -1,50 +1,7 @@
-/* Design Tokens - Norwegian Events Site */
-
-/* ============================================
-   BROWSER SUPPORT POLICY
-   ============================================
-
-   This CSS is designed for modern browsers with progressive enhancement.
-
-   MODERN FEATURES USED:
-   - CSS Custom Properties (var()) - 97%+ support
-   - CSS Grid - 96%+ support
-   - Flexbox - 99%+ support
-   - clamp() - 93%+ support
-   - Logical Properties (block-size, inline-size) - 95%+ support
-   - Container Queries (@container) - 93%+ support
-
-   TARGET BROWSERS:
-   - Chrome/Edge 105+ (full support including container queries)
-   - Firefox 121+ (full support including container queries)
-   - Safari 15.4+ (full support including container queries)
-   - Modern mobile browsers (iOS 15.4+, Android Chrome 105+)
-
-   UNSUPPORTED BROWSERS:
-   - Internet Explorer (end of life, no support)
-   - Safari < 15.4 (lacks container queries)
-   - Chrome < 105 (lacks container queries)
-
-   FALLBACK STRATEGY:
-   - Core content remains accessible and functional in all browsers
-   - Older browsers receive simplified but usable layouts
-   - Progressive enhancement over graceful degradation
-   - Use @supports queries for modern feature detection
-   - Traditional media queries as fallback for container queries
-
-   TESTING PRIORITY:
-   1. Latest Chrome (primary development)
-   2. Latest Safari (iOS/macOS consistency)
-   3. Latest Firefox (standards compliance)
-   4. Safari iOS 15.4+ (container query baseline)
-
-   See CSS_ARCHITECTURE.md for full browser support documentation.
-*/
+/* Shared design tokens. */
 
 :root {
-  /* Colors - Using Norwegian/Nordic inspired palette */
-  
-  /* Primary - Deep blue from Norwegian flag */
+  /* Primary */
   --color-primary-50: #e6f0ff;
   --color-primary-100: #bdd8ff;
   --color-primary-200: #94bfff;
@@ -56,7 +13,7 @@
   --color-primary-800: #002952;
   --color-primary-900: #001429;
   
-  /* Secondary - Red accent from Norwegian flag */
+  /* Secondary */
   --color-secondary-50: #ffebee;
   --color-secondary-100: #ffcdd2;
   --color-secondary-200: #ef9a9a;
@@ -68,9 +25,7 @@
   --color-secondary-800: #8b0000;
   --color-secondary-900: #5f0000;
 
-  /* Brand Colors - Project-specific palette */
-
-  /* Blue - #1B198F */
+  /* Brand colors */
   --color-blue: #1B198F;
   --color-blue-50: #f0f0fc;
   --color-blue-100: #dcdcf7;
@@ -83,7 +38,6 @@
   --color-blue-800: #0b0a39;
   --color-blue-900: #06051d;
 
-  /* Red - #FB534B */
   --color-red: #FB534B;
   --color-red-50: #ffefee;
   --color-red-100: #fed9d7;
@@ -96,7 +50,6 @@
   --color-red-800: #8f1a19;
   --color-red-900: #760e0f;
 
-  /* Yellow - #DB901B */
   --color-yellow: #DB901B;
   --color-yellow-50: #fdf7ea;
   --color-yellow-100: #fbeed4;
@@ -109,7 +62,6 @@
   --color-yellow-800: #753a0a;
   --color-yellow-900: #532105;
 
-  /* Green - #00B39A */
   --color-green: #00B39A;
   --color-green-50: #e6f7f4;
   --color-green-100: #ccefe9;
@@ -122,11 +74,9 @@
   --color-green-800: #00473d;
   --color-green-900: #00241f;
 
-  /* Cream - warm off-white tones */
+  /* Neutrals */
   --color-cream: #e9e2dc;
   --color-cream-light: #f2f0ed;
-
-  /* Neutral - Grays */
   --color-neutral-50: #fafafa;
   --color-neutral-100: #f5f5f5;
   --color-neutral-200: #eeeeee;
@@ -164,7 +114,7 @@
   --color-card-text: var(--color-blue);
   --color-card-text-hover: var(--color-blue-600);
 
-  /* Hover tint colors - solid equivalents for cream background compatibility */
+  /* Hover tints tuned for the cream background. */
   --color-tint-blue-light: #ecedfa;   /* Light blue tint - for buttons/links */
   --color-tint-blue-medium: #e4e3f2;  /* Medium blue tint - for card backgrounds */
   --color-tint-green-light: #ebf9f7;  /* Light green tint - for hover states */
@@ -177,7 +127,7 @@
   --color-link-visited-hover: var(--color-green);
   --color-link-focus-bg: #e8e8f4;  /* Focus ring blue - solid for cream background */
 
-  /* Link transitions - shared across all link patterns */
+  /* Link transitions */
   --transition-link-standard:
     color var(--transition-fast),
     text-decoration-thickness var(--transition-fast),
@@ -192,32 +142,14 @@
   --color-error: var(--color-secondary-500);
   
   /* Typography */
-  /* Metric-adjusted fallbacks reduce layout shift during font loading */
+  /* Metric-adjusted fallbacks reduce layout shift during font loading. */
   --font-family-serif: 'Domaine Text', 'Domaine Text Fallback', 'Times New Roman', serif;
   --font-family-sans: 'Akkurat Pro', 'Akkurat Pro Fallback', Arial, sans-serif;
   --font-family-base: var(--font-family-sans);
   --font-family-heading: var(--font-family-serif);
   --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 
-  /* ============================================
-     FLUID TYPOGRAPHY - Utopia Type Scale
-     ============================================
-
-     Generated with Utopia Type Calculator
-     https://utopia.fyi/type/calculator/?c=320,16,1.2,1240,18,1.25,9,2,&s=0.75|0.5|0.25,1.5|2|3|4|6,s-l
-
-     DESIGN PHILOSOPHY:
-     This type scale uses the Major Third (1.25) ratio - a genuine musical interval
-     from just intonation (5:4 frequency ratio). This creates visual harmony that
-     aligns with the mathematical beauty inherent in classical music.
-
-     PARAMETERS:
-     - Viewport Range: 320px (mobile) → 1240px (desktop)
-     - Min Scale (320px): 16px base, 1.2 ratio (Minor Third - tighter on mobile)
-     - Max Scale (1240px): 18px base, 1.25 ratio (Major Third - elegant on desktop)
-     - Total Steps: 9 (--step--2 through --step-6)
-
-     USAGE GUIDELINES:
+  /* Fluid type and spacing scales. */
      --step--2:  Micro text, fine print, legal disclaimers (13px → 14px)
      --step--1:  Small UI, captions, labels, metadata (15px → 18px)
      --step-0:   Body text, paragraphs (18px → 23px) ← Primary reading size
