@@ -18,7 +18,9 @@ Only `.env.example` should be committed (with placeholders only).
 
 ### Layer 2: Pre-Commit Hook
 
-An automated script runs before every commit checking for:
+The repo ships a tracked hook in `.githooks/pre-commit`, installed locally via `npm install` or `npm run prepare`.
+
+It checks for:
 1. Accidental `.env` files
 2. API keys and tokens (pattern matching)
 3. Large files (warning only)
@@ -111,15 +113,29 @@ File: `.github/workflows/deploy.yml`
 - **Install strategy:** Uses `npm ci` from the workspace root and builds/deploys the `studio` workspace only
 - **Maintenance:** Action SHAs are updated manually during workflow/security review or when the workflow runtime changes. This repo does not rely on Dependabot for action pin updates.
 
+### Repo-Visible vs External Security Tasks
+
+**Documented in this repo:**
+- tracked hook behavior in `.githooks/`
+- workflow permissions and SHA-pinned actions
+- secrets referenced via `${{ secrets.* }}` instead of hardcoded values
+- `.env.example` as the only committed env template
+
+**Must be reviewed outside the repo:**
+- GitHub repository secrets and their current necessity
+- Vercel environment variables and environment-specific values
+- Sanity token inventory, scopes, and revocation
+- whether the public Sanity dataset ACL remains an intentional choice
+
 ---
 
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| Hook not running | `chmod +x .git/hooks/pre-commit` |
+| Hook not running | `npm install` or `npm run prepare`, then verify `git config --get core.hooksPath` returns `.githooks` |
 | False positive | Review pattern, use placeholder, or `--no-verify` |
-| Hook missing after clone | Copy from team member (`.git/hooks/` not tracked) |
+| Hook missing after clone | Run `npm install` or `npm run prepare` to configure `.githooks` for the checkout |
 
 ---
 

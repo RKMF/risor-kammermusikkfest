@@ -1,39 +1,37 @@
-Debug: $ARGUMENTS
+Debug an issue: $ARGUMENTS
 
-**Mode:** Steps 1-2, 4 work in plan mode (investigate, plan). Exit plan mode at Step 3 to test/fix.
+**Mode:** Investigate first, then implement the smallest fix that holds up under verification.
 
-## 1. Reproduce & Evidence
-- Can you trigger it consistently? Minimal reproduction?
-- Gather: error messages, console logs, network tab
-- Look for patterns: timing, frequency, boundary conditions
+## Use This When
+- a bug needs reproduction and root-cause analysis
+- behavior differs between expected and actual output
+- you need a disciplined path from evidence to fix
 
-## 2. Understand & Hypothesize
-- Trace code path from trigger to failure
-- Compare: what differs between working and broken state?
-- Check recent changes: `git log --oneline -10`, consider `git bisect`
-- Form hypothesis: where is the bug and why?
+## Step 1: Reproduce and Gather Evidence
+- identify the smallest reliable reproduction
+- capture the exact error, log output, or broken UI state
+- note timing, environment, and boundary conditions
 
-## 3. Test Hypothesis
-Before writing any fix:
-- Add logging/console.log to verify hypothesis
-- If hypothesis wrong, return to step 2
+## Step 2: Trace and Form a Hypothesis
+- follow the path from trigger to failure
+- compare working and broken states
+- inspect recent relevant changes if the regression is recent
+- state the most likely root cause in one sentence
 
-## 4. Plan the Fix
-Present before implementing:
-- **Problem**: [root cause - one sentence]
-- **Fix**: [solution approach - one sentence]
-- **Risk**: [what could break?]
-- **Test**: [how to verify?]
+## Step 3: Verify the Hypothesis
+- add temporary diagnostics only if needed
+- confirm the suspected root cause before changing logic
+- if the hypothesis fails, return to Step 2
 
-Ask for approval before proceeding.
+## Step 4: Fix With Minimal Scope
+- make the smallest change that addresses the root cause
+- avoid opportunistic refactors unless they are necessary for the fix
 
-## 5. Fix & Verify
-- Make smallest change that fixes issue
-- Test the specific bug is resolved
-- Test related functionality didn't break
-- Run build/typecheck if applicable
+## Step 5: Verify the Fix
+- retest the original reproduction
+- test the closest related path that could regress
+- run typecheck, build, or targeted verification if the change touches shared logic
 
-## 6. Prevent Recurrence
-- Search for similar patterns: are there other instances?
-- Add code comment if pattern could recur
-- If complex fix, note in relevant docs
+## Step 6: Prevent Recurrence
+- search for the same pattern elsewhere if the bug suggests duplication
+- add a brief code comment or doc note only if the behavior is easy to misread later
