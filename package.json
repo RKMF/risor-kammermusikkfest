@@ -2,6 +2,9 @@
   "name": "risor-kammermusikkfest",
   "private": true,
   "packageManager": "npm@10.8.2",
+  "engines": {
+    "node": "22.x"
+  },
   "workspaces": [
     "studio",
     "frontend"
@@ -18,7 +21,7 @@
     "clean": "npm run clean --workspaces --if-present",
     "check-deps": "npm ls 2>&1 | grep -i 'peer dep\\|UNMET' || echo 'All peer deps satisfied'",
     "check-deps:root": "npm ls --workspaces=false 2>&1 | grep -i 'peer dep\\|UNMET' || echo 'All peer deps satisfied'",
-    "typegen": "cd studio && npx sanity schema extract --path=../frontend/sanity/extract.json && npx sanity typegen generate --config-path=../frontend/sanity-typegen.json"
+    "typegen": "npm run typegen --workspace=studio"
   },
   "devDependencies": {
     "vite": "7.3.1"
