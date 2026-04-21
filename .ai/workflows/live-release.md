@@ -40,16 +40,7 @@ Never delete `staging` or `main` as part of this workflow.
 If repository settings or branch protection block merge commits for the production PR, stop and fix that policy first instead of falling back to squash.
 
 ## Step 4: Sync `staging` To The Released `main` Tip
-Preferred path:
-
-Open a sync PR from `main` to `staging` and merge it with a regular merge commit.
-
-```bash
-gh pr create --base staging --head main --title "Sync staging to released main"
-gh pr merge --merge
-```
-
-Optional shortcut only when the runner explicitly has permission to push directly to `staging`:
+Required path:
 
 ```bash
 git fetch origin main staging
@@ -58,9 +49,11 @@ git merge --ff-only origin/main
 git push origin staging
 ```
 
+This step must be a direct fast-forward so `staging` ends on the exact same commit as the released `main` tip.
+Do not replace this with a PR-based sync merge; that creates a staging-only merge commit and breaks exact branch sync.
 Do not use squash or rebase for the sync step.
 Do not delete `staging` or `main` during or after the sync step.
-Do not assume direct push to `staging` is allowed.
+If permissions or branch protection block this fast-forward push, stop and fix that policy before treating the workflow as complete.
 
 ## Step 5: Verify Permanent-Branch Alignment
 Run:
@@ -96,7 +89,7 @@ Report:
 - production PR URL
 - merge method used
 - whether `staging` was synced to the released `main` tip
-- whether the sync used a PR or an allowed direct fast-forward push
+- whether the direct fast-forward sync completed successfully
 - whether `main` and `staging` are ancestry-aligned locally
 - whether Studio files changed
 - whether Studio deployment needs follow-up
@@ -108,5 +101,5 @@ Report:
 - no command in this workflow may delete `staging` or `main`, directly or indirectly
 - use a merge commit for `staging` → `main`
 - sync `staging` to the released `main` tip immediately after production release
-- use a regular merge commit for any required `main` → `staging` sync PR
+- use a direct `--ff-only` sync so `main` and `staging` end on the same commit
 - do not fall back to squash for permanent-branch promotion or sync
