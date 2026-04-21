@@ -72,6 +72,9 @@ If a rule is obvious from code or config, link to the source or fix the structur
 - Start work from `staging`, not `main`.
 - Release flow is `feature/* -> staging -> main`.
 - `staging` and `main` are permanent branches tied to deployments and must not be deleted.
+- Use squash merge for disposable work branches into `staging`.
+- Use a merge commit for `staging` → `main` so production promotes the exact tested branch history.
+- After production release, sync `staging` back to the released `main` tip so the permanent branches stay ancestry-aligned.
 - Use the repo workflows for preparation and release:
   - `.ai/workflows/preparation.md`
   - `.ai/workflows/dev-release.md`
