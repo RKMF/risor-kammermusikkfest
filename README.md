@@ -25,6 +25,7 @@ npm run typecheck
 ```
 
 Deployment flow: `feature/* -> staging -> main`
+Feature branches squash into `staging`; production promotion from `staging` to `main` should preserve ancestry and then sync `staging` to the released `main` tip.
 
 ## Repo Layout
 
