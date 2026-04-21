@@ -17,4 +17,4 @@ Use `.ai/workflows/start.md` as the primary startup workflow. This file is the s
 - Simple > clever, working > perfect
 - Kill servers before starting new ones
 - Feature branches from staging, never main
-- Squash merge to staging/main, regular merge for sync
+- Squash merge disposable branches into staging; preserve ancestry for staging/main promotion and sync

@@ -67,6 +67,7 @@ gh pr merge --squash --delete-branch
 ```
 
 `--delete-branch` removes the source branch only, not `staging`.
+Never delete `staging` or `main` as part of this workflow.
 
 ## Step 6: Sync Local Staging
 ```bash
@@ -84,8 +85,10 @@ Report:
 ## Rules
 - never release from `main`
 - use squash merge for branch → `staging`
+- treat feature/fix/chore branches as disposable; they do not need to stay ancestry-aligned with `staging`
 - delete the feature branch after merge
 - never delete `staging` or `main`
+- `--delete-branch` must only ever apply to the disposable source branch, never to `staging` or `main`
 - run typegen when schema files changed
 - run `npm run check:htmx` for frontend changes before release
 - do not proceed with failing local verification
