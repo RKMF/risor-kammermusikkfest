@@ -11,14 +11,7 @@
     "moduleDetection": "force",
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true,
-    "baseUrl": ".",
-    "paths": {
-      "sanity": ["./node_modules/sanity"],
-      "sanity/*": ["./node_modules/sanity/*"],
-      "@sanity/types": ["./node_modules/@sanity/types"],
-      "@sanity/types/*": ["./node_modules/@sanity/types/*"]
-    }
+    "incremental": true
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
   "exclude": ["node_modules"]

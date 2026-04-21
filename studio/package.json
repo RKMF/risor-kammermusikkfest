@@ -10,7 +10,8 @@
     "build": "sanity build",
     "deploy": "sanity deploy",
     "deploy-graphql": "sanity graphql deploy",
-    "extract-schema": "sanity schema extract --path=../frontend/sanity/extract.json",
+    "extract-schema": "sanity schema extract",
+    "typegen": "sanity schema extract && sanity typegen generate",
     "test": "vitest",
     "test:watch": "vitest --watch"
   },
@@ -37,6 +38,7 @@
     "eslint": "^9.28",
     "happy-dom": "20.0.11",
     "prettier": "^3.5",
+    "prettier-plugin-astro": "^0.14.1",
     "typescript": "5.9.3",
     "vitest": "^4.0.16"
   }
