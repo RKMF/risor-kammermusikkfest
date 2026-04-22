@@ -23,6 +23,8 @@ cd studio && npm run dev
 cd frontend && npm run dev
 ```
 
+Normal `cd studio && npm run dev` must stay non-mutating. Do not use `npm run dev:typegen` unless you explicitly want Studio to watch and rewrite generated Sanity artifacts during the session.
+
 Verify:
 ```bash
 lsof -ti:3333 && echo "Studio on 3333" || echo "Studio failed"
