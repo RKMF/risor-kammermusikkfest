@@ -86,7 +86,7 @@
   container-type: inline-size; /* Enable container queries for h1 sizing */
 }
 
-.event-title {
+.event-page__title {
   margin: 0 0 var(--space-6) 0; /* 24-30px - matches program page */
   font-size: var(--heading-h1); /* Fluid 37-69px with cqi sizing for Norwegian long words */
   word-wrap: break-word;
@@ -94,7 +94,7 @@
   hyphens: none;
 }
 
-.event-excerpt {
+.event-page__excerpt {
   max-inline-size: 70ch;
   inline-size: 100%;
   margin-block-end: var(--space-6);
@@ -105,7 +105,7 @@
 }
 
 /* Event metadata (date, time, venue) - definition list */
-dl.event-meta {
+dl.event-page__meta {
   display: flex;
   flex-direction: column;
   gap: var(--space-1); /* 2-3px between metadata items */
@@ -116,7 +116,7 @@ dl.event-meta {
 }
 
 /* Screen reader only labels for dt elements */
-.event-meta dt {
+.event-page__meta dt {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -128,12 +128,12 @@ dl.event-meta {
   border-width: 0;
 }
 
-.event-meta dd {
+.event-page__meta dd {
   margin: 0;
 }
 
 /* Extra space before venue (last dd) - scoped to event detail pages only */
-.event-info-box .event-meta dd:last-of-type {
+.event-info-box .event-page__meta dd:last-of-type {
   margin-block-start: var(--space-s); /* 12-15px additional space before venue */
 }
 
