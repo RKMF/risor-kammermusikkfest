@@ -19,6 +19,7 @@ import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../l
 import { stegaClean } from '@sanity/client/stega';
 import type { EventResult } from '../lib/sanity/queries';
 import TicketButton from './TicketButton.astro';
+import '../styles/event-card.css';
 
 export interface Props {
   /** Event data from Sanity */
@@ -41,7 +42,7 @@ const dateLabel = language === 'en' ? 'Date and time' : 'Dato og tid';
 const venueLabel = language === 'en' ? 'Venue' : 'Sted';
 ---
 
-<article class="event-card card" data-event-date={event.eventDate?.date}>
+<article class="event-card" data-event-date={event.eventDate?.date}>
   <hgroup>
     <h3 class="event-title">
       <a href={eventPath} class="event-title-link card-link">
