@@ -7,6 +7,9 @@ export {
   generateHeadingId,
   validateHeadingHierarchy,
 } from './content/Heading';
+export { homepageH1Component } from './content/HomepageH1';
+export { homepageHeroComponent, homepageHeroLink } from './content/HomepageHero';
+export { homepageEventCardsComponent } from './content/HomepageEventCards';
 export {
   portableText,
   renderPortableText,
@@ -46,3 +49,4 @@ export { articleScrollContainer } from './sections/ArticleScrollContainer';
 
 // Page Builder
 export { pageBuilder } from './PageBuilder';
+export { homepagePageBuilder } from './HomepagePageBuilder';

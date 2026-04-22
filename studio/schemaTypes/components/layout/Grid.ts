@@ -57,21 +57,6 @@ export const gridComponent = defineType({
       },
       initialValue: '4:5',
     }),
-    defineField({
-      name: 'gap',
-      title: 'Avstand mellom elementer',
-      type: 'string',
-      description: 'Hvor mye plass skal det være mellom elementene?',
-      options: {
-        list: [
-          { title: 'Liten', value: 'small' },
-          { title: 'Medium', value: 'medium' },
-          { title: 'Stor', value: 'large' },
-        ],
-        layout: 'radio',
-      },
-      initialValue: 'medium',
-    }),
   ],
   preview: {
     select: {
@@ -79,17 +64,15 @@ export const gridComponent = defineType({
       columns: 'columns',
       items: 'items',
       aspectRatio: 'aspectRatio',
-      gap: 'gap',
     },
-    prepare({ title, columns, items, aspectRatio, gap }) {
+    prepare({ title, columns, items, aspectRatio }) {
       const itemCount = items?.length || 0;
       const columnText = columns === '2' ? '2 kolonner' : '3 kolonner';
-      const gapText = gap === 'small' ? 'liten' : gap === 'large' ? 'stor' : 'medium';
       const aspectText = aspectRatio || '4:5';
 
       return {
         title: title || 'Rutenett',
-        subtitle: `${columnText} • ${itemCount} elementer • ${aspectText} • ${gapText} avstand`,
+        subtitle: `${columnText} • ${itemCount} elementer • ${aspectText}`,
         media: ThLargeIcon,
       };
     },

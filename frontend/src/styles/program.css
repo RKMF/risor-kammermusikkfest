@@ -353,44 +353,6 @@
 
 /* Full viewport-width background band removed - no background tint */
 
-/* Fixed-Size Grid System - NRK-inspired approach */
-.events-grid {
-  container-type: inline-size;
-  display: grid;
-  gap: clamp(var(--space-l), 3vw, var(--space-6));
-  /* Fixed 320px cards - fits as many as possible */
-  grid-template-columns: repeat(auto-fill, 320px);
-  padding: 0;
-  contain: layout style;
-  /* Left-align cards to match date titles */
-  justify-content: start;
-  /* Vertical padding to accommodate card hover lift effects
-   * Required because contain: layout creates containment boundary that clips overflow
-   * Inherits same token used by .scroll-container */
-  padding-block: var(--scroll-container-padding-block);
-}
-
-/* ============================================
-   HORIZONTAL SCROLL MODE FOR EVENT CARDS
-   ============================================
-
-   Below 800px container width, switch from wrapping grid
-   to horizontal scrolling flexbox. Each date section scrolls
-   independently using scroll-container pattern.
-
-   Scroll behavior and styling now handled by:
-   - .scroll-container (base)
-   - .scroll-container--event-cards (sizing)
-   - .scroll-container--styled-scrollbar (scrollbar)
-*/
-
-@container (max-width: 800px) {
-  .events-grid {
-    /* Switch from grid to flex for horizontal scrolling */
-    display: flex;
-  }
-}
-
 /* No Results State */
 .no-results {
   text-align: center;
@@ -428,25 +390,3 @@
 /* ============================================
    ACCESSIBILITY & MOTION PREFERENCES
    ============================================ */
-
-/* Respect reduced motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  .events-grid {
-    scroll-behavior: auto;
-  }
-  /* Event card motion preferences moved to event-card.css */
-}
-
-/* Touch device optimizations for scroll mode */
-@media (pointer: coarse) {
-  @container (max-width: 800px) {
-    .events-grid {
-      /* Larger scrollbar for touch devices */
-      scrollbar-width: auto;
-    }
-
-    .events-grid::-webkit-scrollbar {
-      height: 12px;
-    }
-  }
-}

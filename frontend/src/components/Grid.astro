@@ -6,7 +6,6 @@ export interface Props {
   columns: '2' | '3'
   items: any[]
   aspectRatio?: '4:5' | '1:1'
-  gap?: 'small' | 'medium' | 'large'
   className?: string
   _key?: string
   _type?: string
@@ -17,20 +16,10 @@ const {
   columns = '3',
   items = [],
   aspectRatio = '4:5',
-  gap = 'medium',
   className = '',
   _key,
   _type,
 } = Astro.props
-
-// Map gap values to fluid spacing tokens
-const gapMap = {
-  small: 'var(--space-s-m)',      /* 12px → 20px fluid */
-  medium: 'var(--space-l-xl)',    /* 24px → 40px fluid */
-  large: 'var(--space-xl-2xl)',   /* 32px → 60px fluid */
-}
-
-const gapValue = gapMap[gap] || gapMap.medium
 
 // Convert aspectRatio string to CSS value
 const aspectMap: Record<string, string> = {
@@ -55,7 +44,7 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
     class={`grid-container ${isOdd ? 'has-odd-items' : ''}`}
     data-columns={columns}
     data-layout-context="grid"
-    style={`--grid-gap: ${gapValue}; --grid-aspect-ratio: ${aspectValue};`}
+    style={`--grid-aspect-ratio: ${aspectValue};`}
   >
     {items.map((item, index) => (
       <div class={`grid-item ${isOdd && index >= itemCount - (itemCount % columnsNumber) ? 'bottom-row' : ''}`}>
@@ -79,7 +68,7 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
 
   .grid-container {
     display: grid;
-    gap: var(--grid-gap, var(--space-l-xl)); /* Default fluid gap: 24px → 40px */
+    gap: var(--space-s-m);
     width: 100%;
     align-items: stretch;
 
@@ -180,7 +169,7 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
   /* Container query: Adjust gap in narrow containers */
   @container grid-layout (max-width: 600px) {
     .grid-container {
-      gap: var(--space-m-l); /* Slightly smaller gap when narrow */
+      gap: var(--space-s-m);
     }
   }
 

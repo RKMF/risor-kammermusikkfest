@@ -1,6 +1,8 @@
 import { fileURLToPath } from 'node:url';
 import { defineCliConfig } from 'sanity/cli';
 
+const enableGeneratedArtifactsInDev = process.env.SANITY_STUDIO_WRITE_GENERATED_ARTIFACTS === 'true';
+
 const codemirrorPackageAliases = {
   '@codemirror/state': fileURLToPath(new URL('./node_modules/@codemirror/state', import.meta.url)),
   '@codemirror/commands': fileURLToPath(
@@ -19,11 +21,11 @@ export default defineCliConfig({
     dataset: 'production',
   },
   schemaExtraction: {
-    enabled: true,
+    enabled: enableGeneratedArtifactsInDev,
     path: '../frontend/sanity/extract.json',
   },
   typegen: {
-    enabled: true,
+    enabled: enableGeneratedArtifactsInDev,
     path: '../frontend/src/pages/api/**/*.{ts,js}',
     schema: '../frontend/sanity/extract.json',
     generates: '../frontend/sanity/sanity.types.ts',

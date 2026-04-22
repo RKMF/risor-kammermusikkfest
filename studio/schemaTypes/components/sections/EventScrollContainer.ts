@@ -130,31 +130,7 @@ export const generateEventScrollHtml: ComponentHTMLGenerator<EventScrollContaine
     ? `card-format-${data.cardFormat.replace(':', '-')}`
     : 'card-format-16-9';
 
-  // Sort events based on selected sort option
-  let sortedEvents = [...data.items];
-  switch (data.sortBy) {
-    case 'date-asc':
-      sortedEvents.sort((a, b) => {
-        const dateA = a.eventDate?.date ? new Date(a.eventDate.date) : new Date(0);
-        const dateB = b.eventDate?.date ? new Date(b.eventDate.date) : new Date(0);
-        return dateA.getTime() - dateB.getTime();
-      });
-      break;
-    case 'date-desc':
-      sortedEvents.sort((a, b) => {
-        const dateA = a.eventDate?.date ? new Date(a.eventDate.date) : new Date(0);
-        const dateB = b.eventDate?.date ? new Date(b.eventDate.date) : new Date(0);
-        return dateB.getTime() - dateA.getTime();
-      });
-      break;
-    case 'title-asc':
-      sortedEvents.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-      break;
-    case 'manual':
-    default:
-      // Keep manual order (no sorting)
-      break;
-  }
+  const sortedEvents = sortEvents(data.items, data.sortBy || 'date-asc');
 
   const itemsHtml = sortedEvents
     .map((event) => {
@@ -266,17 +242,9 @@ export function sortEvents(events: any[], sortBy: string): any[] {
 
   switch (sortBy) {
     case 'date-asc':
-      return sortedEvents.sort((a, b) => {
-        const dateA = a.eventDate?.date ? new Date(a.eventDate.date) : new Date(0);
-        const dateB = b.eventDate?.date ? new Date(b.eventDate.date) : new Date(0);
-        return dateA.getTime() - dateB.getTime();
-      });
+      return sortedEvents.sort(compareEventsAsc);
     case 'date-desc':
-      return sortedEvents.sort((a, b) => {
-        const dateA = a.eventDate?.date ? new Date(a.eventDate.date) : new Date(0);
-        const dateB = b.eventDate?.date ? new Date(b.eventDate.date) : new Date(0);
-        return dateB.getTime() - dateA.getTime();
-      });
+      return sortedEvents.sort(compareEventsDesc);
     case 'title-asc':
       return sortedEvents.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
     case 'manual':
@@ -417,4 +385,52 @@ export function generateEventScrollCSS(): string {
       font-weight: 600;
     }
   `;
+}
+
+function compareOptionalDateAsc(dateA?: string, dateB?: string): number {
+  if (!dateA && !dateB) return 0;
+  if (!dateA) return 1;
+  if (!dateB) return -1;
+  return dateA.localeCompare(dateB);
+}
+
+function compareOptionalDateDesc(dateA?: string, dateB?: string): number {
+  if (!dateA && !dateB) return 0;
+  if (!dateA) return 1;
+  if (!dateB) return -1;
+  return dateB.localeCompare(dateA);
+}
+
+function compareOptionalTimeAsc(timeA?: string, timeB?: string): number {
+  if (!timeA && !timeB) return 0;
+  if (!timeA) return 1;
+  if (!timeB) return -1;
+  return timeA.localeCompare(timeB);
+}
+
+function compareOptionalTimeDesc(timeA?: string, timeB?: string): number {
+  if (!timeA && !timeB) return 0;
+  if (!timeA) return 1;
+  if (!timeB) return -1;
+  return timeB.localeCompare(timeA);
+}
+
+function compareEventsAsc(a: any, b: any): number {
+  const dateComparison = compareOptionalDateAsc(a.eventDate?.date, b.eventDate?.date);
+  if (dateComparison !== 0) return dateComparison;
+
+  const timeComparison = compareOptionalTimeAsc(a.eventTime?.startTime, b.eventTime?.startTime);
+  if (timeComparison !== 0) return timeComparison;
+
+  return (a.title || '').localeCompare(b.title || '');
+}
+
+function compareEventsDesc(a: any, b: any): number {
+  const dateComparison = compareOptionalDateDesc(a.eventDate?.date, b.eventDate?.date);
+  if (dateComparison !== 0) return dateComparison;
+
+  const timeComparison = compareOptionalTimeDesc(a.eventTime?.startTime, b.eventTime?.startTime);
+  if (timeComparison !== 0) return timeComparison;
+
+  return (a.title || '').localeCompare(b.title || '');
 }

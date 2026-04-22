@@ -2,6 +2,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createDataService } from '../../lib/sanity/dataService.js';
 import { formatDateWithWeekday } from '../../lib/utils/dates';
+import { compareEventChronologicallyAsc } from '../../lib/utils/eventOrdering';
 import { stegaClean } from '@sanity/client/stega';
 import {
   rateLimit,
@@ -239,11 +240,7 @@ export const GET: APIRoute = async ({ request, url }) => {
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       .map((dateGroup) => ({
         ...dateGroup,
-        events: dateGroup.events.sort((a, b) => {
-          const timeA = a.eventTime?.startTime || '';
-          const timeB = b.eventTime?.startTime || '';
-          return timeA.localeCompare(timeB);
-        })
+        events: [...dateGroup.events].sort(compareEventChronologicallyAsc)
       }));
 
     // Apply filters
@@ -306,7 +303,7 @@ export const GET: APIRoute = async ({ request, url }) => {
           <section class="content-section date-section" data-date="${date}">
             <h2 class="date-title">${stegaClean(displayTitle)}</h2>
             <div class="scroll-container-wrapper" data-scroll-step="item">
-              <div class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar" role="region" tabindex="0" aria-label="${eventsLabel}">
+              <div class="event-card-collection scroll-container scroll-container--event-cards scroll-container--styled-scrollbar" role="region" tabindex="0" aria-label="${eventsLabel}">
                 ${eventCardsHtml}
               </div>
             </div>
