@@ -6,7 +6,7 @@ import type { AccordionData, ComponentHTMLGenerator, ValidationRule } from '../.
 
 export const accordionComponent = defineType({
   name: 'accordionComponent',
-  title: 'Nedtrekksmeny',
+  title: 'Trekkspillmeny',
   type: 'object',
   icon: DocumentIcon,
   fields: [
@@ -14,7 +14,7 @@ export const accordionComponent = defineType({
       name: 'title',
       title: 'Tittel',
       type: 'string',
-      description: 'Overskrift for nedtrekksmenyen',
+      description: 'Overskrift for trekkspillmenyen',
       validation: (Rule) => Rule.max(100).warning('Tittelen bør være maksimum 100 tegn'),
     }),
     defineField({
@@ -102,7 +102,7 @@ export const accordionComponent = defineType({
     prepare({ title, panelCount }) {
       const count = panelCount?.length || 0;
       return {
-        title: title || 'Nedtrekksmeny',
+        title: title || 'Trekkspillmeny',
         subtitle: `${count} panel${count !== 1 ? 'er' : ''}`,
         media: TiersIcon,
       };

@@ -1,6 +1,7 @@
 ---
 import { sanityClient } from "../lib/sanity/client";
 import { detectLanguage } from "../lib/utils/language.js";
+import { sortEventsByMode } from '../lib/utils/eventOrdering';
 import EventCard from './EventCard.astro';
 import ScrollNavigation from './ScrollNavigation.astro';
 import type { EventResult } from '../lib/sanity/queries';
@@ -24,6 +25,11 @@ const currentLanguage = detectLanguage(Astro.request)
 
 // Fetch actual event data from references
 let eventData: EventResult[] = []
+const manualOrder = new Map(
+  events
+    .map((item: any, index: number) => [item?._ref, index] as const)
+    .filter(([eventId]) => Boolean(eventId))
+)
 if (events && events.length > 0) {
   const eventIds = events.map((item: any) => item._ref).filter(Boolean)
   if (eventIds.length > 0) {
@@ -96,25 +102,21 @@ if (events && events.length > 0) {
 let sortedEvents = [...eventData]
 switch (sortBy) {
   case 'date-asc':
-    sortedEvents.sort((a, b) => {
-      const dateA = a.eventDate?.date ? new Date(a.eventDate.date) : new Date(0)
-      const dateB = b.eventDate?.date ? new Date(b.eventDate.date) : new Date(0)
-      return dateA.getTime() - dateB.getTime()
-    })
+    sortedEvents = sortEventsByMode(eventData, 'date-asc')
     break
   case 'date-desc':
-    sortedEvents.sort((a, b) => {
-      const dateA = a.eventDate?.date ? new Date(a.eventDate.date) : new Date(0)
-      const dateB = b.eventDate?.date ? new Date(b.eventDate.date) : new Date(0)
-      return dateB.getTime() - dateA.getTime()
-    })
+    sortedEvents = sortEventsByMode(eventData, 'date-desc')
     break
   case 'title-asc':
-    sortedEvents.sort((a, b) => (a.title || '').localeCompare(b.title || ''))
+    sortedEvents = sortEventsByMode(eventData, 'title-asc')
     break
   case 'manual':
   default:
-    // Keep manual order (no sorting)
+    sortedEvents = [...eventData].sort((a, b) => {
+      const indexA = manualOrder.get(a._id) ?? Number.MAX_SAFE_INTEGER
+      const indexB = manualOrder.get(b._id) ?? Number.MAX_SAFE_INTEGER
+      return indexA - indexB
+    })
     break
 }
 

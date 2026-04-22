@@ -1,0 +1,66 @@
+---
+import { detectLanguage } from '../lib/utils/language.js';
+import EventCard from './EventCard.astro';
+import ScrollNavigation from './ScrollNavigation.astro';
+import type { EventResult } from '../lib/sanity/queries';
+import '../styles/event-card.css';
+import '../styles/event-card-collection.css';
+
+interface Props {
+  title?: string;
+  items?: Array<EventResult & {
+    title_no?: string;
+    title_en?: string;
+    excerpt_no?: string;
+    excerpt_en?: string;
+  }>;
+}
+
+const { title, items = [] } = Astro.props;
+const language = detectLanguage(Astro.request);
+const sectionLabel = title || (language === 'no' ? 'Arrangementer' : 'Events');
+const localizedEvents = items.map((event) => ({
+  ...event,
+  title:
+    language === 'en'
+      ? event.title_en || event.title_no || event.title
+      : event.title_no || event.title_en || event.title,
+  excerpt:
+    language === 'en'
+      ? event.excerpt_en || event.excerpt_no || event.excerpt
+      : event.excerpt_no || event.excerpt_en || event.excerpt,
+}));
+---
+
+{localizedEvents.length > 0 && (
+  <section class="homepage-event-cards">
+    {title && <h2 class="homepage-event-cards__title">{title}</h2>}
+    <div class="scroll-container-wrapper" data-scroll-step="item">
+      <div
+        class="event-card-collection scroll-container scroll-container--event-cards scroll-container--styled-scrollbar"
+        role="region"
+        tabindex="0"
+        aria-label={sectionLabel}
+      >
+        {localizedEvents.map((event) => (
+          <EventCard event={event} language={language} />
+        ))}
+      </div>
+    </div>
+    <ScrollNavigation
+      size="medium"
+      ariaLabel={language === 'no' ? 'Bla gjennom arrangementer' : 'Scroll through events'}
+    />
+  </section>
+)}
+
+<style>
+  .homepage-event-cards {
+    margin-block: var(--space-m-l);
+  }
+
+  .homepage-event-cards__title {
+    margin-block-start: 0;
+    margin-block-end: var(--space-5);
+  }
+</style>

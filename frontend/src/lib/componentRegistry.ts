@@ -1,7 +1,10 @@
 import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
-import type { PageBuilder } from '../../sanity/sanity.types';
+import type { HomepagePageBuilder, PageBuilder } from '../../sanity/sanity.types';
 
 // Import all components that can be used in content blocks
+import HomepageH1 from '../components/HomepageH1.astro';
+import HomepageHero from '../components/HomepageHero.astro';
+import HomepageEventCards from '../components/HomepageEventCards.astro';
 import PortableText from '../components/PortableText.astro';
 import Heading from '../components/Heading.astro';
 import Image from '../components/Image.astro';
@@ -24,6 +27,9 @@ import ThreeColumn from '../components/ThreeColumn.astro';
 
 // Component registry mapping Sanity block types to Astro components
 export const componentRegistry: Record<string, AstroComponentFactory> = {
+  homepageH1Component: HomepageH1,
+  homepageHeroComponent: HomepageHero,
+  homepageEventCardsComponent: HomepageEventCards,
   portableTextBlock: PortableText,
   headingComponent: Heading,
   imageComponent: Image,
@@ -58,5 +64,7 @@ export function getComponent(type: string): AstroComponentFactory | null {
   return componentRegistry[type] || null;
 }
 
-// Type for content blocks - extracts discriminated union element type from PageBuilder array
-export type ContentBlock = PageBuilder extends Array<infer T> ? T : never;
+type BuilderBlock<T> = T extends Array<infer U> ? U : never;
+
+// Type for content blocks - extracts discriminated union element type from builder arrays
+export type ContentBlock = BuilderBlock<PageBuilder> | BuilderBlock<HomepagePageBuilder>;

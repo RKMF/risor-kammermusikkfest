@@ -32,6 +32,9 @@ const REF_PUBLISHED_FILTER = isStaging
   ? `(@->publishingStatus in ["staging", "published"] || !defined(@->publishingStatus))`
   : `(@->publishingStatus == "published" || !defined(@->publishingStatus))`
 
+const EVENT_ORDER_ASC = `eventDateValue asc, eventTime.startTime asc, coalesce(title_no, title_en, title) asc`
+const EVENT_ORDER_TIME_ASC = `eventTime.startTime asc, coalesce(title_no, title_en, title) asc`
+
 /**
  * Type-safe query definition with typed params and expected result.
  * All QueryBuilder methods return this interface for consistent data fetching.
@@ -150,6 +153,79 @@ const COUNTDOWN_COMPONENT = `
     ...
   }`
 
+const EVENT_IMAGE_SELECTION = `
+  "image": {
+    "image": image{
+      asset->{
+        _id,
+        url,
+        metadata {
+          dimensions {
+            width,
+            height,
+            aspectRatio
+          },
+          lqip,
+          palette {
+            dominant {
+              background,
+              foreground
+            }
+          }
+        }
+      },
+      hotspot,
+      crop
+    },
+    "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
+    "credit": coalesce(imageCredit_no, imageCredit_en)
+  }
+`
+
+const EVENT_DATE_SELECTION = `
+  eventDate->{
+    _id,
+    date,
+    title_display_no,
+    title_display_en,
+    "title": coalesce(title_display_no, title_display_en)
+  }
+`
+
+function buildEventCardFields(): string {
+  return `
+    _id,
+    _type,
+    title_no,
+    title_en,
+    "title": coalesce(title_no, title_en),
+    slug_no,
+    slug_en,
+    "slug": coalesce(slug_no.current, slug_en.current, slug.current),
+    excerpt_no,
+    excerpt_en,
+    "excerpt": coalesce(excerpt_no, excerpt_en),
+    ${EVENT_IMAGE_SELECTION},
+    ${EVENT_DATE_SELECTION},
+    eventTime,
+    venue->{
+      _id,
+      title,
+      name,
+      address,
+      city,
+      "slug": slug.current
+    },
+    ticketType,
+    ticketUrl,
+    ticketInfoText,
+    ticketStatus,
+    publishingStatus,
+    scheduledPeriod,
+    seo
+  `
+}
+
 // Items that can be nested in containers
 const NESTED_ITEMS = `
   ...,
@@ -189,6 +265,30 @@ const PAGE_CONTENT_WITH_LINKS = `
     ...,
     items[]{${NESTED_ITEMS}}
   },
+  _type == "homepageHeroComponent" => {
+    ...,
+    links[]{
+      _key,
+      linkType,
+      text,
+      description,
+      url,
+      "internalLink": select(
+        linkType == "internal" && defined(internalLink) => internalLink->{
+          _type,
+          "slug": coalesce(slug_no.current, slug_en.current, slug.current),
+          "slug_no": slug_no.current,
+          "slug_en": slug_en.current
+        }
+      )
+    }
+  },
+  _type == "homepageEventCardsComponent" => {
+    ...,
+    items[defined(@->) && ${REF_PUBLISHED_FILTER}]->{
+      ${buildEventCardFields()}
+    }
+  },
   _type == "accordionComponent" => {
     ...,
     panels[]{
@@ -211,45 +311,6 @@ const PAGE_CONTENT_WITH_LINKS = `
     column2[]{${NESTED_ITEMS}},
     column3[]{${NESTED_ITEMS}}
   }`
-
-const EVENT_IMAGE_SELECTION = `
-  "image": {
-    "image": image{
-      asset->{
-        _id,
-        url,
-        metadata {
-          dimensions {
-            width,
-            height,
-            aspectRatio
-          },
-          lqip,
-          palette {
-            dominant {
-              background,
-              foreground
-            }
-          }
-        }
-      },
-      hotspot,
-      crop
-    },
-    "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
-    "credit": coalesce(imageCredit_no, imageCredit_en)
-  }
-`
-
-const EVENT_DATE_SELECTION = `
-  eventDate->{
-    _id,
-    date,
-    title_display_no,
-    title_display_en,
-    "title": coalesce(title_display_no, title_display_en)
-  }
-`
 
 /**
  * Build GROQ projection for event documents with language-aware field coalescing.
@@ -498,36 +559,6 @@ const HOMEPAGE_QUERY = defineQuery(`*[_type == "homepage" && (
   ${createMultilingualField('title')},
   title_no,
   title_en,
-  headerLinks_no[]{
-    _key,
-    linkType,
-    text,
-    description,
-    url,
-    "internalLink": select(
-      linkType == "internal" && defined(internalLink) => internalLink->{
-        _type,
-        "slug": coalesce(slug_no.current, slug_en.current, slug.current),
-        "slug_no": slug_no.current,
-        "slug_en": slug_en.current
-      }
-    )
-  },
-  headerLinks_en[]{
-    _key,
-    linkType,
-    text,
-    description,
-    url,
-    "internalLink": select(
-      linkType == "internal" && defined(internalLink) => internalLink->{
-        _type,
-        "slug": coalesce(slug_no.current, slug_en.current, slug.current),
-        "slug_no": slug_no.current,
-        "slug_en": slug_en.current
-      }
-    )
-  },
   content_no[]{
     ${PAGE_CONTENT_WITH_LINKS}
   },
@@ -690,7 +721,7 @@ const buildArtistBySlugQuery = (language: Language = 'no') => defineQuery(`*[_ty
   websiteUrl,
   spotifyUrl,
   instagramUrl,
-  "events": *[_type == "event" && references(^._id) && ${PUBLISHED_FILTER}] | order(eventDate->date asc, eventTime.startTime asc){
+  "events": *[_type == "event" && references(^._id) && ${PUBLISHED_FILTER}] | order(${EVENT_ORDER_ASC}){
     ${buildEventBaseFields(language)},
     ticketType,
     ticketUrl,
@@ -719,7 +750,7 @@ const buildPublishedArtistsQuery = (language: Language = 'no') => defineQuery(`*
   ${buildArtistBaseFields(language)}
 }`)
 
-const buildPublishedEventsQuery = (language: Language = 'no') => defineQuery(`*[_type == "event" && ${PUBLISHED_FILTER}] | order(eventDate->date asc, eventTime.startTime asc){
+const buildPublishedEventsQuery = (language: Language = 'no') => defineQuery(`*[_type == "event" && ${PUBLISHED_FILTER}] | order(${EVENT_ORDER_ASC}){
   ${buildEventBaseFields(language)}
 }`)
 
@@ -735,7 +766,7 @@ const EVENT_DATES_QUERY = defineQuery(`*[_type == "eventDate" && isActive == tru
   "slug_en": slug_en.current
 }`)
 
-const buildEventsByDateQuery = (language: Language = 'no') => defineQuery(`*[_type == "event" && ${PUBLISHED_FILTER} && eventDate._ref == $dateId] | order(eventTime.startTime asc){
+const buildEventsByDateQuery = (language: Language = 'no') => defineQuery(`*[_type == "event" && ${PUBLISHED_FILTER} && eventDate._ref == $dateId] | order(${EVENT_ORDER_TIME_ASC}){
   ${buildEventBaseFields(language)}
 }`)
 

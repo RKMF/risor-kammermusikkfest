@@ -1,0 +1,173 @@
+---
+import { resolveLinkUrl } from '../lib/buildInternalUrl';
+import { sanityClient } from '../lib/sanity/client';
+import { QueryBuilder } from '../lib/sanity/queryBuilder.js';
+import { detectLanguage } from '../lib/utils/language.js';
+
+interface HeroLink {
+  _key?: string;
+  linkType?: 'external' | 'internal';
+  text?: string;
+  description?: string;
+  url?: string;
+  internalLink?: {
+    _type: string;
+    slug?: string;
+    slug_no?: string;
+    slug_en?: string;
+  };
+}
+
+interface Props {
+  links?: HeroLink[];
+}
+
+const { links = [] } = Astro.props;
+const language = detectLanguage(Astro.request);
+
+const config = {
+  no: {
+    ariaLogoLabel: 'Risør Kammermusikkfest',
+    ariaNavLabel: 'Hovedlenker',
+  },
+  en: {
+    ariaLogoLabel: 'Risor Chamber Music Festival',
+    ariaNavLabel: 'Main links',
+  },
+}[language];
+
+const hasLinks = links.length > 0;
+
+let tekstLogoSvg = '';
+try {
+  const { query: logoQuery, params: logoParams } = QueryBuilder.siteSettingsTekstLogo();
+  const logoData = await sanityClient.fetch<{ tekstLogo?: { image?: { asset?: { url?: string } } } }>(
+    logoQuery,
+    logoParams
+  );
+  const logoUrl = logoData?.tekstLogo?.image?.asset?.url;
+
+  if (logoUrl) {
+    const response = await fetch(logoUrl);
+    if (response.ok) {
+      let svgContent = await response.text();
+      svgContent = svgContent.replace(/fill:\s*rgb\([^)]+\)/g, 'fill:currentColor');
+      svgContent = svgContent.replace(/fill:\s*#[0-9a-fA-F]{3,6}/g, 'fill:currentColor');
+      tekstLogoSvg = svgContent;
+    }
+  }
+} catch (error) {
+  console.error('Failed to fetch logo SVG for homepage hero:', error);
+}
+---
+
+{tekstLogoSvg && (
+  <section class={`homepage-hero ${hasLinks ? 'homepage-hero--with-links' : ''}`}>
+    <div class="tekst-logo-container">
+      <div
+        class="tekst-logo"
+        role="img"
+        aria-label={config.ariaLogoLabel}
+        set:html={tekstLogoSvg}
+      />
+    </div>
+
+    {hasLinks && (
+      <nav class="header-links" aria-label={config.ariaNavLabel}>
+        {links.map((link) => (
+          <div class="header-link-item">
+            <a href={resolveLinkUrl(link, language)} class="header-link hover-underline">
+              <span class="header-link__text">{link.text} →</span>
+            </a>
+            {link.description && <p class="header-link__description">{link.description}</p>}
+          </div>
+        ))}
+      </nav>
+    )}
+  </section>
+)}
+
+<style>
+  .homepage-hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-m);
+    align-items: start;
+    margin-block: var(--space-l);
+    background-color: var(--color-tint-blue-medium);
+    padding: var(--space-l);
+  }
+
+  @media (min-width: 769px) {
+    .homepage-hero--with-links {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-l);
+      align-items: center;
+    }
+  }
+
+  .tekst-logo-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tekst-logo {
+    width: 100%;
+    max-width: clamp(280px, 50vw, 400px);
+    aspect-ratio: 4 / 5;
+    color: var(--color-blue);
+  }
+
+  .tekst-logo :global(svg) {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  :global(body.is-opera) .tekst-logo :global(svg) {
+    font-size-adjust: none;
+  }
+
+  .header-links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s-m);
+    padding-inline-start: var(--space-s);
+  }
+
+  .header-link-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .header-link {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-2xs) var(--space-xs);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--step-3);
+    line-height: var(--line-height-heading);
+    background-image: none;
+  }
+
+  .header-link:focus-visible {
+    background-color: var(--color-tint-blue-light);
+  }
+
+  .header-link__description {
+    margin: 0;
+    font-size: var(--step-0);
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+    padding-inline-start: calc(var(--space-xs) + var(--space-s));
+  }
+</style>
+
+<script>
+  if (navigator.userAgent.includes('OPR/')) {
+    document.body.classList.add('is-opera');
+  }
+</script>

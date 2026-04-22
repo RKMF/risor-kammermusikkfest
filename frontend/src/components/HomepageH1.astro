@@ -1,0 +1,46 @@
+---
+interface Props {
+  text: string;
+  id?: { current?: string } | string;
+  className?: string;
+  _key?: string;
+  _type?: string;
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+const props = Astro.props;
+const cleanText = props.text?.replace(/[\u200B-\u200D\uFEFF\u2060\u180E]/g, '').trim() || '';
+const htmlText = escapeHtml(cleanText).replace(/\r?\n/g, '<br />');
+const resolvedId = typeof props.id === 'string' ? props.id : props.id?.current;
+const cleanId = resolvedId?.replace(/[\u200B-\u200D\uFEFF\u2060\u180E]/g, '').trim();
+const { className = '', _key, _type } = props;
+---
+
+<h1
+  id={cleanId}
+  class={`homepage-h1-component ${className}`.trim()}
+  data-component="homepage-h1"
+  data-sanity={_key ? `${_type}.${_key}` : _type}
+>
+  <Fragment set:html={htmlText} />
+</h1>
+
+<style>
+  .homepage-h1-component {
+    font-size: clamp(var(--step-2), 5vw, var(--step-4));
+    text-align: center;
+    margin-block: var(--space-l);
+    color: var(--color-blue);
+    max-width: 20ch;
+    margin-inline: auto;
+    white-space: pre-line;
+  }
+</style>
