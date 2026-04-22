@@ -6,6 +6,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "dev": "sanity dev --port 3333",
+    "dev:typegen": "SANITY_STUDIO_WRITE_GENERATED_ARTIFACTS=true sanity dev --port 3333",
     "start": "sanity start",
     "build": "sanity build",
     "deploy": "sanity deploy",

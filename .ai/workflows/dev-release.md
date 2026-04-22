@@ -32,6 +32,8 @@ Branch naming:
 - if changes should not be included, stop and clean up the branch state first
 
 ## Step 3: Run Required Checks
+Normal Studio dev on `3333` should not rewrite tracked Sanity artifacts. Treat root `npm run typegen` as the only standard path for updating generated Sanity files during release prep.
+
 Check whether schema files changed relative to `staging`:
 ```bash
 git diff --name-only staging | grep "^studio/schemaTypes/"
@@ -90,5 +92,6 @@ Report:
 - never delete `staging` or `main`
 - `--delete-branch` must only ever apply to the disposable source branch, never to `staging` or `main`
 - run typegen when schema files changed
+- do not rely on a running Studio dev server to keep generated Sanity artifacts current
 - run `npm run check:htmx` for frontend changes before release
 - do not proceed with failing local verification
