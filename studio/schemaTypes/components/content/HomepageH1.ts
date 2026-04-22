@@ -28,7 +28,7 @@ export const homepageH1Component = defineType({
       type: 'slug',
       description: 'Valgfri unik ID for direkte lenking til forsidetittelen.',
       options: {
-        source: (doc: unknown, options: { parent?: { text?: string } }) => options.parent?.text || '',
+        source: (doc: any, options: any) => options.parent?.text || '',
         maxLength: 96,
         isUnique: () => true,
       },
