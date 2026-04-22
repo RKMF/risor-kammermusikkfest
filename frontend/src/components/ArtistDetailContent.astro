@@ -7,7 +7,7 @@ import ScrollNavigation from '../components/ScrollNavigation.astro';
 import { getMultilingualContent } from '../lib/utils/language.js';
 import type { ArtistResult } from '../lib/sanity/queries';
 import { stegaClean } from '@sanity/client/stega';
-import '../styles/event.css';
+import '../styles/event-card-collection.css';
 
 interface Props {
   artist: ArtistResult;
@@ -73,7 +73,7 @@ const excerpt = artist[config.excerptField];
       <section class="artist-events">
         <h2 class="artist-events-title">{config.concertsTitle}</h2>
         <div class="scroll-container-wrapper" data-scroll-step="item">
-          <div class="scroll-container scroll-container--always scroll-container--event-cards scroll-container--styled-scrollbar">
+          <div class="event-card-collection scroll-container scroll-container--always scroll-container--event-cards scroll-container--styled-scrollbar">
             {artist.events.map((event) => (
               <EventCard event={event} language={language} />
             ))}

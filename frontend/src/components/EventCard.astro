@@ -44,14 +44,14 @@ const venueLabel = language === 'en' ? 'Venue' : 'Sted';
 
 <article class="event-card" data-event-date={event.eventDate?.date}>
   <hgroup>
-    <h3 class="event-title">
-      <a href={eventPath} class="event-title-link card-link">
+    <h3 class="event-card__title">
+      <a href={eventPath} class="event-card__title-link card-link">
         {stegaClean(event.title)}
       </a>
     </h3>
 
     {event.excerpt && (
-      <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
+      <p class="event-card__excerpt">{stegaClean(event.excerpt)}</p>
     )}
   </hgroup>
 
@@ -71,11 +71,11 @@ const venueLabel = language === 'en' ? 'Venue' : 'Sted';
     </div>
   )}
 
-  <dl class="event-meta">
+  <dl class="event-card__meta">
     {event.eventDate?.date && (
       <>
         <dt class="visually-hidden">{dateLabel}</dt>
-        <dd class="event-datetime">
+        <dd class="event-card__datetime">
           <time datetime={event.eventDate.date}>
             {formatDateWithWeekday(event.eventDate.date, language)}{event.eventTime && (
               <>, kl. {stegaClean(event.eventTime.startTime)}</>
@@ -87,7 +87,7 @@ const venueLabel = language === 'en' ? 'Venue' : 'Sted';
     {event.venue?.title && (
       <>
         <dt class="visually-hidden">{venueLabel}</dt>
-        <dd class="event-venue">
+        <dd class="event-card__venue">
           {stegaClean(event.venue.title)}
         </dd>
       </>

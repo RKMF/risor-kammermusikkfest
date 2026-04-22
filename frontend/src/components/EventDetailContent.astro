@@ -76,13 +76,13 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
       <header class="event-info-box">
         <div class="event-header">
           <hgroup>
-            <h1 class="event-title">{stegaClean(event.title || '')}</h1>
+            <h1 class="event-page__title">{stegaClean(event.title || '')}</h1>
             {event.excerpt && (
-              <p class="event-excerpt">{stegaClean(event.excerpt)}</p>
+              <p class="event-page__excerpt">{stegaClean(event.excerpt)}</p>
             )}
           </hgroup>
 
-          <dl class="event-meta">
+          <dl class="event-page__meta">
             {event.eventDate?.date && (
               <>
                 <dt class="sr-only">{config.date}</dt>
@@ -104,7 +104,7 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
             {event.venue?.title && (
               <>
                 <dt class="sr-only">{config.venue}</dt>
-                <dd>{stegaClean(event.venue.title)}</dd>
+                <dd class="event-page__venue">{stegaClean(event.venue.title)}</dd>
               </>
             )}
           </dl>
