@@ -1,11 +1,13 @@
 Prepare the local dev environment and start a new working branch: $ARGUMENTS
 
-**Mode:** Execution workflow. Assumes `AGENTS.md` and `.ai/workflows/start.md` have already been used.
+**Mode:** Execution workflow.
 
 ## Use This When
 - starting a new feature or bugfix session
 - resetting local dev servers before implementation
 - creating a fresh branch from `staging`
+
+Read `AGENTS.md` first. Use `.ai/workflows/refresh.md` instead if you only need context recovery.
 
 ## Step 1: Clear Existing Dev Servers
 ```bash
