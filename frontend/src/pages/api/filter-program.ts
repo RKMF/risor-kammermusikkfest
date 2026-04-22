@@ -104,14 +104,14 @@ function generateEventCardHtml(event: ProgramEvent, language: 'no' | 'en'): stri
   }
 
   // Event meta (date/time and venue)
-  let metaHtml = '<dl class="event-meta">';
+  let metaHtml = '<dl class="event-card__meta">';
 
   if (event.eventDate?.date) {
     const dateDisplay = formatDateWithWeekday(event.eventDate.date, language);
     const timeDisplay = event.eventTime?.startTime ? `, kl. ${escapeHtml(stegaClean(event.eventTime.startTime) || '')}` : '';
     metaHtml += `
       <dt class="visually-hidden">${dateLabel}</dt>
-      <dd class="event-datetime">
+      <dd class="event-card__datetime">
         <time datetime="${event.eventDate.date}">${dateDisplay}${timeDisplay}</time>
       </dd>
     `;
@@ -120,7 +120,7 @@ function generateEventCardHtml(event: ProgramEvent, language: 'no' | 'en'): stri
   if (event.venue?.title) {
     metaHtml += `
       <dt class="visually-hidden">${venueLabel}</dt>
-      <dd class="event-venue">${escapeHtml(stegaClean(event.venue.title) || '')}</dd>
+      <dd class="event-card__venue">${escapeHtml(stegaClean(event.venue.title) || '')}</dd>
     `;
   }
 
@@ -144,12 +144,12 @@ function generateEventCardHtml(event: ProgramEvent, language: 'no' | 'en'): stri
   }
 
   // Excerpt
-  const excerptHtml = excerpt ? `<p class="event-excerpt">${escapeHtml(excerpt)}</p>` : '';
+  const excerptHtml = excerpt ? `<p class="event-card__excerpt">${escapeHtml(excerpt)}</p>` : '';
 
   return `
-    <article class="event-card card" data-event-date="${event.eventDate?.date || ''}">
-      <h3 class="event-title">
-        <a href="${eventPath}" class="event-title-link card-link">${escapeHtml(title)}</a>
+    <article class="event-card" data-event-date="${event.eventDate?.date || ''}">
+      <h3 class="event-card__title">
+        <a href="${eventPath}" class="event-card__title-link card-link">${escapeHtml(title)}</a>
       </h3>
       ${excerptHtml}
       ${imageHtml}
