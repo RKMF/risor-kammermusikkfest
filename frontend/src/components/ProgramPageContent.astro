@@ -6,9 +6,11 @@ import ScrollNavigation from '../components/ScrollNavigation.astro';
 import FestivalSchema from '../components/structured-data/FestivalSchema.astro';
 import { createDataService } from '../lib/sanity/dataService.js';
 import { formatDateWithWeekday } from '../lib/utils/dates';
+import { compareEventChronologicallyAsc } from '../lib/utils/eventOrdering';
 import { stegaClean } from '@sanity/client/stega';
 import '../styles/program.css';
 import '../styles/event-card.css';
+import '../styles/event-card-collection.css';
 
 interface Props {
   language: 'no' | 'en';
@@ -79,11 +81,7 @@ const sortedDates = Object.values(eventsByDate)
   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   .map(dateGroup => ({
     ...dateGroup,
-    events: dateGroup.events.sort((a, b) => {
-      const timeA = a.eventTime?.startTime || '';
-      const timeB = b.eventTime?.startTime || '';
-      return timeA.localeCompare(timeB);
-    })
+    events: [...dateGroup.events].sort(compareEventChronologicallyAsc)
   }));
 
 // Get filters from URL
@@ -160,7 +158,7 @@ const resetButtonText = language === 'no' ? 'Nullstill filtre' : 'Reset filters'
           <h2 class="date-title">{stegaClean(displayTitle)}</h2>
           <div class="scroll-container-wrapper" data-scroll-step="item">
             <div
-              class="events-grid scroll-container scroll-container--event-cards scroll-container--styled-scrollbar"
+              class="event-card-collection scroll-container scroll-container--event-cards scroll-container--styled-scrollbar"
               role="region"
               tabindex="0"
               aria-label={language === 'no' ? 'Arrangementer' : 'Events'}

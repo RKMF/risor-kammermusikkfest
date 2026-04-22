@@ -63,6 +63,26 @@ export interface HeadingData extends GlobalComponentData {
   id?: { current: string };
 }
 
+export interface HomepageH1Data extends GlobalComponentData {
+  text: string;
+  id?: { current: string };
+}
+
+export interface HomepageHeroLinkData {
+  linkType?: 'external' | 'internal';
+  text?: string;
+  description?: string;
+  url?: string;
+  internalLink?: {
+    _ref: string;
+    _type: 'reference';
+  };
+}
+
+export interface HomepageHeroData extends GlobalComponentData {
+  links?: HomepageHeroLinkData[];
+}
+
 export interface ImageData extends GlobalComponentData {
   image: any;
   alt?: string;
@@ -170,6 +190,11 @@ export interface EventScrollContainerData extends ScrollContainerData {
   showArtists?: boolean;
   sortBy?: 'date-asc' | 'date-desc' | 'title-asc' | 'manual';
   cardFormat?: string;
+}
+
+export interface HomepageEventCardsData extends GlobalComponentData {
+  title?: string;
+  items?: EventData[];
 }
 
 // Document interfaces
@@ -397,6 +422,9 @@ export interface MultilingualDocument {
 // Utility types
 export type ComponentType =
   | 'title'
+  | 'homepageH1Component'
+  | 'homepageHeroComponent'
+  | 'homepageEventCardsComponent'
   | 'headingComponent'
   | 'portableTextBlock'
   | 'quoteComponent'
@@ -424,6 +452,9 @@ export type DocumentType =
 // Comprehensive PageBuilder union type for all possible components
 export type PageBuilderComponent =
   | (TitleData & { _type: 'title' })
+  | (HomepageH1Data & { _type: 'homepageH1Component' })
+  | (HomepageHeroData & { _type: 'homepageHeroComponent' })
+  | (HomepageEventCardsData & { _type: 'homepageEventCardsComponent' })
   | (HeadingData & { _type: 'headingComponent' })
   | (PortableTextData & { _type: 'portableTextBlock' })
   | (QuoteData & { _type: 'quoteComponent' })
@@ -482,6 +513,9 @@ export interface DocumentState {
 export const isValidComponentType = (type: string): type is ComponentType => {
   return [
     'title',
+    'homepageH1Component',
+    'homepageHeroComponent',
+    'homepageEventCardsComponent',
     'headingComponent',
     'portableTextBlock',
     'quoteComponent',

@@ -1,0 +1,35 @@
+/* Shared layout for sections that use program-page event cards */
+
+.event-card-collection {
+  container-type: inline-size;
+  display: grid;
+  gap: clamp(var(--space-l), 3vw, var(--space-6));
+  grid-template-columns: repeat(auto-fill, 320px);
+  justify-content: start;
+  padding-block: var(--scroll-container-padding-block);
+  contain: layout style;
+}
+
+@container (max-width: 800px) {
+  .event-card-collection {
+    display: flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .event-card-collection {
+    scroll-behavior: auto;
+  }
+}
+
+@media (pointer: coarse) {
+  @container (max-width: 800px) {
+    .event-card-collection {
+      scrollbar-width: auto;
+    }
+
+    .event-card-collection::-webkit-scrollbar {
+      height: 12px;
+    }
+  }
+}

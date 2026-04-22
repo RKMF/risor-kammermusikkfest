@@ -1,0 +1,142 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DynamicComponent from './DynamicComponent.astro';
+import { createDataService } from '../lib/sanity/dataService.js';
+import { getMultilingualContent } from '../lib/utils/language.js';
+import { stegaClean } from '@sanity/client/stega';
+
+interface Props {
+  language: 'no' | 'en';
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+const { language } = Astro.props;
+
+// Language-specific configuration
+const config = {
+  no: {
+    fallbackTitle: 'Forside',
+    emptyTitle: 'Velkommen til forsiden',
+    emptyText: 'Ingen forside er konfigurert ennå. Gå til Sanity Studio for å opprette en forside.',
+    tagline: 'Den beste musikken,<br />med de beste artistene,<br />i den beste sommerbyen!',
+  },
+  en: {
+    fallbackTitle: 'Home',
+    emptyTitle: 'Welcome to the homepage',
+    emptyText: 'No homepage is configured yet. Go to Sanity Studio to create a homepage.',
+    tagline: 'The best music,<br />with the best artists,<br />in the best summer town!',
+  }
+}[language];
+
+// Shared data service for language-aware Sanity reads
+const dataService = createDataService(Astro.request);
+
+// Load homepage using data service
+const homepage = await dataService.getHomepage();
+
+// Smart caching based on content type
+if (homepage?.scheduledPeriod) {
+  const timeUntilExpiry = new Date(homepage.scheduledPeriod.endDate).getTime() - Date.now();
+  const cacheTime = Math.min(timeUntilExpiry / 1000, 300); // Max 5 minutes
+  Astro.response.headers.set('Cache-Control', `public, max-age=${cacheTime}`);
+} else {
+  Astro.response.headers.set('Cache-Control', 'public, max-age=3600'); // 1 hour
+}
+
+// Get language-specific content
+const content = homepage ? (getMultilingualContent(homepage, language) || homepage?.content || []) : [];
+const homepageH1Block = content.find((block) => block?._type === 'homepageH1Component');
+const homepageH1Text = homepageH1Block?.text ? stegaClean(homepageH1Block.text) : undefined;
+const homepageH1IdRaw = homepageH1Block?.id;
+const homepageH1Id =
+  typeof homepageH1IdRaw === 'string'
+    ? stegaClean(homepageH1IdRaw)
+    : homepageH1IdRaw?.current
+      ? stegaClean(homepageH1IdRaw.current)
+      : undefined;
+const visibleContent = content.filter((block) => block?._type !== 'homepageH1Component');
+const homepageTitle = homepageH1Text || homepage?.title || config.fallbackTitle;
+const homepageH1Html = homepageH1Text
+  ? escapeHtml(homepageH1Text).replace(/\r?\n/g, '<br />')
+  : undefined;
+
+// Extract slug information
+const slugNo = homepage?.slug_no?.current ? stegaClean(homepage.slug_no.current) : undefined;
+const slugEn = homepage?.slug_en?.current ? stegaClean(homepage.slug_en.current) : undefined;
+---
+
+<Layout
+  title={homepageTitle}
+  description={homepage?.excerpt ? stegaClean(homepage.excerpt) : undefined}
+  slugNo={slugNo}
+  slugEn={slugEn}
+  frontpage
+  seo={homepage?.seo}
+  image={homepage?.image?.image}
+  ogType="website"
+>
+  <div class="stack page-layout" style="--space: var(--space-xl)">
+    {!homepage && (
+      <div class="no-content">
+        <h1>{config.emptyTitle}</h1>
+        <p>{config.emptyText}</p>
+      </div>
+    )}
+
+    {homepage && (
+      homepageH1Html ? (
+        <h1 id={homepageH1Id} class="homepage-tagline" set:html={homepageH1Html} />
+      ) : (
+        <h1 id={homepageH1Id} class="homepage-tagline" set:html={config.tagline} />
+      )
+    )}
+
+    {/* PageBuilder content - rendered below hero */}
+    {visibleContent && Array.isArray(visibleContent) && visibleContent.length > 0 && (
+      <div class="homepage-content">
+        {visibleContent.map((block) => (
+          <DynamicComponent key={block._key || block._id} block={block} />
+        ))}
+      </div>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .no-content {
+    margin: 0;
+  }
+
+  /* Homepage tagline - h1 above hero */
+  .homepage-tagline {
+    font-size: clamp(var(--step-2), 5vw, var(--step-4));
+    text-align: center;
+    margin-block: var(--space-l) var(--space-l);
+    color: var(--color-blue);
+    max-width: 20ch;
+    margin-inline: auto;
+    white-space: pre-line;
+  }
+
+  /* Page layout styling */
+  .page-layout {
+    container-type: inline-size;
+    container-name: page-layout;
+    min-inline-size: min(100%, 280px);
+  }
+
+  /* PageBuilder content below hero */
+  .homepage-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-l);
+  }
+</style>

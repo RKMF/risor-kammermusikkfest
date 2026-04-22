@@ -21,6 +21,14 @@ interface ReferenceItem {
   title_no?: string;
   title_en?: string;
   name?: string;
+  eventDate?: {
+    date?: string;
+    title_display_no?: string;
+    title_display_en?: string;
+  };
+  eventTime?: {
+    startTime?: string;
+  };
   [key: string]: any;
 }
 
@@ -58,25 +66,52 @@ export function MultiSelectReferenceInput(props: ArrayOfObjectsInputProps) {
     }
   }, [referenceType]);
 
+  // Get display title for an item
+  const getDisplayTitle = useCallback((item: ReferenceItem): string => {
+    return item.title_no || item.title || item.title_en || item.name || 'Uten tittel';
+  }, []);
+
   useEffect(() => {
     if (!referenceType) {
       setLoading(false);
       return;
     }
 
+    const query =
+      referenceType === 'event'
+        ? `*[_type == $type && !(_id in path('drafts.**'))] | order(eventDateValue asc, eventTime.startTime asc, coalesce(title_no, title_en, title, name) asc) {
+            _id,
+            _type,
+            title,
+            title_no,
+            title_en,
+            name,
+            eventDateValue,
+            eventDate->{
+              date,
+              title_display_no,
+              title_display_en
+            },
+            eventTime
+          }`
+        : `*[_type == $type && !(_id in path('drafts.**'))] | order(coalesce(title_no, title, title_en, name) asc) {
+            _id,
+            _type,
+            title,
+            title_no,
+            title_en,
+            name,
+            eventDate->{
+              date,
+              title_display_no,
+              title_display_en
+            },
+            eventTime
+          }`;
+
     // Fetch all available documents of the reference type
     client
-      .fetch<ReferenceItem[]>(
-        `*[_type == $type && !(_id in path('drafts.**'))] | order(coalesce(title, title_no, name) asc) {
-          _id,
-          _type,
-          title,
-          title_no,
-          title_en,
-          name
-        }`,
-        { type: referenceType }
-      )
+      .fetch<ReferenceItem[]>(query, { type: referenceType })
       .then((fetchedItems) => {
         setItems(fetchedItems);
         setLoading(false);
@@ -87,9 +122,23 @@ export function MultiSelectReferenceInput(props: ArrayOfObjectsInputProps) {
       });
   }, [referenceType, client]);
 
-  // Get display title for an item
-  const getDisplayTitle = useCallback((item: ReferenceItem): string => {
-    return item.title_no || item.title || item.title_en || item.name || 'Uten tittel';
+  const getEventDateLabel = useCallback((item: ReferenceItem): string | null => {
+    if (item._type !== 'event' || !item.eventDate) return null;
+
+    const label =
+      item.eventDate.title_display_no ||
+      item.eventDate.title_display_en ||
+      (item.eventDate.date
+        ? new Date(item.eventDate.date).toLocaleDateString('nb-NO', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+          })
+        : null);
+
+    if (!label) return null;
+
+    return item.eventTime?.startTime ? `${label} kl. ${item.eventTime.startTime}` : label;
   }, []);
 
   // Filter items based on search query
@@ -234,15 +283,20 @@ export function MultiSelectReferenceInput(props: ArrayOfObjectsInputProps) {
                     </Text>
                   ) : (
                     filteredItems.map((item) => (
-                      <Flex key={item._id} align="center">
+                      <Flex key={item._id} align="flex-start" paddingY={2}>
                         <Checkbox
                           checked={selectedItems.has(item._id)}
                           onChange={(event) =>
                             handleToggleItem(item._id, event.currentTarget.checked)
                           }
                         />
-                        <Box marginLeft={3}>
+                        <Box marginLeft={3} style={{ flex: 1, minWidth: 0 }}>
                           <Text>{getDisplayTitle(item)}</Text>
+                          {getEventDateLabel(item) && (
+                            <Text size={1} muted style={{ display: 'block', marginTop: '0.25rem' }}>
+                              {getEventDateLabel(item)}
+                            </Text>
+                          )}
                         </Box>
                       </Flex>
                     ))

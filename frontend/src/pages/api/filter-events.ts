@@ -226,7 +226,7 @@ export const POST: APIRoute = async ({ request }) => {
       && (!defined($eventDate) || eventDate->date == $eventDate)
       && (!defined($genre) || genre->slug.current == $genre)
       && (!defined($venue) || venue->slug.current == $venue)
-    ] | order(eventDate->date asc, eventTime.startTime asc){
+    ] | order(eventDateValue asc, eventTime.startTime asc, coalesce(title_no, title_en, title) asc){
       _id,
       title_no,
       title_en,
