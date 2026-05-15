@@ -70,6 +70,8 @@ This bypasses ALL security checks. Use sparingly.
 
 ## If Secrets Are Accidentally Committed
 
+History rewrite and force push are emergency-only recovery steps. For ordinary mistakes, prefer a new corrective commit or `git revert`.
+
 1. **Immediately rotate the secret:**
    - Go to Sanity dashboard
    - Revoke the exposed token
@@ -88,7 +90,9 @@ This bypasses ALL security checks. Use sparingly.
    git push origin --force --all
    ```
 
-4. **Notify team** to re-clone or sync
+4. **Notify team** to re-clone or sync after the rewrite
+
+Do not use this procedure for normal release cleanup, branch sync, or cosmetic history edits on shared branches.
 
 ---
 
