@@ -16,6 +16,7 @@ This is the canonical AI-agnostic briefing for this repository. Keep it short, c
 - Release flow is `feature/* -> staging -> main`.
 - Use squash merge for feature/fix/chore branches into `staging`.
 - Use a merge commit for `staging` -> `main`, then sync `staging` to the released `main` tip.
+- Do not force-push shared permanent branches (`staging`, `main`) except for coordinated security recovery.
 - Start dev servers from `studio/` and `frontend/` subdirectories; the root dev scripts are not the reliable default for fresh sessions.
 - After schema changes, run `npm run typegen` from the repo root and commit the updated `frontend/sanity/sanity.types.ts`.
 - HTMX is self-hosted from `frontend/public/vendor/htmx.min.js`; if HTMX is updated, run the frontend sync/check workflow rather than swapping CDN usage ad hoc.

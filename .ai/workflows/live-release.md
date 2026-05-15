@@ -52,6 +52,7 @@ git push origin staging
 This step must be a direct fast-forward so `staging` ends on the exact same commit as the released `main` tip.
 Do not replace this with a PR-based sync merge; that creates a staging-only merge commit and breaks exact branch sync.
 Do not use squash or rebase for the sync step.
+Do not force-push the sync step.
 Do not delete `staging` or `main` during or after the sync step.
 If permissions or branch protection block this fast-forward push, stop and fix that policy before treating the workflow as complete.
 
