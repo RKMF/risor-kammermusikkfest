@@ -4,6 +4,8 @@ const SCROLL_DEBOUNCE_MS = 50;
 
 const BOUNDARY_TOLERANCE = 2;
 
+const MAX_SNAP_TARGET_TOLERANCE = 24;
+
 /**
  * Creates a debounced version of a function.
  * @param {Function} fn - Function to debounce
@@ -54,6 +56,15 @@ function hasOverflow(container) {
   return container.scrollWidth > container.clientWidth + BOUNDARY_TOLERANCE;
 }
 
+/**
+ * Gets the maximum usable scrollLeft value for a container.
+ * @param {HTMLElement} container - The scroll container
+ * @returns {number} Maximum scrollLeft value
+ */
+function getMaxScroll(container) {
+  return Math.max(0, container.scrollWidth - container.clientWidth);
+}
+
 /** Resolve whether a wrapper scrolls by item or by page width. */
 function getStepMode(wrapper) {
   return wrapper.dataset.scrollStep === 'page' ? 'page' : 'item';
@@ -93,28 +104,82 @@ function getItemStart(container, item) {
  * @returns {number} Valid scroll position
  */
 function clampScrollPosition(container, position) {
-  const maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
-  return Math.min(Math.max(position, 0), maxScroll);
+  return Math.min(Math.max(position, 0), getMaxScroll(container));
 }
 
 /**
- * Finds the index of the item currently anchored at or just before the viewport start.
+ * Resolves unique item start positions within the scrollable range.
  * @param {HTMLElement} container - The scroll container
  * @param {HTMLElement[]} items - Candidate snap items
- * @returns {number} Active item index
+ * @returns {number[]} Sorted scroll target positions
  */
-function getActiveItemIndex(container, items) {
-  const currentScroll = container.scrollLeft;
-  let activeIndex = 0;
+function getItemTargets(container, items) {
+  const targets = items
+    .map((item) => Math.round(clampScrollPosition(container, getItemStart(container, item))))
+    .sort((a, b) => a - b);
 
-  items.forEach((item, index) => {
-    const itemStart = clampScrollPosition(container, getItemStart(container, item));
-    if (itemStart <= currentScroll + BOUNDARY_TOLERANCE) {
-      activeIndex = index;
-    }
-  });
+  return targets.filter((target, index) => index === 0 || target > targets[index - 1] + BOUNDARY_TOLERANCE);
+}
 
-  return activeIndex;
+/**
+ * Finds the closest target to the current scroll position.
+ * @param {number[]} targets - Sorted scroll target positions
+ * @param {number} currentScroll - Current scrollLeft value
+ * @returns {{ index: number, distance: number }} Closest target metadata
+ */
+function getClosestTarget(targets, currentScroll) {
+  return targets.reduce(
+    (closest, target, index) => {
+      const distance = Math.abs(target - currentScroll);
+      return distance < closest.distance ? { index, distance } : closest;
+    },
+    { index: 0, distance: Number.POSITIVE_INFINITY },
+  );
+}
+
+/**
+ * Derives a snap tolerance from the actual target spacing.
+ * @param {number[]} targets - Sorted scroll target positions
+ * @returns {number} Pixel tolerance for treating current scroll as snapped
+ */
+function getSnapTargetTolerance(targets) {
+  if (targets.length < 2) return BOUNDARY_TOLERANCE;
+
+  const gaps = targets
+    .slice(1)
+    .map((target, index) => target - targets[index])
+    .filter((gap) => gap > BOUNDARY_TOLERANCE);
+
+  if (gaps.length === 0) return BOUNDARY_TOLERANCE;
+
+  const averageGap = gaps.reduce((sum, gap) => sum + gap, 0) / gaps.length;
+  return Math.max(
+    BOUNDARY_TOLERANCE,
+    Math.min(MAX_SNAP_TARGET_TOLERANCE, averageGap * 0.1),
+  );
+}
+
+/**
+ * Selects the next scroll target without getting stuck near a snap point.
+ * @param {number[]} targets - Sorted scroll target positions
+ * @param {number} currentScroll - Current scrollLeft value
+ * @param {'prev' | 'next'} direction - Scroll direction
+ * @returns {number} Target scrollLeft value
+ */
+function getDirectionalTarget(targets, currentScroll, direction) {
+  const closest = getClosestTarget(targets, currentScroll);
+  const snapTargetTolerance = getSnapTargetTolerance(targets);
+
+  if (closest.distance <= snapTargetTolerance) {
+    const targetIndex = direction === 'prev'
+      ? Math.max(0, closest.index - 1)
+      : Math.min(targets.length - 1, closest.index + 1);
+    return targets[targetIndex];
+  }
+
+  return direction === 'prev'
+    ? [...targets].reverse().find((target) => target < currentScroll - BOUNDARY_TOLERANCE) ?? targets[0]
+    : targets.find((target) => target > currentScroll + BOUNDARY_TOLERANCE) ?? targets[targets.length - 1];
 }
 
 /**
@@ -122,10 +187,8 @@ function getActiveItemIndex(container, items) {
  * Sets data attributes that CSS uses for styling.
  * @param {HTMLElement} container - The scroll container
  * @param {HTMLElement} nav - The navigation element
- * @param {'item' | 'page'} stepMode - Step strategy for this carousel
- * @param {HTMLElement[]} items - Concrete scroll targets
  */
-function updateButtonStates(container, nav, stepMode, items = []) {
+function updateButtonStates(container, nav) {
   const prevBtn = nav.querySelector('[data-direction="prev"]');
   const nextBtn = nav.querySelector('[data-direction="next"]');
 
@@ -134,23 +197,6 @@ function updateButtonStates(container, nav, stepMode, items = []) {
     return;
   } else {
     nav.dataset.noOverflow = 'false';
-  }
-
-  if (stepMode === 'item' && items.length > 0) {
-    const activeIndex = getActiveItemIndex(container, items);
-    const lastIndex = items.length - 1;
-    const lastItemStart = clampScrollPosition(container, getItemStart(container, items[lastIndex]));
-
-    if (prevBtn) {
-      prevBtn.dataset.atBoundary = activeIndex <= 0 && isAtStart(container) ? 'true' : 'false';
-    }
-    if (nextBtn) {
-      nextBtn.dataset.atBoundary =
-        activeIndex >= lastIndex || container.scrollLeft >= lastItemStart - BOUNDARY_TOLERANCE
-          ? 'true'
-          : 'false';
-    }
-    return;
   }
 
   if (prevBtn) {
@@ -172,12 +218,16 @@ function scrollContainer(container, direction, stepMode, items = []) {
   const behavior = prefersReducedMotion() ? 'instant' : 'smooth';
 
   if (stepMode === 'item' && items.length > 0) {
-    const activeIndex = getActiveItemIndex(container, items);
-    const targetIndex =
-      direction === 'prev'
-        ? Math.max(0, activeIndex - 1)
-        : Math.min(items.length - 1, activeIndex + 1);
-    const targetPosition = clampScrollPosition(container, getItemStart(container, items[targetIndex]));
+    const currentScroll = container.scrollLeft;
+    const targets = getItemTargets(container, items);
+    const maxScroll = getMaxScroll(container);
+
+    if (!targets.includes(0)) targets.unshift(0);
+    if (!targets.some((target) => Math.abs(target - maxScroll) <= BOUNDARY_TOLERANCE)) {
+      targets.push(maxScroll);
+    }
+
+    const targetPosition = getDirectionalTarget(targets, currentScroll, direction);
 
     container.scrollTo({
       left: targetPosition,
@@ -225,19 +275,30 @@ function setupScrollContainer(wrapper) {
   wrapper.dataset.scrollNavInitialized = 'true';
   const stepMode = getStepMode(wrapper);
   const getItems = () => getScrollItems(container);
+  const refreshButtonStates = () => {
+    updateButtonStates(container, nav);
+  };
 
-  updateButtonStates(container, nav, stepMode, getItems());
+  refreshButtonStates();
 
   const handleScroll = debounce(() => {
-    updateButtonStates(container, nav, stepMode, getItems());
+    refreshButtonStates();
   }, SCROLL_DEBOUNCE_MS);
 
   container.addEventListener('scroll', handleScroll, { passive: true });
 
   const resizeObserver = new ResizeObserver(() => {
-    updateButtonStates(container, nav, stepMode, getItems());
+    refreshButtonStates();
   });
   resizeObserver.observe(container);
+
+  const mutationObserver = new MutationObserver(() => {
+    refreshButtonStates();
+  });
+  mutationObserver.observe(container, {
+    childList: true,
+    subtree: true,
+  });
 
   nav.addEventListener('click', (event) => {
     const button = event.target.closest('.scroll-nav__btn');
