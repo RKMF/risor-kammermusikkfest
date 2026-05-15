@@ -47,8 +47,12 @@ const sizeConfig = {
 
 const { width, height, aspectRatio } = sizeConfig[size];
 
-// CSS class based on size variant
-const sizeClass = size === 'medium' ? 'artist-card--medium' : '';
+// CSS classes based on size and interaction variant
+const cardClass = [
+  'artist-card',
+  size === 'medium' ? 'artist-card--medium' : '',
+  !isDetailPage ? 'artist-card--link' : '',
+].filter(Boolean).join(' ');
 
 // Clean name for display (natural wrapping based on container width)
 function formatNameForCard(name: string): string {
@@ -56,15 +60,7 @@ function formatNameForCard(name: string): string {
 }
 ---
 
-<article class={`artist-card ${sizeClass}`.trim()}>
-  {!isDetailPage && (
-    <h3 class="artist-title">
-      <a href={artistPath} class="artist-title-link card-link">
-        {stegaClean(artist.name)}
-      </a>
-    </h3>
-  )}
-
+<article class={cardClass}>
   {artist.image?.image && (
     <img
       src={getOptimizedImageUrl(artist.image.image, width, height, IMAGE_QUALITY.CARD)}
@@ -83,10 +79,15 @@ function formatNameForCard(name: string): string {
   )}
 
   <div class="artist-info-box">
-    <p class="artist-name" set:html={formatNameForCard(artist.name)} />
+    {isDetailPage ? (
+      <p class="artist-name" set:html={formatNameForCard(artist.name)} />
+    ) : (
+      <h3 class="artist-name">
+        <a href={artistPath} class="artist-name-link card-link" set:html={formatNameForCard(artist.name)} />
+      </h3>
+    )}
     {artist.instrument && (
       <p class="artist-instrument">{stegaClean(artist.instrument)}</p>
     )}
   </div>
-
 </article>

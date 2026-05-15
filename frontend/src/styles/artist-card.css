@@ -50,41 +50,45 @@
   /* Fluid width for scroll affordance - shows partial next card */
   width: clamp(300px, 35vw, 320px);
   min-width: 300px; /* Prevent squashing in flex containers */
+}
 
-  /* Indicate clickable */
+.artist-card--link {
   cursor: pointer;
 }
 
-
 /* Hover effect only for devices with hover capability */
 @media (hover: hover) {
-  .artist-card:hover {
+  .artist-card--link:hover {
     transform: translateY(-4px);
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
     background-color: var(--color-tint-green-light);
   }
 
-  .artist-card:hover .artist-info-box {
+  .artist-card--link:hover .artist-info-box {
     background-color: var(--color-tint-green-light); /* Match card hover background */
   }
 
-  .artist-card:hover .artist-name {
+  .artist-card--link:hover .artist-name {
     color: var(--color-blue);
   }
 
-  .artist-card:hover .artist-instrument {
+  .artist-card--link:hover .artist-instrument {
     color: var(--color-blue);
   }
 }
 
-/* Artist Title - Hidden but contains the stretched link */
-.artist-title {
-  /* NO position property - must stay static for ::before to work */
-  width: 0;
-  height: 0;
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
+.artist-name-link {
+  color: inherit;
+  text-decoration: none;
+  background-image: none;
+}
+
+.artist-name-link::before {
+  z-index: 1;
+}
+
+.artist-name-link:focus-visible {
+  outline-color: var(--color-blue);
 }
 
 /* Artist Name - Visible name in info box */
@@ -135,7 +139,6 @@
   grid-template-rows: auto auto 1fr;
   align-content: start;
   gap: var(--space-3xs, 0.25rem);
-  z-index: 2;
   transition: background-color 200ms var(--ease-standard);
   width: 100%;
 }
@@ -152,22 +155,6 @@
   transition: color var(--transition-base);
 }
 
-/* Stretched link pattern - uses global .card-link from base.css */
-.artist-card .artist-title-link {
-  color: var(--color-background);
-}
-
-/* Elevate stretched link above info box */
-.artist-title-link::before {
-  z-index: 3; /* Above info box (z-index: 2) to make entire card clickable */
-}
-
-/* Customize focus outline color for artist cards */
-.artist-card .artist-title-link:focus-visible {
-  outline-color: var(--color-background);
-}
-
-
 /* ============================================
    ACCESSIBILITY & MOTION PREFERENCES
    ============================================ */
@@ -177,7 +164,7 @@
     transition: none;
   }
 
-  .artist-card:hover {
+  .artist-card--link:hover {
     transform: none;
   }
 }
@@ -187,7 +174,7 @@
     border: 2px solid currentColor;
   }
 
-  .artist-card-link:focus-visible {
+  .artist-name-link:focus-visible {
     outline-width: 3px;
   }
 }
@@ -215,4 +202,3 @@
 }
 
 /* Medium cards inherit font sizes from base rules */
-
