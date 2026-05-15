@@ -180,7 +180,7 @@ h6 {
    - Semantic: Clickable containers
    - Default: Shadow + border
    - Hover: Increased shadow ± lift effect
-   - Examples: Event cards, artist cards
+   - Examples: Event cards, article cards
    - Rule: .card:hover { box-shadow: larger; transform: translateY(); }
 
    BEST PRACTICE: Always wrap hover states in @media (hover: hover)
@@ -387,7 +387,7 @@ a.link-button.active {
 
    Usage in components:
    - Event cards: Use with color: var(--color-blue)
-   - Artist cards: Use with color: var(--color-background), z-index: 3
+   - Artist cards use a real visible card link instead of this overlay pattern
    ============================================ */
 
 /* Base stretched link pattern */

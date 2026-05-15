@@ -340,7 +340,7 @@ dl.event-page__meta {
     border: 2px solid currentColor;
   }
 
-  .artist-card-link:focus-visible {
+  .artist-name-link:focus-visible {
     outline-width: 3px;
   }
 }
