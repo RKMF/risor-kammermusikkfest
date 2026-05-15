@@ -33,7 +33,7 @@
    - aria-label on buttons for screen readers
    - Disabled state uses pointer-events: none + reduced opacity
    - Respects prefers-reduced-motion
-   - Hidden on touch devices (users can swipe)
+   - Medium carousel buttons remain visible on touch devices
    ============================================ */
 
 /* ============================================
@@ -55,14 +55,9 @@
   margin-block-start: var(--space-s);
 }
 
-/* Touch devices: hide buttons (users can swipe) */
+/* Touch devices: keep carousel navigation visible, but hide filter-row chrome below. */
 @media (pointer: coarse) {
-  .scroll-nav {
-    display: none;
-  }
-
-  /* Program page event carousels still need visible nav on phones. */
-  #program-content .date-section > .scroll-nav.scroll-nav--medium {
+  .scroll-nav--medium {
     display: flex;
   }
 }
