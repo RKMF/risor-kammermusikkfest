@@ -18,6 +18,9 @@ const {
 
 // Detect current language from URL
 const currentLanguage = detectLanguage(Astro.request)
+const artistIndexLink = currentLanguage === 'no'
+  ? { href: '/artister', text: 'Se alle artister' }
+  : { href: '/en/artists', text: 'See all artists' }
 
 // Fetch actual artist data from references
 let artistData = []
@@ -83,7 +86,10 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 ---
 
 <section class={`${containerClass} ${scrollbarClass}`}>
-  {title && <h2 class="artist-scroll-title">{title}</h2>}
+  <div class="artist-scroll-header scroll-section-header">
+    {title && <h2 class="artist-scroll-title">{title}</h2>}
+    <a href={artistIndexLink.href} class="artist-scroll-link scroll-section-link hover-underline">{artistIndexLink.text} →</a>
+  </div>
   <div class="scroll-container-wrapper" data-scroll-step="item">
     <ul
       class="artist-list scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar"
@@ -116,6 +122,10 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
   .artist-scroll-title {
     font-size: var(--step-3);
     font-weight: 600;
+    margin: 0;
+  }
+
+  .artist-scroll-header {
     margin-block-end: var(--space-m);
   }
 
@@ -150,4 +160,5 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
       scroll-behavior: auto;
     }
   }
+
 </style>

@@ -30,12 +30,16 @@ const config = {
     slugPreference: (article: any) => article.slug_no?.current || article.slug_en?.current,
     ariaLabel: 'Artikler',
     scrollAriaLabel: 'Bla gjennom artikler',
+    overviewHref: '/artikler',
+    overviewText: 'Se alle artikler',
   },
   en: {
     basePath: '/en/articles/',
     slugPreference: (article: any) => article.slug_en?.current || article.slug_no?.current,
     ariaLabel: 'Articles',
     scrollAriaLabel: 'Scroll through articles',
+    overviewHref: '/en/articles',
+    overviewText: 'See all articles',
   }
 }[currentLanguage]
 
@@ -127,7 +131,10 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 ---
 
 <section class={`${containerClass} ${scrollbarClass}`}>
-  {title && <h2 class="article-scroll-title">{title}</h2>}
+  <div class="article-scroll-header scroll-section-header">
+    {title && <h2 class="article-scroll-title">{title}</h2>}
+    <a href={config.overviewHref} class="article-scroll-link scroll-section-link hover-underline">{config.overviewText} →</a>
+  </div>
   <div class="scroll-container-wrapper" data-scroll-step="item">
     <ul
       class="article-list scroll-container scroll-container--always scroll-container--article-cards scroll-container--styled-scrollbar"
@@ -197,6 +204,10 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
   .article-scroll-title {
     font-size: var(--step-3);
     font-weight: 600;
+    margin: 0;
+  }
+
+  .article-scroll-header {
     margin-block-end: var(--space-m);
   }
 
@@ -355,4 +366,5 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
       scroll-behavior: auto;
     }
   }
+
 </style>
