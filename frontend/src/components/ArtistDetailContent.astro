@@ -20,12 +20,16 @@ const { artist, language } = Astro.props;
 const config = {
   no: {
     concertsTitle: 'Konserter',
+    concertsOverviewHref: '/program',
+    concertsOverviewText: 'Se hele programmet',
     aboutTitle: 'Om artisten',
     excerptField: 'excerpt_no',
     contentField: 'content_no'
   },
   en: {
     concertsTitle: 'Concerts',
+    concertsOverviewHref: '/en/program',
+    concertsOverviewText: 'See the full program',
     aboutTitle: 'About the Artist',
     excerptField: 'excerpt_en',
     contentField: 'content_en'
@@ -71,7 +75,10 @@ const excerpt = artist[config.excerptField];
     <!-- Events Section - Last before footer -->
     {artist.events && artist.events.length > 0 && (
       <section class="artist-events">
-        <h2 class="artist-events-title">{config.concertsTitle}</h2>
+        <div class="artist-events-header scroll-section-header">
+          <h2 class="artist-events-title">{config.concertsTitle}</h2>
+          <a href={config.concertsOverviewHref} class="artist-events-link scroll-section-link hover-underline">{config.concertsOverviewText} →</a>
+        </div>
         <div class="scroll-container-wrapper" data-scroll-step="item">
           <div class="event-card-collection scroll-container scroll-container--always scroll-container--event-cards scroll-container--styled-scrollbar">
             {artist.events.map((event) => (
@@ -175,7 +182,10 @@ const excerpt = artist[config.excerptField];
     font-size: var(--step-3);
     font-weight: var(--font-weight-semibold);
     color: var(--color-text-primary);
-    margin-block-start: 0;
+    margin: 0;
+  }
+
+  .artist-events-header {
     margin-block-end: var(--space-6);
   }
 
@@ -191,4 +201,5 @@ const excerpt = artist[config.excerptField];
   .pagebuilder-content > :global(*:last-child) {
     margin-block-end: 0;
   }
+
 </style>
