@@ -346,6 +346,10 @@ export interface ProgramPageData {
     _ref: string;
     _type: 'reference';
   }>;
+  venueFilterOrder?: Array<{
+    _ref: string;
+    _type: 'reference';
+  }>;
   // SEO
   seo?: SeoFieldsData;
 }
