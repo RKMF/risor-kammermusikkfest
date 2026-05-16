@@ -75,6 +75,8 @@ If a rule is obvious from code or config, link to the source or fix the structur
 - Use squash merge for disposable work branches into `staging`.
 - Use a merge commit for `staging` → `main` so production promotes the exact tested branch history.
 - After production release, sync `staging` back to the released `main` tip so the permanent branches stay ancestry-aligned.
+- Do not force-push `staging` or `main` during normal development or release; move permanent branches by PR merge or documented fast-forward sync.
+- History rewrite requires explicit team coordination and should be reserved for security recovery, such as removing committed secrets after rotation.
 - Use the repo workflows for preparation and release:
   - `.ai/workflows/prep.md`
   - `.ai/workflows/dev-release.md`

@@ -3,6 +3,7 @@ import type { APIRoute } from 'astro';
 import { createDataService } from '../../lib/sanity/dataService.js';
 import { formatDateWithWeekday } from '../../lib/utils/dates';
 import { compareEventChronologicallyAsc } from '../../lib/utils/eventOrdering';
+import { deriveAvailableVenues } from '../../lib/utils/programFilters';
 import { stegaClean } from '@sanity/client/stega';
 import {
   rateLimit,
@@ -43,6 +44,7 @@ interface DateGroup {
 
 interface ProgramPageData {
   selectedEvents?: (ProgramEvent | null)[];
+  venueFilterOrder?: (EventVenue | null)[];
 }
 
 // HTML escape function for security
@@ -218,6 +220,7 @@ export const GET: APIRoute = async ({ request, url }) => {
     const events: ProgramEvent[] = (programPage?.selectedEvents || []).filter(
       (event): event is ProgramEvent => event != null
     );
+    const availableVenues = deriveAvailableVenues(events, programPage?.venueFilterOrder || []);
 
     // Group events by date (same logic as program.astro)
     const eventsByDate = events.reduce<Record<string, DateGroup>>((acc, event) => {
@@ -269,15 +272,13 @@ export const GET: APIRoute = async ({ request, url }) => {
     if (dateFilter && venueFilter) {
       // Get display names from the events data
       const dateDisplay = sortedDates.find(d => d.date === dateFilter)?.displayTitle || formatDateWithWeekday(dateFilter, language);
-      const venueEvent = events.find((e) => e.venue?.slug === venueFilter);
-      const venueDisplay = venueEvent?.venue?.title || venueFilter;
+      const venueDisplay = availableVenues.find((v) => v.slug === venueFilter)?.title || venueFilter;
       emptyStateMessage = `Ingen arrangementer på ${dateDisplay} og ${venueDisplay}`;
     } else if (dateFilter) {
       const dateDisplay = sortedDates.find(d => d.date === dateFilter)?.displayTitle || formatDateWithWeekday(dateFilter, language);
       emptyStateMessage = `Ingen arrangementer på ${dateDisplay}`;
     } else if (venueFilter) {
-      const venueEvent = events.find((e) => e.venue?.slug === venueFilter);
-      const venueDisplay = venueEvent?.venue?.title || venueFilter;
+      const venueDisplay = availableVenues.find((v) => v.slug === venueFilter)?.title || venueFilter;
       emptyStateMessage = `Ingen arrangementer på ${venueDisplay}`;
     }
 

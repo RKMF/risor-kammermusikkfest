@@ -23,6 +23,9 @@ const {
 
 // Detect current language from URL
 const currentLanguage = detectLanguage(Astro.request)
+const programIndexLink = currentLanguage === 'no'
+  ? { href: '/program', text: 'Se hele programmet' }
+  : { href: '/en/program', text: 'See the full program' }
 
 // Fetch actual event data from references
 let eventData: EventResult[] = []
@@ -127,7 +130,10 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
 ---
 
 <section class={`${containerClass} ${scrollbarClass}`}>
-  {title && <h2 class="event-scroll-title">{title}</h2>}
+  <div class="event-scroll-header scroll-section-header">
+    {title && <h2 class="event-scroll-title">{title}</h2>}
+    <a href={programIndexLink.href} class="event-scroll-link scroll-section-link hover-underline">{programIndexLink.text} →</a>
+  </div>
   <div class="scroll-container-wrapper" data-scroll-step="item">
     <ul
       class="event-list event-card-collection scroll-container scroll-container--always scroll-container--event-cards scroll-container--styled-scrollbar"
@@ -160,6 +166,10 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
   .event-scroll-title {
     font-size: var(--step-3);
     font-weight: 600;
+    margin: 0;
+  }
+
+  .event-scroll-header {
     margin-block-end: var(--space-m);
   }
 
@@ -194,4 +204,5 @@ const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
       scroll-behavior: auto;
     }
   }
+
 </style>

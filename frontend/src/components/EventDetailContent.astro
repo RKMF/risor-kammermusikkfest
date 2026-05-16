@@ -36,6 +36,8 @@ const config = {
     additionalContent: 'Tilleggsinnhold',
     composers: 'Komponister',
     artists: 'Artister',
+    artistsOverviewHref: '/artister',
+    artistsOverviewText: 'Se alle artister',
     descriptionField: 'description_no',
     extraContentField: 'extraContent_no'
   },
@@ -50,6 +52,8 @@ const config = {
     additionalContent: 'Additional Content',
     composers: 'Composers',
     artists: 'Artists',
+    artistsOverviewHref: '/en/artists',
+    artistsOverviewText: 'See all artists',
     descriptionField: 'description_en',
     extraContentField: 'extraContent_en'
   }
@@ -199,7 +203,10 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
             </defs>
           </svg>
 
-          <h2 class="artists-title">{config.artists}</h2>
+          <div class="artists-header scroll-section-header">
+            <h2 class="artists-title">{config.artists}</h2>
+            <a href={config.artistsOverviewHref} class="artists-link scroll-section-link hover-underline">{config.artistsOverviewText} →</a>
+          </div>
           <div class="scroll-container-wrapper" data-scroll-step="item">
             <div class="artist-section scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar">
               {event.artists.filter(Boolean).map((artist) => (

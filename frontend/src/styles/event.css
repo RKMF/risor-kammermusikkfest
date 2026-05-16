@@ -202,10 +202,14 @@ dl.event-page__meta {
 }
 
 .artists-title {
-  margin: 0 0 var(--space-4) 0;
+  margin: 0;
   font-size: var(--step-3);
   font-weight: var(--font-weight-semibold);
   color: var(--color-blue);
+}
+
+.artists-header {
+  margin-block-end: var(--space-4);
 }
 
 .artists-list {
@@ -340,7 +344,7 @@ dl.event-page__meta {
     border: 2px solid currentColor;
   }
 
-  .artist-card-link:focus-visible {
+  .artist-name-link:focus-visible {
     outline-width: 3px;
   }
 }

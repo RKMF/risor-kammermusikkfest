@@ -611,6 +611,11 @@ const buildProgramPageQuery = (language: Language = 'no') => defineQuery(`*[_typ
   seo,
   "selectedEvents": selectedEvents[defined(@->) && ${REF_PUBLISHED_FILTER}]->{
     ${buildEventBaseFields(language)}
+  },
+  "venueFilterOrder": venueFilterOrder[defined(@->)]->{
+    _id,
+    title,
+    "slug": slug.current
   }
 }`)
 

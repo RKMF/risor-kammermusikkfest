@@ -1,9 +1,10 @@
 {
   "name": "risor-kammermusikkfest",
   "private": true,
-  "packageManager": "npm@10.8.2",
+  "packageManager": "npm@11.12.1",
   "engines": {
-    "node": "22.x"
+    "node": "22.x",
+    "npm": ">=11.10.0"
   },
   "workspaces": [
     "studio",
