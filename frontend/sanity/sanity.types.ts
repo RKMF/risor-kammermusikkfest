@@ -14,9 +14,11 @@
 
 export declare const internalGroqTypeReferenceTo: unique symbol;
 
-type ArrayOf<T> = Array<T & {
-  _key: string;
-}>;
+type ArrayOf<T> = Array<
+  T & {
+    _key: string;
+  }
+>;
 
 // Source: ../frontend/sanity/extract.json
 export type Accessibility = {
@@ -26,314 +28,409 @@ export type Accessibility = {
 
 export type ArticleReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "article";
+  [internalGroqTypeReferenceTo]?: 'article';
 };
 
 export type ArticleScrollContainer = {
-  _type: "articleScrollContainer";
+  _type: 'articleScrollContainer';
   title?: string;
-  items?: Array<{
-    _key: string;
-  } & ArticleReference>;
+  items?: Array<
+    {
+      _key: string;
+    } & ArticleReference
+  >;
   showScrollbar?: boolean;
-  sortBy?: "date-desc" | "date-asc" | "title-asc" | "manual";
+  sortBy?: 'date-desc' | 'date-asc' | 'title-asc' | 'manual';
 };
 
 export type ComposerReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "composer";
+  [internalGroqTypeReferenceTo]?: 'composer';
 };
 
 export type ComposerScrollContainer = {
-  _type: "composerScrollContainer";
+  _type: 'composerScrollContainer';
   title?: string;
-  items?: Array<{
-    _key: string;
-  } & ComposerReference>;
+  items?: Array<
+    {
+      _key: string;
+    } & ComposerReference
+  >;
   showScrollbar?: boolean;
 };
 
 export type EventReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "event";
+  [internalGroqTypeReferenceTo]?: 'event';
 };
 
 export type EventScrollContainer = {
-  _type: "eventScrollContainer";
+  _type: 'eventScrollContainer';
   title?: string;
-  items?: Array<{
-    _key: string;
-  } & EventReference>;
+  items?: Array<
+    {
+      _key: string;
+    } & EventReference
+  >;
   showScrollbar?: boolean;
   showDate?: boolean;
   showTime?: boolean;
   showVenue?: boolean;
   showArtists?: boolean;
-  sortBy?: "date-asc" | "date-desc" | "title-asc" | "manual";
+  sortBy?: 'date-asc' | 'date-desc' | 'title-asc' | 'manual';
 };
 
 export type ArtistReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "artist";
+  [internalGroqTypeReferenceTo]?: 'artist';
 };
 
 export type ArtistScrollContainer = {
-  _type: "artistScrollContainer";
+  _type: 'artistScrollContainer';
   title?: string;
-  items?: Array<{
-    _key: string;
-  } & ArtistReference>;
+  items?: Array<
+    {
+      _key: string;
+    } & ArtistReference
+  >;
   showScrollbar?: boolean;
 };
 
 export type ContentScrollContainer = {
-  _type: "contentScrollContainer";
+  _type: 'contentScrollContainer';
   title?: string;
-  items?: Array<{
-    _key: string;
-  } & ImageComponent | {
-    _key: string;
-  } & VideoComponent | {
-    _key: string;
-  } & QuoteComponent | {
-    _key: string;
-  } & PortableTextBlock>;
+  items?: Array<
+    | ({
+        _key: string;
+      } & ImageComponent)
+    | ({
+        _key: string;
+      } & VideoComponent)
+    | ({
+        _key: string;
+      } & QuoteComponent)
+    | ({
+        _key: string;
+      } & PortableTextBlock)
+  >;
   showScrollbar?: boolean;
 };
 
 export type ThreeColumnLayout = {
-  _type: "threeColumnLayout";
+  _type: 'threeColumnLayout';
   title?: string;
-  column1?: Array<{
-    _key: string;
-  } & ImageComponent | {
-    _key: string;
-  } & VideoComponent | {
-    _key: string;
-  } & QuoteComponent>;
-  column2?: Array<{
-    _key: string;
-  } & ImageComponent | {
-    _key: string;
-  } & VideoComponent | {
-    _key: string;
-  } & QuoteComponent>;
-  column3?: Array<{
-    _key: string;
-  } & ImageComponent | {
-    _key: string;
-  } & VideoComponent | {
-    _key: string;
-  } & QuoteComponent>;
-  aspectRatio?: "4:5" | "9:16" | "1:1";
+  column1?: Array<
+    | ({
+        _key: string;
+      } & ImageComponent)
+    | ({
+        _key: string;
+      } & VideoComponent)
+    | ({
+        _key: string;
+      } & QuoteComponent)
+  >;
+  column2?: Array<
+    | ({
+        _key: string;
+      } & ImageComponent)
+    | ({
+        _key: string;
+      } & VideoComponent)
+    | ({
+        _key: string;
+      } & QuoteComponent)
+  >;
+  column3?: Array<
+    | ({
+        _key: string;
+      } & ImageComponent)
+    | ({
+        _key: string;
+      } & VideoComponent)
+    | ({
+        _key: string;
+      } & QuoteComponent)
+  >;
+  aspectRatio?: '4:5' | '9:16' | '1:1';
 };
 
 export type TwoColumnLayout = {
-  _type: "twoColumnLayout";
+  _type: 'twoColumnLayout';
   title?: string;
-  leftColumn?: Array<{
-    _key: string;
-  } & ImageComponent | {
-    _key: string;
-  } & VideoComponent | {
-    _key: string;
-  } & SpotifyComponent | {
-    _key: string;
-  } & QuoteComponent | {
-    _key: string;
-  } & PortableTextBlock | {
-    _key: string;
-  } & HeadingComponent>;
-  rightColumn?: Array<{
-    _key: string;
-  } & ImageComponent | {
-    _key: string;
-  } & VideoComponent | {
-    _key: string;
-  } & SpotifyComponent | {
-    _key: string;
-  } & QuoteComponent | {
-    _key: string;
-  } & PortableTextBlock | {
-    _key: string;
-  } & HeadingComponent>;
+  leftColumn?: Array<
+    | ({
+        _key: string;
+      } & ImageComponent)
+    | ({
+        _key: string;
+      } & VideoComponent)
+    | ({
+        _key: string;
+      } & SpotifyComponent)
+    | ({
+        _key: string;
+      } & QuoteComponent)
+    | ({
+        _key: string;
+      } & PortableTextBlock)
+    | ({
+        _key: string;
+      } & HeadingComponent)
+  >;
+  rightColumn?: Array<
+    | ({
+        _key: string;
+      } & ImageComponent)
+    | ({
+        _key: string;
+      } & VideoComponent)
+    | ({
+        _key: string;
+      } & SpotifyComponent)
+    | ({
+        _key: string;
+      } & QuoteComponent)
+    | ({
+        _key: string;
+      } & PortableTextBlock)
+    | ({
+        _key: string;
+      } & HeadingComponent)
+  >;
   reverseOnMobile?: boolean;
-  aspectRatio?: "4:5" | "9:16" | "1:1";
+  aspectRatio?: '4:5' | '9:16' | '1:1';
 };
 
 export type GridComponent = {
-  _type: "gridComponent";
+  _type: 'gridComponent';
   title?: string;
-  columns?: "2" | "3";
-  items?: Array<{
-    _key: string;
-  } & ImageComponent | {
-    _key: string;
-  } & VideoComponent | {
-    _key: string;
-  } & QuoteComponent | {
-    _key: string;
-  } & SpotifyComponent>;
-  aspectRatio?: "4:5" | "1:1";
+  columns?: '2' | '3';
+  items?: Array<
+    | ({
+        _key: string;
+      } & ImageComponent)
+    | ({
+        _key: string;
+      } & VideoComponent)
+    | ({
+        _key: string;
+      } & QuoteComponent)
+    | ({
+        _key: string;
+      } & SpotifyComponent)
+  >;
+  aspectRatio?: '4:5' | '1:1';
 };
 
-export type HomepagePageBuilder = Array<{
-  _key: string;
-} & HomepageH1Component | {
-  _key: string;
-} & HomepageHeroComponent | {
-  _key: string;
-} & HomepageEventCardsComponent | {
-  _key: string;
-} & HeadingComponent | {
-  _key: string;
-} & PortableTextBlock | {
-  _key: string;
-} & QuoteComponent | {
-  _key: string;
-} & MarqueeComponent | {
-  _key: string;
-} & ImageComponent | {
-  _key: string;
-} & VideoComponent | {
-  _key: string;
-} & SpotifyComponent | {
-  _key: string;
-} & GridComponent | {
-  _key: string;
-} & TwoColumnLayout | {
-  _key: string;
-} & ThreeColumnLayout | {
-  _key: string;
-} & ButtonComponent | {
-  _key: string;
-} & LinkComponent | {
-  _key: string;
-} & AccordionComponent | {
-  _key: string;
-} & CountdownComponent | {
-  _key: string;
-} & ContentScrollContainer | {
-  _key: string;
-} & ArtistScrollContainer | {
-  _key: string;
-} & EventScrollContainer | {
-  _key: string;
-} & ComposerScrollContainer | {
-  _key: string;
-} & ArticleScrollContainer>;
+export type HomepagePageBuilder = Array<
+  | ({
+      _key: string;
+    } & HomepageH1Component)
+  | ({
+      _key: string;
+    } & HomepageHeroComponent)
+  | ({
+      _key: string;
+    } & HomepageEventCardsComponent)
+  | ({
+      _key: string;
+    } & HeadingComponent)
+  | ({
+      _key: string;
+    } & PortableTextBlock)
+  | ({
+      _key: string;
+    } & QuoteComponent)
+  | ({
+      _key: string;
+    } & MarqueeComponent)
+  | ({
+      _key: string;
+    } & ImageComponent)
+  | ({
+      _key: string;
+    } & VideoComponent)
+  | ({
+      _key: string;
+    } & SpotifyComponent)
+  | ({
+      _key: string;
+    } & GridComponent)
+  | ({
+      _key: string;
+    } & TwoColumnLayout)
+  | ({
+      _key: string;
+    } & ThreeColumnLayout)
+  | ({
+      _key: string;
+    } & ButtonComponent)
+  | ({
+      _key: string;
+    } & LinkComponent)
+  | ({
+      _key: string;
+    } & AccordionComponent)
+  | ({
+      _key: string;
+    } & CountdownComponent)
+  | ({
+      _key: string;
+    } & ContentScrollContainer)
+  | ({
+      _key: string;
+    } & ArtistScrollContainer)
+  | ({
+      _key: string;
+    } & EventScrollContainer)
+  | ({
+      _key: string;
+    } & ComposerScrollContainer)
+  | ({
+      _key: string;
+    } & ArticleScrollContainer)
+>;
 
-export type PageBuilder = Array<{
-  _key: string;
-} & HeadingComponent | {
-  _key: string;
-} & PortableTextBlock | {
-  _key: string;
-} & QuoteComponent | {
-  _key: string;
-} & MarqueeComponent | {
-  _key: string;
-} & ImageComponent | {
-  _key: string;
-} & VideoComponent | {
-  _key: string;
-} & SpotifyComponent | {
-  _key: string;
-} & GridComponent | {
-  _key: string;
-} & TwoColumnLayout | {
-  _key: string;
-} & ThreeColumnLayout | {
-  _key: string;
-} & ButtonComponent | {
-  _key: string;
-} & LinkComponent | {
-  _key: string;
-} & AccordionComponent | {
-  _key: string;
-} & CountdownComponent | {
-  _key: string;
-} & ContentScrollContainer | {
-  _key: string;
-} & ArtistScrollContainer | {
-  _key: string;
-} & EventScrollContainer | {
-  _key: string;
-} & ComposerScrollContainer | {
-  _key: string;
-} & ArticleScrollContainer>;
+export type PageBuilder = Array<
+  | ({
+      _key: string;
+    } & HeadingComponent)
+  | ({
+      _key: string;
+    } & PortableTextBlock)
+  | ({
+      _key: string;
+    } & QuoteComponent)
+  | ({
+      _key: string;
+    } & MarqueeComponent)
+  | ({
+      _key: string;
+    } & ImageComponent)
+  | ({
+      _key: string;
+    } & VideoComponent)
+  | ({
+      _key: string;
+    } & SpotifyComponent)
+  | ({
+      _key: string;
+    } & GridComponent)
+  | ({
+      _key: string;
+    } & TwoColumnLayout)
+  | ({
+      _key: string;
+    } & ThreeColumnLayout)
+  | ({
+      _key: string;
+    } & ButtonComponent)
+  | ({
+      _key: string;
+    } & LinkComponent)
+  | ({
+      _key: string;
+    } & AccordionComponent)
+  | ({
+      _key: string;
+    } & CountdownComponent)
+  | ({
+      _key: string;
+    } & ContentScrollContainer)
+  | ({
+      _key: string;
+    } & ArtistScrollContainer)
+  | ({
+      _key: string;
+    } & EventScrollContainer)
+  | ({
+      _key: string;
+    } & ComposerScrollContainer)
+  | ({
+      _key: string;
+    } & ArticleScrollContainer)
+>;
 
 export type CountdownComponent = {
-  _type: "countdownComponent";
+  _type: 'countdownComponent';
   title?: string;
   targetDate?: string;
-  style?: "large" | "compact" | "minimal";
+  style?: 'large' | 'compact' | 'minimal';
   completedMessage?: string;
   hideWhenComplete?: boolean;
 };
 
 export type AccordionComponent = {
-  _type: "accordionComponent";
+  _type: 'accordionComponent';
   title?: string;
   description?: Array<{
     children?: Array<{
       marks?: Array<string>;
       text?: string;
-      _type: "span";
+      _type: 'span';
       _key: string;
     }>;
-    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
-    listItem?: "bullet" | "number";
+    style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote';
+    listItem?: 'bullet' | 'number';
     markDefs?: Array<{
       href?: string;
-      _type: "link";
+      _type: 'link';
       _key: string;
     }>;
     level?: number;
-    _type: "block";
+    _type: 'block';
     _key: string;
   }>;
   panels?: Array<{
     title?: string;
-    content?: Array<{
-      children?: Array<{
-        marks?: Array<string>;
-        text?: string;
-        _type: "span";
-        _key: string;
-      }>;
-      style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
-      listItem?: "bullet" | "number";
-      markDefs?: Array<{
-        href?: string;
-        _type: "link";
-        _key: string;
-      }>;
-      level?: number;
-      _type: "block";
-      _key: string;
-    } | {
-      _key: string;
-    } & ImageComponent | {
-      _key: string;
-    } & VideoComponent | {
-      _key: string;
-    } & ButtonComponent | {
-      _key: string;
-    } & Title | {
-      _key: string;
-    } & QuoteComponent | {
-      _key: string;
-    } & HeadingComponent>;
-    _type: "accordionPanel";
+    content?: Array<
+      | {
+          children?: Array<{
+            marks?: Array<string>;
+            text?: string;
+            _type: 'span';
+            _key: string;
+          }>;
+          style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote';
+          listItem?: 'bullet' | 'number';
+          markDefs?: Array<{
+            href?: string;
+            _type: 'link';
+            _key: string;
+          }>;
+          level?: number;
+          _type: 'block';
+          _key: string;
+        }
+      | ({
+          _key: string;
+        } & ImageComponent)
+      | ({
+          _key: string;
+        } & VideoComponent)
+      | ({
+          _key: string;
+        } & ButtonComponent)
+      | ({
+          _key: string;
+        } & Title)
+      | ({
+          _key: string;
+        } & QuoteComponent)
+      | ({
+          _key: string;
+        } & HeadingComponent)
+    >;
+    _type: 'accordionPanel';
     _key: string;
   }>;
   accessibility?: Accessibility;
@@ -341,93 +438,102 @@ export type AccordionComponent = {
 
 export type HomepageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "homepage";
+  [internalGroqTypeReferenceTo]?: 'homepage';
 };
 
 export type ProgramPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "programPage";
+  [internalGroqTypeReferenceTo]?: 'programPage';
 };
 
 export type ArtistPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "artistPage";
+  [internalGroqTypeReferenceTo]?: 'artistPage';
 };
 
 export type ArticlePageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "articlePage";
+  [internalGroqTypeReferenceTo]?: 'articlePage';
 };
 
 export type SponsorPageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "sponsorPage";
+  [internalGroqTypeReferenceTo]?: 'sponsorPage';
 };
 
 export type PageReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "page";
+  [internalGroqTypeReferenceTo]?: 'page';
 };
 
 export type LinkComponent = {
-  _type: "linkComponent";
+  _type: 'linkComponent';
   links?: Array<{
-    linkType?: "external" | "internal";
+    linkType?: 'external' | 'internal';
     text?: string;
     url?: string;
-    internalLink?: HomepageReference | ProgramPageReference | ArtistPageReference | ArticlePageReference | SponsorPageReference | PageReference | EventReference | ArtistReference | ArticleReference;
+    internalLink?:
+      | HomepageReference
+      | ProgramPageReference
+      | ArtistPageReference
+      | ArticlePageReference
+      | SponsorPageReference
+      | PageReference
+      | EventReference
+      | ArtistReference
+      | ArticleReference;
     description?: string;
     openInNewTab?: boolean;
-    _type: "link";
+    _type: 'link';
     _key: string;
   }>;
 };
 
 export type ButtonComponent = {
-  _type: "buttonComponent";
+  _type: 'buttonComponent';
   text?: string;
   url?: string;
-  style?: "primary" | "secondary" | "outline";
+  style?: 'primary' | 'secondary' | 'outline';
   fullWidth?: boolean;
   openInNewTab?: boolean;
 };
 
 export type SpotifyComponent = {
-  _type: "spotifyComponent";
+  _type: 'spotifyComponent';
   spotifyUrl?: string;
 };
 
 export type SanityFileAssetReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "sanity.fileAsset";
+  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset';
 };
 
 export type VideoComponent = {
-  _type: "videoComponent";
-  videoType?: "sanity" | "youtube" | "vimeo" | "external";
+  _type: 'videoComponent';
+  videoType?: 'sanity' | 'youtube' | 'vimeo' | 'external';
   video?: {
     asset?: SanityFileAssetReference;
     media?: unknown;
-    _type: "file";
+    _type: 'file';
   };
   youtubeUrl?: string;
   vimeoUrl?: string;
   externalUrl?: string;
-  aspectRatio?: "1:1" | "4:5" | "9:16" | "16:9";
+  aspectRatio?: '1:1' | '4:5' | '9:16' | '16:9';
   title?: string;
   description?: string;
   autoplay?: boolean;
@@ -438,104 +544,118 @@ export type VideoComponent = {
 
 export type SanityImageAssetReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+  [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
 };
 
 export type ImageComponent = {
-  _type: "imageComponent";
+  _type: 'imageComponent';
   image?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    _type: 'image';
   };
   credit?: string;
   alt?: string;
   caption?: string;
-  aspectRatio?: "1:1" | "4:5" | "9:16" | "4:3";
+  aspectRatio?: '1:1' | '4:5' | '9:16' | '4:3';
 };
 
 export type PortableTextBlock = {
-  _type: "portableTextBlock";
+  _type: 'portableTextBlock';
   content?: PortableText;
 };
 
-export type PortableText = Array<{
-  children?: Array<{
-    marks?: Array<string>;
-    text?: string;
-    _type: "span";
-    _key: string;
-  }>;
-  style?: "normal" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
-  listItem?: "bullet" | "number";
-  markDefs?: Array<{
-    href?: string;
-    openInNewTab?: boolean;
-    _type: "link";
-    _key: string;
-  }>;
-  level?: number;
-  _type: "block";
-  _key: string;
-} | {
-  asset?: SanityImageAssetReference;
-  media?: unknown;
-  hotspot?: SanityImageHotspot;
-  crop?: SanityImageCrop;
-  alt?: string;
-  caption?: string;
-  _type: "image";
-  _key: string;
-}>;
+export type PortableText = Array<
+  | {
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: 'span';
+        _key: string;
+      }>;
+      style?: 'normal' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote';
+      listItem?: 'bullet' | 'number';
+      markDefs?: Array<{
+        href?: string;
+        openInNewTab?: boolean;
+        _type: 'link';
+        _key: string;
+      }>;
+      level?: number;
+      _type: 'block';
+      _key: string;
+    }
+  | {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      alt?: string;
+      caption?: string;
+      _type: 'image';
+      _key: string;
+    }
+>;
 
 export type HomepageEventCardsComponent = {
-  _type: "homepageEventCardsComponent";
+  _type: 'homepageEventCardsComponent';
   title?: string;
-  items?: Array<{
-    _key: string;
-  } & EventReference>;
+  items?: Array<
+    {
+      _key: string;
+    } & EventReference
+  >;
 };
 
 export type HomepageHeroComponent = {
-  _type: "homepageHeroComponent";
-  links?: Array<{
-    _key: string;
-  } & HomepageHeroLink>;
+  _type: 'homepageHeroComponent';
+  links?: Array<
+    {
+      _key: string;
+    } & HomepageHeroLink
+  >;
 };
 
 export type HomepageHeroLink = {
-  _type: "homepageHeroLink";
-  linkType?: "external" | "internal";
+  _type: 'homepageHeroLink';
+  linkType?: 'external' | 'internal';
   text?: string;
   description?: string;
   url?: string;
-  internalLink?: ProgramPageReference | ArtistPageReference | ArticlePageReference | PageReference | EventReference | ArtistReference | ArticleReference;
+  internalLink?:
+    | ProgramPageReference
+    | ArtistPageReference
+    | ArticlePageReference
+    | PageReference
+    | EventReference
+    | ArtistReference
+    | ArticleReference;
 };
 
 export type HomepageH1Component = {
-  _type: "homepageH1Component";
+  _type: 'homepageH1Component';
   text?: string;
   id?: Slug;
 };
 
 export type HeadingComponent = {
-  _type: "headingComponent";
-  level?: "h2" | "h3" | "h4";
+  _type: 'headingComponent';
+  level?: 'h2' | 'h3' | 'h4';
   text?: string;
   id?: Slug;
 };
 
 export type MarqueeComponent = {
-  _type: "marqueeComponent";
+  _type: 'marqueeComponent';
   text?: string;
 };
 
 export type QuoteComponent = {
-  _type: "quoteComponent";
+  _type: 'quoteComponent';
   quote?: string;
   author?: string;
   source?: string;
@@ -543,21 +663,21 @@ export type QuoteComponent = {
 };
 
 export type Title = {
-  _type: "title";
+  _type: 'title';
   mainTitle?: string;
   subtitle?: string;
 };
 
 export type Seo = {
-  _type: "seo";
+  _type: 'seo';
   title?: string;
   description?: string;
-  indexingStatus?: "index" | "noindex";
+  indexingStatus?: 'index' | 'noindex';
 };
 
 export type Sponsor = {
   _id: string;
-  _type: "sponsor";
+  _type: 'sponsor';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -567,13 +687,13 @@ export type Sponsor = {
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    _type: 'image';
   };
   url?: string;
 };
 
 export type SanityImageCrop = {
-  _type: "sanity.imageCrop";
+  _type: 'sanity.imageCrop';
   top?: number;
   bottom?: number;
   left?: number;
@@ -581,7 +701,7 @@ export type SanityImageCrop = {
 };
 
 export type SanityImageHotspot = {
-  _type: "sanity.imageHotspot";
+  _type: 'sanity.imageHotspot';
   x?: number;
   y?: number;
   height?: number;
@@ -590,14 +710,14 @@ export type SanityImageHotspot = {
 
 export type EventDateReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "eventDate";
+  [internalGroqTypeReferenceTo]?: 'eventDate';
 };
 
 export type SiteSettings = {
   _id: string;
-  _type: "siteSettings";
+  _type: 'siteSettings';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -609,7 +729,14 @@ export type SiteSettings = {
   newsletterTitle_en?: string;
   startDate?: EventDateReference;
   endDate?: EventDateReference;
-  menuItems?: ArrayOf<HomepageReference | ProgramPageReference | ArtistPageReference | ArticlePageReference | SponsorPageReference | PageReference>;
+  menuItems?: ArrayOf<
+    | HomepageReference
+    | ProgramPageReference
+    | ArtistPageReference
+    | ArticlePageReference
+    | SponsorPageReference
+    | PageReference
+  >;
   logos?: Array<{
     name?: string;
     image?: {
@@ -617,7 +744,7 @@ export type SiteSettings = {
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
-      _type: "image";
+      _type: 'image';
     };
     description?: string;
     _key: string;
@@ -627,7 +754,7 @@ export type SiteSettings = {
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    _type: 'image';
   };
   email?: string;
   phone?: string;
@@ -645,7 +772,7 @@ export type SiteSettings = {
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    _type: 'image';
   };
   featuredImageCredit_no?: string;
   featuredImageCredit_en?: string;
@@ -656,7 +783,7 @@ export type SiteSettings = {
 
 export type Composer = {
   _id: string;
-  _type: "composer";
+  _type: 'composer';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -668,7 +795,7 @@ export type Composer = {
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    _type: 'image';
   };
   imageCredit_no?: string;
   imageCredit_en?: string;
@@ -678,137 +805,14 @@ export type Composer = {
 
 export type Homepage = {
   _id: string;
-  _type: "homepage";
+  _type: 'homepage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
   adminTitle?: string;
   content_no?: HomepagePageBuilder;
   content_en?: HomepagePageBuilder;
-  homePageType?: "default" | "scheduled";
-  scheduledPeriod?: {
-    startDate?: string;
-    endDate?: string;
-  };
-  seo?: Seo;
-};
-
-export type ProgramPage = {
-  _id: string;
-  _type: "programPage";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title_no?: string;
-  slug_no?: Slug;
-  excerpt_no?: string;
-  content_no?: PageBuilder;
-  title_en?: string;
-  slug_en?: Slug;
-  excerpt_en?: string;
-  content_en?: PageBuilder;
-  selectedEvents?: Array<{
-    _key: string;
-  } & EventReference>;
-};
-
-export type Slug = {
-  _type: "slug";
-  current?: string;
-  source?: string;
-};
-
-export type ArtistPage = {
-  _id: string;
-  _type: "artistPage";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title_no?: string;
-  slug_no?: Slug;
-  excerpt_no?: string;
-  content_no?: PageBuilder;
-  title_en?: string;
-  slug_en?: Slug;
-  excerpt_en?: string;
-  content_en?: PageBuilder;
-  selectedArtists?: Array<{
-    _key: string;
-  } & ArtistReference>;
-};
-
-export type ArticlePage = {
-  _id: string;
-  _type: "articlePage";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title_no?: string;
-  slug_no?: Slug;
-  excerpt_no?: string;
-  content_no?: PageBuilder;
-  title_en?: string;
-  slug_en?: Slug;
-  excerpt_en?: string;
-  content_en?: PageBuilder;
-  selectedArticles?: Array<{
-    _key: string;
-  } & ArticleReference>;
-  seo?: Seo;
-};
-
-export type SponsorReference = {
-  _ref: string;
-  _type: "reference";
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "sponsor";
-};
-
-export type SponsorPage = {
-  _id: string;
-  _type: "sponsorPage";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title_no?: string;
-  slug_no?: Slug;
-  excerpt_no?: string;
-  content_no?: PageBuilder;
-  title_en?: string;
-  slug_en?: Slug;
-  excerpt_en?: string;
-  content_en?: PageBuilder;
-  selectedSponsors?: Array<{
-    _key: string;
-  } & SponsorReference>;
-};
-
-export type Page = {
-  _id: string;
-  _type: "page";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title_no?: string;
-  slug_no?: Slug;
-  excerpt_no?: string;
-  content_no?: PageBuilder;
-  title_en?: string;
-  slug_en?: Slug;
-  excerpt_en?: string;
-  content_en?: PageBuilder;
-  image?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    _type: "image";
-  };
-  imageCredit_no?: string;
-  imageCredit_en?: string;
-  imageAlt_no?: string;
-  imageAlt_en?: string;
-  publishingStatus?: "published" | "staging" | "draft" | "scheduled";
+  homePageType?: 'default' | 'scheduled';
   scheduledPeriod?: {
     startDate?: string;
     endDate?: string;
@@ -818,43 +822,329 @@ export type Page = {
 
 export type VenueReference = {
   _ref: string;
-  _type: "reference";
+  _type: 'reference';
   _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: "venue";
+  [internalGroqTypeReferenceTo]?: 'venue';
 };
 
-export type Event = {
+export type ProgramPage = {
   _id: string;
-  _type: "event";
+  _type: 'programPage';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  eventDate?: EventDateReference;
-  eventTime?: {
-    startTime?: "06:00" | "06:15" | "06:30" | "06:45" | "07:00" | "07:15" | "07:30" | "07:45" | "08:00" | "08:15" | "08:30" | "08:45" | "09:00" | "09:15" | "09:30" | "09:45" | "10:00" | "10:15" | "10:30" | "10:45" | "11:00" | "11:15" | "11:30" | "11:45" | "12:00" | "12:15" | "12:30" | "12:45" | "13:00" | "13:15" | "13:30" | "13:45" | "14:00" | "14:15" | "14:30" | "14:45" | "15:00" | "15:15" | "15:30" | "15:45" | "16:00" | "16:15" | "16:30" | "16:45" | "17:00" | "17:15" | "17:30" | "17:45" | "18:00" | "18:15" | "18:30" | "18:45" | "19:00" | "19:15" | "19:30" | "19:45" | "20:00" | "20:15" | "20:30" | "20:45" | "21:00" | "21:15" | "21:30" | "21:45" | "22:00" | "22:15" | "22:30" | "22:45" | "23:00" | "23:15" | "23:30" | "23:45";
-    endTime?: "06:00" | "06:15" | "06:30" | "06:45" | "07:00" | "07:15" | "07:30" | "07:45" | "08:00" | "08:15" | "08:30" | "08:45" | "09:00" | "09:15" | "09:30" | "09:45" | "10:00" | "10:15" | "10:30" | "10:45" | "11:00" | "11:15" | "11:30" | "11:45" | "12:00" | "12:15" | "12:30" | "12:45" | "13:00" | "13:15" | "13:30" | "13:45" | "14:00" | "14:15" | "14:30" | "14:45" | "15:00" | "15:15" | "15:30" | "15:45" | "16:00" | "16:15" | "16:30" | "16:45" | "17:00" | "17:15" | "17:30" | "17:45" | "18:00" | "18:15" | "18:30" | "18:45" | "19:00" | "19:15" | "19:30" | "19:45" | "20:00" | "20:15" | "20:30" | "20:45" | "21:00" | "21:15" | "21:30" | "21:45" | "22:00" | "22:15" | "22:30" | "22:45" | "23:00" | "23:15" | "23:30" | "23:45";
-  };
-  eventDateValue?: string;
-  venue?: VenueReference;
-  artist?: Array<{
-    _key: string;
-  } & ArtistReference>;
-  composers?: Array<{
-    _key: string;
-  } & ComposerReference>;
-  spotifyItems?: Array<{
-    _key: string;
-  } & SpotifyComponent>;
-  ticketType?: "button" | "info";
-  ticketUrl?: string;
-  ticketInfoText?: string;
-  ticketStatus?: "available" | "low_stock" | "sold_out";
+  title_no?: string;
+  slug_no?: Slug;
+  excerpt_no?: string;
+  content_no?: PageBuilder;
+  title_en?: string;
+  slug_en?: Slug;
+  excerpt_en?: string;
+  content_en?: PageBuilder;
+  selectedEvents?: Array<
+    {
+      _key: string;
+    } & EventReference
+  >;
+  venueFilterOrder?: Array<
+    {
+      _key: string;
+    } & VenueReference
+  >;
+};
+
+export type Slug = {
+  _type: 'slug';
+  current?: string;
+  source?: string;
+};
+
+export type ArtistPage = {
+  _id: string;
+  _type: 'artistPage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title_no?: string;
+  slug_no?: Slug;
+  excerpt_no?: string;
+  content_no?: PageBuilder;
+  title_en?: string;
+  slug_en?: Slug;
+  excerpt_en?: string;
+  content_en?: PageBuilder;
+  selectedArtists?: Array<
+    {
+      _key: string;
+    } & ArtistReference
+  >;
+};
+
+export type ArticlePage = {
+  _id: string;
+  _type: 'articlePage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title_no?: string;
+  slug_no?: Slug;
+  excerpt_no?: string;
+  content_no?: PageBuilder;
+  title_en?: string;
+  slug_en?: Slug;
+  excerpt_en?: string;
+  content_en?: PageBuilder;
+  selectedArticles?: Array<
+    {
+      _key: string;
+    } & ArticleReference
+  >;
+  seo?: Seo;
+};
+
+export type SponsorReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'sponsor';
+};
+
+export type SponsorPage = {
+  _id: string;
+  _type: 'sponsorPage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title_no?: string;
+  slug_no?: Slug;
+  excerpt_no?: string;
+  content_no?: PageBuilder;
+  title_en?: string;
+  slug_en?: Slug;
+  excerpt_en?: string;
+  content_en?: PageBuilder;
+  selectedSponsors?: Array<
+    {
+      _key: string;
+    } & SponsorReference
+  >;
+};
+
+export type Page = {
+  _id: string;
+  _type: 'page';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title_no?: string;
+  slug_no?: Slug;
+  excerpt_no?: string;
+  content_no?: PageBuilder;
+  title_en?: string;
+  slug_en?: Slug;
+  excerpt_en?: string;
+  content_en?: PageBuilder;
   image?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    _type: 'image';
+  };
+  imageCredit_no?: string;
+  imageCredit_en?: string;
+  imageAlt_no?: string;
+  imageAlt_en?: string;
+  publishingStatus?: 'published' | 'staging' | 'draft' | 'scheduled';
+  scheduledPeriod?: {
+    startDate?: string;
+    endDate?: string;
+  };
+  seo?: Seo;
+};
+
+export type Event = {
+  _id: string;
+  _type: 'event';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  eventDate?: EventDateReference;
+  eventTime?: {
+    startTime?:
+      | '06:00'
+      | '06:15'
+      | '06:30'
+      | '06:45'
+      | '07:00'
+      | '07:15'
+      | '07:30'
+      | '07:45'
+      | '08:00'
+      | '08:15'
+      | '08:30'
+      | '08:45'
+      | '09:00'
+      | '09:15'
+      | '09:30'
+      | '09:45'
+      | '10:00'
+      | '10:15'
+      | '10:30'
+      | '10:45'
+      | '11:00'
+      | '11:15'
+      | '11:30'
+      | '11:45'
+      | '12:00'
+      | '12:15'
+      | '12:30'
+      | '12:45'
+      | '13:00'
+      | '13:15'
+      | '13:30'
+      | '13:45'
+      | '14:00'
+      | '14:15'
+      | '14:30'
+      | '14:45'
+      | '15:00'
+      | '15:15'
+      | '15:30'
+      | '15:45'
+      | '16:00'
+      | '16:15'
+      | '16:30'
+      | '16:45'
+      | '17:00'
+      | '17:15'
+      | '17:30'
+      | '17:45'
+      | '18:00'
+      | '18:15'
+      | '18:30'
+      | '18:45'
+      | '19:00'
+      | '19:15'
+      | '19:30'
+      | '19:45'
+      | '20:00'
+      | '20:15'
+      | '20:30'
+      | '20:45'
+      | '21:00'
+      | '21:15'
+      | '21:30'
+      | '21:45'
+      | '22:00'
+      | '22:15'
+      | '22:30'
+      | '22:45'
+      | '23:00'
+      | '23:15'
+      | '23:30'
+      | '23:45';
+    endTime?:
+      | '06:00'
+      | '06:15'
+      | '06:30'
+      | '06:45'
+      | '07:00'
+      | '07:15'
+      | '07:30'
+      | '07:45'
+      | '08:00'
+      | '08:15'
+      | '08:30'
+      | '08:45'
+      | '09:00'
+      | '09:15'
+      | '09:30'
+      | '09:45'
+      | '10:00'
+      | '10:15'
+      | '10:30'
+      | '10:45'
+      | '11:00'
+      | '11:15'
+      | '11:30'
+      | '11:45'
+      | '12:00'
+      | '12:15'
+      | '12:30'
+      | '12:45'
+      | '13:00'
+      | '13:15'
+      | '13:30'
+      | '13:45'
+      | '14:00'
+      | '14:15'
+      | '14:30'
+      | '14:45'
+      | '15:00'
+      | '15:15'
+      | '15:30'
+      | '15:45'
+      | '16:00'
+      | '16:15'
+      | '16:30'
+      | '16:45'
+      | '17:00'
+      | '17:15'
+      | '17:30'
+      | '17:45'
+      | '18:00'
+      | '18:15'
+      | '18:30'
+      | '18:45'
+      | '19:00'
+      | '19:15'
+      | '19:30'
+      | '19:45'
+      | '20:00'
+      | '20:15'
+      | '20:30'
+      | '20:45'
+      | '21:00'
+      | '21:15'
+      | '21:30'
+      | '21:45'
+      | '22:00'
+      | '22:15'
+      | '22:30'
+      | '22:45'
+      | '23:00'
+      | '23:15'
+      | '23:30'
+      | '23:45';
+  };
+  eventDateValue?: string;
+  venue?: VenueReference;
+  artist?: Array<
+    {
+      _key: string;
+    } & ArtistReference
+  >;
+  composers?: Array<
+    {
+      _key: string;
+    } & ComposerReference
+  >;
+  spotifyItems?: Array<
+    {
+      _key: string;
+    } & SpotifyComponent
+  >;
+  ticketType?: 'button' | 'info';
+  ticketUrl?: string;
+  ticketInfoText?: string;
+  ticketStatus?: 'available' | 'low_stock' | 'sold_out';
+  image?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: 'image';
   };
   imageCredit_no?: string;
   imageCredit_en?: string;
@@ -870,7 +1160,7 @@ export type Event = {
   excerpt_en?: string;
   description_en?: PortableText;
   extraContent_en?: PageBuilder;
-  publishingStatus?: "published" | "staging" | "draft" | "scheduled";
+  publishingStatus?: 'published' | 'staging' | 'draft' | 'scheduled';
   scheduledPeriod?: {
     startDate?: string;
     endDate?: string;
@@ -880,13 +1170,13 @@ export type Event = {
 
 export type Artist = {
   _id: string;
-  _type: "artist";
+  _type: 'artist';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
   name?: string;
   slug?: Slug;
-  cardSize?: "stor" | "medium";
+  cardSize?: 'stor' | 'medium';
   excerpt_no?: string;
   instrument_no?: string;
   content_no?: PageBuilder;
@@ -898,26 +1188,28 @@ export type Artist = {
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    _type: 'image';
   };
   imageCredit_no?: string;
   imageCredit_en?: string;
   imageAlt_no?: string;
   imageAlt_en?: string;
-  publishingStatus?: "published" | "staging" | "draft" | "scheduled";
+  publishingStatus?: 'published' | 'staging' | 'draft' | 'scheduled';
   scheduledPeriod?: {
     startDate?: string;
     endDate?: string;
   };
-  events?: Array<{
-    _key: string;
-  } & EventReference>;
+  events?: Array<
+    {
+      _key: string;
+    } & EventReference
+  >;
   seo?: Seo;
 };
 
 export type Article = {
   _id: string;
-  _type: "article";
+  _type: 'article';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -934,13 +1226,13 @@ export type Article = {
     media?: unknown;
     hotspot?: SanityImageHotspot;
     crop?: SanityImageCrop;
-    _type: "image";
+    _type: 'image';
   };
   imageCredit_no?: string;
   imageCredit_en?: string;
   imageAlt_no?: string;
   imageAlt_en?: string;
-  publishingStatus?: "published" | "staging" | "draft" | "scheduled";
+  publishingStatus?: 'published' | 'staging' | 'draft' | 'scheduled';
   scheduledPeriod?: {
     startDate?: string;
     endDate?: string;
@@ -950,7 +1242,7 @@ export type Article = {
 
 export type Venue = {
   _id: string;
-  _type: "venue";
+  _type: 'venue';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -958,12 +1250,12 @@ export type Venue = {
   slug?: Slug;
   address?: string;
   linkUrl?: string;
-  linkTarget?: "_self" | "_blank";
+  linkTarget?: '_self' | '_blank';
 };
 
 export type EventDate = {
   _id: string;
-  _type: "eventDate";
+  _type: 'eventDate';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -976,7 +1268,7 @@ export type EventDate = {
 };
 
 export type SanityImagePaletteSwatch = {
-  _type: "sanity.imagePaletteSwatch";
+  _type: 'sanity.imagePaletteSwatch';
   background?: string;
   foreground?: string;
   population?: number;
@@ -984,7 +1276,7 @@ export type SanityImagePaletteSwatch = {
 };
 
 export type SanityImagePalette = {
-  _type: "sanity.imagePalette";
+  _type: 'sanity.imagePalette';
   darkMuted?: SanityImagePaletteSwatch;
   lightVibrant?: SanityImagePaletteSwatch;
   darkVibrant?: SanityImagePaletteSwatch;
@@ -995,14 +1287,14 @@ export type SanityImagePalette = {
 };
 
 export type SanityImageDimensions = {
-  _type: "sanity.imageDimensions";
+  _type: 'sanity.imageDimensions';
   height?: number;
   width?: number;
   aspectRatio?: number;
 };
 
 export type SanityImageMetadata = {
-  _type: "sanity.imageMetadata";
+  _type: 'sanity.imageMetadata';
   location?: Geopoint;
   dimensions?: SanityImageDimensions;
   palette?: SanityImagePalette;
@@ -1015,7 +1307,7 @@ export type SanityImageMetadata = {
 
 export type SanityFileAsset = {
   _id: string;
-  _type: "sanity.fileAsset";
+  _type: 'sanity.fileAsset';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -1036,7 +1328,7 @@ export type SanityFileAsset = {
 };
 
 export type SanityAssetSourceData = {
-  _type: "sanity.assetSourceData";
+  _type: 'sanity.assetSourceData';
   name?: string;
   id?: string;
   url?: string;
@@ -1044,7 +1336,7 @@ export type SanityAssetSourceData = {
 
 export type SanityImageAsset = {
   _id: string;
-  _type: "sanity.imageAsset";
+  _type: 'sanity.imageAsset';
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
@@ -1066,13 +1358,82 @@ export type SanityImageAsset = {
 };
 
 export type Geopoint = {
-  _type: "geopoint";
+  _type: 'geopoint';
   lat?: number;
   lng?: number;
   alt?: number;
 };
 
-export type AllSanitySchemaTypes = Accessibility | ArticleReference | ArticleScrollContainer | ComposerReference | ComposerScrollContainer | EventReference | EventScrollContainer | ArtistReference | ArtistScrollContainer | ContentScrollContainer | ThreeColumnLayout | TwoColumnLayout | GridComponent | HomepagePageBuilder | PageBuilder | CountdownComponent | AccordionComponent | HomepageReference | ProgramPageReference | ArtistPageReference | ArticlePageReference | SponsorPageReference | PageReference | LinkComponent | ButtonComponent | SpotifyComponent | SanityFileAssetReference | VideoComponent | SanityImageAssetReference | ImageComponent | PortableTextBlock | PortableText | HomepageEventCardsComponent | HomepageHeroComponent | HomepageHeroLink | HomepageH1Component | HeadingComponent | MarqueeComponent | QuoteComponent | Title | Seo | Sponsor | SanityImageCrop | SanityImageHotspot | EventDateReference | SiteSettings | Composer | Homepage | ProgramPage | Slug | ArtistPage | ArticlePage | SponsorReference | SponsorPage | Page | VenueReference | Event | Artist | Article | Venue | EventDate | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
+export type AllSanitySchemaTypes =
+  | Accessibility
+  | ArticleReference
+  | ArticleScrollContainer
+  | ComposerReference
+  | ComposerScrollContainer
+  | EventReference
+  | EventScrollContainer
+  | ArtistReference
+  | ArtistScrollContainer
+  | ContentScrollContainer
+  | ThreeColumnLayout
+  | TwoColumnLayout
+  | GridComponent
+  | HomepagePageBuilder
+  | PageBuilder
+  | CountdownComponent
+  | AccordionComponent
+  | HomepageReference
+  | ProgramPageReference
+  | ArtistPageReference
+  | ArticlePageReference
+  | SponsorPageReference
+  | PageReference
+  | LinkComponent
+  | ButtonComponent
+  | SpotifyComponent
+  | SanityFileAssetReference
+  | VideoComponent
+  | SanityImageAssetReference
+  | ImageComponent
+  | PortableTextBlock
+  | PortableText
+  | HomepageEventCardsComponent
+  | HomepageHeroComponent
+  | HomepageHeroLink
+  | HomepageH1Component
+  | HeadingComponent
+  | MarqueeComponent
+  | QuoteComponent
+  | Title
+  | Seo
+  | Sponsor
+  | SanityImageCrop
+  | SanityImageHotspot
+  | EventDateReference
+  | SiteSettings
+  | Composer
+  | Homepage
+  | VenueReference
+  | ProgramPage
+  | Slug
+  | ArtistPage
+  | ArticlePage
+  | SponsorReference
+  | SponsorPage
+  | Page
+  | Event
+  | Artist
+  | Article
+  | Venue
+  | EventDate
+  | SanityImagePaletteSwatch
+  | SanityImagePalette
+  | SanityImageDimensions
+  | SanityImageMetadata
+  | SanityFileAsset
+  | SanityAssetSourceData
+  | SanityImageAsset
+  | Geopoint;
 
 // Source: ../frontend/src/pages/api/countdown.ts
 // Variable: EVENT_COUNTDOWN_QUERY
@@ -1082,8 +1443,152 @@ export type EVENT_COUNTDOWN_QUERY_RESULT = {
     date: string | null;
   } | null;
   eventTime: {
-    startTime?: "06:00" | "06:15" | "06:30" | "06:45" | "07:00" | "07:15" | "07:30" | "07:45" | "08:00" | "08:15" | "08:30" | "08:45" | "09:00" | "09:15" | "09:30" | "09:45" | "10:00" | "10:15" | "10:30" | "10:45" | "11:00" | "11:15" | "11:30" | "11:45" | "12:00" | "12:15" | "12:30" | "12:45" | "13:00" | "13:15" | "13:30" | "13:45" | "14:00" | "14:15" | "14:30" | "14:45" | "15:00" | "15:15" | "15:30" | "15:45" | "16:00" | "16:15" | "16:30" | "16:45" | "17:00" | "17:15" | "17:30" | "17:45" | "18:00" | "18:15" | "18:30" | "18:45" | "19:00" | "19:15" | "19:30" | "19:45" | "20:00" | "20:15" | "20:30" | "20:45" | "21:00" | "21:15" | "21:30" | "21:45" | "22:00" | "22:15" | "22:30" | "22:45" | "23:00" | "23:15" | "23:30" | "23:45";
-    endTime?: "06:00" | "06:15" | "06:30" | "06:45" | "07:00" | "07:15" | "07:30" | "07:45" | "08:00" | "08:15" | "08:30" | "08:45" | "09:00" | "09:15" | "09:30" | "09:45" | "10:00" | "10:15" | "10:30" | "10:45" | "11:00" | "11:15" | "11:30" | "11:45" | "12:00" | "12:15" | "12:30" | "12:45" | "13:00" | "13:15" | "13:30" | "13:45" | "14:00" | "14:15" | "14:30" | "14:45" | "15:00" | "15:15" | "15:30" | "15:45" | "16:00" | "16:15" | "16:30" | "16:45" | "17:00" | "17:15" | "17:30" | "17:45" | "18:00" | "18:15" | "18:30" | "18:45" | "19:00" | "19:15" | "19:30" | "19:45" | "20:00" | "20:15" | "20:30" | "20:45" | "21:00" | "21:15" | "21:30" | "21:45" | "22:00" | "22:15" | "22:30" | "22:45" | "23:00" | "23:15" | "23:30" | "23:45";
+    startTime?:
+      | '06:00'
+      | '06:15'
+      | '06:30'
+      | '06:45'
+      | '07:00'
+      | '07:15'
+      | '07:30'
+      | '07:45'
+      | '08:00'
+      | '08:15'
+      | '08:30'
+      | '08:45'
+      | '09:00'
+      | '09:15'
+      | '09:30'
+      | '09:45'
+      | '10:00'
+      | '10:15'
+      | '10:30'
+      | '10:45'
+      | '11:00'
+      | '11:15'
+      | '11:30'
+      | '11:45'
+      | '12:00'
+      | '12:15'
+      | '12:30'
+      | '12:45'
+      | '13:00'
+      | '13:15'
+      | '13:30'
+      | '13:45'
+      | '14:00'
+      | '14:15'
+      | '14:30'
+      | '14:45'
+      | '15:00'
+      | '15:15'
+      | '15:30'
+      | '15:45'
+      | '16:00'
+      | '16:15'
+      | '16:30'
+      | '16:45'
+      | '17:00'
+      | '17:15'
+      | '17:30'
+      | '17:45'
+      | '18:00'
+      | '18:15'
+      | '18:30'
+      | '18:45'
+      | '19:00'
+      | '19:15'
+      | '19:30'
+      | '19:45'
+      | '20:00'
+      | '20:15'
+      | '20:30'
+      | '20:45'
+      | '21:00'
+      | '21:15'
+      | '21:30'
+      | '21:45'
+      | '22:00'
+      | '22:15'
+      | '22:30'
+      | '22:45'
+      | '23:00'
+      | '23:15'
+      | '23:30'
+      | '23:45';
+    endTime?:
+      | '06:00'
+      | '06:15'
+      | '06:30'
+      | '06:45'
+      | '07:00'
+      | '07:15'
+      | '07:30'
+      | '07:45'
+      | '08:00'
+      | '08:15'
+      | '08:30'
+      | '08:45'
+      | '09:00'
+      | '09:15'
+      | '09:30'
+      | '09:45'
+      | '10:00'
+      | '10:15'
+      | '10:30'
+      | '10:45'
+      | '11:00'
+      | '11:15'
+      | '11:30'
+      | '11:45'
+      | '12:00'
+      | '12:15'
+      | '12:30'
+      | '12:45'
+      | '13:00'
+      | '13:15'
+      | '13:30'
+      | '13:45'
+      | '14:00'
+      | '14:15'
+      | '14:30'
+      | '14:45'
+      | '15:00'
+      | '15:15'
+      | '15:30'
+      | '15:45'
+      | '16:00'
+      | '16:15'
+      | '16:30'
+      | '16:45'
+      | '17:00'
+      | '17:15'
+      | '17:30'
+      | '17:45'
+      | '18:00'
+      | '18:15'
+      | '18:30'
+      | '18:45'
+      | '19:00'
+      | '19:15'
+      | '19:30'
+      | '19:45'
+      | '20:00'
+      | '20:15'
+      | '20:30'
+      | '20:45'
+      | '21:00'
+      | '21:15'
+      | '21:30'
+      | '21:45'
+      | '22:00'
+      | '22:15'
+      | '22:30'
+      | '22:45'
+      | '23:00'
+      | '23:15'
+      | '23:30'
+      | '23:45';
   } | null;
 } | null;
 
@@ -1102,13 +1607,157 @@ export type FILTER_EVENTS_QUERY_RESULT = Array<{
       media?: unknown;
       hotspot?: SanityImageHotspot;
       crop?: SanityImageCrop;
-      _type: "image";
+      _type: 'image';
     } | null;
     alt: string | null;
   };
   eventTime: {
-    startTime?: "06:00" | "06:15" | "06:30" | "06:45" | "07:00" | "07:15" | "07:30" | "07:45" | "08:00" | "08:15" | "08:30" | "08:45" | "09:00" | "09:15" | "09:30" | "09:45" | "10:00" | "10:15" | "10:30" | "10:45" | "11:00" | "11:15" | "11:30" | "11:45" | "12:00" | "12:15" | "12:30" | "12:45" | "13:00" | "13:15" | "13:30" | "13:45" | "14:00" | "14:15" | "14:30" | "14:45" | "15:00" | "15:15" | "15:30" | "15:45" | "16:00" | "16:15" | "16:30" | "16:45" | "17:00" | "17:15" | "17:30" | "17:45" | "18:00" | "18:15" | "18:30" | "18:45" | "19:00" | "19:15" | "19:30" | "19:45" | "20:00" | "20:15" | "20:30" | "20:45" | "21:00" | "21:15" | "21:30" | "21:45" | "22:00" | "22:15" | "22:30" | "22:45" | "23:00" | "23:15" | "23:30" | "23:45";
-    endTime?: "06:00" | "06:15" | "06:30" | "06:45" | "07:00" | "07:15" | "07:30" | "07:45" | "08:00" | "08:15" | "08:30" | "08:45" | "09:00" | "09:15" | "09:30" | "09:45" | "10:00" | "10:15" | "10:30" | "10:45" | "11:00" | "11:15" | "11:30" | "11:45" | "12:00" | "12:15" | "12:30" | "12:45" | "13:00" | "13:15" | "13:30" | "13:45" | "14:00" | "14:15" | "14:30" | "14:45" | "15:00" | "15:15" | "15:30" | "15:45" | "16:00" | "16:15" | "16:30" | "16:45" | "17:00" | "17:15" | "17:30" | "17:45" | "18:00" | "18:15" | "18:30" | "18:45" | "19:00" | "19:15" | "19:30" | "19:45" | "20:00" | "20:15" | "20:30" | "20:45" | "21:00" | "21:15" | "21:30" | "21:45" | "22:00" | "22:15" | "22:30" | "22:45" | "23:00" | "23:15" | "23:30" | "23:45";
+    startTime?:
+      | '06:00'
+      | '06:15'
+      | '06:30'
+      | '06:45'
+      | '07:00'
+      | '07:15'
+      | '07:30'
+      | '07:45'
+      | '08:00'
+      | '08:15'
+      | '08:30'
+      | '08:45'
+      | '09:00'
+      | '09:15'
+      | '09:30'
+      | '09:45'
+      | '10:00'
+      | '10:15'
+      | '10:30'
+      | '10:45'
+      | '11:00'
+      | '11:15'
+      | '11:30'
+      | '11:45'
+      | '12:00'
+      | '12:15'
+      | '12:30'
+      | '12:45'
+      | '13:00'
+      | '13:15'
+      | '13:30'
+      | '13:45'
+      | '14:00'
+      | '14:15'
+      | '14:30'
+      | '14:45'
+      | '15:00'
+      | '15:15'
+      | '15:30'
+      | '15:45'
+      | '16:00'
+      | '16:15'
+      | '16:30'
+      | '16:45'
+      | '17:00'
+      | '17:15'
+      | '17:30'
+      | '17:45'
+      | '18:00'
+      | '18:15'
+      | '18:30'
+      | '18:45'
+      | '19:00'
+      | '19:15'
+      | '19:30'
+      | '19:45'
+      | '20:00'
+      | '20:15'
+      | '20:30'
+      | '20:45'
+      | '21:00'
+      | '21:15'
+      | '21:30'
+      | '21:45'
+      | '22:00'
+      | '22:15'
+      | '22:30'
+      | '22:45'
+      | '23:00'
+      | '23:15'
+      | '23:30'
+      | '23:45';
+    endTime?:
+      | '06:00'
+      | '06:15'
+      | '06:30'
+      | '06:45'
+      | '07:00'
+      | '07:15'
+      | '07:30'
+      | '07:45'
+      | '08:00'
+      | '08:15'
+      | '08:30'
+      | '08:45'
+      | '09:00'
+      | '09:15'
+      | '09:30'
+      | '09:45'
+      | '10:00'
+      | '10:15'
+      | '10:30'
+      | '10:45'
+      | '11:00'
+      | '11:15'
+      | '11:30'
+      | '11:45'
+      | '12:00'
+      | '12:15'
+      | '12:30'
+      | '12:45'
+      | '13:00'
+      | '13:15'
+      | '13:30'
+      | '13:45'
+      | '14:00'
+      | '14:15'
+      | '14:30'
+      | '14:45'
+      | '15:00'
+      | '15:15'
+      | '15:30'
+      | '15:45'
+      | '16:00'
+      | '16:15'
+      | '16:30'
+      | '16:45'
+      | '17:00'
+      | '17:15'
+      | '17:30'
+      | '17:45'
+      | '18:00'
+      | '18:15'
+      | '18:30'
+      | '18:45'
+      | '19:00'
+      | '19:15'
+      | '19:30'
+      | '19:45'
+      | '20:00'
+      | '20:15'
+      | '20:30'
+      | '20:45'
+      | '21:00'
+      | '21:15'
+      | '21:30'
+      | '21:45'
+      | '22:00'
+      | '22:15'
+      | '22:30'
+      | '22:45'
+      | '23:00'
+      | '23:15'
+      | '23:30'
+      | '23:45';
   } | null;
   eventDate: {
     date: string | null;
@@ -1123,10 +1772,10 @@ export type FILTER_EVENTS_QUERY_RESULT = Array<{
   artists: Array<{
     name: string | null;
   }> | null;
-  ticketType: "button" | "info" | null;
+  ticketType: 'button' | 'info' | null;
   ticketUrl: string | null;
   ticketInfoText: string | null;
-  ticketStatus: "available" | "low_stock" | "sold_out" | null;
+  ticketStatus: 'available' | 'low_stock' | 'sold_out' | null;
 }>;
 
 // Source: ../frontend/src/pages/api/health.ts
@@ -1134,16 +1783,15 @@ export type FILTER_EVENTS_QUERY_RESULT = Array<{
 // Query: *[_type == "siteSettings"][0]{  _id,  _type}
 export type HEALTH_CHECK_QUERY_RESULT = {
   _id: string;
-  _type: "siteSettings";
+  _type: 'siteSettings';
 } | null;
 
 // Query TypeMap
-import "@sanity/client";
-declare module "@sanity/client" {
+import '@sanity/client';
+declare module '@sanity/client' {
   interface SanityQueries {
-    "*[_type == \"event\" && _id == $eventId][0]{\n  eventDate->{date},\n  eventTime\n}": EVENT_COUNTDOWN_QUERY_RESULT;
-    "*[\n      _type == \"event\"\n      && publishingStatus == \"published\"\n      && (!defined($eventDate) || eventDate->date == $eventDate)\n      && (!defined($genre) || genre->slug.current == $genre)\n      && (!defined($venue) || venue->slug.current == $venue)\n    ] | order(eventDateValue asc, eventTime.startTime asc, coalesce(title_no, title_en, title) asc){\n      _id,\n      title_no,\n      title_en,\n      \"title\": coalesce(title_no, title_en, title),\n      \"slug\": coalesce(slug_no.current, slug_en.current, slug.current),\n      \"image\": {\n        \"image\": image,\n        \"alt\": coalesce(imageAlt_no, imageAlt_en, image.alt)\n      },\n      eventTime,\n      eventDate->{\n        date,\n        title_display_no,\n        title_display_en,\n        \"title\": coalesce(title_display_no, title_display_en)\n      },\n      venue->{title},\n      genre->{title},\n      \"artists\": artist[]->{name},\n      ticketType,\n      ticketUrl,\n      ticketInfoText,\n      ticketStatus\n    }": FILTER_EVENTS_QUERY_RESULT;
-    "*[_type == \"siteSettings\"][0]{\n  _id,\n  _type\n}": HEALTH_CHECK_QUERY_RESULT;
+    '*[_type == "event" && _id == $eventId][0]{\n  eventDate->{date},\n  eventTime\n}': EVENT_COUNTDOWN_QUERY_RESULT;
+    '*[\n      _type == "event"\n      && publishingStatus == "published"\n      && (!defined($eventDate) || eventDate->date == $eventDate)\n      && (!defined($genre) || genre->slug.current == $genre)\n      && (!defined($venue) || venue->slug.current == $venue)\n    ] | order(eventDateValue asc, eventTime.startTime asc, coalesce(title_no, title_en, title) asc){\n      _id,\n      title_no,\n      title_en,\n      "title": coalesce(title_no, title_en, title),\n      "slug": coalesce(slug_no.current, slug_en.current, slug.current),\n      "image": {\n        "image": image,\n        "alt": coalesce(imageAlt_no, imageAlt_en, image.alt)\n      },\n      eventTime,\n      eventDate->{\n        date,\n        title_display_no,\n        title_display_en,\n        "title": coalesce(title_display_no, title_display_en)\n      },\n      venue->{title},\n      genre->{title},\n      "artists": artist[]->{name},\n      ticketType,\n      ticketUrl,\n      ticketInfoText,\n      ticketStatus\n    }': FILTER_EVENTS_QUERY_RESULT;
+    '*[_type == "siteSettings"][0]{\n  _id,\n  _type\n}': HEALTH_CHECK_QUERY_RESULT;
   }
 }
-

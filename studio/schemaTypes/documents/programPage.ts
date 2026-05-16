@@ -1,5 +1,5 @@
-import { defineField, defineType } from 'sanity';
-import { CalendarIcon, ComposeIcon } from '@sanity/icons';
+import { defineArrayMember, defineField, defineType } from 'sanity';
+import { CalendarIcon, ComposeIcon, HomeIcon } from '@sanity/icons';
 import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
 import { componentValidation } from '../shared/validation';
 import type { ProgramPageData } from '../shared/types';
@@ -29,6 +29,11 @@ export const programPage = defineType({
       name: 'events',
       title: 'Arrangementer',
       icon: CalendarIcon,
+    },
+    {
+      name: 'filters',
+      title: 'Spillesteder',
+      icon: HomeIcon,
     },
   ],
   fields: [
@@ -118,13 +123,33 @@ export const programPage = defineType({
       title: 'Valgte arrangementer',
       type: 'array',
       of: [
-        {
+        defineArrayMember({
           type: 'reference',
           to: [{ type: 'event' }],
-        },
+        }),
       ],
       description: 'Velg arrangementer som skal vises på programoversikten (vises på begge språk)',
       group: 'events',
+      components: {
+        input: MultiSelectReferenceInput,
+      },
+      options: {
+        filter: excludeAlreadySelected(),
+      },
+    }),
+    defineField({
+      name: 'venueFilterOrder',
+      title: 'Rekkefølge på stedfilter',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'reference',
+          to: [{ type: 'venue' }],
+        }),
+      ],
+      description:
+        'Valgfri rekkefølge for stedene i filteret på programsiden. Bare steder som brukes av valgte arrangementer vises på nettsiden.',
+      group: 'filters',
       components: {
         input: MultiSelectReferenceInput,
       },

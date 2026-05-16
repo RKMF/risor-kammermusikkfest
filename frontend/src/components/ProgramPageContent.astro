@@ -7,6 +7,7 @@ import FestivalSchema from '../components/structured-data/FestivalSchema.astro';
 import { createDataService } from '../lib/sanity/dataService.js';
 import { formatDateWithWeekday } from '../lib/utils/dates';
 import { compareEventChronologicallyAsc } from '../lib/utils/eventOrdering';
+import { deriveAvailableVenues } from '../lib/utils/programFilters';
 import { stegaClean } from '@sanity/client/stega';
 import '../styles/program.css';
 import '../styles/event-card-collection.css';
@@ -46,18 +47,7 @@ const availableDates = events
   }));
 
 // Extract unique venues for filter (preserve Sanity order)
-const availableVenues = events
-  .filter(event => event.venue?.slug)
-  .reduce((acc, event) => {
-    const venueSlug = event.venue!.slug;
-    if (!acc.find(v => v.slug === venueSlug)) {
-      acc.push({
-        slug: venueSlug,
-        title: event.venue!.title
-      });
-    }
-    return acc;
-  }, [] as Array<{ slug: string; title: string }>);
+const availableVenues = deriveAvailableVenues(events, programPage?.venueFilterOrder || []);
 
 // Group events by date
 const eventsByDate = events.reduce((acc, event) => {
