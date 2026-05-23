@@ -1,0 +1,52 @@
+---
+import Button from './Button.astro';
+import ErrorPage from './ErrorPage.astro';
+import Layout from '../layouts/Layout.astro';
+
+interface Props {
+  language: 'no' | 'en';
+}
+
+const { language } = Astro.props;
+
+const content = {
+  no: {
+    title: '404 - Side ikke funnet',
+    description: 'Siden finnes ikke lenger eller adressen er feil. Gå videre til forsiden eller programmet.',
+    heading: 'Oisann! Side ikke funnet.',
+    message:
+      'Beklager, vi finner ikke siden du leter etter. Siden kan ha blitt flyttet eller slettet. Sjekk at URL-en er riktig, eller gå videre herfra.',
+    homeLink: 'Gå til forsiden',
+    programLink: 'Se programmet',
+    artistsLink: 'Se artistene',
+    homeHref: '/',
+    programHref: '/program',
+    artistsHref: '/artister',
+  },
+  en: {
+    title: '404 - Page not found',
+    description: 'This page no longer exists or the address is incorrect. Continue to the homepage or program.',
+    heading: 'Page not found',
+    message:
+      'Sorry, we cannot find the page you are looking for. The page may have been moved or deleted. Please check the URL or continue from here.',
+    homeLink: 'Go to homepage',
+    programLink: 'See the program',
+    artistsLink: 'Browse artists',
+    homeHref: '/en',
+    programHref: '/en/program',
+    artistsHref: '/en/artists',
+  },
+}[language];
+---
+
+<Layout
+  title={content.title}
+  description={content.description}
+  seo={{ indexingStatus: 'noindex' }}
+>
+  <ErrorPage code="404" title={content.heading} message={content.message}>
+    <Button text={content.homeLink} url={content.homeHref} style="primary" />
+    <Button text={content.programLink} url={content.programHref} style="secondary" />
+    <Button text={content.artistsLink} url={content.artistsHref} style="secondary" />
+  </ErrorPage>
+</Layout>

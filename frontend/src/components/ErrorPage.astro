@@ -1,0 +1,65 @@
+---
+interface Props {
+  code: string;
+  title: string;
+  message: string;
+}
+
+const { code, title, message } = Astro.props;
+---
+
+<div class="error-page">
+  <h1 class="error-code error-code--danger">{code}</h1>
+  <h2 class="error-title">{title}</h2>
+  <p class="error-message">
+    {message}
+  </p>
+  <div class="error-actions">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .error-page,
+  .error-page-custom {
+    min-height: var(--viewport-partial);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .error-code {
+    font-size: var(--font-size-5xl);
+    margin: 0;
+    font-weight: var(--font-weight-bold);
+  }
+
+  .error-code--danger {
+  }
+
+  .error-title {
+    margin: var(--space-4) 0;
+  }
+
+  .error-message {
+    margin: var(--space-5) 0;
+    max-width: 500px;
+    text-wrap: balance;
+  }
+
+  .error-actions {
+    margin-top: var(--space-6);
+    display: flex;
+    gap: var(--space-4);
+  }
+
+  @media (max-width: 768px) {
+    .error-actions {
+      flex-direction: column;
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+</style>
