@@ -1,4 +1,5 @@
 ---
+import ErrorPage from '../components/ErrorPage.astro';
 import Layout from '../layouts/Layout.astro';
 import { detectLanguage } from '../lib/utils/language.js';
 
@@ -9,13 +10,15 @@ const isEnglish = currentLang === 'en';
 // Bilingual content
 const content = {
   title: isEnglish ? '500 - Server error' : '500 - Serverfeil',
-  heading: isEnglish ? 'Oops! Something went wrong' : 'Oisann! Noe gikk galt',
+  heading: isEnglish ? 'Oops! Something went wrong' : 'Oisann! Noe gikk galt.',
   message: isEnglish
     ? 'A technical error occurred on the server. Our team has been notified and is working on it. Please try again in a moment.'
-    : 'Det oppstod en teknisk feil på serveren. Vårt team har blitt varslet og jobber med saken. Prøv gjerne igjen om litt.',
+    : 'Det oppstod en teknisk feil på serveren. Vi jobber med saken og løser det så fort vi kan. Prøv gjerne igjen om litt.',
   retryButton: isEnglish ? 'Try again' : 'Prøv på nytt',
   homeLink: isEnglish ? 'Go to homepage' : 'Gå til forsiden',
+  programLink: isEnglish ? 'See the program' : 'Se programmet',
   homeHref: isEnglish ? '/en' : '/',
+  programHref: isEnglish ? '/en/program' : '/program',
 };
 ---
 
@@ -23,21 +26,17 @@ const content = {
   title={content.title}
   noIndex={true}
 >
-  <div class="error-page">
-    <h1 class="error-code error-code--danger">500</h1>
-    <h2 class="error-title">{content.heading}</h2>
-    <p class="error-message">
-      {content.message}
-    </p>
-    <div class="error-actions">
-      <button id="retry-button" class="btn btn-primary" type="button">
-        {content.retryButton}
-      </button>
-      <a href={content.homeHref} class="btn btn-secondary">
-        {content.homeLink}
-      </a>
-    </div>
-  </div>
+  <ErrorPage code="500" title={content.heading} message={content.message}>
+    <button id="retry-button" class="btn btn-primary" type="button">
+      {content.retryButton}
+    </button>
+    <a href={content.homeHref} class="btn btn-secondary">
+      {content.homeLink}
+    </a>
+    <a href={content.programHref} class="btn btn-secondary">
+      {content.programLink}
+    </a>
+  </ErrorPage>
 </Layout>
 
 <script>
@@ -46,46 +45,3 @@ const content = {
     window.location.reload();
   });
 </script>
-
-<style>
-  .error-page, .error-page-custom {
-    min-height: var(--viewport-partial);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-
-  .error-code {
-    font-size: var(--font-size-5xl);
-    margin: 0;
-    font-weight: var(--font-weight-bold);
-  }
-
-  .error-code--danger {
-  }
-
-  .error-title {
-    margin: var(--space-4) 0;
-  }
-
-  .error-message {
-    margin: var(--space-5) 0;
-    max-width: 500px;
-  }
-
-  .error-actions {
-    margin-top: var(--space-6);
-    display: flex;
-    gap: var(--space-4);
-  }
-
-  @media (max-width: 768px) {
-    .error-actions {
-      flex-direction: column;
-      width: 100%;
-      max-width: 300px;
-    }
-  }
-</style>
