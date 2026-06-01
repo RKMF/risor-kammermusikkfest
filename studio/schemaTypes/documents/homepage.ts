@@ -4,8 +4,69 @@ import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPor
 import { seoFields, seoGroup } from '../objects/seoFields';
 import { componentValidation } from '../shared/validation';
 import type { HomepageData } from '../shared/types';
-import { getLanguageStatus } from '../shared/previewHelpers';
+import { getHomepageStatusText, getLanguageStatus } from '../shared/previewHelpers';
 import { publishingGroup } from '../shared/publishingFields';
+
+interface HomepageIdentitySource {
+  _id?: string;
+}
+
+interface HomepageScheduledPeriodValue {
+  startDate?: string;
+  endDate?: string;
+}
+
+function getHomepageIdentity(document: {_id?: string} = {}) {
+  const publishedId = document._id?.replace(/^drafts\./, '');
+  return {
+    draftId: publishedId ? `drafts.${publishedId}` : undefined,
+    publishedId,
+  };
+}
+
+async function findConflictingDefaultHomepage(document: {_id?: string}, context: any) {
+  const client = context.getClient({apiVersion: '2024-10-01'});
+  const { draftId, publishedId } = getHomepageIdentity(document);
+
+  return client.fetch(
+    `*[
+      _type == "homepage" &&
+      homePageType == "default" &&
+      !(_id in [$draftId, $publishedId])
+    ][0]{
+      _id,
+      adminTitle
+    }`,
+    { draftId, publishedId }
+  );
+}
+
+async function findOverlappingHomepage(document: any, context: any) {
+  const client = context.getClient({apiVersion: '2024-10-01'});
+  const { draftId, publishedId } = getHomepageIdentity(document);
+
+  return client.fetch(
+    `*[
+      _type == "homepage" &&
+      homePageType == "scheduled" &&
+      defined(scheduledPeriod.startDate) &&
+      defined(scheduledPeriod.endDate) &&
+      !(_id in [$draftId, $publishedId]) &&
+      scheduledPeriod.startDate < $endDate &&
+      scheduledPeriod.endDate > $startDate
+    ] | order(scheduledPeriod.startDate desc)[0]{
+      _id,
+      adminTitle,
+      scheduledPeriod
+    }`,
+    {
+      draftId,
+      publishedId,
+      startDate: document?.scheduledPeriod?.startDate,
+      endDate: document?.scheduledPeriod?.endDate,
+    }
+  );
+}
 
 export const homepage = defineType({
   name: 'homepage',
@@ -82,6 +143,25 @@ export const homepage = defineType({
         layout: 'radio',
       },
       initialValue: 'scheduled',
+      validation: (Rule) =>
+        Rule.required().custom(async (value, context) => {
+          if (value !== 'default') {
+            return true;
+          }
+
+          const conflictingDefault = await findConflictingDefaultHomepage(
+            (context.document as HomepageIdentitySource | undefined) ?? {},
+            context
+          );
+          if (!conflictingDefault) {
+            return true;
+          }
+
+          return {
+            message: `En annen standard forside finnes allerede: "${conflictingDefault.adminTitle || conflictingDefault._id}"`,
+            level: 'warning',
+          };
+        }),
     }),
     defineField({
       name: 'scheduledPeriod',
@@ -111,6 +191,36 @@ export const homepage = defineType({
           fieldset: 'timing',
         },
       ],
+      validation: (Rule) =>
+        Rule.custom(async (value, context) => {
+          const isScheduled = context.document?.homePageType === 'scheduled';
+          const scheduledPeriod = (value as HomepageScheduledPeriodValue | undefined) ?? {};
+
+          if (!isScheduled) {
+            return true;
+          }
+
+          const startDate = scheduledPeriod.startDate;
+          const endDate = scheduledPeriod.endDate;
+
+          if (!startDate || !endDate) {
+            return 'Startdato og sluttdato er påkrevd for planlagte forsider';
+          }
+
+          if (new Date(startDate).getTime() >= new Date(endDate).getTime()) {
+            return 'Sluttdato må være etter startdato';
+          }
+
+          const overlappingHomepage = await findOverlappingHomepage(context.document ?? {}, context);
+          if (!overlappingHomepage) {
+            return true;
+          }
+
+          return {
+            message: `Overlapper med "${overlappingHomepage.adminTitle || overlappingHomepage._id}"`,
+            level: 'warning',
+          };
+        }),
     }),
     ...seoFields,
   ],
@@ -128,17 +238,15 @@ export const homepage = defineType({
       const langStatus = getLanguageStatus({ hasNorwegian, hasEnglish });
       const langText = langStatus !== 'Ingen språk valgt' ? ` • ${langStatus}` : '';
 
-      // Period status
-      const periodStatus =
-        homePageType === 'default'
-          ? 'Standard forside'
-          : startDate && endDate
-            ? `${new Date(startDate).toLocaleDateString('nb-NO')} ${new Date(startDate).toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })} → ${new Date(endDate).toLocaleDateString('nb-NO')} ${new Date(endDate).toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })}`
-            : 'Ingen periode satt';
+      const statusText = getHomepageStatusText(homePageType, startDate, endDate);
+      const dateRangeText =
+        homePageType === 'scheduled' && startDate && endDate
+          ? ` • ${new Date(startDate).toLocaleDateString('nb-NO')} ${new Date(startDate).toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })} → ${new Date(endDate).toLocaleDateString('nb-NO')} ${new Date(endDate).toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })}`
+          : '';
 
       return {
         title: adminTitle || 'Uten tittel',
-        subtitle: `${periodStatus}${langText}`,
+        subtitle: `${statusText}${dateRangeText}${langText}`,
         media: DocumentIcon,
       };
     },
