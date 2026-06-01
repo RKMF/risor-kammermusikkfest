@@ -111,3 +111,35 @@ export function getLanguageStatus(fields: LanguageFields): string {
   // Return formatted language status
   return languages.length > 0 ? languages.join(' ') : 'Ingen språk valgt';
 }
+
+export function getHomepageStatusText(
+  homePageType?: string,
+  startDate?: string,
+  endDate?: string
+): string {
+  if (homePageType === 'default') {
+    return 'Standard forside';
+  }
+
+  if (!startDate || !endDate) {
+    return 'Planlagt • mangler periode';
+  }
+
+  const now = Date.now();
+  const start = new Date(startDate).getTime();
+  const end = new Date(endDate).getTime();
+
+  if (!Number.isFinite(start) || !Number.isFinite(end)) {
+    return 'Planlagt • ugyldig periode';
+  }
+
+  if (now < start) {
+    return 'Planlagt • venter';
+  }
+
+  if (now > end) {
+    return 'Planlagt • utløpt';
+  }
+
+  return 'Planlagt • live';
+}
