@@ -13,9 +13,23 @@ const SITE_URL = import.meta.env.SITE_URL || 'https://kammermusikkfest.no';
 // Fetch only URLs that should be indexed.
 const SITEMAP_QUERY = `{
   "homepage": *[
-    _type == "homepage"
-    && (!defined(seo.indexingStatus) || seo.indexingStatus != "noindex")
-  ][0]{
+    _type == "homepage" &&
+    (!defined(seo.indexingStatus) || seo.indexingStatus != "noindex") &&
+    (
+      homePageType == "default" ||
+      (
+        homePageType == "scheduled" &&
+        defined(scheduledPeriod.startDate) &&
+        defined(scheduledPeriod.endDate) &&
+        scheduledPeriod.startDate <= now() &&
+        scheduledPeriod.endDate >= now()
+      )
+    )
+  ] | order(
+    select(homePageType == "scheduled" => 0, 1) asc,
+    scheduledPeriod.startDate desc,
+    _updatedAt desc
+  )[0]{
     "_updatedAt": _updatedAt
   },
   "programPage": *[

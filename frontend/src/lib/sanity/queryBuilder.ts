@@ -552,10 +552,21 @@ const buildSlugFieldSelection = (language: Language = 'no'): string => {
 // Queries
 const HOMEPAGE_QUERY = defineQuery(`*[_type == "homepage" && (
   homePageType == "default" ||
-  (homePageType == "scheduled" && defined(scheduledPeriod.startDate) && scheduledPeriod.startDate <= now() && scheduledPeriod.endDate >= now())
-)] | order(homePageType desc)[0]{
+  (
+    homePageType == "scheduled" &&
+    defined(scheduledPeriod.startDate) &&
+    defined(scheduledPeriod.endDate) &&
+    scheduledPeriod.startDate <= now() &&
+    scheduledPeriod.endDate >= now()
+  )
+)] | order(
+  select(homePageType == "scheduled" => 0, 1) asc,
+  scheduledPeriod.startDate desc,
+  _updatedAt desc
+)[0]{
   _id,
   _type,
+  adminTitle,
   ${createMultilingualField('title')},
   title_no,
   title_en,
@@ -567,6 +578,12 @@ const HOMEPAGE_QUERY = defineQuery(`*[_type == "homepage" && (
   },
   homePageType,
   scheduledPeriod,
+  "nextScheduledStart": *[
+    _type == "homepage" &&
+    homePageType == "scheduled" &&
+    defined(scheduledPeriod.startDate) &&
+    scheduledPeriod.startDate > now()
+  ] | order(scheduledPeriod.startDate asc)[0].scheduledPeriod.startDate,
   seo
 }`)
 
