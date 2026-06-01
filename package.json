@@ -1,10 +1,10 @@
 {
   "name": "risor-kammermusikkfest",
   "private": true,
-  "packageManager": "npm@11.12.1",
+  "packageManager": "npm@10.9.7",
   "engines": {
-    "node": "22.x",
-    "npm": ">=11.10.0"
+    "node": ">=22.22.2 <23",
+    "npm": ">=10.9.7 <11"
   },
   "workspaces": [
     "studio",
@@ -22,12 +22,15 @@
     "clean": "npm run clean --workspaces --if-present",
     "check-deps": "npm ls 2>&1 | grep -i 'peer dep\\|UNMET' || echo 'All peer deps satisfied'",
     "check-deps:root": "npm ls --workspaces=false 2>&1 | grep -i 'peer dep\\|UNMET' || echo 'All peer deps satisfied'",
+    "outdated:deps": "npm outdated --workspaces",
+    "audit:deps": "npm audit --workspaces --omit=dev",
+    "audit:deps:ci": "npm audit --workspaces --omit=dev --audit-level=high",
     "typegen": "npm run typegen --workspace=studio"
   },
   "devDependencies": {
-    "vite": "7.3.1"
+    "vite": "7.3.3"
   },
   "overrides": {
-    "sanity": "5.20.0"
+    "sanity": "5.28.0"
   }
 }
