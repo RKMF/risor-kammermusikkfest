@@ -65,6 +65,7 @@ If a rule is obvious from code or config, link to the source or fix the structur
 - Read files before editing them.
 - Fresh sessions should use the repo workflows in `.ai/workflows/` rather than relying on memory.
 - Starting dev servers from the monorepo root is not the reliable default for fresh sessions.
+- Use Node `22.22.2+` LTS for local work and CI parity.
 
 ## 4. Workflow Rules
 
@@ -92,6 +93,8 @@ If a rule is obvious from code or config, link to the source or fix the structur
 - Prefer intentional upgrades over broad updates.
 - Treat major upgrades as migrations with explicit verification.
 - Keep shared build-tooling at the root and runtime ownership in `frontend/` or `studio/`.
+- Use the root lockfile as the only dependency lock for workspace installs.
+- Manual dependency review is the default: use `npm run outdated:deps` and `npm run audit:deps`, and treat CI audit failures as a prompt for targeted maintenance rather than blanket auto-fixes.
 
 ## 5. AI and Documentation Usage
 

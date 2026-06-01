@@ -4,7 +4,7 @@ Bilingual (Norwegian/English) festival website built with Astro and Sanity CMS.
 
 ## Quick Start
 
-Use Node.js `22.x` LTS.
+Use Node.js `22.22.2+` LTS.
 
 ```bash
 npm install
@@ -22,6 +22,8 @@ npm run build
 npm run test
 npm run lint
 npm run typecheck
+npm run outdated:deps
+npm run audit:deps
 ```
 
 Deployment flow: `feature/* -> staging -> main`
