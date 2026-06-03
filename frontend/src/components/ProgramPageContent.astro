@@ -8,6 +8,13 @@ import { createDataService } from '../lib/sanity/dataService.js';
 import { formatDateWithWeekday } from '../lib/utils/dates';
 import { compareEventChronologicallyAsc } from '../lib/utils/eventOrdering';
 import { deriveAvailableVenues } from '../lib/utils/programFilters';
+import {
+  applyProgramFilters,
+  buildProgramEmptyStateMessage,
+  buildProgramFilterPath,
+  getValidatedSelectedDates,
+  getValidatedSelectedVenues,
+} from '../lib/utils/programFilterState';
 import { stegaClean } from '@sanity/client/stega';
 import '../styles/program.css';
 import '../styles/event-card-collection.css';
@@ -73,52 +80,26 @@ const sortedDates = Object.values(eventsByDate)
     events: [...dateGroup.events].sort(compareEventChronologicallyAsc)
   }));
 
-// Get filters from URL
-const dateFilter = Astro.url.searchParams.get('date') || undefined;
-const venueFilter = Astro.url.searchParams.get('venue') || undefined;
+const selectedDates = getValidatedSelectedDates(Astro.url.searchParams);
+const selectedVenues = getValidatedSelectedVenues(Astro.url.searchParams);
+const selections = { selectedDates, selectedVenues };
 
-// Apply filters
-let filteredDates = sortedDates;
-
-// Apply date filter
-if (dateFilter) {
-  filteredDates = filteredDates.filter(d => d.date === dateFilter);
+function buildFilterUrl(dates: string[], venues: string[]) {
+  return buildProgramFilterPath('/api/filter-program', dates, venues, language);
 }
 
-// Apply venue filter
-if (venueFilter) {
-  filteredDates = filteredDates
-    .map(dateGroup => ({
-      ...dateGroup,
-      events: dateGroup.events.filter(e => e.venue?.slug === venueFilter)
-    }))
-    .filter(dateGroup => dateGroup.events.length > 0);
-}
+const filteredDates = applyProgramFilters(sortedDates, selections);
 
 // Check if we have any events after filtering
 const hasEvents = filteredDates.length > 0 && filteredDates.some(d => d.events.length > 0);
 
 // Build contextual message for empty state
-const noEventsText = language === 'no' ? 'Ingen arrangementer funnet' : 'No events found';
-let emptyStateMessage = noEventsText;
-
-if (dateFilter && venueFilter) {
-  const dateDisplay = availableDates.find(d => d.date === dateFilter)?.title || formatDateWithWeekday(dateFilter, language);
-  const venueDisplay = availableVenues.find(v => v.slug === venueFilter)?.title || venueFilter;
-  emptyStateMessage = language === 'no'
-    ? `Ingen arrangementer på ${dateDisplay} og ${venueDisplay}`
-    : `No events on ${dateDisplay} at ${venueDisplay}`;
-} else if (dateFilter) {
-  const dateDisplay = availableDates.find(d => d.date === dateFilter)?.title || formatDateWithWeekday(dateFilter, language);
-  emptyStateMessage = language === 'no'
-    ? `Ingen arrangementer på ${dateDisplay}`
-    : `No events on ${dateDisplay}`;
-} else if (venueFilter) {
-  const venueDisplay = availableVenues.find(v => v.slug === venueFilter)?.title || venueFilter;
-  emptyStateMessage = language === 'no'
-    ? `Ingen arrangementer på ${venueDisplay}`
-    : `No events at ${venueDisplay}`;
-}
+const emptyStateMessage = buildProgramEmptyStateMessage(
+  selections,
+  availableDates,
+  availableVenues,
+  language
+);
 
 // Language-specific UI strings
 const emptyStateHint = language === 'no' ? 'Prøv en annen kombinasjon, eller:' : 'Choose a different combination, or:';
@@ -168,8 +149,9 @@ const resetButtonText = language === 'no' ? 'Nullstill filtre' : 'Reset filters'
           <a
             href={basePath}
             class="link-button"
-            hx-get="/api/filter-program"
-            hx-vals={JSON.stringify({ lang: language, date: '', venue: '' })}
+            data-filter-type="reset"
+            data-filter-value=""
+            hx-get={buildFilterUrl([], [])}
             hx-target="#event-results"
             hx-swap="innerHTML show:none"
             hx-push-url="true"
