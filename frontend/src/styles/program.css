@@ -252,9 +252,11 @@
   --loading-fade-in: 150ms;
   --loading-fade-out: 100ms;
 
-  margin-block-start: var(--space-3);
+  margin-block-start: var(--space-1);
   font-size: var(--step--1);
   font-style: italic;
+  max-height: 0;
+  overflow: hidden;
 
   /* Hidden state - prevents interaction and screen reader announcement */
   opacity: 0;
@@ -276,6 +278,7 @@
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+  max-height: 2rem;
 
   /* Apply delay to both properties */
   transition-delay: var(--loading-delay), 0ms;

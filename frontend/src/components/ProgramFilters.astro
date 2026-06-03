@@ -140,11 +140,12 @@ const filterState = buildProgramFilterRenderState(
     </div>
   )}
 
-  <!-- Loading indicator for htmx requests (targeted via hx-indicator="#filter-loading") -->
-  <div id="filter-loading" aria-live="polite" aria-busy="false">
-    {language === 'no' ? 'Laster arrangementer...' : 'Loading events...'}
-  </div>
 </section>
+
+<!-- Loading indicator for htmx requests (targeted via hx-indicator="#filter-loading") -->
+<div id="filter-loading" aria-live="polite" aria-busy="false">
+  {language === 'no' ? 'Laster arrangementer...' : 'Loading events...'}
+</div>
 
 <script>
   import { initProgramFilterDragScroll } from '../scripts/programFilterDragScroll.js';

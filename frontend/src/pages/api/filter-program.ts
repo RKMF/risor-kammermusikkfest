@@ -157,9 +157,6 @@ function generateProgramFiltersHtml(
           </div>
         </div>
       ` : ''}
-      <div id="filter-loading" aria-live="polite" aria-busy="false">
-        ${language === 'no' ? 'Laster arrangementer...' : 'Loading events...'}
-      </div>
     </section>
   `;
 }
