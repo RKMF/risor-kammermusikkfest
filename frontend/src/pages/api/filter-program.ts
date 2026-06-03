@@ -4,10 +4,17 @@ import { createDataService } from '../../lib/sanity/dataService.js';
 import { formatDateWithWeekday } from '../../lib/utils/dates';
 import { compareEventChronologicallyAsc } from '../../lib/utils/eventOrdering';
 import { deriveAvailableVenues } from '../../lib/utils/programFilters';
+import {
+  applyProgramFilters,
+  buildProgramEmptyStateMessage,
+  buildProgramFilterPath,
+  buildProgramFilterRenderState,
+  getValidatedSelectedDates,
+  getValidatedSelectedVenues,
+} from '../../lib/utils/programFilterState';
 import { stegaClean } from '@sanity/client/stega';
 import {
   rateLimit,
-  InputValidator,
   getCORSHeaders,
   getSecurityHeaders
 } from '../../lib/security';
@@ -45,6 +52,116 @@ interface DateGroup {
 interface ProgramPageData {
   selectedEvents?: (ProgramEvent | null)[];
   venueFilterOrder?: (EventVenue | null)[];
+}
+
+function generateProgramFiltersHtml(
+  availableDates: EventDate[],
+  availableVenues: EventVenue[],
+  selectedDates: string[],
+  selectedVenues: string[],
+  language: 'no' | 'en'
+): string {
+  const filterState = buildProgramFilterRenderState(
+    availableDates,
+    availableVenues,
+    { selectedDates, selectedVenues },
+    language
+  );
+
+  return `
+    <section
+      id="filter-container"
+      role="search"
+      aria-label="${language === 'no' ? 'Filter arrangementer' : 'Filter events'}"
+      hx-swap-oob="outerHTML"
+    >
+      ${filterState.dateButtons.length > 0 ? `
+        <div class="date-filter">
+          <div
+            class="date-filter-buttons"
+            role="region"
+            tabindex="0"
+            aria-label="${language === 'no' ? 'Filtrer etter dato' : 'Filter by date'}"
+          >
+            <a
+              href="${filterState.allDatesButton.pageHref}"
+              class="link-button${filterState.allDatesButton.isActive ? ' active' : ''}"
+              aria-pressed="${filterState.allDatesButton.isActive ? 'true' : 'false'}"
+              data-filter-type="date"
+              data-filter-value="${filterState.allDatesButton.value}"
+              hx-get="${filterState.allDatesButton.apiHref}"
+              hx-target="#event-results"
+              hx-swap="innerHTML show:none"
+              hx-push-url="true"
+              hx-indicator="#filter-loading"
+            >
+              ${filterState.allDatesButton.label}
+            </a>
+            ${filterState.dateButtons.map((button) => `
+              <a
+                href="${button.pageHref}"
+                class="link-button${button.isActive ? ' active' : ''}"
+                aria-pressed="${button.isActive ? 'true' : 'false'}"
+                data-filter-type="date"
+                data-filter-value="${escapeHtml(button.value)}"
+                hx-get="${button.apiHref}"
+                hx-target="#event-results"
+                hx-swap="innerHTML show:none"
+                hx-push-url="true"
+                hx-indicator="#filter-loading"
+              >
+                ${escapeHtml(button.label)}
+              </a>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+      ${filterState.venueButtons.length > 0 ? `
+        <div class="venue-filter">
+          <div
+            class="venue-filter-buttons"
+            role="region"
+            tabindex="0"
+            aria-label="${language === 'no' ? 'Filtrer etter sted' : 'Filter by venue'}"
+          >
+            <a
+              href="${filterState.allVenuesButton.pageHref}"
+              class="link-button${filterState.allVenuesButton.isActive ? ' active' : ''}"
+              aria-pressed="${filterState.allVenuesButton.isActive ? 'true' : 'false'}"
+              data-filter-type="venue"
+              data-filter-value="${filterState.allVenuesButton.value}"
+              hx-get="${filterState.allVenuesButton.apiHref}"
+              hx-target="#event-results"
+              hx-swap="innerHTML show:none"
+              hx-push-url="true"
+              hx-indicator="#filter-loading"
+            >
+              ${filterState.allVenuesButton.label}
+            </a>
+            ${filterState.venueButtons.map((button) => `
+              <a
+                href="${button.pageHref}"
+                class="link-button${button.isActive ? ' active' : ''}"
+                aria-pressed="${button.isActive ? 'true' : 'false'}"
+                data-filter-type="venue"
+                data-filter-value="${escapeHtml(button.value)}"
+                hx-get="${button.apiHref}"
+                hx-target="#event-results"
+                hx-swap="innerHTML show:none"
+                hx-push-url="true"
+                hx-indicator="#filter-loading"
+              >
+                ${escapeHtml(button.label)}
+              </a>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+      <div id="filter-loading" aria-live="polite" aria-busy="false">
+        ${language === 'no' ? 'Laster arrangementer...' : 'Loading events...'}
+      </div>
+    </section>
+  `;
 }
 
 // HTML escape function for security
@@ -201,11 +318,10 @@ export const GET: APIRoute = async ({ request, url }) => {
     }
 
     // Get and validate filters from URL
-    const dateParam = url.searchParams.get('date');
-    const dateFilter = dateParam ? InputValidator.validateDate(dateParam) : null;
-    const venueParam = url.searchParams.get('venue');
-    const venueFilter = venueParam ? InputValidator.validateSlug(venueParam) : null;
     const language = (url.searchParams.get('lang') || 'no') as 'no' | 'en';
+    const selectedDates = getValidatedSelectedDates(url.searchParams);
+    const selectedVenues = getValidatedSelectedVenues(url.searchParams);
+    const selections = { selectedDates, selectedVenues };
 
     // Create data service
     const dataService = createDataService(request);
@@ -220,6 +336,11 @@ export const GET: APIRoute = async ({ request, url }) => {
     const events: ProgramEvent[] = (programPage?.selectedEvents || []).filter(
       (event): event is ProgramEvent => event != null
     );
+    const availableDates = events
+      .filter(
+        (event): event is ProgramEvent & { eventDate: EventDate } => Boolean(event?.eventDate?.date)
+      )
+      .map((event) => event.eventDate);
     const availableVenues = deriveAvailableVenues(events, programPage?.venueFilterOrder || []);
 
     // Group events by date (same logic as program.astro)
@@ -246,44 +367,28 @@ export const GET: APIRoute = async ({ request, url }) => {
         events: [...dateGroup.events].sort(compareEventChronologicallyAsc)
       }));
 
-    // Apply filters
-    let filteredDates = sortedDates;
-
-    // Apply date filter
-    if (dateFilter) {
-      filteredDates = filteredDates.filter(d => d.date === dateFilter);
-    }
-
-    // Apply venue filter
-    if (venueFilter) {
-      filteredDates = filteredDates
-        .map(dateGroup => ({
-          ...dateGroup,
-          events: dateGroup.events.filter((e) => e.venue?.slug === venueFilter)
-        }))
-        .filter(dateGroup => dateGroup.events.length > 0);
-    }
+    const filteredDates = applyProgramFilters(sortedDates, selections);
 
     // Check if we have any events after filtering
     const hasEvents = filteredDates.length > 0 && filteredDates.some(d => d.events.length > 0);
 
-    // Build contextual message for empty state
-    let emptyStateMessage = 'Ingen arrangementer funnet';
-    if (dateFilter && venueFilter) {
-      // Get display names from the events data
-      const dateDisplay = sortedDates.find(d => d.date === dateFilter)?.displayTitle || formatDateWithWeekday(dateFilter, language);
-      const venueDisplay = availableVenues.find((v) => v.slug === venueFilter)?.title || venueFilter;
-      emptyStateMessage = `Ingen arrangementer på ${dateDisplay} og ${venueDisplay}`;
-    } else if (dateFilter) {
-      const dateDisplay = sortedDates.find(d => d.date === dateFilter)?.displayTitle || formatDateWithWeekday(dateFilter, language);
-      emptyStateMessage = `Ingen arrangementer på ${dateDisplay}`;
-    } else if (venueFilter) {
-      const venueDisplay = availableVenues.find((v) => v.slug === venueFilter)?.title || venueFilter;
-      emptyStateMessage = `Ingen arrangementer på ${venueDisplay}`;
-    }
+    const emptyStateMessage = buildProgramEmptyStateMessage(
+      selections,
+      availableDates,
+      availableVenues,
+      language
+    );
+
+    const filterHtml = generateProgramFiltersHtml(
+      availableDates,
+      availableVenues,
+      selectedDates,
+      selectedVenues,
+      language
+    );
 
     // Generate HTML
-    let html = '';
+    let html = filterHtml;
 
     if (hasEvents) {
       // Render each date section with EventCard HTML templates
@@ -320,7 +425,7 @@ export const GET: APIRoute = async ({ request, url }) => {
         `;
       });
 
-      html = sectionsHtml.join('');
+      html += sectionsHtml.join('');
     } else {
       const emptyStateText = language === 'no'
         ? 'Prøv en annen kombinasjon, eller:'
@@ -330,18 +435,17 @@ export const GET: APIRoute = async ({ request, url }) => {
         : 'Reset filters';
       const resetHref = language === 'no' ? '/program' : '/en/program';
 
-      html = `
+      html += `
         <section class="content-section">
           <div class="no-results">
             <h3 class="no-results-title">${emptyStateMessage}</h3>
             <p class="no-results-text">${emptyStateText}</p>
             <a
-              href="${resetHref}?lang=${language}"
+              href="${resetHref}"
               class="link-button"
               data-filter-type="reset"
               data-filter-value=""
-              hx-get="/api/filter-program"
-              hx-vals='{"lang": "${language}", "date": "", "venue": ""}'
+              hx-get="${buildProgramFilterPath('/api/filter-program', [], [], language)}"
               hx-target="#event-results"
               hx-swap="innerHTML show:none"
               hx-push-url="true"
@@ -356,13 +460,7 @@ export const GET: APIRoute = async ({ request, url }) => {
 
     // Determine the URL to push to browser history
     const basePath = language === 'no' ? '/program' : '/en/program';
-    const params = new URLSearchParams();
-
-    if (dateFilter) params.set('date', dateFilter);
-    if (venueFilter) params.set('venue', venueFilter);
-
-    const queryString = params.toString();
-    const pushUrl = queryString ? `${basePath}?${queryString}` : basePath;
+    const pushUrl = buildProgramFilterPath(basePath, selectedDates, selectedVenues);
 
     const origin = request.headers.get('origin') ?? undefined;
 
