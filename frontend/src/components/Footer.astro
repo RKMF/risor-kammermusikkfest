@@ -74,8 +74,8 @@ const currentYear = new Date().getFullYear();
 
 // Developer credit text based on language
 const developerCreditText = currentLang === 'no'
-  ? 'Nettsider fra Magefølelsen'
-  : 'Website by Magefølelsen';
+  ? 'Nettsider laget av Magefølelsen'
+  : 'Website made by Magefølelsen';
 
 const newTabText = currentLang === 'no'
   ? '(åpnes i ny fane)'
@@ -222,7 +222,15 @@ function getSocialIcon(name: string): string | undefined {
 
     <!-- Developer Credit -->
     <p class="footer-developer-credit">
-      {developerCreditText}
+      <a
+        href="https://www.magefolelsen.no"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hover-underline"
+      >
+        <span class="footer-link-text">{developerCreditText}</span>
+        <span class="visually-hidden"> {newTabText}</span>
+      </a>
     </p>
   </div>
 
