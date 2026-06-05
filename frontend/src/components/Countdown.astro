@@ -34,6 +34,7 @@ function getTimeRemaining(targetDate: Date) {
 // Default time remaining
 let timeRemaining = { expired: true, days: 0, hours: 0, minutes: 0 };
 let updateInterval = '60s';
+let visibleParts: Array<{ value: number; label: string }> = [];
 
 // Parse the target date (ISO datetime string from Sanity)
 if (targetDateStr) {
@@ -45,6 +46,12 @@ if (targetDateStr) {
     ? '3600s' // Update every hour when > 1 day
     : '60s';   // Update every minute when < 1 day
 }
+
+visibleParts = [
+  timeRemaining.days > 0 ? { value: timeRemaining.days, label: timeRemaining.days === 1 ? 'dag' : 'dager' } : null,
+  timeRemaining.hours > 0 ? { value: timeRemaining.hours, label: timeRemaining.hours === 1 ? 'time' : 'timer' } : null,
+  timeRemaining.minutes > 0 ? { value: timeRemaining.minutes, label: timeRemaining.minutes === 1 ? 'minutt' : 'minutter' } : null,
+].filter((part): part is { value: number; label: string } => part !== null);
 
 // Don't render if expired and hideWhenComplete is true
 if (timeRemaining.expired && hideWhenComplete) {
@@ -58,7 +65,7 @@ if (timeRemaining.expired && hideWhenComplete) {
     role={timeRemaining.expired ? "status" : "timer"}
     aria-live="polite"
     aria-atomic="true"
-    aria-label={timeRemaining.expired ? completedMessage : `Nedtelling: ${timeRemaining.days ? `${timeRemaining.days} dager, ` : ''}${timeRemaining.hours ? `${timeRemaining.hours} timer og ` : ''}${timeRemaining.minutes} minutter igjen`}
+    aria-label={timeRemaining.expired ? completedMessage : `Nedtelling: ${timeRemaining.days ? `${timeRemaining.days} dager, ` : ''}${timeRemaining.hours ? `${timeRemaining.hours} timer, ` : ''}${timeRemaining.minutes} minutter igjen`}
   >
     {timeRemaining.expired ? (
       <p class="countdown__expired">
@@ -68,19 +75,11 @@ if (timeRemaining.expired && hideWhenComplete) {
       <>
         {title && <p class="countdown__title">{title}</p>}
         <p class="countdown__timer">
-          {timeRemaining.days > 0 && (
-            <>
-              <span class="countdown__number">{timeRemaining.days}</span>
-              <span class="countdown__label"> {timeRemaining.days === 1 ? 'dag' : 'dager'}</span>
-              {timeRemaining.hours > 0 && <span class="countdown__separator"> og </span>}
-            </>
-          )}
-          {timeRemaining.hours > 0 && (
-            <>
-              <span class="countdown__number">{timeRemaining.hours}</span>
-              <span class="countdown__label"> {timeRemaining.hours === 1 ? 'time' : 'timer'}</span>
-            </>
-          )}
+          {visibleParts.map((part, index) => (
+            <Fragment>
+              <span class="countdown__number">{part.value}</span><span class="countdown__label">{` ${part.label}`}</span>{index < visibleParts.length - 2 && <span class="countdown__separator">, </span>}{index === visibleParts.length - 2 && <span class="countdown__separator"> og </span>}
+            </Fragment>
+          ))}
         </p>
       </>
     )}
