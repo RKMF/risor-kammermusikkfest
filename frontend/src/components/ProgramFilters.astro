@@ -61,6 +61,7 @@ const filterState = buildProgramFilterRenderState(
       >
         <a
           href={filterState.allDatesButton.pageHref}
+          rel="nofollow"
           class:list={['link-button', { active: filterState.allDatesButton.isActive }]}
           aria-pressed={filterState.allDatesButton.isActive}
           data-filter-type="date"
@@ -77,6 +78,7 @@ const filterState = buildProgramFilterRenderState(
         {filterState.dateButtons.map((button) => (
             <a
               href={button.pageHref}
+              rel="nofollow"
               class:list={['link-button', { active: button.isActive }]}
               aria-pressed={button.isActive}
               data-filter-type="date"
@@ -105,6 +107,7 @@ const filterState = buildProgramFilterRenderState(
       >
         <a
           href={filterState.allVenuesButton.pageHref}
+          rel="nofollow"
           class:list={['link-button', { active: filterState.allVenuesButton.isActive }]}
           aria-pressed={filterState.allVenuesButton.isActive}
           data-filter-type="venue"
@@ -122,6 +125,7 @@ const filterState = buildProgramFilterRenderState(
           return (
             <a
               href={button.pageHref}
+              rel="nofollow"
               class:list={['link-button', { active: button.isActive }]}
               aria-pressed={button.isActive}
               data-filter-type="venue"
