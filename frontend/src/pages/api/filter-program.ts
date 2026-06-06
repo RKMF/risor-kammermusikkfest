@@ -85,6 +85,7 @@ function generateProgramFiltersHtml(
           >
             <a
               href="${filterState.allDatesButton.pageHref}"
+              rel="nofollow"
               class="link-button${filterState.allDatesButton.isActive ? ' active' : ''}"
               aria-pressed="${filterState.allDatesButton.isActive ? 'true' : 'false'}"
               data-filter-type="date"
@@ -100,6 +101,7 @@ function generateProgramFiltersHtml(
             ${filterState.dateButtons.map((button) => `
               <a
                 href="${button.pageHref}"
+                rel="nofollow"
                 class="link-button${button.isActive ? ' active' : ''}"
                 aria-pressed="${button.isActive ? 'true' : 'false'}"
                 data-filter-type="date"
@@ -126,6 +128,7 @@ function generateProgramFiltersHtml(
           >
             <a
               href="${filterState.allVenuesButton.pageHref}"
+              rel="nofollow"
               class="link-button${filterState.allVenuesButton.isActive ? ' active' : ''}"
               aria-pressed="${filterState.allVenuesButton.isActive ? 'true' : 'false'}"
               data-filter-type="venue"
@@ -141,6 +144,7 @@ function generateProgramFiltersHtml(
             ${filterState.venueButtons.map((button) => `
               <a
                 href="${button.pageHref}"
+                rel="nofollow"
                 class="link-button${button.isActive ? ' active' : ''}"
                 aria-pressed="${button.isActive ? 'true' : 'false'}"
                 data-filter-type="venue"
@@ -439,6 +443,7 @@ export const GET: APIRoute = async ({ request, url }) => {
             <p class="no-results-text">${emptyStateText}</p>
             <a
               href="${resetHref}"
+              rel="nofollow"
               class="link-button"
               data-filter-type="reset"
               data-filter-value=""

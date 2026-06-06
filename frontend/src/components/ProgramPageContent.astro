@@ -83,6 +83,13 @@ const sortedDates = Object.values(eventsByDate)
 const selectedDates = getValidatedSelectedDates(Astro.url.searchParams);
 const selectedVenues = getValidatedSelectedVenues(Astro.url.searchParams);
 const selections = { selectedDates, selectedVenues };
+const hasActiveFilters = selectedDates.length > 0 || selectedVenues.length > 0;
+const resolvedSeo = hasActiveFilters
+  ? {
+      ...(programPage?.seo || {}),
+      indexingStatus: 'noindex' as const
+    }
+  : programPage?.seo;
 
 function buildFilterUrl(dates: string[], venues: string[]) {
   return buildProgramFilterPath('/api/filter-program', dates, venues, language);
@@ -110,6 +117,7 @@ const resetButtonText = language === 'no' ? 'Nullstill filtre' : 'Reset filters'
   title={pageTitle}
   excerpt={programPage?.excerpt}
   pageDocument={programPage}
+  seo={resolvedSeo}
 >
   <!-- Structured Data: Festival Schema for Program Page -->
   <FestivalSchema programPage={programPage} events={events} lang={language} slot="structured-data" />
@@ -148,6 +156,7 @@ const resetButtonText = language === 'no' ? 'Nullstill filtre' : 'Reset filters'
           <p class="no-results-text">{emptyStateHint}</p>
           <a
             href={basePath}
+            rel="nofollow"
             class="link-button"
             data-filter-type="reset"
             data-filter-value=""

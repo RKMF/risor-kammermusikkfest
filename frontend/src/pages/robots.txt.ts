@@ -21,6 +21,12 @@ function getRobotsText(): string {
     '# Keep API endpoints out of crawler queues',
     'Disallow: /api/',
     '',
+    '# Keep faceted program filters out of crawler queues',
+    'Disallow: /program?*date=',
+    'Disallow: /program?*venue=',
+    'Disallow: /en/program?*date=',
+    'Disallow: /en/program?*venue=',
+    '',
     `Sitemap: ${SITE_URL}/sitemap.xml`,
   ].join('\n');
 }
