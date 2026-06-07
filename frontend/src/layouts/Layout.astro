@@ -11,6 +11,7 @@ import SEO from '../components/SEO.astro';
 import OrganizationSchema from '../components/structured-data/OrganizationSchema.astro';
 import { detectLanguage, type Language } from '../lib/utils/language.js';
 import { QueryBuilder } from '../lib/sanity/queryBuilder.js';
+import { getOrSetCachedValue } from '../lib/serverCache.js';
 
 // Fonts and tokens need to load before the rest of the site styles.
 import '../styles/reset.css';
@@ -63,14 +64,23 @@ const {
 
 const currentLang: Language = detectLanguage(Astro.request);
 const currentPath = new URL(Astro.request.url).pathname;
+const layoutCacheTtlSeconds = 60;
 
 const { query: menuQuery, params: menuParams } = QueryBuilder.siteSettingsMenu();
-const menuData = await sanityClient.fetch<{ menuItems: MenuItem[]; symbolLogo?: { name: string; image: any } }>(menuQuery, menuParams);
+const menuData = await getOrSetCachedValue(
+  'layout:menu',
+  layoutCacheTtlSeconds,
+  () => sanityClient.fetch<{ menuItems: MenuItem[]; symbolLogo?: { name: string; image: any } }>(menuQuery, menuParams)
+);
 const menuItems = menuData?.menuItems || [];
 const symbolLogo = menuData?.symbolLogo;
 
 const { query: footerQuery, params: footerParams } = QueryBuilder.siteSettingsFooter();
-const siteSettings = await sanityClient.fetch<SiteSettings>(footerQuery, footerParams);
+const siteSettings = await getOrSetCachedValue(
+  'layout:footer',
+  layoutCacheTtlSeconds,
+  () => sanityClient.fetch<SiteSettings>(footerQuery, footerParams)
+);
 const faviconUrl = siteSettings?.favicon?.asset?.url || '/favicon.svg';
 const faviconMimeType = siteSettings?.favicon?.asset?.mimeType || 'image/svg+xml';
 

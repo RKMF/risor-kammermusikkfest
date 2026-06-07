@@ -44,7 +44,7 @@ const dataService = createDataService(Astro.request);
 const homepage = await dataService.getHomepage();
 
 const cacheMaxAge = getHomepageCacheMaxAge(homepage);
-Astro.response.headers.set('Cache-Control', `public, max-age=${cacheMaxAge}`);
+Astro.response.headers.set('Cache-Control', `public, s-maxage=${cacheMaxAge}, stale-while-revalidate=300`);
 
 // Get language-specific content
 const content = homepage ? (getMultilingualContent(homepage, language) || homepage?.content || []) : [];
