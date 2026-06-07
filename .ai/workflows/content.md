@@ -2,8 +2,6 @@ Create or enhance Norwegian source content for: $ARGUMENTS
 
 **Mode:** Research, draft, then apply only after approval.
 
-Caveman safeguard: keep caveman off during this workflow. If caveman is already active, suspend it for drafting, structure proposals, and source presentation so Norwegian copy keeps the intended tone, rhythm, and natural phrasing.
-
 Assumes `AGENTS.md` has already been read for repo-wide constraints.
 
 ## Use This When

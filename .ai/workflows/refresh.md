@@ -2,8 +2,6 @@ Restore context after chat loss, handoff, or returning to an in-progress repo st
 
 **Mode:** Read-only context restore.
 
-Caveman default: activate `/caveman lite` at the start of this workflow for internal status updates. If the user requests another caveman level, use that instead. Drop caveman temporarily when a repo-state summary needs fuller explanation for handoff clarity.
-
 Use this when you need to re-orient without changing branches, starting servers, or doing fresh environment setup.
 
 ## Use This When
