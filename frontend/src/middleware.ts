@@ -23,6 +23,7 @@ const GONE_PATHS = new Set([
   '/finn-oss',
 ]);
 const MISS_CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=300';
+const HTML_CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=300';
 const DYNAMIC_DETAIL_ROUTE_PATTERNS = [
   /^\/[a-z0-9-]+$/,
   /^\/en\/[a-z0-9-]+$/,
@@ -117,6 +118,8 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 
   // Clone response to modify headers
   const modifiedResponse = new Response(response.body, response);
+  const isHtmlGetRequest = context.request.method === 'GET' && !pathname.startsWith('/api/');
+  const contentType = modifiedResponse.headers.get('Content-Type') || '';
 
   // Add CSP header
   const csp = getCSPDirectives();
@@ -146,6 +149,14 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
     if (!modifiedResponse.headers.has('X-Robots-Tag')) {
       modifiedResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
     }
+  }
+  if (
+    isHtmlGetRequest &&
+    modifiedResponse.status === 200 &&
+    contentType.includes('text/html') &&
+    !modifiedResponse.headers.has('Cache-Control')
+  ) {
+    modifiedResponse.headers.set('Cache-Control', HTML_CACHE_CONTROL);
   }
 
   return modifiedResponse;

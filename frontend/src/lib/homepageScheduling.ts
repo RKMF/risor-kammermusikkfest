@@ -11,6 +11,7 @@ export interface HomepageCacheInput {
 
 const DEFAULT_HOMEPAGE_CACHE_MAX_AGE = 3600;
 const SCHEDULED_HOMEPAGE_CACHE_MAX_AGE = 60;
+const HOMEPAGE_CACHE_MAX_AGE_CAP = 60;
 const UPCOMING_BOUNDARY_WINDOW_MS = 10 * 60 * 1000;
 
 function parseDate(value?: string): number | null {
@@ -24,21 +25,20 @@ export function getHomepageCacheMaxAge(
   now = Date.now()
 ): number {
   if (!homepage) {
-    return DEFAULT_HOMEPAGE_CACHE_MAX_AGE;
+    return Math.min(DEFAULT_HOMEPAGE_CACHE_MAX_AGE, HOMEPAGE_CACHE_MAX_AGE_CAP);
   }
 
   if (homepage.homePageType === 'scheduled') {
-    return SCHEDULED_HOMEPAGE_CACHE_MAX_AGE;
+    return Math.min(SCHEDULED_HOMEPAGE_CACHE_MAX_AGE, HOMEPAGE_CACHE_MAX_AGE_CAP);
   }
 
   const nextScheduledStart = parseDate(homepage.nextScheduledStart);
   if (nextScheduledStart !== null && nextScheduledStart > now) {
     const timeUntilNextStart = nextScheduledStart - now;
     if (timeUntilNextStart <= UPCOMING_BOUNDARY_WINDOW_MS) {
-      return SCHEDULED_HOMEPAGE_CACHE_MAX_AGE;
+      return Math.min(SCHEDULED_HOMEPAGE_CACHE_MAX_AGE, HOMEPAGE_CACHE_MAX_AGE_CAP);
     }
   }
 
-  return DEFAULT_HOMEPAGE_CACHE_MAX_AGE;
+  return Math.min(DEFAULT_HOMEPAGE_CACHE_MAX_AGE, HOMEPAGE_CACHE_MAX_AGE_CAP);
 }
-

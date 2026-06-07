@@ -1,6 +1,7 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createDataService } from '../../lib/sanity/dataService.js';
+import { QueryBuilder } from '../../lib/sanity/queryBuilder.js';
 import { formatDateWithWeekday } from '../../lib/utils/dates';
 import { compareEventChronologicallyAsc } from '../../lib/utils/eventOrdering';
 import { deriveAvailableVenues } from '../../lib/utils/programFilters';
@@ -19,6 +20,7 @@ import {
   getSecurityHeaders
 } from '../../lib/security';
 import { getOptimizedImageUrl, getResponsiveImageSet, IMAGE_QUALITY } from '../../lib/sanityImage';
+import { getOrSetCachedValue } from '../../lib/serverCache.js';
 
 // Types for program page data
 interface EventVenue {
@@ -281,9 +283,11 @@ function generateEventCardHtml(event: ProgramEvent, language: 'no' | 'en'): stri
 
 // Rate limiter configuration
 const rateLimiter = rateLimit({
-  maxRequests: 60, // 60 requests per minute (generous for date filtering)
+  maxRequests: 30,
   windowMs: 60 * 1000,
 });
+
+const PROGRAM_FILTER_DATA_CACHE_TTL_SECONDS = 60;
 
 // OPTIONS handler for CORS preflight
 export const OPTIONS: APIRoute = async ({ request }) => {
@@ -332,8 +336,16 @@ export const GET: APIRoute = async ({ request, url }) => {
       dataService.clearCache();
     }
 
-    // Get program page data
-    const programPage = await dataService.getProgramPage() as ProgramPageData;
+    const programPage = await getOrSetCachedValue(
+      `program-filter-data:${language}`,
+      PROGRAM_FILTER_DATA_CACHE_TTL_SECONDS,
+      async () => dataService.fetch(
+        QueryBuilder.programFilterData(language),
+        {},
+        `programFilterData:${language}`,
+        PROGRAM_FILTER_DATA_CACHE_TTL_SECONDS
+      ) as Promise<ProgramPageData>
+    );
     const events: ProgramEvent[] = (programPage?.selectedEvents || []).filter(
       (event): event is ProgramEvent => event != null
     );

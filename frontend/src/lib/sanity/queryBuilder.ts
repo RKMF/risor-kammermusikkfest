@@ -182,6 +182,64 @@ const EVENT_IMAGE_SELECTION = `
   }
 `
 
+const ARTIST_IMAGE_SELECTION = `
+  "image": {
+    "image": image{
+      asset->{
+        _id,
+        url,
+        metadata {
+          dimensions {
+            width,
+            height,
+            aspectRatio
+          },
+          lqip,
+          palette {
+            dominant {
+              background,
+              foreground
+            }
+          }
+        }
+      },
+      hotspot,
+      crop
+    },
+    "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
+    "credit": coalesce(imageCredit_no, imageCredit_en)
+  }
+`
+
+const ARTICLE_IMAGE_SELECTION = `
+  "image": {
+    "image": image{
+      asset->{
+        _id,
+        url,
+        metadata {
+          dimensions {
+            width,
+            height,
+            aspectRatio
+          },
+          lqip,
+          palette {
+            dominant {
+              background,
+              foreground
+            }
+          }
+        }
+      },
+      hotspot,
+      crop
+    },
+    "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
+    "credit": coalesce(imageCredit_no, imageCredit_en)
+  }
+`
+
 const EVENT_DATE_SELECTION = `
   eventDate->{
     _id,
@@ -226,8 +284,92 @@ function buildEventCardFields(): string {
   `
 }
 
-// Items that can be nested in containers
-const NESTED_ITEMS = `
+function buildArtistScrollCardFields(): string {
+  return `
+    _id,
+    _type,
+    name,
+    "slug": slug.current,
+    excerpt_no,
+    excerpt_en,
+    "excerpt": coalesce(excerpt_no, excerpt_en),
+    instrument_no,
+    instrument_en,
+    "instrument": coalesce(instrument_no, instrument_en),
+    country,
+    ${ARTIST_IMAGE_SELECTION},
+    publishingStatus,
+    scheduledPeriod,
+    instagram,
+    facebook,
+    spotify,
+    youtube,
+    websiteUrl,
+    spotifyUrl,
+    instagramUrl,
+    seo
+  `
+}
+
+function buildArticleScrollCardFields(): string {
+  return `
+    _id,
+    _type,
+    title_no,
+    title_en,
+    "title": coalesce(title_no, title_en),
+    slug_no,
+    slug_en,
+    "slug": coalesce(slug_no.current, slug_en.current, slug.current),
+    excerpt_no,
+    excerpt_en,
+    "excerpt": coalesce(excerpt_no, excerpt_en),
+    ${ARTICLE_IMAGE_SELECTION},
+    publishedAt,
+    publishingStatus,
+    scheduledPeriod
+  `
+}
+
+function buildComposerScrollCardFields(): string {
+  return `
+    _id,
+    name,
+    description_no,
+    description_en,
+    "image": {
+      "image": image{
+        asset->{
+          _id,
+          url,
+          metadata {
+            dimensions {
+              width,
+              height,
+              aspectRatio
+            },
+            lqip,
+            palette {
+              dominant {
+                background,
+                foreground
+              }
+            }
+          }
+        },
+        hotspot,
+        crop
+      },
+      "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
+      "credit": coalesce(imageCredit_no, imageCredit_en)
+    }
+  `
+}
+
+// Nested content intentionally leaves scroll-container references unresolved.
+// Resolving them recursively makes detail-page GROQ requests exceed Sanity's
+// 300 KB request-body limit on content-heavy pages.
+const NESTED_PAGE_CONTENT = `
   ...,
   ${IMAGE_COMPONENT},
   ${VIDEO_COMPONENT},
@@ -238,8 +380,9 @@ const NESTED_ITEMS = `
   ${BUTTON_COMPONENT},
   ${COUNTDOWN_COMPONENT}`
 
-// Full content projection with all component types
-const PAGE_CONTENT_WITH_LINKS = `
+// Top-level page content resolves scroll-container references up front so the
+// common case avoids extra component-level Sanity fetches.
+const TOP_LEVEL_PAGE_CONTENT = `
   ...,
   ${IMAGE_COMPONENT},
   ${VIDEO_COMPONENT},
@@ -251,19 +394,35 @@ const PAGE_CONTENT_WITH_LINKS = `
   ${COUNTDOWN_COMPONENT},
   _type == "columnLayout" => {
     ...,
-    items[]{${NESTED_ITEMS}}
+    items[]{${NESTED_PAGE_CONTENT}}
   },
   _type == "contentScrollContainer" => {
     ...,
-    items[]{${NESTED_ITEMS}}
+    items[]{${NESTED_PAGE_CONTENT}}
   },
   _type == "artistScrollContainer" => {
     ...,
-    items[]{${NESTED_ITEMS}}
+    items[defined(@->)]->{
+      ${buildArtistScrollCardFields()}
+    }
   },
   _type == "eventScrollContainer" => {
     ...,
-    items[]{${NESTED_ITEMS}}
+    items[defined(@->)]->{
+      ${buildEventCardFields()}
+    }
+  },
+  _type == "articleScrollContainer" => {
+    ...,
+    items[defined(@->)]->{
+      ${buildArticleScrollCardFields()}
+    }
+  },
+  _type == "composerScrollContainer" => {
+    ...,
+    items[defined(@->)]->{
+      ${buildComposerScrollCardFields()}
+    }
   },
   _type == "homepageHeroComponent" => {
     ...,
@@ -293,23 +452,23 @@ const PAGE_CONTENT_WITH_LINKS = `
     ...,
     panels[]{
       ...,
-      content[]{${NESTED_ITEMS}}
+      content[]{${NESTED_PAGE_CONTENT}}
     }
   },
   _type == "gridComponent" => {
     ...,
-    items[]{${NESTED_ITEMS}}
+    items[]{${NESTED_PAGE_CONTENT}}
   },
   _type == "twoColumnLayout" => {
     ...,
-    leftColumn[]{${NESTED_ITEMS}},
-    rightColumn[]{${NESTED_ITEMS}}
+    leftColumn[]{${NESTED_PAGE_CONTENT}},
+    rightColumn[]{${NESTED_PAGE_CONTENT}}
   },
   _type == "threeColumnLayout" => {
     ...,
-    column1[]{${NESTED_ITEMS}},
-    column2[]{${NESTED_ITEMS}},
-    column3[]{${NESTED_ITEMS}}
+    column1[]{${NESTED_PAGE_CONTENT}},
+    column2[]{${NESTED_PAGE_CONTENT}},
+    column3[]{${NESTED_PAGE_CONTENT}}
   }`
 
 /**
@@ -368,51 +527,22 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
   publishingStatus,
   scheduledPeriod,
   content_no[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   content_en[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   extraContent_no[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   extraContent_en[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   seo,
   spotifyItems[]{
     _key,
     _type,
     spotifyUrl
-  }
-`
-
-const ARTIST_IMAGE_SELECTION = `
-  "image": {
-    "image": image{
-      asset->{
-        _id,
-        url,
-        metadata {
-          dimensions {
-            width,
-            height,
-            aspectRatio
-          },
-          lqip,
-          palette {
-            dominant {
-              background,
-              foreground
-            }
-          }
-        }
-      },
-      hotspot,
-      crop
-    },
-    "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
-    "credit": coalesce(imageCredit_no, imageCredit_en)
   }
 `
 
@@ -439,43 +569,14 @@ const buildArtistBaseFields = (language: Language = 'no'): string => `
   "slug_no": slug,
   "slug_en": slug,
   content_no[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   content_en[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   publishingStatus,
   scheduledPeriod,
   seo
-`
-
-const ARTICLE_IMAGE_SELECTION = `
-  "image": {
-    "image": image{
-      asset->{
-        _id,
-        url,
-        metadata {
-          dimensions {
-            width,
-            height,
-            aspectRatio
-          },
-          lqip,
-          palette {
-            dominant {
-              background,
-              foreground
-            }
-          }
-        }
-      },
-      hotspot,
-      crop
-    },
-    "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
-    "credit": coalesce(imageCredit_no, imageCredit_en)
-  }
 `
 
 /**
@@ -504,10 +605,10 @@ const buildArticleBaseFields = (language: Language = 'no'): string => `
     "slug": slug.current
   },
   content_no[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   content_en[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   seo
 `
@@ -571,10 +672,10 @@ const HOMEPAGE_QUERY = defineQuery(`*[_type == "homepage" && (
   title_no,
   title_en,
   content_no[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   content_en[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   homePageType,
   scheduledPeriod,
@@ -598,10 +699,10 @@ const buildPageBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type
   "slug_en": slug_en.current,
   publishingStatus,
   content_no[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   content_en[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   seo
 }`)
@@ -620,14 +721,25 @@ const buildProgramPageQuery = (language: Language = 'no') => defineQuery(`*[_typ
   slug_en,
   ${createMultilingualField('excerpt', language)},
   content_no[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   content_en[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   seo,
   "selectedEvents": selectedEvents[defined(@->) && ${REF_PUBLISHED_FILTER}]->{
-    ${buildEventBaseFields(language)}
+    ${buildEventCardFields()}
+  },
+  "venueFilterOrder": venueFilterOrder[defined(@->)]->{
+    _id,
+    title,
+    "slug": slug.current
+  }
+}`)
+
+const buildProgramFilterDataQuery = (language: Language = 'no') => defineQuery(`*[_type == "programPage" && ${LISTING_FILTER}][0]{
+  "selectedEvents": selectedEvents[defined(@->) && ${REF_PUBLISHED_FILTER}]->{
+    ${buildEventCardFields()}
   },
   "venueFilterOrder": venueFilterOrder[defined(@->)]->{
     _id,
@@ -645,10 +757,10 @@ const buildArtistPageQuery = (language: Language = 'no') => defineQuery(`*[_type
   slug_en,
   ${createMultilingualField('excerpt', language)},
   content_no[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   content_en[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   seo,
   "selectedArtists": selectedArtists[defined(@->) && ${REF_PUBLISHED_FILTER}]->{
@@ -694,10 +806,10 @@ const buildSponsorPageQuery = (language: Language = 'no') => defineQuery(`*[_typ
   slug_en,
   ${createMultilingualField('excerpt', language)},
   content_no[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   content_en[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   seo,
   "selectedSponsors": selectedSponsors[]->{
@@ -714,10 +826,10 @@ const buildArticlePageQuery = (language: Language = 'no') => defineQuery(`*[_typ
   slug_en,
   ${createMultilingualField('excerpt', language)},
   content_no[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   content_en[]{
-    ${PAGE_CONTENT_WITH_LINKS}
+    ${TOP_LEVEL_PAGE_CONTENT}
   },
   seo,
   "articles": select(
@@ -932,6 +1044,10 @@ export const QueryBuilder = {
   /** Fetch program listing page with selected events */
   programPage(language: Language = 'no'): QueryDefinition<EventResult[]> {
     return {query: buildProgramPageQuery(language), params: {}}
+  },
+  /** Fetch lightweight program listing data for HTMX filtering */
+  programFilterData(language: Language = 'no'): QueryDefinition<EventResult[]> {
+    return {query: buildProgramFilterDataQuery(language), params: {}}
   },
   /** Fetch artist listing page with selected artists */
   artistPage(language: Language = 'no'): QueryDefinition<ArtistResult[]> {

@@ -22,62 +22,72 @@ const artistIndexLink = currentLanguage === 'no'
   ? { href: '/artister', text: 'Se alle artister' }
   : { href: '/en/artists', text: 'See all artists' }
 
-// Fetch actual artist data from references
-let artistData = []
-if (items && items.length > 0) {
-  const artistIds = items.map((item: any) => item._ref).filter(Boolean)
-  if (artistIds.length > 0) {
-    const ARTIST_QUERY = `*[_type == "artist" && _id in $artistIds]{
-      _id,
-      _type,
-      name,
-      "slug": slug.current,
-      excerpt_no,
-      excerpt_en,
-      "excerpt": coalesce(excerpt_no, excerpt_en),
-      instrument_no,
-      instrument_en,
-      "instrument": coalesce(instrument_no, instrument_en),
-      country,
-      "image": {
-        "image": image{
-          asset->{
-            _id,
-            url,
-            metadata {
-              dimensions {
-                width,
-                height,
-                aspectRatio
-              },
-              lqip,
-              palette {
-                dominant {
-                  background,
-                  foreground
-                }
+const itemOrder = new Map(
+  items
+    .map((item: any, index: number) => [item?._ref ?? item?._id, index] as const)
+    .filter(([itemId]) => Boolean(itemId))
+)
+
+const artistRefs = items
+  .filter((item: any) => item?._ref)
+  .map((item: any) => item._ref)
+
+// Top-level page queries provide full objects. Nested content can still send
+// raw references, so fall back to the legacy narrow fetch only in that case.
+let artistData = items.filter((item: any) => item && !item._ref)
+
+if (artistRefs.length > 0) {
+  const ARTIST_QUERY = `*[_type == "artist" && _id in $artistIds]{
+    _id,
+    _type,
+    name,
+    "slug": slug.current,
+    excerpt_no,
+    excerpt_en,
+    "excerpt": coalesce(excerpt_no, excerpt_en),
+    instrument_no,
+    instrument_en,
+    "instrument": coalesce(instrument_no, instrument_en),
+    country,
+    "image": {
+      "image": image{
+        asset->{
+          _id,
+          url,
+          metadata {
+            dimensions {
+              width,
+              height,
+              aspectRatio
+            },
+            lqip,
+            palette {
+              dominant {
+                background,
+                foreground
               }
             }
-          },
-          hotspot,
-          crop
+          }
         },
-        "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
-        "credit": coalesce(imageCredit_no, imageCredit_en)
+        hotspot,
+        crop
       },
-      publishingStatus,
-      scheduledPeriod,
-      instagram,
-      facebook,
-      spotify,
-      youtube,
-      websiteUrl,
-      spotifyUrl,
-      instagramUrl,
-      seo
-    }`
-    artistData = await sanityClient.fetch(ARTIST_QUERY, { artistIds })
-  }
+      "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
+      "credit": coalesce(imageCredit_no, imageCredit_en)
+    },
+    publishingStatus,
+    scheduledPeriod,
+    instagram,
+    facebook,
+    spotify,
+    youtube,
+    websiteUrl,
+    spotifyUrl,
+    instagramUrl,
+    seo
+  }`
+  artistData = await sanityClient.fetch(ARTIST_QUERY, { artistIds: artistRefs })
+  artistData.sort((a: any, b: any) => (itemOrder.get(a._id) ?? Infinity) - (itemOrder.get(b._id) ?? Infinity))
 }
 
 // CSS classes based on props
