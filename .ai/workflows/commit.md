@@ -2,6 +2,8 @@ Organize current local work into logical commits on the correct working branch: 
 
 **Mode:** Inspect first, then prepare the branch and create commits. Do not release.
 
+Caveman default: activate `/caveman lite` at the start of this workflow for internal status updates. If the user requests another caveman level, use that instead. Drop caveman temporarily when clarity matters more than compression, and do not use caveman style for commit message text or other user-facing output.
+
 This workflow is for commit hygiene before `.ai/workflows/dev-release.md`.
 
 ## Use This When

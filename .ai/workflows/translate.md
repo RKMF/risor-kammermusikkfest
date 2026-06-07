@@ -2,6 +2,8 @@ Translate and synchronize Norwegian → English content for: $ARGUMENTS
 
 **Mode:** Analyze, draft, then apply only after approval.
 
+Caveman safeguard: keep caveman off during this workflow. If caveman is already active, suspend it for translation, idiom handling, and reporting so English copy stays natural and aligned with the Norwegian source tone.
+
 Assumes `AGENTS.md` has already been read for repo-wide constraints.
 
 ## Use This When
