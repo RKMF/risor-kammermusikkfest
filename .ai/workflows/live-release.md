@@ -2,8 +2,6 @@ Release `staging` to production: $ARGUMENTS
 
 **Mode:** Verify state first, then execute the production release steps.
 
-Caveman default: activate `/caveman full` at the start of this workflow for internal status updates. If the user requests another caveman level, use that instead. Drop caveman temporarily when warnings, irreversible steps, or policy-sensitive release actions need normal language, and do not use caveman style for PR titles, PR bodies, commit text, or other user-facing release metadata.
-
 Flow: `staging` → `main` with merge commit → sync `staging` to the released `main` tip → verify Studio deployment if relevant
 
 ## Use This When

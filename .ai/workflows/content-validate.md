@@ -2,8 +2,6 @@ Validate content consistency for: $ARGUMENTS
 
 **Mode:** Investigation and reporting first. Apply edits only after explicit approval.
 
-Caveman safeguard: keep caveman off during this workflow. If caveman is already active, suspend it for findings, mismatch reports, and recommended edits so editorial review output stays clear and unambiguous.
-
 ## Use This When
 - checking performer listings against artist profiles
 - validating that event/program text matches structured content

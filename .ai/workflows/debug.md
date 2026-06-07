@@ -2,8 +2,6 @@ Debug an issue: $ARGUMENTS
 
 **Mode:** Investigate first, then implement the smallest fix that holds up under verification.
 
-Caveman default: activate `/caveman full` at the start of this workflow for internal status updates. If the user requests another caveman level, use that instead. Drop caveman temporarily when warnings, destructive actions, step ordering, or other clarity-critical moments need normal language.
-
 ## Use This When
 - a bug needs reproduction and root-cause analysis
 - behavior differs between expected and actual output

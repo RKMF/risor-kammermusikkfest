@@ -2,8 +2,6 @@ Prepare the local dev environment and start a new working branch: $ARGUMENTS
 
 **Mode:** Execution workflow.
 
-Caveman default: activate `/caveman lite` at the start of this workflow for internal status updates. If the user requests another caveman level, use that instead. Drop caveman temporarily when setup steps or branch instructions need maximum clarity.
-
 ## Use This When
 - starting a new feature or bugfix session
 - resetting local dev servers before implementation
