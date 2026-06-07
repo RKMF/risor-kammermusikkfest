@@ -1,51 +1,24 @@
-# Risør Kammermusikkfest Website
+# Risør kammermusikkfest Website
 
-Bilingual (Norwegian/English) festival website built with Astro and Sanity CMS.
+This repository contains the bilingual website for Risør kammermusikkfest, a major chamber music festival in Norway, with public festival content served from Astro and editorial content managed in Sanity.
 
-## Quick Start
+## Ownership
 
-Use Node.js `22.22.2+` LTS.
+The project is owned and maintained by Risør kammermusikkfest. 
+It was built and developed by Magefølelsen communications & design (https://github.com/AMarlonG) 
 
-```bash
-npm install
-npm run typegen
-npm run dev:studio    # http://localhost:3333
-npm run dev:frontend  # http://localhost:4321
-```
+## How It Is Built
 
-Create `frontend/.env.local` from `frontend/.env.example` before running the frontend against real content.
+- `frontend/`: Astro frontend with HTMX-enhanced interactions
+- `studio/`: Sanity Studio and schema definitions
+- Stack: Astro, HTMX, Sanity, TypeScript, and shared monorepo build tooling
+- `frontend` and `studio` share generated Sanity types from the monorepo root
+- Production releases move from `staging` to `main`
 
-## Core Scripts
+## Repository Scope
 
-```bash
-npm run build
-npm run test
-npm run lint
-npm run typecheck
-npm run outdated:deps
-npm run audit:deps
-```
+This is the working repository for the live site and CMS.
 
-Deployment flow: `feature/* -> staging -> main`
-Feature branches squash into `staging`; production promotion from `staging` to `main` should preserve ancestry and then sync `staging` to the released `main` tip.
+## Further Documentation
 
-## Repo Layout
-
-```
-frontend/   Astro frontend and generated Sanity types
-studio/     Sanity Studio and schema definitions
-docs/       Human-facing project documentation
-.ai/        AI workflows, instructions, specialists, and memory
-```
-
-## Read Next
-
-- [docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md) for the full developer handbook
-- [AGENTS.md](AGENTS.md) for the minimal repo briefing used by AI assistants
-- [.ai/README.md](.ai/README.md) for repo-owned AI workflows and instructions
-
-## Build
-
-```bash
-npm run build
-```
+- [docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md) for the full project guide
