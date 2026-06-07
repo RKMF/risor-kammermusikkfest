@@ -42,55 +42,64 @@ const config = {
     overviewText: 'See all articles',
   }
 }[currentLanguage]
+const itemOrder = new Map(
+  items
+    .map((item: any, index: number) => [item?._ref ?? item?._id, index] as const)
+    .filter(([itemId]) => Boolean(itemId))
+)
+const articleRefs = items
+  .filter((item: any) => item?._ref)
+  .map((item: any) => item._ref)
 
-// Fetch actual article data from references
-let articleData: any[] = []
-if (items && items.length > 0) {
-  const articleIds = items.map((item: any) => item._ref).filter(Boolean)
-  if (articleIds.length > 0) {
-    const ARTICLE_QUERY = `*[_type == "article" && _id in $articleIds]{
-      _id,
-      _type,
-      title_no,
-      title_en,
-      "title": coalesce(title_no, title_en),
-      slug_no,
-      slug_en,
-      excerpt_no,
-      excerpt_en,
-      "excerpt": coalesce(excerpt_no, excerpt_en),
-      "image": {
-        "image": image{
-          asset->{
-            _id,
-            url,
-            metadata {
-              dimensions {
-                width,
-                height,
-                aspectRatio
-              },
-              lqip,
-              palette {
-                dominant {
-                  background,
-                  foreground
-                }
+// Top-level page queries provide full objects. Nested content can still send
+// raw references, so fall back to the legacy narrow fetch only in that case.
+let articleData = items.filter((item: any) => item && !item._ref)
+
+if (articleRefs.length > 0) {
+  const ARTICLE_QUERY = `*[_type == "article" && _id in $articleIds]{
+    _id,
+    _type,
+    title_no,
+    title_en,
+    "title": coalesce(title_no, title_en),
+    slug_no,
+    slug_en,
+    "slug": coalesce(slug_no.current, slug_en.current, slug.current),
+    excerpt_no,
+    excerpt_en,
+    "excerpt": coalesce(excerpt_no, excerpt_en),
+    "image": {
+      "image": image{
+        asset->{
+          _id,
+          url,
+          metadata {
+            dimensions {
+              width,
+              height,
+              aspectRatio
+            },
+            lqip,
+            palette {
+              dominant {
+                background,
+                foreground
               }
             }
-          },
-          hotspot,
-          crop
+          }
         },
-        "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
-        "credit": coalesce(imageCredit_no, imageCredit_en)
+        hotspot,
+        crop
       },
-      publishedAt,
-      publishingStatus,
-      scheduledPeriod
-    }`
-    articleData = await sanityClient.fetch(ARTICLE_QUERY, { articleIds })
-  }
+      "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
+      "credit": coalesce(imageCredit_no, imageCredit_en)
+    },
+    publishedAt,
+    publishingStatus,
+    scheduledPeriod
+  }`
+  articleData = await sanityClient.fetch(ARTICLE_QUERY, { articleIds: articleRefs })
+  articleData.sort((a: any, b: any) => (itemOrder.get(a._id) ?? Infinity) - (itemOrder.get(b._id) ?? Infinity))
 }
 
 // Sort articles based on selected sort option
@@ -115,13 +124,7 @@ switch (sortBy) {
     break
   case 'manual':
   default:
-    // Keep manual order based on reference array order
-    const orderMap = new Map(items.map((item: any, index: number) => [item._ref, index]))
-    sortedArticles.sort((a, b) => {
-      const orderA = orderMap.get(a._id) ?? Infinity
-      const orderB = orderMap.get(b._id) ?? Infinity
-      return orderA - orderB
-    })
+    sortedArticles = [...articleData]
     break
 }
 

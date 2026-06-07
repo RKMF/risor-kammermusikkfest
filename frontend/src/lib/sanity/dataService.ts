@@ -6,16 +6,16 @@ import { transformMultilingualDocument, detectLanguage, type Language } from '..
 const isDevelopment = import.meta.env.DEV;
 
 // Cache configuration - disabled for instant content updates
-// Sanity's CDN (useCdn: true) handles caching; no need to double-cache here.
-// With SSR mode, this allows content changes in Sanity to appear immediately.
+// Keep frontend freshness within roughly one minute while reducing repeated
+// Sanity reads inside the SSR runtime.
 const CACHE_DURATION = {
-  homepage: 0,
-  page: 0,
+  homepage: 60,
+  page: 60,
   slugIndex: 60,
-  events: 0,
-  articles: 0,
-  artists: 0,
-  default: 0
+  events: 60,
+  articles: 60,
+  artists: 60,
+  default: 60
 };
 
 // In-memory cache

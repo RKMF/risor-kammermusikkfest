@@ -9,6 +9,7 @@ import '../styles/event-card-collection.css';
 
 interface Props {
   title?: string
+  items?: EventResult[]
   events?: any[]
   showScrollbar?: boolean
   sortBy?: 'date-asc' | 'date-desc' | 'title-asc' | 'manual'
@@ -16,10 +17,92 @@ interface Props {
 
 const {
   title,
-  events = [],
+  items = [],
+  events,
   showScrollbar = false,
   sortBy = 'date-asc'
 } = Astro.props
+
+const incomingItems = (events ?? items).filter(Boolean) as Array<EventResult & { _ref?: string }>
+const itemOrder = new Map(
+  incomingItems
+    .map((item, index) => [item?._ref ?? item?._id, index] as const)
+    .filter(([itemId]) => Boolean(itemId))
+)
+const eventRefs = incomingItems
+  .filter((item) => item?._ref)
+  .map((item) => item._ref as string)
+
+// Top-level page queries provide full objects. Nested content can still send
+// raw references, so fall back to the legacy narrow fetch only in that case.
+let eventItems = incomingItems.filter((item) => !item._ref) as EventResult[]
+
+if (eventRefs.length > 0) {
+  const EVENT_QUERY = `*[_type == "event" && _id in $eventIds]{
+    _id,
+    _type,
+    title_no,
+    title_en,
+    "title": coalesce(title_no, title_en),
+    slug_no,
+    slug_en,
+    "slug": coalesce(slug_no.current, slug_en.current, slug.current),
+    excerpt_no,
+    excerpt_en,
+    "excerpt": coalesce(excerpt_no, excerpt_en),
+    "image": {
+      "image": image{
+        asset->{
+          _id,
+          url,
+          metadata {
+            dimensions {
+              width,
+              height,
+              aspectRatio
+            },
+            lqip,
+            palette {
+              dominant {
+                background,
+                foreground
+              }
+            }
+          }
+        },
+        hotspot,
+        crop
+      },
+      "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
+      "credit": coalesce(imageCredit_no, imageCredit_en)
+    },
+    eventDate->{
+      _id,
+      date,
+      title_display_no,
+      title_display_en,
+      "title": coalesce(title_display_no, title_display_en)
+    },
+    eventTime,
+    venue->{
+      _id,
+      title,
+      name,
+      address,
+      city,
+      "slug": slug.current
+    },
+    ticketType,
+    ticketUrl,
+    ticketInfoText,
+    ticketStatus,
+    publishingStatus,
+    scheduledPeriod,
+    seo
+  }`
+  eventItems = await sanityClient.fetch(EVENT_QUERY, { eventIds: eventRefs })
+  eventItems.sort((a, b) => (itemOrder.get(a._id) ?? Infinity) - (itemOrder.get(b._id) ?? Infinity))
+}
 
 // Detect current language from URL
 const currentLanguage = detectLanguage(Astro.request)
@@ -27,100 +110,21 @@ const programIndexLink = currentLanguage === 'no'
   ? { href: '/program', text: 'Se hele programmet' }
   : { href: '/en/program', text: 'See the full program' }
 
-// Fetch actual event data from references
-let eventData: EventResult[] = []
-const manualOrder = new Map(
-  events
-    .map((item: any, index: number) => [item?._ref, index] as const)
-    .filter(([eventId]) => Boolean(eventId))
-)
-if (events && events.length > 0) {
-  const eventIds = events.map((item: any) => item._ref).filter(Boolean)
-  if (eventIds.length > 0) {
-    const EVENT_QUERY = `*[_type == "event" && _id in $eventIds]{
-      _id,
-      _type,
-      title_no,
-      title_en,
-      "title": coalesce(title_no, title_en),
-      slug_no,
-      slug_en,
-      excerpt_no,
-      excerpt_en,
-      "excerpt": coalesce(excerpt_no, excerpt_en),
-      "image": {
-        "image": image{
-          asset->{
-            _id,
-            url,
-            metadata {
-              dimensions {
-                width,
-                height,
-                aspectRatio
-              },
-              lqip,
-              palette {
-                dominant {
-                  background,
-                  foreground
-                }
-              }
-            }
-          },
-          hotspot,
-          crop
-        },
-        "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
-        "credit": coalesce(imageCredit_no, imageCredit_en)
-      },
-      eventDate->{
-        _id,
-        date,
-        title_display_no,
-        title_display_en,
-        "title": coalesce(title_display_no, title_display_en)
-      },
-      eventTime,
-      venue->{
-        _id,
-        title,
-        name,
-        address,
-        city,
-        "slug": slug.current
-      },
-      ticketType,
-      ticketUrl,
-      ticketInfoText,
-      ticketStatus,
-      publishingStatus,
-      scheduledPeriod,
-      seo
-    }`
-    eventData = await sanityClient.fetch(EVENT_QUERY, { eventIds })
-  }
-}
-
 // Sort events based on selected sort option
-let sortedEvents = [...eventData]
+let sortedEvents = [...eventItems]
 switch (sortBy) {
   case 'date-asc':
-    sortedEvents = sortEventsByMode(eventData, 'date-asc')
+    sortedEvents = sortEventsByMode(eventItems, 'date-asc')
     break
   case 'date-desc':
-    sortedEvents = sortEventsByMode(eventData, 'date-desc')
+    sortedEvents = sortEventsByMode(eventItems, 'date-desc')
     break
   case 'title-asc':
-    sortedEvents = sortEventsByMode(eventData, 'title-asc')
+    sortedEvents = sortEventsByMode(eventItems, 'title-asc')
     break
   case 'manual':
   default:
-    sortedEvents = [...eventData].sort((a, b) => {
-      const indexA = manualOrder.get(a._id) ?? Number.MAX_SAFE_INTEGER
-      const indexB = manualOrder.get(b._id) ?? Number.MAX_SAFE_INTEGER
-      return indexA - indexB
-    })
+    sortedEvents = [...eventItems]
     break
 }
 

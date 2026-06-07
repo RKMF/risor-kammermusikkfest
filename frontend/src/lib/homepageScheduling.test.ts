@@ -40,11 +40,10 @@ describe('getHomepageCacheMaxAge', () => {
         },
         now
       )
-    ).toBe(3600);
+    ).toBe(60);
   });
 
   it('falls back to default cache when no homepage is configured', () => {
-    expect(getHomepageCacheMaxAge(null, now)).toBe(3600);
+    expect(getHomepageCacheMaxAge(null, now)).toBe(60);
   });
 });
-

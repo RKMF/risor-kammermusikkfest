@@ -19,45 +19,54 @@ const {
 // Detect current language from URL
 const currentLanguage = detectLanguage(Astro.request)
 
-// Fetch actual composer data from references
-let composerData: any[] = []
-if (items && items.length > 0) {
-  const composerIds = items.map((item: any) => item._ref).filter(Boolean)
-  if (composerIds.length > 0) {
-    const COMPOSER_QUERY = `*[_type == "composer" && _id in $composerIds]{
-      _id,
-      name,
-      description_no,
-      description_en,
-      "image": {
-        "image": image{
-          asset->{
-            _id,
-            url,
-            metadata {
-              dimensions {
-                width,
-                height,
-                aspectRatio
-              },
-              lqip,
-              palette {
-                dominant {
-                  background,
-                  foreground
-                }
+const itemOrder = new Map(
+  items
+    .map((item: any, index: number) => [item?._ref ?? item?._id, index] as const)
+    .filter(([itemId]) => Boolean(itemId))
+)
+const composerRefs = items
+  .filter((item: any) => item?._ref)
+  .map((item: any) => item._ref)
+
+// Top-level page queries provide full objects. Nested content can still send
+// raw references, so fall back to the legacy narrow fetch only in that case.
+let composerData = items.filter((item: any) => item && !item._ref)
+
+if (composerRefs.length > 0) {
+  const COMPOSER_QUERY = `*[_type == "composer" && _id in $composerIds]{
+    _id,
+    name,
+    description_no,
+    description_en,
+    "image": {
+      "image": image{
+        asset->{
+          _id,
+          url,
+          metadata {
+            dimensions {
+              width,
+              height,
+              aspectRatio
+            },
+            lqip,
+            palette {
+              dominant {
+                background,
+                foreground
               }
             }
-          },
-          hotspot,
-          crop
+          }
         },
-        "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
-        "credit": coalesce(imageCredit_no, imageCredit_en)
-      }
-    }`
-    composerData = await sanityClient.fetch(COMPOSER_QUERY, { composerIds })
-  }
+        hotspot,
+        crop
+      },
+      "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
+      "credit": coalesce(imageCredit_no, imageCredit_en)
+    }
+  }`
+  composerData = await sanityClient.fetch(COMPOSER_QUERY, { composerIds: composerRefs })
+  composerData.sort((a: any, b: any) => (itemOrder.get(a._id) ?? Infinity) - (itemOrder.get(b._id) ?? Infinity))
 }
 
 // CSS classes based on props
