@@ -2,6 +2,8 @@ Release the current working branch to `staging`: $ARGUMENTS
 
 **Mode:** Verify state first, then execute the release steps.
 
+Caveman default: activate `/caveman full` at the start of this workflow for internal status updates. If the user requests another caveman level, use that instead. Drop caveman temporarily when clarity matters more than compression, and do not use caveman style for PR titles, PR bodies, commit text, or other user-facing release metadata.
+
 Flow: `feature/*` or `fix/*` or `chore/*` → `staging` (`testing.kammermusikkfest.no`)
 
 ## Use This When
