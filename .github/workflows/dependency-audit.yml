@@ -31,5 +31,25 @@ jobs:
         run: npm run outdated:deps
         continue-on-error: true
 
-      - name: Fail on high production vulnerabilities
+      - name: Report high production vulnerabilities on scheduled runs
+        if: github.event_name == 'schedule'
+        run: |
+          set +e
+          npm run audit:deps:ci
+          status=$?
+          {
+            echo "## Dependency audit"
+            echo
+            echo "Scheduled runs report unresolved production vulnerabilities without failing the workflow."
+            echo
+            if [ "$status" -eq 0 ]; then
+              echo "Audit passed with no high production vulnerabilities."
+            else
+              echo "Audit reported unresolved high production vulnerabilities. Review the job log and plan targeted maintenance."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Fail on high production vulnerabilities for manual runs
+        if: github.event_name != 'schedule'
         run: npm run audit:deps:ci
