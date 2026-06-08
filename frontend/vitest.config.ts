@@ -6,7 +6,7 @@ export default defineConfig(
     defineConfig({
       test: {
         globals: true,
-        environment: 'happy-dom',
+        environment: 'node',
         include: ['**/*.test.ts', '**/*.test.tsx', '**/*.test.js', '**/*.test.jsx'],
         exclude: ['node_modules', 'dist', '.astro']
       }
