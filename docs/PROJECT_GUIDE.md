@@ -65,7 +65,7 @@ If a rule is obvious from code or config, link to the source or fix the structur
 - Read files before editing them.
 - Fresh sessions should use the repo workflows in `.ai/workflows/` rather than relying on memory.
 - Starting dev servers from the monorepo root is not the reliable default for fresh sessions.
-- Use Node `22.22.2+` LTS for local work and CI parity.
+- Use the pinned repo runtime for local dependency work and CI parity: Node `22.22.2` from `.nvmrc` with npm `10.9.7` from the root `packageManager`.
 
 ## 4. Workflow Rules
 
@@ -94,7 +94,19 @@ If a rule is obvious from code or config, link to the source or fix the structur
 - Treat major upgrades as migrations with explicit verification.
 - Keep shared build-tooling at the root and runtime ownership in `frontend/` or `studio/`.
 - Use the root lockfile as the only dependency lock for workspace installs.
-- Manual dependency review is the default: use `npm run outdated:deps` and `npm run audit:deps`, and treat CI audit failures as a prompt for targeted maintenance rather than blanket auto-fixes.
+- Use the pinned repo runtime before running installs or refreshing `package-lock.json`; do not treat lockfile changes produced under a different local Node/npm pair as authoritative.
+- Commit manifest and lockfile changes together. `npm ci` in CI is the guardrail that catches drift; it is not the tool for creating dependency updates.
+- Keep root npm `overrides` entries rare and intentional. The current `sanity` override exists to keep the Studio dependency tree on the same Sanity release line as the direct Studio dependency; update it only as part of an intentional Studio/Sanity maintenance pass.
+- Manual dependency review is the default: use `npm run outdated:deps` and `npm run audit:deps`, and treat audit output as a prompt for targeted maintenance rather than blanket auto-fixes.
+- The scheduled GitHub dependency audit is a reporting workflow. It installs with `npm ci`, reports outdated packages, and surfaces unresolved production vulnerabilities without permanently failing the weekly run on upstream-only transitive findings.
+- The manual `workflow_dispatch` dependency audit remains the strict path and should fail when unresolved high production vulnerabilities are still present.
+
+### Runtime pin maintenance
+- Treat updates to `.nvmrc`, the root `engines`, and the root `packageManager` as deliberate maintenance work, not routine churn.
+- Re-evaluate the pinned Node/npm baseline during dependency maintenance, when CI or local tooling starts warning, or when Astro, Vite, Sanity, or Vercel tooling requires a newer supported runtime.
+- Prefer LTS-to-LTS movement. Do not bump the pinned runtime just because a newer major exists.
+- Runtime pin changes must move together: `.nvmrc`, root `package.json` `engines`, and root `packageManager`.
+- Validate any runtime pin change under the proposed runtime with `npm ci`, frontend tests, Studio tests, the root build, and dependency review commands before treating it as the new baseline.
 
 ## 5. AI and Documentation Usage
 
