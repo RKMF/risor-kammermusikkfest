@@ -40,6 +40,7 @@ const eventPath = language === 'en' ? `/en/program/${eventSlug}` : `/program/${e
 // Translation strings
 const dateLabel = language === 'en' ? 'Date and time' : 'Dato og tid';
 const venueLabel = language === 'en' ? 'Venue' : 'Sted';
+const timePrefix = language === 'en' ? ', ' : ', kl. ';
 ---
 
 <article class="event-card" data-event-date={event.eventDate?.date}>
@@ -78,7 +79,7 @@ const venueLabel = language === 'en' ? 'Venue' : 'Sted';
         <dd class="event-card__datetime">
           <time datetime={event.eventDate.date}>
             {formatDateWithWeekday(event.eventDate.date, language)}{event.eventTime && (
-              <>, kl. {stegaClean(event.eventTime.startTime)}</>
+              <>{timePrefix}{stegaClean(event.eventTime.startTime)}</>
             )}
           </time>
         </dd>

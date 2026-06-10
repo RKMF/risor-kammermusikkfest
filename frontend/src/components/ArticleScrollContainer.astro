@@ -1,6 +1,6 @@
 ---
 import { sanityClient } from "../lib/sanity/client";
-import { detectLanguage } from "../lib/utils/language.js";
+import { createMultilingualField, detectLanguage } from "../lib/utils/language.js";
 import { formatDateForLanguage } from '../lib/utils/dates';
 import { getOptimizedImageUrl, getResponsiveImageSet, IMAGE_QUALITY } from '../lib/sanityImage';
 import ScrollNavigation from './ScrollNavigation.astro';
@@ -61,13 +61,13 @@ if (articleRefs.length > 0) {
     _type,
     title_no,
     title_en,
-    "title": coalesce(title_no, title_en),
+    ${createMultilingualField('title', currentLanguage)},
     slug_no,
     slug_en,
     "slug": coalesce(slug_no.current, slug_en.current, slug.current),
     excerpt_no,
     excerpt_en,
-    "excerpt": coalesce(excerpt_no, excerpt_en),
+    ${createMultilingualField('excerpt', currentLanguage)},
     "image": {
       "image": image{
         asset->{

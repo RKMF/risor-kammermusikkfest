@@ -174,9 +174,9 @@ export class SanityDataService {
   // Homepage methods
   async getHomepage(options: QueryOptions = {}) {
     return this.fetch(
-      QueryBuilder.homepage(),
+      QueryBuilder.homepage(this.language),
       options,
-      'homepage',
+      `homepage:${this.language}`,
       CACHE_DURATION.homepage
     );
   }

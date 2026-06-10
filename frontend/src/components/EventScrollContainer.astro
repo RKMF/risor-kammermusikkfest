@@ -1,6 +1,6 @@
 ---
 import { sanityClient } from "../lib/sanity/client";
-import { detectLanguage } from "../lib/utils/language.js";
+import { createMultilingualField, detectLanguage } from "../lib/utils/language.js";
 import { sortEventsByMode } from '../lib/utils/eventOrdering';
 import EventCard from './EventCard.astro';
 import ScrollNavigation from './ScrollNavigation.astro';
@@ -37,19 +37,22 @@ const eventRefs = incomingItems
 // raw references, so fall back to the legacy narrow fetch only in that case.
 let eventItems = incomingItems.filter((item) => !item._ref) as EventResult[]
 
+// Detect current language from URL
+const currentLanguage = detectLanguage(Astro.request)
+
 if (eventRefs.length > 0) {
   const EVENT_QUERY = `*[_type == "event" && _id in $eventIds]{
     _id,
     _type,
     title_no,
     title_en,
-    "title": coalesce(title_no, title_en),
+    ${createMultilingualField('title', currentLanguage)},
     slug_no,
     slug_en,
     "slug": coalesce(slug_no.current, slug_en.current, slug.current),
     excerpt_no,
     excerpt_en,
-    "excerpt": coalesce(excerpt_no, excerpt_en),
+    ${createMultilingualField('excerpt', currentLanguage)},
     "image": {
       "image": image{
         asset->{
@@ -81,7 +84,9 @@ if (eventRefs.length > 0) {
       date,
       title_display_no,
       title_display_en,
-      "title": coalesce(title_display_no, title_display_en)
+      ${currentLanguage === 'en'
+        ? '"title": coalesce(title_display_en, title_display_no, title_display)'
+        : '"title": coalesce(title_display_no, title_display_en, title_display)'}
     },
     eventTime,
     venue->{
@@ -103,9 +108,6 @@ if (eventRefs.length > 0) {
   eventItems = await sanityClient.fetch(EVENT_QUERY, { eventIds: eventRefs })
   eventItems.sort((a, b) => (itemOrder.get(a._id) ?? Infinity) - (itemOrder.get(b._id) ?? Infinity))
 }
-
-// Detect current language from URL
-const currentLanguage = detectLanguage(Astro.request)
 const programIndexLink = currentLanguage === 'no'
   ? { href: '/program', text: 'Se hele programmet' }
   : { href: '/en/program', text: 'See the full program' }
