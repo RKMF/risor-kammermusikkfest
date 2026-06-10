@@ -240,31 +240,37 @@ const ARTICLE_IMAGE_SELECTION = `
   }
 `
 
-const EVENT_DATE_SELECTION = `
+function buildEventDateSelection(language: Language = 'no'): string {
+  const titleField = language === 'en'
+    ? '"title": coalesce(title_display_en, title_display_no, title_display)'
+    : '"title": coalesce(title_display_no, title_display_en, title_display)'
+
+  return `
   eventDate->{
     _id,
     date,
     title_display_no,
     title_display_en,
-    "title": coalesce(title_display_no, title_display_en)
+    ${titleField}
   }
 `
+}
 
-function buildEventCardFields(): string {
+function buildEventCardFields(language: Language = 'no'): string {
   return `
     _id,
     _type,
     title_no,
     title_en,
-    "title": coalesce(title_no, title_en),
+    ${createMultilingualField('title', language)},
     slug_no,
     slug_en,
     "slug": coalesce(slug_no.current, slug_en.current, slug.current),
     excerpt_no,
     excerpt_en,
-    "excerpt": coalesce(excerpt_no, excerpt_en),
+    ${createMultilingualField('excerpt', language)},
     ${EVENT_IMAGE_SELECTION},
-    ${EVENT_DATE_SELECTION},
+    ${buildEventDateSelection(language)},
     eventTime,
     venue->{
       _id,
@@ -284,7 +290,7 @@ function buildEventCardFields(): string {
   `
 }
 
-function buildArtistScrollCardFields(): string {
+function buildArtistScrollCardFields(language: Language = 'no'): string {
   return `
     _id,
     _type,
@@ -292,10 +298,10 @@ function buildArtistScrollCardFields(): string {
     "slug": slug.current,
     excerpt_no,
     excerpt_en,
-    "excerpt": coalesce(excerpt_no, excerpt_en),
+    ${createMultilingualField('excerpt', language)},
     instrument_no,
     instrument_en,
-    "instrument": coalesce(instrument_no, instrument_en),
+    ${createMultilingualField('instrument', language)},
     country,
     ${ARTIST_IMAGE_SELECTION},
     publishingStatus,
@@ -311,19 +317,19 @@ function buildArtistScrollCardFields(): string {
   `
 }
 
-function buildArticleScrollCardFields(): string {
+function buildArticleScrollCardFields(language: Language = 'no'): string {
   return `
     _id,
     _type,
     title_no,
     title_en,
-    "title": coalesce(title_no, title_en),
+    ${createMultilingualField('title', language)},
     slug_no,
     slug_en,
     "slug": coalesce(slug_no.current, slug_en.current, slug.current),
     excerpt_no,
     excerpt_en,
-    "excerpt": coalesce(excerpt_no, excerpt_en),
+    ${createMultilingualField('excerpt', language)},
     ${ARTICLE_IMAGE_SELECTION},
     publishedAt,
     publishingStatus,
@@ -382,7 +388,8 @@ const NESTED_PAGE_CONTENT = `
 
 // Top-level page content resolves scroll-container references up front so the
 // common case avoids extra component-level Sanity fetches.
-const TOP_LEVEL_PAGE_CONTENT = `
+function buildTopLevelPageContent(language: Language = 'no'): string {
+  return `
   ...,
   ${IMAGE_COMPONENT},
   ${VIDEO_COMPONENT},
@@ -403,19 +410,19 @@ const TOP_LEVEL_PAGE_CONTENT = `
   _type == "artistScrollContainer" => {
     ...,
     items[defined(@->)]->{
-      ${buildArtistScrollCardFields()}
+      ${buildArtistScrollCardFields(language)}
     }
   },
   _type == "eventScrollContainer" => {
     ...,
     items[defined(@->)]->{
-      ${buildEventCardFields()}
+      ${buildEventCardFields(language)}
     }
   },
   _type == "articleScrollContainer" => {
     ...,
     items[defined(@->)]->{
-      ${buildArticleScrollCardFields()}
+      ${buildArticleScrollCardFields(language)}
     }
   },
   _type == "composerScrollContainer" => {
@@ -445,7 +452,7 @@ const TOP_LEVEL_PAGE_CONTENT = `
   _type == "homepageEventCardsComponent" => {
     ...,
     items[defined(@->) && ${REF_PUBLISHED_FILTER}]->{
-      ${buildEventCardFields()}
+      ${buildEventCardFields(language)}
     }
   },
   _type == "accordionComponent" => {
@@ -470,6 +477,7 @@ const TOP_LEVEL_PAGE_CONTENT = `
     column2[]{${NESTED_PAGE_CONTENT}},
     column3[]{${NESTED_PAGE_CONTENT}}
   }`
+}
 
 /**
  * Build GROQ projection for event documents with language-aware field coalescing.
@@ -493,7 +501,7 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
   description_en,
   ${createMultilingualField('description', language)},
   ${EVENT_IMAGE_SELECTION},
-  ${EVENT_DATE_SELECTION},
+  ${buildEventDateSelection(language)},
   eventTime,
   venue->{
     _id,
@@ -527,16 +535,16 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
   publishingStatus,
   scheduledPeriod,
   content_no[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   content_en[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   extraContent_no[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   extraContent_en[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   seo,
   spotifyItems[]{
@@ -569,10 +577,10 @@ const buildArtistBaseFields = (language: Language = 'no'): string => `
   "slug_no": slug,
   "slug_en": slug,
   content_no[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   content_en[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   publishingStatus,
   scheduledPeriod,
@@ -605,10 +613,10 @@ const buildArticleBaseFields = (language: Language = 'no'): string => `
     "slug": slug.current
   },
   content_no[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   content_en[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   seo
 `
@@ -651,7 +659,7 @@ const buildSlugFieldSelection = (language: Language = 'no'): string => {
 }
 
 // Queries
-const HOMEPAGE_QUERY = defineQuery(`*[_type == "homepage" && (
+const buildHomepageQuery = (language: Language = 'no') => defineQuery(`*[_type == "homepage" && (
   homePageType == "default" ||
   (
     homePageType == "scheduled" &&
@@ -668,14 +676,14 @@ const HOMEPAGE_QUERY = defineQuery(`*[_type == "homepage" && (
   _id,
   _type,
   adminTitle,
-  ${createMultilingualField('title')},
+  ${createMultilingualField('title', language)},
   title_no,
   title_en,
   content_no[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   content_en[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   homePageType,
   scheduledPeriod,
@@ -699,10 +707,10 @@ const buildPageBySlugQuery = (language: Language = 'no') => defineQuery(`*[_type
   "slug_en": slug_en.current,
   publishingStatus,
   content_no[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   content_en[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   seo
 }`)
@@ -721,14 +729,14 @@ const buildProgramPageQuery = (language: Language = 'no') => defineQuery(`*[_typ
   slug_en,
   ${createMultilingualField('excerpt', language)},
   content_no[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   content_en[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   seo,
   "selectedEvents": selectedEvents[defined(@->) && ${REF_PUBLISHED_FILTER}]->{
-    ${buildEventCardFields()}
+    ${buildEventCardFields(language)}
   },
   "venueFilterOrder": venueFilterOrder[defined(@->)]->{
     _id,
@@ -739,7 +747,7 @@ const buildProgramPageQuery = (language: Language = 'no') => defineQuery(`*[_typ
 
 const buildProgramFilterDataQuery = (language: Language = 'no') => defineQuery(`*[_type == "programPage" && ${LISTING_FILTER}][0]{
   "selectedEvents": selectedEvents[defined(@->) && ${REF_PUBLISHED_FILTER}]->{
-    ${buildEventCardFields()}
+    ${buildEventCardFields(language)}
   },
   "venueFilterOrder": venueFilterOrder[defined(@->)]->{
     _id,
@@ -757,10 +765,10 @@ const buildArtistPageQuery = (language: Language = 'no') => defineQuery(`*[_type
   slug_en,
   ${createMultilingualField('excerpt', language)},
   content_no[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   content_en[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   seo,
   "selectedArtists": selectedArtists[defined(@->) && ${REF_PUBLISHED_FILTER}]->{
@@ -806,10 +814,10 @@ const buildSponsorPageQuery = (language: Language = 'no') => defineQuery(`*[_typ
   slug_en,
   ${createMultilingualField('excerpt', language)},
   content_no[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   content_en[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   seo,
   "selectedSponsors": selectedSponsors[]->{
@@ -826,10 +834,10 @@ const buildArticlePageQuery = (language: Language = 'no') => defineQuery(`*[_typ
   slug_en,
   ${createMultilingualField('excerpt', language)},
   content_no[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   content_en[]{
-    ${TOP_LEVEL_PAGE_CONTENT}
+    ${buildTopLevelPageContent(language)}
   },
   seo,
   "articles": select(
@@ -893,7 +901,7 @@ const EVENT_DATES_QUERY = defineQuery(`*[_type == "eventDate" && isActive == tru
   date,
   title_display_no,
   title_display_en,
-  "title": coalesce(title_display_no, title_display_en),
+  "title": coalesce(title_display_no, title_display_en, title_display),
   slug_no,
   slug_en,
   "slug_no": slug_no.current,
@@ -1031,8 +1039,8 @@ const SITE_SETTINGS_TEKST_LOGO_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
 
 export const QueryBuilder = {
   /** Fetch the active homepage (default or scheduled) */
-  homepage(): QueryDefinition {
-    return {query: HOMEPAGE_QUERY, params: {}}
+  homepage(language: Language = 'no'): QueryDefinition {
+    return {query: buildHomepageQuery(language), params: {}}
   },
   /** Fetch a generic page by its slug */
   pageBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
