@@ -16,7 +16,7 @@ describe('QueryBuilder slug index queries', () => {
 
 describe('QueryBuilder homepage query', () => {
   it('prefers active scheduled homepages and resolves overlaps deterministically', () => {
-    const query = queryText(QueryBuilder.homepage().query);
+    const query = queryText(QueryBuilder.homepage('en').query);
 
     expect(query).toContain('select(homePageType == "scheduled" => 0, 1) asc');
     expect(query).toContain('scheduledPeriod.startDate desc');
@@ -25,10 +25,30 @@ describe('QueryBuilder homepage query', () => {
   });
 
   it('includes the next upcoming scheduled start for cache boundary handling', () => {
-    const query = queryText(QueryBuilder.homepage().query);
+    const query = queryText(QueryBuilder.homepage('en').query);
 
     expect(query).toContain('"nextScheduledStart"');
     expect(query).toContain('scheduledPeriod.startDate > now()');
     expect(query).toContain('order(scheduledPeriod.startDate asc)');
+  });
+
+  it('uses language-aware card projections for english homepage content', () => {
+    const query = queryText(QueryBuilder.homepage('en').query);
+
+    expect(query).toContain('"title": coalesce(title_en, title_no, title)');
+    expect(query).toContain('"excerpt": coalesce(excerpt_en, excerpt_no, excerpt)');
+    expect(query).toContain('"instrument": coalesce(instrument_en, instrument_no, instrument)');
+    expect(query).toContain('"title": coalesce(title_display_en, title_display_no, title_display)');
+  });
+});
+
+describe('QueryBuilder program queries', () => {
+  it('uses language-aware card projections for english program listings', () => {
+    const query = queryText(QueryBuilder.programPage('en').query);
+
+    expect(query).toContain('"selectedEvents": selectedEvents');
+    expect(query).toContain('"title": coalesce(title_en, title_no, title)');
+    expect(query).toContain('"excerpt": coalesce(excerpt_en, excerpt_no, excerpt)');
+    expect(query).toContain('"title": coalesce(title_display_en, title_display_no, title_display)');
   });
 });

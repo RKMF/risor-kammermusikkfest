@@ -2,7 +2,7 @@
 import { sanityClient } from "../lib/sanity/client";
 import ArtistCard from './ArtistCard.astro';
 import ScrollNavigation from './ScrollNavigation.astro';
-import { detectLanguage } from '../lib/utils/language.js';
+import { createMultilingualField, detectLanguage } from '../lib/utils/language.js';
 
 interface Props {
   title?: string
@@ -44,10 +44,10 @@ if (artistRefs.length > 0) {
     "slug": slug.current,
     excerpt_no,
     excerpt_en,
-    "excerpt": coalesce(excerpt_no, excerpt_en),
+    ${createMultilingualField('excerpt', currentLanguage)},
     instrument_no,
     instrument_en,
-    "instrument": coalesce(instrument_no, instrument_en),
+    ${createMultilingualField('instrument', currentLanguage)},
     country,
     "image": {
       "image": image{
