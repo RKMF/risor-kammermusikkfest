@@ -1,10 +1,10 @@
 {
   "name": "risor-kammermusikkfest",
   "private": true,
-  "packageManager": "npm@10.9.7",
+  "packageManager": "npm@11.17.0",
   "engines": {
-    "node": ">=22.22.2 <23",
-    "npm": ">=10.9.7 <11"
+    "node": ">=24.16.0 <25",
+    "npm": ">=11.17.0 <12"
   },
   "workspaces": [
     "studio",
@@ -31,11 +31,16 @@
     "vite": "7.3.5"
   },
   "overrides": {
-    "sanity": "5.30.0",
+    "sanity": "6.0.0",
     "path-to-regexp": "6.3.0",
     "rollup": "4.61.1",
     "anymatch@3.1.3": {
       "picomatch": "2.3.2"
     }
+  },
+  "allowScripts": {
+    "@lezer/javascript": true,
+    "esbuild": true,
+    "sharp": true
   }
 }

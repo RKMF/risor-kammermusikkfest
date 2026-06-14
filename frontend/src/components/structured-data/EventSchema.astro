@@ -45,7 +45,7 @@ interface Props {
 
 const { event, lang = 'no' } = Astro.props;
 
-const SITE_URL = import.meta.env.SITE_URL || 'https://kammermusikkfest.no';
+const SITE_URL = 'https://kammermusikkfest.no';
 
 // Build event URL
 const eventSlug = lang === 'en'
@@ -59,6 +59,7 @@ const eventUrl = lang === 'en'
 const eventDate = stegaClean(event.eventDate?.date);
 const startTime = stegaClean(event.eventTime?.startTime);
 const endTime = stegaClean(event.eventTime?.endTime);
+const festivalYear = eventDate?.slice(0, 4) || String(new Date().getFullYear());
 
 // Combine date and time for ISO format (assumes Norway timezone +02:00 summer, +01:00 winter)
 const startDateTime = eventDate && startTime
@@ -139,13 +140,13 @@ const eventSchema = {
   organizer: {
     '@type': 'Organization',
     '@id': `${SITE_URL}/#organization`,
-    name: 'Risor Kammermusikkfest',
+    name: lang === 'en' ? 'Risør Chamber Music Festival' : 'Risør Kammermusikkfest',
     url: SITE_URL,
   },
   superEvent: {
     '@type': 'Festival',
     '@id': `${SITE_URL}/#festival`,
-    name: 'Risor Kammermusikkfest 2025',
+    name: lang === 'en' ? `Risør Chamber Music Festival ${festivalYear}` : `Risør Kammermusikkfest ${festivalYear}`,
   },
 };
 ---

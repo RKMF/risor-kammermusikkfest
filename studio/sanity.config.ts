@@ -88,6 +88,11 @@ export default defineConfig({
     types: schemaTypes,
   },
 
+  // Preserve current editorial search behavior during the v6 migration.
+  search: {
+    strategy: 'groqLegacy',
+  },
+
   // ============================================================================
   // DOCUMENT ACTIONS
   // ============================================================================

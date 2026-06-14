@@ -7,8 +7,7 @@
 
 import type { APIRoute } from 'astro';
 import { sanityClient } from '../lib/sanity/client';
-
-const SITE_URL = import.meta.env.SITE_URL || 'https://kammermusikkfest.no';
+import { getSiteUrl } from '../lib/site';
 
 // Fetch only URLs that should be indexed.
 const SITEMAP_QUERY = `{
@@ -117,6 +116,7 @@ function generateUrlEntry(loc: string, lastmod: string, priority: string, change
 
 export const GET: APIRoute = async () => {
   try {
+    const SITE_URL = getSiteUrl();
     const data = await sanityClient.fetch<SitemapData>(SITEMAP_QUERY);
 
     const urls: string[] = [];
@@ -247,6 +247,7 @@ ${urls.join('\n')}
     });
   } catch (error) {
     console.error('Sitemap generation error:', error);
+    const SITE_URL = getSiteUrl();
     // Return a minimal sitemap on error
     const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
