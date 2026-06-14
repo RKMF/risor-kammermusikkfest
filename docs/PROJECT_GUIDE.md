@@ -65,7 +65,7 @@ If a rule is obvious from code or config, link to the source or fix the structur
 - Read files before editing them.
 - Fresh sessions should use the repo workflows in `.ai/workflows/` rather than relying on memory.
 - Starting dev servers from the monorepo root is not the reliable default for fresh sessions.
-- Use the pinned repo runtime for local dependency work and CI parity: Node `22.22.2` from `.nvmrc` with npm `10.9.7` from the root `packageManager`.
+- Use the pinned repo runtime for local dependency work and CI parity: Node `24.16.0` from `.nvmrc` with npm `11.17.0` from the root `packageManager`.
 
 ## 4. Workflow Rules
 

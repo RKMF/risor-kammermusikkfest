@@ -1,5 +1,6 @@
 ---
 import type { Language } from '../lib/utils/language';
+import { getSiteUrl } from '../lib/site';
 
 interface Props {
   currentLang: Language;
@@ -11,7 +12,7 @@ interface Props {
 const { currentLang, currentPath, slugNo, slugEn } = Astro.props;
 
 // Get base URL from environment or request
-const baseUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://example.com';
+const baseUrl = getSiteUrl(Astro.request);
 
 // Build Norwegian URL (without trailing slash)
 const buildNorwegianUrl = (): string => {
@@ -39,6 +40,9 @@ const buildEnglishUrl = (): string => {
   }
   // For non-dynamic pages, add /en prefix
   if (currentPath === '/' || currentPath === '') {
+    return `${baseUrl}/en`;
+  }
+  if (currentPath === '/en' || currentPath === '/en/') {
     return `${baseUrl}/en`;
   }
   const cleanPath = currentPath.replace(/^\/en\/?/, '');

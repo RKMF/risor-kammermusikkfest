@@ -17,7 +17,7 @@ It was built and developed by Magefølelsen communications & design (https://git
 
 ## Dependency Baseline
 
-- Use Node `22.22.2` from `.nvmrc` for local installs and lockfile updates.
+- Use Node `24.16.0` from `.nvmrc` for local installs and lockfile updates.
 - The repo uses one root `package-lock.json` for both workspaces.
 - CI installs with `npm ci`; local dependency review happens from the root with `npm run outdated:deps` and `npm run audit:deps`.
 - The weekly dependency audit workflow reports unresolved production vulnerabilities, while manual audit runs stay strict.

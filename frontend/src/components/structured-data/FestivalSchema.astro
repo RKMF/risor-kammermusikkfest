@@ -29,7 +29,7 @@ const {
   lang = 'no',
 } = Astro.props;
 
-const SITE_URL = import.meta.env.SITE_URL || 'https://kammermusikkfest.no';
+const SITE_URL = 'https://kammermusikkfest.no';
 
 const festivalUrl = lang === 'en' ? `${SITE_URL}/en/program` : `${SITE_URL}/program`;
 
@@ -41,7 +41,7 @@ const festivalSchema = {
   '@context': 'https://schema.org',
   '@type': 'Festival',
   '@id': `${SITE_URL}/#festival`,
-  name: `Risor Kammermusikkfest ${year}`,
+  name: lang === 'en' ? `Risør Chamber Music Festival ${year}` : `Risør Kammermusikkfest ${year}`,
   alternateName: `Risør Chamber Music Festival ${year}`,
   description: description || defaultDescription,
   url: festivalUrl,
@@ -62,7 +62,7 @@ const festivalSchema = {
   organizer: {
     '@type': 'Organization',
     '@id': `${SITE_URL}/#organization`,
-    name: 'Risor Kammermusikkfest',
+    name: lang === 'en' ? 'Risør Chamber Music Festival' : 'Risør Kammermusikkfest',
     url: SITE_URL,
   },
   // Note: subEvent would be populated with references to individual MusicEvent schemas

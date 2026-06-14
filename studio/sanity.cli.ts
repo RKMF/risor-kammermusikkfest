@@ -4,15 +4,17 @@ import { defineCliConfig } from 'sanity/cli';
 const enableGeneratedArtifactsInDev = process.env.SANITY_STUDIO_WRITE_GENERATED_ARTIFACTS === 'true';
 
 const codemirrorPackageAliases = {
-  '@codemirror/state': fileURLToPath(new URL('./node_modules/@codemirror/state', import.meta.url)),
+  '@codemirror/state': fileURLToPath(new URL('../node_modules/@codemirror/state', import.meta.url)),
   '@codemirror/commands': fileURLToPath(
-    new URL('./node_modules/@codemirror/commands', import.meta.url),
+    new URL('../node_modules/@codemirror/commands', import.meta.url),
   ),
   '@codemirror/language': fileURLToPath(
-    new URL('./node_modules/@codemirror/language', import.meta.url),
+    new URL('../node_modules/@codemirror/language', import.meta.url),
   ),
-  '@codemirror/search': fileURLToPath(new URL('./node_modules/@codemirror/search', import.meta.url)),
-  '@codemirror/view': fileURLToPath(new URL('./node_modules/@codemirror/view', import.meta.url)),
+  '@codemirror/search': fileURLToPath(
+    new URL('../node_modules/@codemirror/search', import.meta.url),
+  ),
+  '@codemirror/view': fileURLToPath(new URL('../node_modules/@codemirror/view', import.meta.url)),
 };
 
 export default defineCliConfig({

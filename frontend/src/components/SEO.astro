@@ -13,6 +13,7 @@
 
 import { stegaClean } from '@sanity/client/stega';
 import { getImageBuilder, IMAGE_QUALITY } from '../lib/sanityImage';
+import { getAbsoluteUrl } from '../lib/site';
 
 interface SeoData {
   title?: string;
@@ -52,10 +53,8 @@ const {
 
 // Site configuration
 const SITE_NAME = 'Risør Kammermusikkfest';
-const SITE_URL = import.meta.env.SITE_URL || 'https://kammermusikkfest.no';
-
 // Build canonical URL
-const canonicalUrl = new URL(Astro.url.pathname, SITE_URL).href;
+const canonicalUrl = getAbsoluteUrl(Astro.url.pathname, Astro.request);
 
 // Clean and prepare SEO data with fallbacks
 const seoTitle = stegaClean(seo?.title || title);

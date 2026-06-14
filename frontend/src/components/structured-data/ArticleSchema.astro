@@ -33,7 +33,7 @@ interface Props {
 
 const { article, lang = 'no' } = Astro.props;
 
-const SITE_URL = import.meta.env.SITE_URL || 'https://kammermusikkfest.no';
+const SITE_URL = 'https://kammermusikkfest.no';
 
 // Get language-specific content
 const title = lang === 'en'
@@ -97,7 +97,7 @@ const articleSchema = {
   publisher: {
     '@type': 'Organization',
     '@id': `${SITE_URL}/#organization`,
-    name: 'Risor Kammermusikkfest',
+    name: lang === 'en' ? 'Risør Chamber Music Festival' : 'Risør Kammermusikkfest',
     url: SITE_URL,
     logo: {
       '@type': 'ImageObject',
