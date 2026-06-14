@@ -1,101 +1,93 @@
 import type { APIRoute } from 'astro';
-import {defineQuery} from 'groq';
-import { sanityClient } from '../../lib/sanity/client';
+import {
+  COUNTDOWN_STRINGS,
+  buildAriaLabel,
+  escapeHtml,
+  getTimeRemaining,
+  getVisibleParts,
+  type CountdownStyle
+} from '../../lib/countdown.js';
+import type { Language } from '../../lib/utils/language.js';
 
-const EVENT_COUNTDOWN_QUERY = defineQuery(`*[_type == "event" && _id == $eventId][0]{
-  eventDate->{date},
-  eventTime
-}`);
+const VALID_STYLES: CountdownStyle[] = ['large', 'compact', 'minimal'];
+const VALID_LANGUAGES: Language[] = ['no', 'en'];
 
-const NORWEGIAN_STRINGS = {
-  started: 'Arrangementet har startet!',
-  prefix: 'Festivalen starter om ',
-  day: ['dag', 'dager'],
-  hour: ['time', 'timer'],
-  minute: ['minutt', 'minutter']
-} as const;
+function isValidStyle(value: string | null): value is CountdownStyle {
+  return value !== null && VALID_STYLES.includes(value as CountdownStyle);
+}
 
-const ENGLISH_STRINGS = {
-  started: 'The event has started!',
-  prefix: 'The festival begins in ',
-  day: ['day', 'days'],
-  hour: ['hour', 'hours'],
-  minute: ['minute', 'minutes']
-} as const;
-
-const LOCALE_MAP = {
-  no: NORWEGIAN_STRINGS,
-  en: ENGLISH_STRINGS
-} as const;
-
-type SupportedLocale = keyof typeof LOCALE_MAP;
+function isValidLanguage(value: string | null): value is Language {
+  return value !== null && VALID_LANGUAGES.includes(value as Language);
+}
 
 export const GET: APIRoute = async ({ url }) => {
-  const eventId = url.searchParams.get('eventId');
-  const locale = (url.searchParams.get('lang')?.toLowerCase() as SupportedLocale) || 'no';
+  const targetDateParam = url.searchParams.get('targetDate');
+  const languageParam = url.searchParams.get('lang');
+  const styleParam = url.searchParams.get('style');
 
-  if (!eventId) {
-    return new Response('Event ID required', { status: 400 });
+  if (!targetDateParam) {
+    return new Response('targetDate is required', { status: 400 });
   }
 
-  const strings = LOCALE_MAP[locale] || NORWEGIAN_STRINGS;
-
-  const event = await sanityClient.fetch<{
-    eventDate?: {date?: string};
-    eventTime?: {startTime?: string; endTime?: string};
-  } | null>(EVENT_COUNTDOWN_QUERY, {eventId});
-
-  if (!event?.eventDate?.date) {
-    return new Response('Event not found', { status: 404 });
+  const targetDate = new Date(targetDateParam);
+  if (Number.isNaN(targetDate.getTime())) {
+    return new Response('targetDate must be a valid ISO date', { status: 400 });
   }
 
-  const eventDate = new Date(event.eventDate.date);
-  const cleanTime = event.eventTime?.startTime?.replace(/[^\d:]/g, '').trim();
-  if (cleanTime && cleanTime.length >= 4) {
-    const [hours = '0', minutes = '0'] = cleanTime.split(':');
-    eventDate.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
-  }
+  const language = isValidLanguage(languageParam)
+    ? languageParam
+    : 'no';
+  const style = isValidStyle(styleParam)
+    ? styleParam
+    : 'compact';
+  const title = url.searchParams.get('title')?.trim();
+  const completedMessageParam = url.searchParams.get('completedMessage')?.trim();
+  const hideWhenComplete = url.searchParams.get('hideWhenComplete') === 'true';
 
-  const now = new Date();
-  const diff = eventDate.getTime() - now.getTime();
+  const strings = COUNTDOWN_STRINGS[language];
+  const completedMessage = completedMessageParam || strings.completedMessage;
+  const timeRemaining = getTimeRemaining(targetDate);
 
-  if (diff <= 0) {
-    const html = `
-      <div class="countdown__display">
-        <p class="countdown__expired">${strings.started}</p>
-      </div>
-    `;
-    return new Response(html, {
-      headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-cache' }
+  if (timeRemaining.expired && hideWhenComplete) {
+    return new Response('', {
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'no-store',
+        'HX-Reswap': 'delete'
+      }
     });
   }
 
-  const minutesTotal = Math.floor(diff / (1000 * 60));
-  const days = Math.floor(minutesTotal / (60 * 24));
-  const hours = Math.floor((minutesTotal - days * 24 * 60) / 60);
-  const minutes = minutesTotal - days * 24 * 60 - hours * 60;
+  const visibleParts = getVisibleParts(timeRemaining, strings);
+  const ariaLabel = buildAriaLabel(timeRemaining, visibleParts, strings, completedMessage);
+  const titleHtml = title ? `<p class="countdown__title">${escapeHtml(title)}</p>` : '';
+  const timerHtml = visibleParts.map((part, index) => {
+    const separator = index < visibleParts.length - 2
+      ? '<span class="countdown__separator">, </span>'
+      : index === visibleParts.length - 2
+        ? `<span class="countdown__separator"> ${strings.conjunction} </span>`
+        : '';
 
-  const parts: string[] = [];
-  if (days > 0) {
-    parts.push(`${days} ${days === 1 ? strings.day[0] : strings.day[1]}`);
-  }
-  if (hours > 0 || days > 0) {
-    parts.push(`${hours} ${hours === 1 ? strings.hour[0] : strings.hour[1]}`);
-  }
-  parts.push(`${minutes} ${minutes === 1 ? strings.minute[0] : strings.minute[1]}`);
+    return `<span class="countdown__number">${part.value}</span><span class="countdown__label"> ${part.label}</span>${separator}`;
+  }).join('');
 
-  const html = `
-    <div class="countdown__display">
-      <p class="countdown__sentence">
-        <span class="countdown__title-inline">${strings.prefix}</span>${parts.join(', ')}
-      </p>
-    </div>
-  `;
+  const html = timeRemaining.expired
+    ? `<section class="countdown countdown--${style}">
+        <div class="countdown__display" role="status" aria-live="polite" aria-atomic="true" aria-label="${escapeHtml(ariaLabel)}">
+          <p class="countdown__expired">${escapeHtml(completedMessage)}</p>
+        </div>
+      </section>`
+    : `<section class="countdown countdown--${style}" hx-get="${escapeHtml(url.pathname + url.search)}" hx-trigger="every 60s" hx-swap="outerHTML">
+        <div class="countdown__display" role="timer" aria-live="polite" aria-atomic="true" aria-label="${escapeHtml(ariaLabel)}">
+          ${titleHtml}
+          <p class="countdown__timer">${timerHtml}</p>
+        </div>
+      </section>`;
 
   return new Response(html, {
     headers: {
-      'Content-Type': 'text/html',
-      'Cache-Control': 'no-cache'
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store'
     }
   });
 };
