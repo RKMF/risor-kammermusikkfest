@@ -6,6 +6,7 @@ import {
   getTimeRemaining,
   getVisibleParts
 } from '../lib/countdown.js';
+import '../styles/countdown.css';
 
 export interface Props {
   targetDate: string;
@@ -30,28 +31,11 @@ const resolvedCompletedMessage = completedMessage || strings.completedMessage;
 // Default time remaining
 let timeRemaining = { expired: true, days: 0, hours: 0, minutes: 0 };
 let visibleParts: Array<{ value: number; label: string }> = [];
-let pollUrl: string | undefined;
 
 // Parse the target date (ISO datetime string from Sanity)
 if (targetDateStr) {
   const targetDate = new Date(targetDateStr);
   timeRemaining = getTimeRemaining(targetDate);
-  const params = new URLSearchParams({
-    targetDate: targetDateStr,
-    lang: language,
-    style,
-    hideWhenComplete: hideWhenComplete ? 'true' : 'false'
-  });
-
-  if (title) {
-    params.set('title', title);
-  }
-
-  if (completedMessage) {
-    params.set('completedMessage', completedMessage);
-  }
-
-  pollUrl = `/api/countdown?${params.toString()}`;
 }
 
 visibleParts = getVisibleParts(timeRemaining, strings);
@@ -71,96 +55,39 @@ if (timeRemaining.expired && hideWhenComplete) {
 
 <section
   class={`countdown countdown--${style}`}
-  hx-get={!timeRemaining.expired ? pollUrl : undefined}
-  hx-trigger={!timeRemaining.expired ? 'every 60s' : undefined}
-  hx-swap={!timeRemaining.expired ? 'outerHTML' : undefined}
+  data-countdown
+  data-target-date={targetDateStr}
+  data-language={language}
+  data-completed-message={resolvedCompletedMessage}
+  data-hide-when-complete={hideWhenComplete ? 'true' : 'false'}
 >
   <div
     class="countdown__display"
+    data-countdown-display
     role={timeRemaining.expired ? "status" : "timer"}
     aria-live="polite"
     aria-atomic="true"
     aria-label={ariaLabel}
   >
-    {timeRemaining.expired ? (
-      <p class="countdown__expired">
-        {resolvedCompletedMessage}
+    {title && (
+      <p class="countdown__title" data-countdown-title hidden={timeRemaining.expired}>
+        {title}
       </p>
-    ) : (
-      <>
-        {title && <p class="countdown__title">{title}</p>}
-        <p class="countdown__timer">
-          {visibleParts.map((part, index) => (
-            <Fragment>
-              <span class="countdown__number">{part.value}</span><span class="countdown__label">{` ${part.label}`}</span>{index < visibleParts.length - 2 && <span class="countdown__separator">, </span>}{index === visibleParts.length - 2 && <span class="countdown__separator">{` ${strings.conjunction} `}</span>}
-            </Fragment>
-          ))}
-        </p>
-      </>
     )}
+    <p class="countdown__timer" data-countdown-timer hidden={timeRemaining.expired}>
+      {visibleParts.map((part, index) => (
+        <Fragment>
+          <span class="countdown__number">{part.value}</span><span class="countdown__label">{` ${part.label}`}</span>{index < visibleParts.length - 2 && <span class="countdown__separator">, </span>}{index === visibleParts.length - 2 && <span class="countdown__separator">{` ${strings.conjunction} `}</span>}
+        </Fragment>
+      ))}
+    </p>
+    <p class="countdown__expired" data-countdown-expired hidden={!timeRemaining.expired}>
+      {resolvedCompletedMessage}
+    </p>
   </div>
 </section>
+<script>
+  import { initializeCountdowns } from '../scripts/countdown.js';
 
-<style>
-  .countdown {
-    text-align: center;
-    background-color: var(--color-green-100);
-    padding-block: clamp(0.875rem, 2.5vw, 1.5rem);
-    padding-inline: clamp(0.875rem, 3vw, 2rem);
-    max-width: 60ch;
-    margin-inline: auto;
-    color: var(--color-green-800);
-  }
-
-  .countdown__display {
-    position: relative;
-  }
-
-  .countdown__title {
-    margin: 0 0 var(--space-xs) 0;
-    font-size: clamp(var(--step-1), 4vw, var(--step-3));
-    font-weight: 400;
-    line-height: 1.2;
-  }
-
-  .countdown__timer {
-    margin: 0;
-    font-size: clamp(var(--step-1), 4.5vw, var(--step-3));
-    line-height: 1.3;
-  }
-
-  .countdown__number {
-    font-weight: 700;
-  }
-
-  .countdown__label {
-    font-weight: 400;
-  }
-
-  .countdown__separator {
-    font-weight: 400;
-  }
-
-  /* Style variations */
-  .countdown--large .countdown__title {
-    font-size: clamp(var(--step-2), 4.5vw, var(--step-3));
-  }
-
-  .countdown--large .countdown__timer {
-    font-size: clamp(var(--step-2), 5vw, var(--step-4));
-  }
-
-  .countdown--minimal .countdown__title {
-    font-size: clamp(var(--step-0), 3vw, var(--step-1));
-  }
-
-  .countdown--minimal .countdown__timer {
-    font-size: clamp(var(--step-1), 3.5vw, var(--step-2));
-  }
-
-  .countdown__expired {
-    margin: 0;
-    font-size: var(--step-2);
-    font-weight: 600;
-  }
-</style>
+  initializeCountdowns();
+</script>
