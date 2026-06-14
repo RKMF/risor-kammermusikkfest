@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
-
-const SITE_URL = import.meta.env.SITE_URL || 'https://kammermusikkfest.no';
+import { getSiteUrl } from '../lib/site';
 const isStagingSite = import.meta.env.PUBLIC_SITE_ENV === 'staging';
 
 function getRobotsText(): string {
+  const siteUrl = getSiteUrl();
+
   if (isStagingSite) {
     return [
       '# Staging site: do not index',
@@ -27,7 +28,7 @@ function getRobotsText(): string {
     'Disallow: /en/program?*date=',
     'Disallow: /en/program?*venue=',
     '',
-    `Sitemap: ${SITE_URL}/sitemap.xml`,
+    `Sitemap: ${siteUrl}/sitemap.xml`,
   ].join('\n');
 }
 

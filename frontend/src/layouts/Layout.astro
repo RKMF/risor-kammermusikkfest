@@ -51,7 +51,7 @@ export interface Props {
 
 const {
   title,
-  description = "Norges ledende kammermusikkfestival i Risør",
+  description: providedDescription,
   slugNo,
   slugEn,
   frontpage = false,
@@ -65,6 +65,11 @@ const {
 const currentLang: Language = detectLanguage(Astro.request);
 const currentPath = new URL(Astro.request.url).pathname;
 const layoutCacheTtlSeconds = 60;
+const description = providedDescription || (
+  currentLang === 'en'
+    ? 'Norway\'s premier chamber music festival in Risør'
+    : 'Norges ledende kammermusikkfestival i Risør'
+);
 
 const { query: menuQuery, params: menuParams } = QueryBuilder.siteSettingsMenu();
 const menuData = await getOrSetCachedValue(
@@ -81,6 +86,7 @@ const siteSettings = await getOrSetCachedValue(
   layoutCacheTtlSeconds,
   () => sanityClient.fetch<SiteSettings>(footerQuery, footerParams)
 );
+const socialUrls = siteSettings?.socialMedia?.map((social) => social.url).filter(Boolean) || [];
 const faviconUrl = siteSettings?.favicon?.asset?.url || '/favicon.svg';
 const faviconMimeType = siteSettings?.favicon?.asset?.mimeType || 'image/svg+xml';
 
@@ -94,6 +100,7 @@ const faviconMimeType = siteSettings?.favicon?.asset?.mimeType || 'image/svg+xml
     <link rel="icon" type={faviconMimeType} href={faviconUrl} />
     <link rel="shortcut icon" href={faviconUrl} />
     <link rel="apple-touch-icon" href={faviconUrl} />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="generator" content={Astro.generator} />
 
     <SEO
@@ -314,7 +321,7 @@ const faviconMimeType = siteSettings?.favicon?.asset?.mimeType || 'image/svg+xml
 
     <Footer currentLang={currentLang} siteSettings={siteSettings} />
 
-    <OrganizationSchema />
+    <OrganizationSchema lang={currentLang} socialUrls={socialUrls} />
 
     <script src="../scripts/bfcacheHandler.js"></script>
     <script src="../scripts/ticketTracking.js"></script>

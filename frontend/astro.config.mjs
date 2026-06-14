@@ -6,7 +6,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: process.env.SITE_URL || 'http://localhost:4321',
+  site: process.env.SITE_URL || 'https://kammermusikkfest.no',
   base: '/',
   trailingSlash: 'never',
 

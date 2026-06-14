@@ -24,6 +24,12 @@ const GONE_PATHS = new Set([
 ]);
 const MISS_CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=300';
 const HTML_CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=300';
+const DISCOVERY_LINKS = [
+  '</llms.txt>; rel="alternate"; type="text/plain"',
+  '</sitemap.xml>; rel="sitemap"; type="application/xml"',
+  '</.well-known/security.txt>; rel="security"',
+  '</site.webmanifest>; rel="manifest"',
+] as const;
 const DYNAMIC_DETAIL_ROUTE_PATTERNS = [
   /^\/[a-z0-9-]+$/,
   /^\/en\/[a-z0-9-]+$/,
@@ -157,6 +163,11 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
     !modifiedResponse.headers.has('Cache-Control')
   ) {
     modifiedResponse.headers.set('Cache-Control', HTML_CACHE_CONTROL);
+  }
+  if (isHtmlGetRequest && modifiedResponse.status === 200 && contentType.includes('text/html')) {
+    for (const linkValue of DISCOVERY_LINKS) {
+      modifiedResponse.headers.append('Link', linkValue);
+    }
   }
 
   return modifiedResponse;

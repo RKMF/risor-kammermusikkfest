@@ -9,17 +9,22 @@
 interface Props {
   /** Additional social media URLs to include */
   socialUrls?: string[];
+  lang?: 'no' | 'en';
 }
 
-const { socialUrls = [] } = Astro.props;
+const { socialUrls = [], lang = 'no' } = Astro.props;
 
-const SITE_URL = import.meta.env.SITE_URL || 'https://kammermusikkfest.no';
+const SITE_URL = 'https://kammermusikkfest.no';
+const description = lang === 'en'
+  ? 'Norway\'s premier chamber music festival, held annually in Risør. World-class musicians perform classical and contemporary chamber music.'
+  : 'Norges ledende kammermusikkfestival, holdt årlig i Risør. Verdensklasse musikere fremfører klassisk og moderne kammermusikk.';
+const organizationName = lang === 'en' ? 'Risør Chamber Music Festival' : 'Risør Kammermusikkfest';
 
 const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   '@id': `${SITE_URL}/#organization`,
-  name: 'Risor Kammermusikkfest',
+  name: organizationName,
   alternateName: 'Risør Chamber Music Festival',
   url: SITE_URL,
   logo: {
@@ -28,7 +33,7 @@ const organizationSchema = {
     width: 512,
     height: 512,
   },
-  description: 'Norges ledende kammermusikkfestival, holdt årlig i Risør. Verdensklasse musikere fremfører klassisk og moderne kammermusikk.',
+  description,
   foundingDate: '1991',
   location: {
     '@type': 'Place',
@@ -40,7 +45,7 @@ const organizationSchema = {
       addressCountry: 'NO',
     },
   },
-  sameAs: socialUrls,
+  ...(socialUrls.length > 0 && { sameAs: socialUrls }),
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'customer service',
