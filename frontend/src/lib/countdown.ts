@@ -63,11 +63,17 @@ export function getVisibleParts(
   timeRemaining: CountdownTimeRemaining,
   strings: CountdownStrings
 ): CountdownPart[] {
-  return [
+  const visibleParts = [
     timeRemaining.days > 0 ? { value: timeRemaining.days, label: timeRemaining.days === 1 ? strings.day[0] : strings.day[1] } : null,
     timeRemaining.hours > 0 ? { value: timeRemaining.hours, label: timeRemaining.hours === 1 ? strings.hour[0] : strings.hour[1] } : null,
     timeRemaining.minutes > 0 ? { value: timeRemaining.minutes, label: timeRemaining.minutes === 1 ? strings.minute[0] : strings.minute[1] } : null,
   ].filter((part): part is CountdownPart => part !== null);
+
+  if (visibleParts.length === 0 && !timeRemaining.expired) {
+    return [{ value: 0, label: strings.minute[1] }];
+  }
+
+  return visibleParts;
 }
 
 export function buildAriaLabel(
@@ -82,13 +88,4 @@ export function buildAriaLabel(
 
   const ariaParts = visibleParts.map((part) => `${part.value} ${part.label}`);
   return `${strings.ariaPrefix} ${ariaParts.join(', ')} ${strings.ariaSuffix}`;
-}
-
-export function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
 }
