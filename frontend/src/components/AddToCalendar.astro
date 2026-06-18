@@ -1,0 +1,82 @@
+---
+import type { EventResult } from '../lib/sanity/queries';
+import type { Language } from '../lib/utils/language';
+import {
+  buildCalendarEventDetails,
+  buildGoogleCalendarUrl,
+  buildOutlookCalendarUrl,
+} from '../lib/calendar';
+
+interface Props {
+  event: EventResult;
+  language: Language;
+  request?: Request;
+}
+
+const { event, language, request } = Astro.props;
+
+const details = buildCalendarEventDetails(event, language, request);
+const dialogId = `calendar-dialog-${event._id}`;
+
+const labels = {
+  no: {
+    trigger: 'Legg til i din kalender',
+    title: 'Velg kalender',
+    google: 'Google Calendar',
+    outlook: 'Outlook / Microsoft 365',
+    ical: 'Apple / iCal (.ics)',
+    close: 'Lukk',
+  },
+  en: {
+    trigger: 'Add to calendar',
+    title: 'Choose calendar',
+    google: 'Google Calendar',
+    outlook: 'Outlook / Microsoft 365',
+    ical: 'Apple / iCal (.ics)',
+    close: 'Close',
+  },
+}[language];
+
+const icsSlug =
+  language === 'en'
+    ? event.slug_en?.current || event.slug_no?.current
+    : event.slug_no?.current || event.slug_en?.current;
+
+const icsHref = details && icsSlug ? `/api/calendar/${icsSlug}.ics?lang=${language}` : null;
+---
+
+{details && icsHref && (
+  <>
+    <button
+      type="button"
+      class="calendar-trigger hover-underline"
+      onclick={`document.getElementById('${dialogId}')?.showModal()`}
+    >
+      {labels.trigger}
+    </button>
+
+    <dialog id={dialogId} class="calendar-modal" aria-labelledby={`${dialogId}-title`}>
+      <form method="dialog">
+        <button class="calendar-modal__close" type="submit" autofocus>
+          {labels.close}
+        </button>
+      </form>
+
+      <div class="calendar-modal__content">
+        <h2 id={`${dialogId}-title`} class="calendar-modal__title">{labels.title}</h2>
+
+        <div class="calendar-modal__links">
+          <a class="calendar-modal__link" href={buildGoogleCalendarUrl(details)} target="_blank" rel="noopener noreferrer">
+            {labels.google}
+          </a>
+          <a class="calendar-modal__link" href={buildOutlookCalendarUrl(details)} target="_blank" rel="noopener noreferrer">
+            {labels.outlook}
+          </a>
+          <a class="calendar-modal__link" href={icsHref}>
+            {labels.ical}
+          </a>
+        </div>
+      </div>
+    </dialog>
+  </>
+)}

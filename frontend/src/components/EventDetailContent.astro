@@ -9,6 +9,7 @@ import ScrollNavigation from '../components/ScrollNavigation.astro';
 import PortableText from '../components/PortableText.astro';
 import EventSchema from '../components/structured-data/EventSchema.astro';
 import TicketButton from './TicketButton.astro';
+import AddToCalendar from './AddToCalendar.astro';
 import { formatDateWithWeekday } from '../lib/utils/dates';
 import { getMultilingualContent } from '../lib/utils/language.js';
 import { IMAGE_QUALITY } from '../lib/sanityImage';
@@ -19,9 +20,10 @@ import '../styles/composer-card.css';
 interface Props {
   event: any;
   language: 'no' | 'en';
+  request?: Request;
 }
 
-const { event, language } = Astro.props;
+const { event, language, request } = Astro.props;
 
 // Language-specific configuration
 const config = {
@@ -112,16 +114,20 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
               </>
             )}
           </dl>
+
+          <AddToCalendar event={event} language={language} request={request} />
         </div>
 
-        <TicketButton
-          ticketType={event.ticketType}
-          ticketStatus={event.ticketStatus}
-          ticketUrl={event.ticketUrl}
-          ticketInfoText={event.ticketInfoText}
-          eventTitle={event.title}
-          language={language}
-        />
+        <div class="event-page__actions">
+          <TicketButton
+            ticketType={event.ticketType}
+            ticketStatus={event.ticketStatus}
+            ticketUrl={event.ticketUrl}
+            ticketInfoText={event.ticketInfoText}
+            eventTitle={event.title}
+            language={language}
+          />
+        </div>
       </header>
 
       <section class="main-event-info">
