@@ -159,6 +159,111 @@ dl.event-page__meta {
   font-size: var(--step-1); /* 22-28px - larger text */
 }
 
+.event-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-m);
+}
+
+.calendar-trigger {
+  display: inline-block;
+  margin-block-start: var(--space-m);
+  padding: 0;
+  border: none;
+  background: none;
+  background-image: none;
+  color: var(--color-blue);
+  font: inherit;
+  font-size: var(--step-0);
+  cursor: pointer;
+}
+
+.calendar-trigger::after {
+  content: ' →';
+}
+
+.calendar-modal {
+  position: fixed;
+  margin: auto;
+  inline-size: min(90vw, 24rem);
+  padding: 0;
+  border: none;
+  background: var(--color-background);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.calendar-modal::backdrop {
+  background-color: oklch(25% 0.10 265 / 55%);
+}
+
+.calendar-modal__close {
+  position: absolute;
+  inset-block-start: var(--space-s);
+  inset-inline-end: var(--space-s);
+  min-block-size: 44px;
+  padding: var(--space-xs) var(--space-s);
+  border: none;
+  background-color: var(--color-tint-blue-light);
+  color: var(--color-blue);
+  font-family: var(--font-family-sans);
+  font-size: var(--step--1);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.calendar-modal__content {
+  padding: var(--space-xl) var(--space-l) var(--space-l);
+}
+
+.calendar-modal__title {
+  margin: 0 0 var(--space-m) 0;
+  padding-inline-end: var(--space-2xl);
+  font-size: var(--step-2);
+  color: var(--color-blue);
+}
+
+.calendar-modal__links {
+  display: grid;
+  gap: var(--space-s);
+}
+
+.calendar-modal__link {
+  display: block;
+  padding: var(--space-s) var(--space-m);
+  border: 1px solid var(--color-blue);
+  color: var(--color-blue);
+  text-decoration: none;
+  font-size: var(--step-0);
+}
+
+@media (hover: hover) {
+  .calendar-modal__link:hover,
+  .calendar-modal__close:hover {
+    color: var(--color-blue);
+    background-color: var(--color-tint-green-light);
+  }
+}
+
+.calendar-trigger:focus-visible,
+.calendar-modal__link:focus-visible,
+.calendar-modal__close:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+@media (max-width: 40rem) {
+  .calendar-modal {
+    inline-size: calc(100vw - (2 * var(--space-m)));
+  }
+
+  .calendar-modal__content {
+    padding: var(--space-l);
+    padding-block-start: var(--space-xl);
+  }
+}
+
 /* Event header images now use HeaderImage.astro component */
 /* Image sizing is handled by the component itself */
 
