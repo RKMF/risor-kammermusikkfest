@@ -63,7 +63,7 @@ const hasArtists = allArtists.length > 0;
 <ContentPageLayout
   title={pageTitle}
   excerpt={artistsPage?.excerpt}
-  pageDocument={artistsPage}
+  pageDocument={artistsPage || undefined}
 >
   {hasArtists ? (
     <div class="artist-sections">

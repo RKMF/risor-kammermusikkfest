@@ -2,7 +2,17 @@
 
 import {defineQuery} from 'groq'
 import {createMultilingualField, type Language} from '../utils/language.js'
-import type { ArtistResult, EventResult, ArticleResult } from './queries'
+import type {
+  ArtistPageResult,
+  ArtistResult,
+  ArticlePageResult,
+  ArticleResult,
+  EventResult,
+  GenericPageResult,
+  HomepageResult,
+  ProgramPageResult,
+  SponsorPageResult,
+} from './queries'
 
 // Staging can see staging + published content; production sees published content only.
 
@@ -1039,18 +1049,18 @@ const SITE_SETTINGS_TEKST_LOGO_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
 
 export const QueryBuilder = {
   /** Fetch the active homepage (default or scheduled) */
-  homepage(language: Language = 'no'): QueryDefinition {
+  homepage(language: Language = 'no'): QueryDefinition<HomepageResult | null> {
     return {query: buildHomepageQuery(language), params: {}}
   },
   /** Fetch a generic page by its slug */
-  pageBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
+  pageBySlug(slug: string, language: Language = 'no'): QueryDefinition<GenericPageResult | null, {slug: string}> {
     return {query: buildPageBySlugQuery(language), params: {slug}}
   },
   pageSlugs(language: Language = 'no'): QueryDefinition<string[]> {
     return {query: buildPageSlugsQuery(language), params: {}}
   },
   /** Fetch program listing page with selected events */
-  programPage(language: Language = 'no'): QueryDefinition<EventResult[]> {
+  programPage(language: Language = 'no'): QueryDefinition<ProgramPageResult | null> {
     return {query: buildProgramPageQuery(language), params: {}}
   },
   /** Fetch lightweight program listing data for HTMX filtering */
@@ -1058,15 +1068,15 @@ export const QueryBuilder = {
     return {query: buildProgramFilterDataQuery(language), params: {}}
   },
   /** Fetch artist listing page with selected artists */
-  artistPage(language: Language = 'no'): QueryDefinition<ArtistResult[]> {
+  artistPage(language: Language = 'no'): QueryDefinition<ArtistPageResult | null> {
     return {query: buildArtistPageQuery(language), params: {}}
   },
   /** Fetch article listing page with articles */
-  articlePage(language: Language = 'no'): QueryDefinition<ArticleResult[]> {
+  articlePage(language: Language = 'no'): QueryDefinition<ArticlePageResult | null> {
     return {query: buildArticlePageQuery(language), params: {}}
   },
   /** Fetch sponsor page with selected sponsors */
-  sponsorPage(language: Language = 'no'): QueryDefinition {
+  sponsorPage(language: Language = 'no'): QueryDefinition<SponsorPageResult | null> {
     return {query: buildSponsorPageQuery(language), params: {}}
   },
   /** Fetch a single event by its slug */

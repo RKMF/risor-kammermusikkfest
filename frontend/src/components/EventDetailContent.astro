@@ -11,19 +11,21 @@ import EventSchema from '../components/structured-data/EventSchema.astro';
 import TicketButton from './TicketButton.astro';
 import AddToCalendar from './AddToCalendar.astro';
 import { formatDateWithWeekday } from '../lib/utils/dates';
-import { getMultilingualContent } from '../lib/utils/language.js';
+import { getMultilingualContent, getMultilingualValue, resolveSlugValue } from '../lib/utils/language.js';
 import { IMAGE_QUALITY } from '../lib/sanityImage';
 import { stegaClean } from '@sanity/client/stega';
+import type { ArtistReference, ComposerReference, EventResult } from '../lib/sanity/queries';
 import '../styles/event.css';
 import '../styles/composer-card.css';
 
 interface Props {
-  event: any;
+  event: EventResult;
   language: 'no' | 'en';
   request?: Request;
 }
 
 const { event, language, request } = Astro.props;
+const eventFields = event as unknown as Record<string, unknown>;
 
 // Language-specific configuration
 const config = {
@@ -39,9 +41,7 @@ const config = {
     composers: 'Komponister',
     artists: 'Artister',
     artistsOverviewHref: '/artister',
-    artistsOverviewText: 'Se alle artister',
-    descriptionField: 'description_no',
-    extraContentField: 'extraContent_no'
+    artistsOverviewText: 'Se alle artister'
   },
   en: {
     date: 'Date',
@@ -55,22 +55,28 @@ const config = {
     composers: 'Composers',
     artists: 'Artists',
     artistsOverviewHref: '/en/artists',
-    artistsOverviewText: 'See all artists',
-    descriptionField: 'description_en',
-    extraContentField: 'extraContent_en'
+    artistsOverviewText: 'See all artists'
   }
 }[language];
 
 // Get appropriate content arrays
-const description = getMultilingualContent(event, language, 'description') || event[config.descriptionField];
-const extraContent = getMultilingualContent(event, language, 'extraContent') || event[config.extraContentField];
+const description =
+  getMultilingualValue<string | any[]>(eventFields, 'description', language) ||
+  (language === 'en' ? event.description_en : event.description_no);
+const extraContent =
+  getMultilingualContent(eventFields, language, 'extraContent') ||
+  (language === 'en' ? event.extraContent_en : event.extraContent_no);
+const spotifyItems = (event.spotifyItems || []).filter(
+  (item): item is NonNullable<EventResult['spotifyItems']>[number] & { spotifyUrl: string } =>
+    typeof item.spotifyUrl === 'string' && item.spotifyUrl.length > 0
+);
 ---
 
 <Layout
   title={stegaClean(event.title || '')}
   description={stegaClean(event.excerpt || '')}
-  slugNo={event.slug_no?.current}
-  slugEn={event.slug_en?.current}
+  slugNo={resolveSlugValue(event.slug_no)}
+  slugEn={resolveSlugValue(event.slug_en)}
   seo={event.seo}
   image={event.image?.image || event.image}
   ogType="event"
@@ -155,13 +161,13 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
         )}
       </section>
 
-      {event.spotifyItems && event.spotifyItems.length > 0 && (
+      {spotifyItems.length > 0 && (
         <section class="spotify-section">
           <h2 class="spotify-title">{config.listenMusic}</h2>
           <div class="scroll-container-wrapper" data-scroll-step="item">
             <ul class="scroll-container scroll-container--always scroll-container--spotify scroll-container--styled-scrollbar">
-              {event.spotifyItems.map((item) => (
-                <li><Spotify {...item} height={152} /></li>
+              {spotifyItems.map((item) => (
+                <li><Spotify {...item} spotifyUrl={item.spotifyUrl} height={152} /></li>
               ))}
             </ul>
           </div>
@@ -173,7 +179,7 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
         <section class="pagebuilder-content">
           <h2 class="sr-only">{config.additionalContent}</h2>
           {extraContent.map((block) => (
-            <DynamicComponent key={block._key || block._id} block={block} />
+            <DynamicComponent block={block} />
           ))}
         </section>
       )}
@@ -183,7 +189,7 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
           <h2 class="composers-title">{config.composers}</h2>
           <div class="scroll-container-wrapper" data-scroll-step="item">
             <div class="composer-section scroll-container scroll-container--always scroll-container--styled-scrollbar">
-              {event.composers.map((composer) => (
+              {event.composers.map((composer: ComposerReference) => (
                 <ComposerCard composer={composer} lang={language} />
               ))}
             </div>
@@ -215,7 +221,7 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
           </div>
           <div class="scroll-container-wrapper" data-scroll-step="item">
             <div class="artist-section scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar">
-              {event.artists.filter(Boolean).map((artist) => (
+              {event.artists.filter(Boolean).map((artist: ArtistReference) => (
                 <ArtistCard artist={artist} language={language} size="medium" />
               ))}
             </div>

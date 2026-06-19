@@ -24,7 +24,7 @@ const content = {
 
 <Layout
   title={content.title}
-  noIndex={true}
+  seo={{ indexingStatus: 'noindex' }}
 >
   <ErrorPage code="500" title={content.heading} message={content.message}>
     <button id="retry-button" class="btn btn-primary" type="button">

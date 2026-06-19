@@ -1,5 +1,6 @@
 import type { EventResult } from './sanity/queries';
 import type { Language } from './utils/language';
+import { resolveSlugValue } from './utils/language';
 import { getAbsoluteUrl } from './site';
 
 export const OSLO_TIME_ZONE = 'Europe/Oslo';
@@ -100,8 +101,8 @@ function collapseWhitespace(value: string): string {
 function buildEventPath(event: EventResult, language: Language): string | null {
   const slug =
     language === 'en'
-      ? event.slug_en?.current || event.slug_no?.current
-      : event.slug_no?.current || event.slug_en?.current;
+      ? resolveSlugValue(event.slug_en) || resolveSlugValue(event.slug_no)
+      : resolveSlugValue(event.slug_no) || resolveSlugValue(event.slug_en);
 
   if (!slug) {
     return null;

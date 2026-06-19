@@ -17,7 +17,7 @@
  * @see src/lib/sanityImage.ts - Image URL generation utilities
  */
 
-import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import type { ProjectedSanityImage } from '../lib/sanity/queries';
 import { stegaClean } from '@sanity/client/stega';
 import {
   getResponsiveImageSet,
@@ -30,7 +30,7 @@ import {
 
 /** Direct props structure (when component is used directly) */
 interface DirectImageProps {
-  image: SanityImageSource;
+  image: ProjectedSanityImage;
   alt: string;
   caption?: string;
   credit?: string;
@@ -51,7 +51,7 @@ interface DirectImageProps {
 // ImageComponent structure (from Sanity CMS)
 interface ImageComponentProps {
   image: {
-    image: SanityImageSource;
+    image: ProjectedSanityImage;
     alt?: string;
     caption?: string;
     credit?: string;

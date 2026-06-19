@@ -31,14 +31,17 @@ export interface BilingualDocument {
   title_en?: string;
   excerpt_no?: string;
   excerpt_en?: string;
-  slug_no?: { current: string };
-  slug_en?: { current: string };
+  slug_no?: { current: string } | string;
+  slug_en?: { current: string } | string;
   content_no?: unknown[];
   content_en?: unknown[];
-  description_no?: string;
-  description_en?: string;
+  content?: unknown[];
+  description_no?: unknown;
+  description_en?: unknown;
+  description?: unknown;
   extraContent_no?: unknown[];
   extraContent_en?: unknown[];
+  extraContent?: unknown[];
   // Allow additional properties for flexibility
   [key: string]: unknown;
 }
@@ -65,7 +68,7 @@ export function detectLanguage(request?: Request, url?: URL): Language {
  * Returns Norwegian value first, then English as fallback
  */
 export function getMultilingualValue<T>(
-  values: { [key: string]: T } | undefined,
+  values: { [key: string]: unknown } | undefined,
   fieldName: string,
   language: Language = DEFAULT_LANGUAGE
 ): T | undefined {
@@ -74,19 +77,19 @@ export function getMultilingualValue<T>(
   // Try the requested language first
   const primaryField = `${fieldName}_${language}`;
   if (values[primaryField]) {
-    return values[primaryField];
+    return values[primaryField] as T;
   }
 
   // Fallback to the other language
   const fallbackLanguage = language === 'no' ? 'en' : 'no';
   const fallbackField = `${fieldName}_${fallbackLanguage}`;
   if (values[fallbackField]) {
-    return values[fallbackField];
+    return values[fallbackField] as T;
   }
 
   // Legacy fallback - try the field without language suffix
   if (values[fieldName]) {
-    return values[fieldName];
+    return values[fieldName] as T;
   }
 
   return undefined;
@@ -105,13 +108,27 @@ export function getMultilingualSlug(
   if (slug && typeof slug === 'object' && 'current' in slug) {
     return slug as { current: string };
   }
+  if (typeof slug === 'string') {
+    return { current: slug };
+  }
 
   // Legacy fallback
   if (item.slug && typeof item.slug === 'object' && 'current' in item.slug) {
     return item.slug as { current: string };
   }
+  if (typeof item.slug === 'string') {
+    return { current: item.slug };
+  }
 
   return undefined;
+}
+
+export function resolveSlugValue(slug: { current: string } | string | undefined): string | undefined {
+  if (!slug) {
+    return undefined;
+  }
+
+  return typeof slug === 'string' ? slug : slug.current;
 }
 
 /**
@@ -177,27 +194,32 @@ export function transformMultilingualDocument<T extends BilingualDocument>(
  * Returns the appropriate content array based on language preference
  */
 export function getMultilingualContent(
-  doc: BilingualDocument | undefined,
-  language: Language = DEFAULT_LANGUAGE
+  doc: { [key: string]: unknown } | undefined,
+  language: Language = DEFAULT_LANGUAGE,
+  fieldName: 'content' | 'extraContent' = 'content'
 ): any[] | undefined {
   if (!doc) return undefined;
 
   // Try the requested language first
-  const primaryField = `content_${language}`;
+  const primaryField = `${fieldName}_${language}`;
   if (doc[primaryField] && Array.isArray(doc[primaryField])) {
     return doc[primaryField];
   }
 
   // Fallback to the other language
   const fallbackLanguage = language === 'no' ? 'en' : 'no';
-  const fallbackField = `content_${fallbackLanguage}`;
+  const fallbackField = `${fieldName}_${fallbackLanguage}`;
   if (doc[fallbackField] && Array.isArray(doc[fallbackField])) {
     return doc[fallbackField];
   }
 
   // Legacy fallback
-  if (doc.content && Array.isArray(doc.content)) {
+  if (fieldName === 'content' && doc.content && Array.isArray(doc.content)) {
     return doc.content;
+  }
+
+  if (fieldName === 'extraContent' && doc.extraContent && Array.isArray(doc.extraContent)) {
+    return doc.extraContent;
   }
 
   return undefined;

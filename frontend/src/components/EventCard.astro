@@ -16,6 +16,7 @@
 
 import { formatDateWithWeekday } from '../lib/utils/dates';
 import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../lib/sanityImage';
+import { resolveSlugValue } from '../lib/utils/language';
 import { stegaClean } from '@sanity/client/stega';
 import type { EventResult } from '../lib/sanity/queries';
 import TicketButton from './TicketButton.astro';
@@ -32,8 +33,8 @@ const { event, language = 'no' } = Astro.props;
 
 // Determine event link based on language
 const eventSlug = language === 'en'
-  ? stegaClean(event.slug_en?.current || event.slug_no?.current)
-  : stegaClean(event.slug_no?.current || event.slug_en?.current);
+  ? stegaClean(resolveSlugValue(event.slug_en) || resolveSlugValue(event.slug_no) || '')
+  : stegaClean(resolveSlugValue(event.slug_no) || resolveSlugValue(event.slug_en) || '');
 
 const eventPath = language === 'en' ? `/en/program/${eventSlug}` : `/program/${eventSlug}`;
 
