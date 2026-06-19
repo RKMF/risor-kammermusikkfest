@@ -4,47 +4,50 @@
  *
  * Displays event summary with title, excerpt, image, date/venue, and ticket status.
  * Used in program page listings and filtered results. Links to full event page.
- *
- * Ticket status rendering:
- * - 'info' type: Shows custom badge (e.g., "Gratis")
- * - 'sold_out': Disabled button
- * - 'low_stock': Warning-styled buy button
- * - default: Primary buy button
- *
- * @see src/lib/sanity/queries.ts - EventResult type
  */
 
-import { formatDateWithWeekday } from '../lib/utils/dates';
 import { IMAGE_QUALITY, getOptimizedImageUrl, getResponsiveImageSet } from '../lib/sanityImage';
 import { resolveSlugValue } from '../lib/utils/language';
 import { stegaClean } from '@sanity/client/stega';
 import type { EventResult } from '../lib/sanity/queries';
+import type { EventDayCard } from '../lib/eventOccurrences';
+import {
+  getPrimaryEventDayCard,
+  getOccurrenceDisplayTitle,
+  getProgramCardTimesText,
+  getProgramCardVenueText,
+} from '../lib/eventOccurrences';
 import TicketButton from './TicketButton.astro';
 import '../styles/event-card.css';
 
 export interface Props {
-  /** Event data from Sanity */
   event: EventResult;
-  /** Display language for labels and date formatting */
   language?: 'no' | 'en';
+  dayCard?: EventDayCard | null;
 }
 
-const { event, language = 'no' } = Astro.props;
+const { event, language = 'no', dayCard = null } = Astro.props;
 
-// Determine event link based on language
+const resolvedDayCard = dayCard || getPrimaryEventDayCard(event);
+const primaryShowing = resolvedDayCard?.showings[0];
+
 const eventSlug = language === 'en'
   ? stegaClean(resolveSlugValue(event.slug_en) || resolveSlugValue(event.slug_no) || '')
   : stegaClean(resolveSlugValue(event.slug_no) || resolveSlugValue(event.slug_en) || '');
 
 const eventPath = language === 'en' ? `/en/program/${eventSlug}` : `/program/${eventSlug}`;
 
-// Translation strings
 const dateLabel = language === 'en' ? 'Date and time' : 'Dato og tid';
 const venueLabel = language === 'en' ? 'Venue' : 'Sted';
 const timePrefix = language === 'en' ? ', ' : ', kl. ';
+const showingTimesText = resolvedDayCard ? getProgramCardTimesText(resolvedDayCard, language) : '';
+const venueText = resolvedDayCard ? getProgramCardVenueText(resolvedDayCard, language) : '';
+const usesSharedTicketing = event.ticketingMode !== 'per_showing';
+const badgeShowing = resolvedDayCard?.showings.find((showing) => showing.ticketType === 'info')
+  || primaryShowing;
 ---
 
-<article class="event-card" data-event-date={event.eventDate?.date}>
+<article class="event-card" data-event-date={resolvedDayCard?.eventDate.date || event.eventDate?.date}>
   <hgroup>
     <h3 class="event-card__title">
       <a href={eventPath} class="event-card__title-link card-link">
@@ -74,34 +77,63 @@ const timePrefix = language === 'en' ? ', ' : ', kl. ';
   )}
 
   <dl class="event-card__meta">
-    {event.eventDate?.date && (
+    {resolvedDayCard?.eventDate?.date && (
       <>
         <dt class="visually-hidden">{dateLabel}</dt>
         <dd class="event-card__datetime">
-          <time datetime={event.eventDate.date}>
-            {formatDateWithWeekday(event.eventDate.date, language)}{event.eventTime && (
-              <>{timePrefix}{stegaClean(event.eventTime.startTime)}</>
+          <time datetime={resolvedDayCard.eventDate.date}>
+            {getOccurrenceDisplayTitle(resolvedDayCard, language)}
+            {!resolvedDayCard.hasMultipleShowings && primaryShowing?.startTime && (
+              <>{timePrefix}{stegaClean(primaryShowing.startTime)}</>
             )}
           </time>
         </dd>
       </>
     )}
-    {event.venue?.title && (
+    {resolvedDayCard?.hasMultipleShowings && showingTimesText && (
+      <>
+        <dt class="visually-hidden">{dateLabel}</dt>
+        <dd class="event-card__showing-times">
+          {language === 'en' ? `Times: ${showingTimesText}` : `Kl. ${showingTimesText}`}
+        </dd>
+      </>
+    )}
+    {venueText && (
       <>
         <dt class="visually-hidden">{venueLabel}</dt>
         <dd class="event-card__venue">
-          {stegaClean(event.venue.title)}
+          {venueText}
         </dd>
       </>
     )}
   </dl>
 
-  <TicketButton
-    ticketType={event.ticketType}
-    ticketStatus={event.ticketStatus}
-    ticketUrl={event.ticketUrl}
-    ticketInfoText={event.ticketInfoText}
-    eventTitle={event.title}
-    language={language}
-  />
+  {usesSharedTicketing ? (
+    <TicketButton
+      ticketType={event.ticketType}
+      ticketStatus={event.ticketStatus}
+      ticketUrl={event.ticketUrl}
+      ticketInfoText={event.ticketInfoText}
+      eventTitle={event.title}
+      language={language}
+    />
+  ) : primaryShowing && !resolvedDayCard?.hasMultipleShowings ? (
+    <TicketButton
+      ticketType={primaryShowing.ticketType}
+      ticketStatus={primaryShowing.ticketStatus}
+      ticketUrl={primaryShowing.ticketUrl}
+      ticketInfoText={primaryShowing.ticketInfoText}
+      eventTitle={event.title}
+      language={language}
+    />
+  ) : badgeShowing ? (
+    <TicketButton
+      ticketType={badgeShowing.ticketType}
+      ticketStatus={badgeShowing.ticketStatus}
+      ticketUrl={badgeShowing.ticketUrl}
+      ticketInfoText={badgeShowing.ticketInfoText}
+      eventTitle={event.title}
+      language={language}
+    />
+  ) : null}
 </article>

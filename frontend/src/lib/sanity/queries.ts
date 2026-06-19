@@ -64,11 +64,32 @@ export interface EventTimeObject {
   endTime?: string;
 }
 
+export interface EventShowingObject {
+  _key?: string;
+  eventDate?: EventDateObject;
+  startTime?: string;
+  endTime?: string;
+  venue?: VenueObject;
+  includeInProgramVenueFilter?: boolean;
+  ticketType?: 'button' | 'info';
+  ticketUrl?: string;
+  ticketInfoText?: string;
+  ticketInfoText_no?: string;
+  ticketInfoText_en?: string;
+  ticketStatus?: 'available' | 'low_stock' | 'sold_out';
+}
+
+export interface EventOccurrenceObject {
+  _key?: string;
+  eventDate?: EventDateObject;
+  showings?: EventShowingObject[];
+}
+
 /**
  * Venue reference object
  */
 export interface VenueObject {
-  _id: string;
+  _id?: string;
   title?: string;
   name?: string;
   address?: string;
@@ -170,14 +191,19 @@ export interface EventResult {
   slug_no?: { current: string } | string;
   slug_en?: { current: string } | string;
   image?: SanityImageObject;
+  showings?: EventShowingObject[];
+  occurrences?: EventOccurrenceObject[];
   eventDate?: EventDateObject;
   eventTime?: EventTimeObject;
   venue?: VenueObject;
   artists?: ArtistReference[];
   composers?: ComposerReference[];
-  ticketType?: 'paid' | 'free' | 'info';
+  ticketingMode?: 'shared' | 'per_showing';
+  ticketType?: 'button' | 'info';
   ticketUrl?: string;
   ticketInfoText?: string;
+  ticketInfoText_no?: string;
+  ticketInfoText_en?: string;
   ticketStatus?: 'available' | 'low_stock' | 'sold_out';
   publishingStatus?: 'published' | 'draft' | 'scheduled';
   scheduledPeriod?: {

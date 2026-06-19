@@ -9,32 +9,42 @@ export interface ReferenceCleanupConfig {
 
   // Norwegian singular label for the document type (used in UI)
   labelSingular: string;
-
-  // Reference patterns to clean up
-  references: Array<{
-    // Document type that contains the reference
-    referringType: string;
-
-    // Field path within the referring document
-    fieldPath: string;
-
-    // Norwegian label for display (e.g., "oversiktsside", "arrangement")
-    displayLabel: string;
-
-    // Singular form for count display
-    singularForm: string;
-
-    // Plural form for count display
-    pluralForm: string;
-  }>;
 }
 
-interface AffectedReference {
-  type: string;
-  count: number;
-  displayLabel: string;
-  singularForm: string;
-  pluralForm: string;
+interface BlockingReferenceDocument {
+  _id: string;
+  _type: string;
+  adminTitle?: string;
+  title?: string;
+  title_no?: string;
+  title_en?: string;
+  name?: string;
+  publishingStatus?: string;
+}
+
+function isNotFoundDeleteError(error: unknown): boolean {
+  const statusCode =
+    typeof error === 'object' && error !== null && 'statusCode' in error
+      ? (error as { statusCode?: number }).statusCode
+      : undefined;
+  const message =
+    typeof error === 'object' && error !== null && 'message' in error
+      ? String((error as { message?: unknown }).message || '')
+      : '';
+
+  return statusCode === 404 || /not found/i.test(message);
+}
+
+async function deleteDocumentIfExists(client: ReturnType<typeof useClient>, documentId: string) {
+  try {
+    await client.delete(documentId);
+  } catch (error) {
+    if (isNotFoundDeleteError(error)) {
+      return;
+    }
+
+    throw error;
+  }
 }
 
 export function createDeleteWithReferencesAction(
@@ -46,7 +56,7 @@ export function createDeleteWithReferencesAction(
     const { delete: deleteOp } = useDocumentOperation(id, type);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-    const [affectedReferences, setAffectedReferences] = useState<AffectedReference[]>([]);
+    const [blockingReferences, setBlockingReferences] = useState<BlockingReferenceDocument[]>([]);
 
     // Only show this action for the configured document type
     if (type !== config.documentType) {
@@ -56,68 +66,38 @@ export function createDeleteWithReferencesAction(
     const handleDelete = useCallback(async () => {
       // Get the published document ID (without drafts. prefix)
       const publishedId = id.replace(/^drafts\./, '');
+      const draftId = `drafts.${publishedId}`;
 
-      // Query all reference types in parallel
-      const referenceQueries = config.references.map(async (ref) => {
-        const results = await client.fetch(
-          `*[_type == $referringType && references($id)]{
-            _id,
-            "hasReference": count(${ref.fieldPath}[_ref == $id]) > 0
-          }`,
-          { referringType: ref.referringType, id: publishedId }
-        );
+      const allReferences = await client.fetch<BlockingReferenceDocument[]>(
+        `*[
+          references($id) &&
+          !(_id in [$publishedId, $draftId])
+        ] | order(_type asc, coalesce(adminTitle, title_no, title_en, title, name, _id) asc) {
+          _id,
+          _type,
+          adminTitle,
+          title,
+          title_no,
+          title_en,
+          name,
+          publishingStatus
+        }`,
+        { id: publishedId, publishedId, draftId }
+      );
 
-        const count = results.filter((r: any) => r.hasReference).length;
-
-        return {
-          type: ref.referringType,
-          count,
-          displayLabel: ref.displayLabel,
-          singularForm: ref.singularForm,
-          pluralForm: ref.pluralForm,
-        };
-      });
-
-      const results = await Promise.all(referenceQueries);
-      setAffectedReferences(results);
+      setBlockingReferences(allReferences);
       setDialogOpen(true);
-    }, [id, client, config.references]);
+    }, [id, client]);
 
     const confirmDelete = useCallback(async () => {
       setIsDeleting(true);
 
       try {
         const publishedId = id.replace(/^drafts\./, '');
-
-        // Clean up references from all referring document types
-        for (const ref of config.references) {
-          const documents = await client.fetch(
-            `*[_type == $referringType && references($id)]{
-              _id,
-              _rev,
-              "${ref.fieldPath}": ${ref.fieldPath}
-            }`,
-            { referringType: ref.referringType, id: publishedId }
-          );
-
-          for (const doc of documents) {
-            const currentReferences = doc[ref.fieldPath] || [];
-            const updatedReferences = currentReferences.filter(
-              (reference: any) => reference._ref !== publishedId
-            );
-
-            await client
-              .patch(doc._id)
-              .set({ [ref.fieldPath]: updatedReferences })
-              .commit();
-          }
-        }
-
-        // Delete both draft and published versions
         const draftId = `drafts.${publishedId}`;
         await Promise.all([
-          client.delete(publishedId).catch(() => {}), // Ignore if doesn't exist
-          client.delete(draftId).catch(() => {}), // Ignore if doesn't exist
+          deleteDocumentIfExists(client, publishedId),
+          deleteDocumentIfExists(client, draftId),
         ]);
 
         setDialogOpen(false);
@@ -129,7 +109,7 @@ export function createDeleteWithReferencesAction(
       } finally {
         setIsDeleting(false);
       }
-    }, [id, client, config, onComplete]);
+    }, [id, client, config.documentType, onComplete]);
 
     return {
       label: 'Slett',
@@ -146,24 +126,33 @@ export function createDeleteWithReferencesAction(
         header: `Slett ${config.labelSingular}`,
         content: (
           <Stack space={4} padding={4}>
-            {affectedReferences.some((ref) => ref.count > 0) ? (
+            {blockingReferences.length > 0 ? (
               <>
                 <Text>
-                  {config.labelSingular.charAt(0).toUpperCase() + config.labelSingular.slice(1)}en
-                  vil bli fjernet fra:
+                  Dette {config.labelSingular}et kan ikke slettes før referansene under er fjernet:
                 </Text>
                 <ul style={{ margin: 0, paddingLeft: '1.5em' }}>
-                  {affectedReferences
-                    .filter((ref) => ref.count > 0)
-                    .map((ref, i) => (
+                  {blockingReferences.map((ref, i) => {
+                    const label =
+                      ref.adminTitle ||
+                      ref.title_no ||
+                      ref.title_en ||
+                      ref.title ||
+                      ref.name ||
+                      ref._id;
+
+                    return (
                       <li key={i}>
                         <Text>
-                          {ref.count} {ref.count > 1 ? ref.pluralForm : ref.singularForm}
+                          {label} ({ref._type})
                         </Text>
                       </li>
-                    ))}
+                    );
+                  })}
                 </ul>
-                <Text weight="semibold">Vil du fortsette med slettingen?</Text>
+                <Text muted size={1}>
+                  Fjern referansene først, og prøv deretter å slette på nytt.
+                </Text>
               </>
             ) : (
               <Text>
@@ -174,7 +163,7 @@ export function createDeleteWithReferencesAction(
             )}
             <Flex gap={3} justify="flex-end">
               <Button
-                text="Avbryt"
+                text={blockingReferences.length > 0 ? 'Lukk' : 'Avbryt'}
                 mode="ghost"
                 onClick={() => {
                   setDialogOpen(false);
@@ -182,13 +171,15 @@ export function createDeleteWithReferencesAction(
                 }}
                 disabled={isDeleting}
               />
-              <Button
-                text={`Slett ${config.labelSingular}`}
-                tone="critical"
-                icon={TrashIcon}
-                onClick={confirmDelete}
-                loading={isDeleting}
-              />
+              {blockingReferences.length === 0 && (
+                <Button
+                  text={`Slett ${config.labelSingular}`}
+                  tone="critical"
+                  icon={TrashIcon}
+                  onClick={confirmDelete}
+                  loading={isDeleting}
+                />
+              )}
             </Flex>
           </Stack>
         ),

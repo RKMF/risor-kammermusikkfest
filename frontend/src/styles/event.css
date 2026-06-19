@@ -80,9 +80,12 @@
   margin-block-end: var(--space-3xl); /* 60-90px spacing below */
 }
 
+.event-hero-layout {
+  display: block;
+}
+
 /* Event header - title and excerpt */
 .event-header {
-  margin: 0 0 var(--space-2xl) 0; /* 48-60px below header section */
   container-type: inline-size; /* Enable container queries for h1 sizing */
 }
 
@@ -104,18 +107,61 @@
   text-wrap: pretty;
 }
 
-/* Event metadata (date, time, venue) - definition list */
+.event-occurrence-picker {
+  container-type: inline-size;
+}
+
+.event-occurrence-picker__tabs {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  contain: layout style inline-size;
+  position: relative;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: clamp(1rem, 3vw, 2rem);
+  padding-block-end: 12px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-blue) var(--color-neutral-100);
+}
+
+.event-occurrence-picker__tabs::-webkit-scrollbar {
+  height: 4px;
+  -webkit-appearance: none;
+}
+
+.event-occurrence-picker__tabs::-webkit-scrollbar-track {
+  background: var(--color-neutral-100);
+  border-radius: 0;
+}
+
+.event-occurrence-picker__tabs::-webkit-scrollbar-thumb {
+  background: var(--color-blue);
+  border-radius: 0;
+}
+
+.event-occurrence-picker__tabs::-webkit-scrollbar-thumb:hover {
+  background: var(--color-green);
+}
+
+.event-occurrence-picker__tabs:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+/* Event metadata (date, time, venue) - matches single-occurrence event page */
 dl.event-page__meta {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1); /* 2-3px between metadata items */
+  gap: var(--space-1);
   margin: 0;
-  font-size: var(--step-1); /* Fluid 22-28px - larger, more prominent */
-  font-weight: var(--font-weight-semibold); /* 600 - more emphasis on metadata */
   line-height: var(--line-height-tight);
 }
 
-/* Screen reader only labels for dt elements */
 .event-page__meta dt {
   position: absolute;
   width: 1px;
@@ -130,11 +176,17 @@ dl.event-page__meta {
 
 .event-page__meta dd {
   margin: 0;
+  font-size: var(--step-1);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
 }
 
-/* Extra space before venue (last dd) - scoped to event detail pages only */
 .event-info-box .event-page__meta dd:last-of-type {
-  margin-block-start: var(--space-s); /* 12-15px additional space before venue */
+  margin-block-start: var(--space-s);
+}
+
+.event-page__venue {
+  color: var(--color-text);
 }
 
 /* Ticket section */
@@ -157,6 +209,73 @@ dl.event-page__meta {
 .event-info-box .btn-disabled {
   padding: var(--space-m) var(--space-xl); /* 16-20px vertical, 32-40px horizontal */
   font-size: var(--step-1); /* 22-28px - larger text */
+}
+
+.event-info-box .ticket-badge {
+  margin-top: 0;
+}
+
+.event-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-m);
+}
+
+.event-info-box .calendar-modal + .event-page__actions {
+  margin-block-start: var(--space-2xl);
+}
+
+button.event-schedule__tab.link-button {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-tint-blue-light);
+  color: var(--color-blue);
+  border: 1px solid var(--color-blue);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-base);
+  font-size: var(--step--1);
+  background-image: none;
+  border-radius: 0;
+  scroll-snap-align: start;
+  scroll-margin-inline-start: 0.5rem;
+  appearance: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+@media (hover: hover) {
+  button.event-schedule__tab.link-button:hover {
+    background-color: var(--color-tint-green-light);
+    color: var(--color-blue);
+    text-decoration: none;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+button.event-schedule__tab.link-button.active {
+  background-color: var(--color-blue);
+  color: white;
+  border-color: var(--color-blue);
+}
+
+button.event-schedule__tab.link-button:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+[data-occurrence-panel][hidden] {
+  display: none;
+}
+
+[data-showing-panel][hidden] {
+  display: none;
 }
 
 .event-page__actions {

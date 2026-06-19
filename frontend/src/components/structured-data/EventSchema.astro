@@ -8,6 +8,7 @@
 
 import { stegaClean } from '@sanity/client/stega';
 import { getImageBuilder, IMAGE_QUALITY } from '../../lib/sanityImage';
+import { getNextUpcomingOccurrence } from '../../lib/eventOccurrences';
 
 interface EventData {
   _id: string;
@@ -15,6 +16,7 @@ interface EventData {
   excerpt?: string;
   slug_no?: { current: string } | string;
   slug_en?: { current: string } | string;
+  occurrences?: unknown[];
   eventDate?: {
     date?: string;
   };
@@ -28,8 +30,9 @@ interface EventData {
   };
   image?: any;
   ticketUrl?: string;
-  ticketType?: 'paid' | 'free' | 'info' | 'link';
+  ticketType?: 'button' | 'info';
   ticketInfoText?: string;
+  ticketStatus?: 'available' | 'low_stock' | 'sold_out';
   artists?: Array<{
     _id: string;
     name?: string;
@@ -61,9 +64,11 @@ const eventUrl = lang === 'en'
   : `${SITE_URL}/program/${eventSlug}`;
 
 // Build ISO date/time strings
-const eventDate = stegaClean(event.eventDate?.date);
-const startTime = stegaClean(event.eventTime?.startTime);
-const endTime = stegaClean(event.eventTime?.endTime);
+const nextOccurrence = getNextUpcomingOccurrence(event as any);
+const nextShowing = nextOccurrence?.showings[0];
+const eventDate = stegaClean(nextOccurrence?.eventDate?.date || event.eventDate?.date);
+const startTime = stegaClean(nextShowing?.startTime || event.eventTime?.startTime);
+const endTime = stegaClean(nextShowing?.endTime || event.eventTime?.endTime);
 const festivalYear = eventDate?.slice(0, 4) || String(new Date().getFullYear());
 
 // Combine date and time for ISO format (assumes Norway timezone +02:00 summer, +01:00 winter)
@@ -99,17 +104,26 @@ const performers = (event.artists || [])
   }));
 
 // Build offers (ticket info)
-const offers = event.ticketType === 'paid' && event.ticketUrl
+const ticketType = nextShowing?.ticketType || event.ticketType;
+const ticketUrl = nextShowing?.ticketUrl || event.ticketUrl;
+const ticketInfoText = nextShowing?.ticketInfoText || event.ticketInfoText;
+const ticketStatus = nextShowing?.ticketStatus || event.ticketStatus;
+const resolvedVenue = nextShowing?.venue || event.venue;
+
+const offers = ticketType === 'button' && ticketUrl
   ? {
       '@type': 'Offer',
-      url: stegaClean(event.ticketUrl),
-      availability: 'https://schema.org/InStock',
+      url: stegaClean(ticketUrl),
+      availability:
+        ticketStatus === 'sold_out'
+          ? 'https://schema.org/SoldOut'
+          : 'https://schema.org/InStock',
       priceCurrency: 'NOK',
     }
-  : event.ticketType === 'info'
+  : ticketType === 'info'
     ? {
         '@type': 'Offer',
-        description: stegaClean(event.ticketInfoText) || (lang === 'en' ? 'Free admission' : 'Gratis inngang'),
+        description: stegaClean(ticketInfoText) || (lang === 'en' ? 'Free admission' : 'Gratis inngang'),
         availability: 'https://schema.org/InStock',
         price: 0,
         priceCurrency: 'NOK',
@@ -128,10 +142,10 @@ const eventSchema = {
   eventStatus: 'https://schema.org/EventScheduled',
   eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
   ...(imageUrl && { image: imageUrl }),
-  location: event.venue?.title
+  location: resolvedVenue?.title
     ? {
         '@type': 'Place',
-        name: stegaClean(event.venue.title),
+        name: stegaClean(resolvedVenue.title),
         address: {
           '@type': 'PostalAddress',
           addressLocality: 'Risør',

@@ -1,5 +1,7 @@
 type EventLike = {
   title?: string;
+  eventDateValue?: string;
+  eventStartTimeValue?: string;
   eventDate?: {
     date?: string;
   };
@@ -41,20 +43,32 @@ export function compareEventTitleAsc(a: EventLike, b: EventLike): number {
 }
 
 export function compareEventChronologicallyAsc(a: EventLike, b: EventLike): number {
-  const dateComparison = compareOptionalDateAsc(a.eventDate?.date, b.eventDate?.date);
+  const dateComparison = compareOptionalDateAsc(
+    a.eventDateValue || a.eventDate?.date,
+    b.eventDateValue || b.eventDate?.date
+  );
   if (dateComparison !== 0) return dateComparison;
 
-  const timeComparison = compareOptionalTimeAsc(a.eventTime?.startTime, b.eventTime?.startTime);
+  const timeComparison = compareOptionalTimeAsc(
+    a.eventStartTimeValue || a.eventTime?.startTime,
+    b.eventStartTimeValue || b.eventTime?.startTime
+  );
   if (timeComparison !== 0) return timeComparison;
 
   return compareEventTitleAsc(a, b);
 }
 
 export function compareEventChronologicallyDesc(a: EventLike, b: EventLike): number {
-  const dateComparison = compareOptionalDateDesc(a.eventDate?.date, b.eventDate?.date);
+  const dateComparison = compareOptionalDateDesc(
+    a.eventDateValue || a.eventDate?.date,
+    b.eventDateValue || b.eventDate?.date
+  );
   if (dateComparison !== 0) return dateComparison;
 
-  const timeComparison = compareOptionalTimeDesc(a.eventTime?.startTime, b.eventTime?.startTime);
+  const timeComparison = compareOptionalTimeDesc(
+    a.eventStartTimeValue || a.eventTime?.startTime,
+    b.eventStartTimeValue || b.eventTime?.startTime
+  );
   if (timeComparison !== 0) return timeComparison;
 
   return compareEventTitleAsc(a, b);
