@@ -5,9 +5,8 @@ import EventCard from '../components/EventCard.astro';
 import ScrollNavigation from '../components/ScrollNavigation.astro';
 import FestivalSchema from '../components/structured-data/FestivalSchema.astro';
 import { createDataService } from '../lib/sanity/dataService.js';
-import { formatDateWithWeekday } from '../lib/utils/dates';
-import { compareEventChronologicallyAsc } from '../lib/utils/eventOrdering';
 import { deriveAvailableVenues } from '../lib/utils/programFilters';
+import { buildEventDayCards, getOccurrenceDisplayTitle } from '../lib/eventOccurrences';
 import {
   applyProgramFilters,
   buildProgramEmptyStateMessage,
@@ -41,43 +40,42 @@ const programPage = await dataService.getProgramPage();
 
 // Get events from programPage.selectedEvents and filter out null/undefined
 const events = (programPage?.selectedEvents || []).filter(event => event != null);
+const dayCards = buildEventDayCards(events);
 
 // Fallback values
 const pageTitle = programPage?.title || 'Program';
 
 // Extract unique dates for filter
-const availableDates = events
-  .filter(event => event.eventDate?.date)
-  .map(event => ({
-    date: event.eventDate!.date,
-    title: event.eventDate!.title
+const availableDates = dayCards.map((card) => ({
+    date: card.eventDate.date,
+    title: card.eventDate.title
   }));
 
 // Extract unique venues for filter (preserve Sanity order)
-const availableVenues = deriveAvailableVenues(events, programPage?.venueFilterOrder || []);
+const availableVenues = deriveAvailableVenues(dayCards, programPage?.venueFilterOrder || []);
 
-// Group events by date
-const eventsByDate = events.reduce((acc, event) => {
-  if (!event?.eventDate?.date) return acc;
+// Group event day cards by date
+const eventsByDate = dayCards.reduce((acc, dayCard) => {
+  if (!dayCard.eventDate?.date) return acc;
 
-  const dateKey = event.eventDate.date;
+  const dateKey = dayCard.eventDate.date;
   if (!acc[dateKey]) {
     acc[dateKey] = {
-      date: event.eventDate.date,
-      displayTitle: event.eventDate.title || formatDateWithWeekday(event.eventDate.date, language),
+      date: dayCard.eventDate.date,
+      displayTitle: getOccurrenceDisplayTitle(dayCard, language),
       events: []
     };
   }
-  acc[dateKey].events.push(event);
+  acc[dateKey].events.push(dayCard);
   return acc;
-}, {} as Record<string, { date: string; displayTitle: string; events: typeof events }>);
+}, {} as Record<string, { date: string; displayTitle: string; events: typeof dayCards }>);
 
-// Sort dates chronologically and sort events within each date by time
+// Sort dates chronologically
 const sortedDates = Object.values(eventsByDate)
   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-  .map(dateGroup => ({
+  .map((dateGroup) => ({
     ...dateGroup,
-    events: [...dateGroup.events].sort(compareEventChronologicallyAsc)
+    events: [...dateGroup.events],
   }));
 
 const selectedDates = getValidatedSelectedDates(Astro.url.searchParams);
@@ -116,7 +114,7 @@ const resetButtonText = language === 'no' ? 'Nullstill filtre' : 'Reset filters'
 <ContentPageLayout
   title={pageTitle}
   excerpt={programPage?.excerpt}
-  pageDocument={programPage}
+  pageDocument={programPage || undefined}
   seo={resolvedSeo}
 >
   <!-- Structured Data: Festival Schema for Program Page -->
@@ -141,8 +139,8 @@ const resetButtonText = language === 'no' ? 'Nullstill filtre' : 'Reset filters'
               tabindex="0"
               aria-label={language === 'no' ? 'Arrangementer' : 'Events'}
             >
-              {dateEvents.map((event) => (
-                <EventCard event={event} language={language} />
+              {dateEvents.map((dayCard) => (
+                <EventCard event={dayCard.event} dayCard={dayCard} language={language} />
               ))}
             </div>
           </div>

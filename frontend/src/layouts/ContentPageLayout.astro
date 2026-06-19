@@ -16,13 +16,15 @@ interface PageDocument extends BilingualDocument {
   content?: PageBuilder;
   seo?: SeoData;
   image?: any;
+  slug_no?: { current: string } | string;
+  slug_en?: { current: string } | string;
 }
 
 interface Props {
   title: string;
   excerpt?: string;
   pageContent?: PageBuilder;
-  pageDocument?: PageDocument;
+  pageDocument?: PageDocument | null;
   /** SEO data override (uses pageDocument.seo by default) */
   seo?: SeoData;
   /** Image for OG/Twitter cards (uses pageDocument.image by default) */
@@ -41,6 +43,11 @@ const {
   ogType = 'website'
 } = Astro.props;
 
+function getSlugValue(slug: PageDocument['slug_no'] | PageDocument['slug_en']): string | undefined {
+  if (!slug) return undefined;
+  return typeof slug === 'string' ? slug : slug.current;
+}
+
 // Resolve SEO data: explicit prop > pageDocument.seo
 const resolvedSeo = seo || pageDocument?.seo;
 const resolvedImage = image || pageDocument?.image?.image || pageDocument?.image;
@@ -54,8 +61,10 @@ const content = pageContent?.length
   : (pageDocument ? getMultilingualContent(pageDocument, language) : []);
 
 // Extract slug information from pageDocument if available and clean stega encoding
-const slugNo = pageDocument?.slug_no?.current ? stegaClean(pageDocument.slug_no.current) : undefined;
-const slugEn = pageDocument?.slug_en?.current ? stegaClean(pageDocument.slug_en.current) : undefined;
+const slugNoValue = getSlugValue(pageDocument?.slug_no);
+const slugEnValue = getSlugValue(pageDocument?.slug_en);
+const slugNo = slugNoValue ? stegaClean(slugNoValue) : undefined;
+const slugEn = slugEnValue ? stegaClean(slugEnValue) : undefined;
 
 // Clean title for browser tab while preserving the original page heading content.
 const cleanTitle = stegaClean(title);
@@ -87,7 +96,7 @@ const cleanTitle = stegaClean(title);
     {content && Array.isArray(content) && content.length > 0 && (
       <div class="stack page-content" style="--space: var(--space-l-xl)">
         {content.map((block) => (
-          <DynamicComponent key={block._key || block._id} block={block} />
+          <DynamicComponent block={block} />
         ))}
       </div>
     )}

@@ -48,7 +48,7 @@ const hasArticles = articles.length > 0;
 <ContentPageLayout
   title={pageTitle}
   excerpt={articlePage?.excerpt}
-  pageDocument={articlePage}
+  pageDocument={articlePage || undefined}
 >
   {hasArticles ? (
     <div class="articles-grid">

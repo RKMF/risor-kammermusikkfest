@@ -1,5 +1,8 @@
 import type { EventResult } from './sanity/queries';
+import type { EventDayCard, EventShowingResult } from './eventOccurrences';
+import { getPrimaryEventDayCard } from './eventOccurrences';
 import type { Language } from './utils/language';
+import { resolveSlugValue } from './utils/language';
 import { getAbsoluteUrl } from './site';
 
 export const OSLO_TIME_ZONE = 'Europe/Oslo';
@@ -100,8 +103,8 @@ function collapseWhitespace(value: string): string {
 function buildEventPath(event: EventResult, language: Language): string | null {
   const slug =
     language === 'en'
-      ? event.slug_en?.current || event.slug_no?.current
-      : event.slug_no?.current || event.slug_en?.current;
+      ? resolveSlugValue(event.slug_en) || resolveSlugValue(event.slug_no)
+      : resolveSlugValue(event.slug_no) || resolveSlugValue(event.slug_en);
 
   if (!slug) {
     return null;
@@ -113,6 +116,10 @@ function buildEventPath(event: EventResult, language: Language): string | null {
 function buildCalendarDescription(event: EventResult): string | undefined {
   const excerpt = typeof event.excerpt === 'string' ? collapseWhitespace(event.excerpt) : '';
   return excerpt || undefined;
+}
+
+function buildCalendarTitle(event: EventResult): string {
+  return typeof event.title === 'string' ? collapseWhitespace(event.title) : '';
 }
 
 export function combineDateAndTimeInTimeZone(
@@ -195,11 +202,28 @@ export function buildCalendarEventDetails(
   language: Language,
   request?: Request
 ): CalendarEventDetails | null {
-  const date = event.eventDate?.date;
-  const startTime = event.eventTime?.startTime;
-  const endTime = event.eventTime?.endTime;
+  const primaryDayCard = getPrimaryEventDayCard(event);
+  const primaryShowing = primaryDayCard?.showings[0];
+
+  if (!primaryDayCard || !primaryShowing) {
+    return null;
+  }
+
+  return buildCalendarEventDetailsForShowing(event, primaryDayCard, primaryShowing, language, request);
+}
+
+export function buildCalendarEventDetailsForShowing(
+  event: EventResult,
+  dayCard: Pick<EventDayCard, 'eventDate'>,
+  showing: Pick<EventShowingResult, 'startTime' | 'endTime' | 'venue'>,
+  language: Language,
+  request?: Request
+): CalendarEventDetails | null {
+  const date = dayCard.eventDate.date;
+  const startTime = showing.startTime;
+  const endTime = showing.endTime;
   const path = buildEventPath(event, language);
-  const title = typeof event.title === 'string' ? collapseWhitespace(event.title) : '';
+  const title = buildCalendarTitle(event);
 
   if (!date || !startTime || !endTime || !path || !title) {
     return null;
@@ -217,7 +241,10 @@ export function buildCalendarEventDetails(
     slug: path.split('/').pop() || '',
     start,
     end,
-    location: typeof event.venue?.title === 'string' ? collapseWhitespace(event.venue.title) : undefined,
+    location:
+      typeof showing.venue?.title === 'string'
+        ? collapseWhitespace(showing.venue.title)
+        : undefined,
     description: buildCalendarDescription(event),
     url: getAbsoluteUrl(path, request),
   };

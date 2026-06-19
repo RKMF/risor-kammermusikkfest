@@ -1,5 +1,5 @@
 ---
-import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import type { ProjectedSanityImage } from '../lib/sanity/queries';
 import {
   getResponsiveImageSet,
   extractImageMetadata,
@@ -10,7 +10,7 @@ import {
 } from '../lib/sanityImage';
 
 interface Props {
-  image: SanityImageSource;
+  image: ProjectedSanityImage;
   alt: string;
   credit?: string;
   aspectRatio?: '4:3' | '16:9' | number;

@@ -9,10 +9,38 @@ import {
   removeReciprocalReferences,
 } from '../utils/bidirectionalSync';
 
+interface EventOccurrenceDraft {
+  eventDate?: { _ref?: string };
+  showings?: Array<{
+    startTime?: string;
+  }>;
+}
+
+interface EventShowingDraft {
+  eventDate?: { _ref?: string };
+  startTime?: string;
+}
+
+function compareOccurrenceEntries(
+  a: { date: string; startTime: string | undefined },
+  b: { date: string; startTime: string | undefined }
+): number {
+  const dateComparison = a.date.localeCompare(b.date);
+  if (dateComparison !== 0) return dateComparison;
+
+  return (a.startTime || '').localeCompare(b.startTime || '');
+}
+
+function isDerivedOccurrenceEntry(
+  value: { date: string; startTime: string | undefined } | null
+): value is { date: string; startTime: string | undefined } {
+  return Boolean(value?.date);
+}
+
 /**
  * Composite publish action for events that:
  * 1. Checks for missing reciprocal artist references (before publishing)
- * 2. Syncs eventDateValue from referenced eventDate (for sorting)
+ * 2. Syncs derived sort fields from the earliest showing
  * 3. Publishes the document
  * 4. Checks for orphaned artist references (after publishing)
  * 5. Shows artist sync dialog if needed (adds event to artists)
@@ -49,25 +77,110 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
   }
 
   const doc = draft || published;
-  const eventDateRef = (doc?.eventDate as { _ref?: string } | undefined)?._ref;
   const isNewPublish = draft && !published;
 
-  // Step 1: Sync eventDateValue
+  // Step 1: Sync derived sort values
   const syncDateValue = useCallback(async () => {
-    if (!eventDateRef) {
-      return;
-    }
-
     try {
-      const dateValue = await client.fetch<string>(`*[_id == $ref][0].date`, { ref: eventDateRef });
+      const showings = Array.isArray((doc as any)?.showings)
+        ? ((doc as any).showings as EventShowingDraft[])
+        : [];
+      const occurrences = Array.isArray((doc as any)?.occurrences)
+        ? ((doc as any).occurrences as EventOccurrenceDraft[])
+        : [];
 
-      if (dateValue) {
-        patch.execute([{ set: { eventDateValue: dateValue } }]);
+      const showingRefs = Array.from(
+        new Set(
+          showings
+            .map((showing) => showing?.eventDate?._ref)
+            .filter((ref): ref is string => Boolean(ref))
+        )
+      );
+      const occurrenceRefs = Array.from(
+        new Set(
+          occurrences
+            .map((occurrence) => occurrence?.eventDate?._ref)
+            .filter((ref): ref is string => Boolean(ref))
+        )
+      );
+
+      const dateByRef = new Map<string, string>();
+      const allDateRefs = Array.from(new Set([...showingRefs, ...occurrenceRefs]));
+      if (allDateRefs.length > 0) {
+        const eventDates = await client.fetch<Array<{ _id: string; date?: string }>>(
+          `*[_id in $ids]{ _id, date }`,
+          { ids: allDateRefs }
+        );
+
+        for (const eventDate of eventDates) {
+          if (eventDate?._id && eventDate.date) {
+            dateByRef.set(eventDate._id, eventDate.date);
+          }
+        }
+      }
+
+      const derivedEntries = [
+        ...showings.map((showing) => {
+          const ref = showing?.eventDate?._ref;
+          const date = ref ? dateByRef.get(ref) : undefined;
+
+          return date
+            ? {
+                date,
+                startTime: showing?.startTime,
+              }
+            : null;
+        }),
+        ...occurrences
+        .map((occurrence) => {
+          const ref = occurrence?.eventDate?._ref;
+          const date = ref ? dateByRef.get(ref) : undefined;
+          const firstShowing = Array.isArray(occurrence?.showings) ? occurrence.showings[0] : undefined;
+
+          return date
+            ? {
+                date,
+                startTime: firstShowing?.startTime,
+              }
+            : null;
+        })
+      ]
+        .filter(isDerivedOccurrenceEntry)
+        .sort(compareOccurrenceEntries);
+
+      const firstDerivedEntry = derivedEntries[0];
+      const legacyDateRef = (doc?.eventDate as { _ref?: string } | undefined)?._ref;
+
+      if (firstDerivedEntry) {
+        patch.execute([
+          {
+            set: {
+              eventDateValue: firstDerivedEntry.date,
+              eventStartTimeValue: firstDerivedEntry.startTime || '',
+            },
+          },
+        ]);
+        return;
+      }
+
+      if (legacyDateRef) {
+        const dateValue = await client.fetch<string>(`*[_id == $ref][0].date`, { ref: legacyDateRef });
+
+        if (dateValue) {
+          patch.execute([
+            {
+              set: {
+                eventDateValue: dateValue,
+                eventStartTimeValue: (doc?.eventTime as { startTime?: string } | undefined)?.startTime || '',
+              },
+            },
+          ]);
+        }
       }
     } catch (error) {
-      console.error('Failed to sync eventDateValue:', error);
+      console.error('Failed to sync event sort fields:', error);
     }
-  }, [eventDateRef, client, patch]);
+  }, [client, doc, patch]);
 
   // Step 2 & 3 & 4: Check for missing artist references, sync date, publish, check for orphaned references
   const handlePublish = useCallback(async () => {

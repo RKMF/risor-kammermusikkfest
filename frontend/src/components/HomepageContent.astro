@@ -4,6 +4,7 @@ import DynamicComponent from './DynamicComponent.astro';
 import { createDataService } from '../lib/sanity/dataService.js';
 import { getHomepageCacheMaxAge } from '../lib/homepageScheduling.js';
 import { getMultilingualContent } from '../lib/utils/language.js';
+import type { HomepageResult } from '../lib/sanity/queries';
 import { stegaClean } from '@sanity/client/stega';
 
 interface Props {
@@ -47,8 +48,13 @@ const cacheMaxAge = getHomepageCacheMaxAge(homepage);
 Astro.response.headers.set('Cache-Control', `public, s-maxage=${cacheMaxAge}, stale-while-revalidate=300`);
 
 // Get language-specific content
-const content = homepage ? (getMultilingualContent(homepage, language) || homepage?.content || []) : [];
-const homepageH1Block = content.find((block) => block?._type === 'homepageH1Component');
+function getSlugValue(slug: HomepageResult['slug_no'] | HomepageResult['slug_en']): string | undefined {
+  if (!slug) return undefined;
+  return typeof slug === 'string' ? slug : slug.current;
+}
+
+const content = homepage ? (getMultilingualContent(homepage, language) || []) : [];
+const homepageH1Block = content.find((block: any) => block?._type === 'homepageH1Component');
 const homepageH1Text = homepageH1Block?.text ? stegaClean(homepageH1Block.text) : undefined;
 const homepageH1IdRaw = homepageH1Block?.id;
 const homepageH1Id =
@@ -57,15 +63,17 @@ const homepageH1Id =
     : homepageH1IdRaw?.current
       ? stegaClean(homepageH1IdRaw.current)
       : undefined;
-const visibleContent = content.filter((block) => block?._type !== 'homepageH1Component');
+const visibleContent = content.filter((block: any) => block?._type !== 'homepageH1Component');
 const homepageTitle = homepageH1Text || homepage?.title || config.fallbackTitle;
 const homepageH1Html = homepageH1Text
   ? escapeHtml(homepageH1Text).replace(/\r?\n/g, '<br />')
   : undefined;
 
 // Extract slug information
-const slugNo = homepage?.slug_no?.current ? stegaClean(homepage.slug_no.current) : undefined;
-const slugEn = homepage?.slug_en?.current ? stegaClean(homepage.slug_en.current) : undefined;
+const slugNoValue = getSlugValue(homepage?.slug_no);
+const slugEnValue = getSlugValue(homepage?.slug_en);
+const slugNo = slugNoValue ? stegaClean(slugNoValue) : undefined;
+const slugEn = slugEnValue ? stegaClean(slugEnValue) : undefined;
 ---
 
 <Layout
@@ -98,7 +106,7 @@ const slugEn = homepage?.slug_en?.current ? stegaClean(homepage.slug_en.current)
     {visibleContent && Array.isArray(visibleContent) && visibleContent.length > 0 && (
       <div class="homepage-content">
         {visibleContent.map((block) => (
-          <DynamicComponent key={block._key || block._id} block={block} />
+          <DynamicComponent block={block} />
         ))}
       </div>
     )}

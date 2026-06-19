@@ -1,26 +1,30 @@
 ---
+import type { EventDayCard, EventShowingResult } from '../lib/eventOccurrences';
 import type { EventResult } from '../lib/sanity/queries';
+import { resolveSlugValue } from '../lib/utils/language';
 import type { Language } from '../lib/utils/language';
 import {
-  buildCalendarEventDetails,
+  buildCalendarEventDetailsForShowing,
   buildGoogleCalendarUrl,
   buildOutlookCalendarUrl,
 } from '../lib/calendar';
 
 interface Props {
   event: EventResult;
+  dayCard: EventDayCard;
+  showing: EventShowingResult;
   language: Language;
   request?: Request;
 }
 
-const { event, language, request } = Astro.props;
+const { event, dayCard, showing, language, request } = Astro.props;
 
-const details = buildCalendarEventDetails(event, language, request);
-const dialogId = `calendar-dialog-${event._id}`;
+const details = buildCalendarEventDetailsForShowing(event, dayCard, showing, language, request);
+const dialogId = `calendar-dialog-${event._id}-${dayCard.occurrenceKey || dayCard.eventDate.date}-${showing._key || showing.startTime || 'showing'}`;
 
 const labels = {
   no: {
-    trigger: 'Legg til i din kalender',
+    trigger: 'Legg til i kalender',
     title: 'Velg kalender',
     google: 'Google Calendar',
     outlook: 'Outlook / Microsoft 365',
@@ -39,10 +43,13 @@ const labels = {
 
 const icsSlug =
   language === 'en'
-    ? event.slug_en?.current || event.slug_no?.current
-    : event.slug_no?.current || event.slug_en?.current;
+    ? resolveSlugValue(event.slug_en) || resolveSlugValue(event.slug_no)
+    : resolveSlugValue(event.slug_no) || resolveSlugValue(event.slug_en);
 
-const icsHref = details && icsSlug ? `/api/calendar/${icsSlug}.ics?lang=${language}` : null;
+const icsHref =
+  details && icsSlug
+    ? `/api/calendar/${icsSlug}.ics?lang=${language}&occurrence=${encodeURIComponent(dayCard.occurrenceKey || dayCard.eventDate.date)}&showing=${encodeURIComponent(showing._key || showing.startTime || '')}`
+    : null;
 ---
 
 {details && icsHref && (

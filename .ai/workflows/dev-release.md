@@ -49,6 +49,7 @@ git commit -m "chore: Regenerate Sanity types"
 Then run verification:
 ```bash
 cd frontend && npm run typecheck
+cd frontend && npm run check:astro
 cd frontend && npm run check:htmx
 cd ../studio && npx tsc --noEmit
 ```
@@ -94,4 +95,5 @@ Report:
 - run typegen when schema files changed
 - do not rely on a running Studio dev server to keep generated Sanity artifacts current
 - run `npm run check:htmx` for frontend changes before release
+- run `npm run check:astro` for frontend changes before release
 - do not proceed with failing local verification

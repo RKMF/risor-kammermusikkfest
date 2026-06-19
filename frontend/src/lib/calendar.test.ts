@@ -31,6 +31,47 @@ function createEvent(overrides: Partial<EventResult> = {}): EventResult {
       _id: 'venue-1',
       title: 'Risør kirke',
     },
+    showings: [
+      {
+        eventDate: {
+          _id: 'date-1',
+          date: '2026-06-27',
+          title: 'Lørdag 27. juni',
+        },
+        _key: 'showing-1',
+        startTime: '19:30',
+        endTime: '21:00',
+        venue: {
+          _id: 'venue-1',
+          title: 'Risør kirke',
+        },
+        ticketType: 'button',
+        ticketStatus: 'available',
+      },
+    ],
+    occurrences: [
+      {
+        _key: 'occurrence-legacy',
+        eventDate: {
+          _id: 'date-1',
+          date: '2026-06-27',
+          title: 'Lørdag 27. juni',
+        },
+        showings: [
+          {
+            _key: 'showing-legacy',
+            startTime: '19:30',
+            endTime: '21:00',
+            venue: {
+              _id: 'venue-1',
+              title: 'Risør kirke',
+            },
+            ticketType: 'button',
+            ticketStatus: 'available',
+          },
+        ],
+      },
+    ],
     ...overrides,
   };
 }
@@ -60,6 +101,17 @@ describe('calendar helpers', () => {
     expect(
       buildCalendarEventDetails(
         createEvent({
+          showings: [
+            {
+              eventDate: {
+                _id: 'date-1',
+                date: '2026-06-27',
+                title: 'Lørdag 27. juni',
+              },
+              _key: 'showing-1',
+              startTime: '19:30',
+            },
+          ],
           eventTime: { startTime: '19:30' },
         }),
         'no'
@@ -69,6 +121,18 @@ describe('calendar helpers', () => {
     expect(
       buildCalendarEventDetails(
         createEvent({
+          showings: [
+            {
+              eventDate: {
+                _id: 'date-1',
+                date: '2026-06-27',
+                title: 'Lørdag 27. juni',
+              },
+              _key: 'showing-1',
+              startTime: '21:00',
+              endTime: '19:30',
+            },
+          ],
           eventTime: { startTime: '21:00', endTime: '19:30' },
         }),
         'no'
@@ -94,6 +158,36 @@ describe('calendar helpers', () => {
     expect(outlookUrl.searchParams.get('subject')).toBe('Åpningskonsert');
     expect(outlookUrl.searchParams.get('startdt')).toBe('2026-06-27T17:30:00.000Z');
     expect(outlookUrl.searchParams.get('enddt')).toBe('2026-06-27T19:00:00.000Z');
+  });
+
+  it('uses occurrence showings when the event has multiple dates', () => {
+    const details = buildCalendarEventDetails(
+      createEvent({
+        showings: [
+          {
+            eventDate: {
+              _id: 'date-1',
+              date: '2026-06-27',
+              title: 'Lørdag 27. juni',
+            },
+            _key: 'showing-1',
+            startTime: '11:00',
+            endTime: '12:00',
+            venue: {
+              _id: 'venue-2',
+              title: 'Risør bibliotek',
+            },
+            ticketType: 'info',
+            ticketInfoText: 'Gratis',
+          },
+        ],
+      }),
+      'no',
+      new Request('https://kammermusikkfest.no/program/apningskonsert')
+    );
+
+    expect(details?.start.toISOString()).toBe('2026-06-27T09:00:00.000Z');
+    expect(details?.location).toBe('Risør bibliotek');
   });
 
   it('formats and escapes ICS content safely', () => {

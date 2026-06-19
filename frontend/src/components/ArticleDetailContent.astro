@@ -70,7 +70,7 @@ const content = getMultilingualContent(article, language) || article[config.cont
       <section class="pagebuilder-content">
         <h2 class="sr-only">{config.screenReaderText}</h2>
         {content.map((block) => (
-          <DynamicComponent key={block._key || block._id} block={block} />
+          <DynamicComponent block={block} />
         ))}
       </section>
     )}

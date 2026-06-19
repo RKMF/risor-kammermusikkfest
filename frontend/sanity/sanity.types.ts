@@ -26,6 +26,20 @@ export type Accessibility = {
   ariaDescribedBy?: string;
 };
 
+export type VenueReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'venue';
+};
+
+export type VenueDetails = {
+  mode?: 'reference' | 'custom';
+  venueRef?: VenueReference;
+  customName?: string;
+  includeInProgramVenueFilter?: boolean;
+};
+
 export type ArticleReference = {
   _ref: string;
   _type: 'reference';
@@ -820,13 +834,6 @@ export type Homepage = {
   seo?: Seo;
 };
 
-export type VenueReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'venue';
-};
-
 export type ProgramPage = {
   _id: string;
   _type: 'programPage';
@@ -969,6 +976,335 @@ export type Event = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  showings?: Array<{
+    eventDate?: EventDateReference;
+    startTime?:
+      | '06:00'
+      | '06:15'
+      | '06:30'
+      | '06:45'
+      | '07:00'
+      | '07:15'
+      | '07:30'
+      | '07:45'
+      | '08:00'
+      | '08:15'
+      | '08:30'
+      | '08:45'
+      | '09:00'
+      | '09:15'
+      | '09:30'
+      | '09:45'
+      | '10:00'
+      | '10:15'
+      | '10:30'
+      | '10:45'
+      | '11:00'
+      | '11:15'
+      | '11:30'
+      | '11:45'
+      | '12:00'
+      | '12:15'
+      | '12:30'
+      | '12:45'
+      | '13:00'
+      | '13:15'
+      | '13:30'
+      | '13:45'
+      | '14:00'
+      | '14:15'
+      | '14:30'
+      | '14:45'
+      | '15:00'
+      | '15:15'
+      | '15:30'
+      | '15:45'
+      | '16:00'
+      | '16:15'
+      | '16:30'
+      | '16:45'
+      | '17:00'
+      | '17:15'
+      | '17:30'
+      | '17:45'
+      | '18:00'
+      | '18:15'
+      | '18:30'
+      | '18:45'
+      | '19:00'
+      | '19:15'
+      | '19:30'
+      | '19:45'
+      | '20:00'
+      | '20:15'
+      | '20:30'
+      | '20:45'
+      | '21:00'
+      | '21:15'
+      | '21:30'
+      | '21:45'
+      | '22:00'
+      | '22:15'
+      | '22:30'
+      | '22:45'
+      | '23:00'
+      | '23:15'
+      | '23:30'
+      | '23:45';
+    endTime?:
+      | '06:00'
+      | '06:15'
+      | '06:30'
+      | '06:45'
+      | '07:00'
+      | '07:15'
+      | '07:30'
+      | '07:45'
+      | '08:00'
+      | '08:15'
+      | '08:30'
+      | '08:45'
+      | '09:00'
+      | '09:15'
+      | '09:30'
+      | '09:45'
+      | '10:00'
+      | '10:15'
+      | '10:30'
+      | '10:45'
+      | '11:00'
+      | '11:15'
+      | '11:30'
+      | '11:45'
+      | '12:00'
+      | '12:15'
+      | '12:30'
+      | '12:45'
+      | '13:00'
+      | '13:15'
+      | '13:30'
+      | '13:45'
+      | '14:00'
+      | '14:15'
+      | '14:30'
+      | '14:45'
+      | '15:00'
+      | '15:15'
+      | '15:30'
+      | '15:45'
+      | '16:00'
+      | '16:15'
+      | '16:30'
+      | '16:45'
+      | '17:00'
+      | '17:15'
+      | '17:30'
+      | '17:45'
+      | '18:00'
+      | '18:15'
+      | '18:30'
+      | '18:45'
+      | '19:00'
+      | '19:15'
+      | '19:30'
+      | '19:45'
+      | '20:00'
+      | '20:15'
+      | '20:30'
+      | '20:45'
+      | '21:00'
+      | '21:15'
+      | '21:30'
+      | '21:45'
+      | '22:00'
+      | '22:15'
+      | '22:30'
+      | '22:45'
+      | '23:00'
+      | '23:15'
+      | '23:30'
+      | '23:45';
+    venueMode?: 'reference' | 'custom';
+    venueRef?: VenueReference;
+    customVenueName?: string;
+    venueDetails?: VenueDetails;
+    venue?: VenueReference;
+    includeInProgramVenueFilter?: boolean;
+    ticketType?: 'button' | 'info';
+    ticketUrl?: string;
+    ticketInfoText_no?: string;
+    ticketInfoText_en?: string;
+    ticketStatus?: 'available' | 'low_stock' | 'sold_out';
+    _type: 'eventShowing';
+    _key: string;
+  }>;
+  occurrences?: Array<{
+    eventDate?: EventDateReference;
+    showings?: Array<{
+      startTime?:
+        | '06:00'
+        | '06:15'
+        | '06:30'
+        | '06:45'
+        | '07:00'
+        | '07:15'
+        | '07:30'
+        | '07:45'
+        | '08:00'
+        | '08:15'
+        | '08:30'
+        | '08:45'
+        | '09:00'
+        | '09:15'
+        | '09:30'
+        | '09:45'
+        | '10:00'
+        | '10:15'
+        | '10:30'
+        | '10:45'
+        | '11:00'
+        | '11:15'
+        | '11:30'
+        | '11:45'
+        | '12:00'
+        | '12:15'
+        | '12:30'
+        | '12:45'
+        | '13:00'
+        | '13:15'
+        | '13:30'
+        | '13:45'
+        | '14:00'
+        | '14:15'
+        | '14:30'
+        | '14:45'
+        | '15:00'
+        | '15:15'
+        | '15:30'
+        | '15:45'
+        | '16:00'
+        | '16:15'
+        | '16:30'
+        | '16:45'
+        | '17:00'
+        | '17:15'
+        | '17:30'
+        | '17:45'
+        | '18:00'
+        | '18:15'
+        | '18:30'
+        | '18:45'
+        | '19:00'
+        | '19:15'
+        | '19:30'
+        | '19:45'
+        | '20:00'
+        | '20:15'
+        | '20:30'
+        | '20:45'
+        | '21:00'
+        | '21:15'
+        | '21:30'
+        | '21:45'
+        | '22:00'
+        | '22:15'
+        | '22:30'
+        | '22:45'
+        | '23:00'
+        | '23:15'
+        | '23:30'
+        | '23:45';
+      endTime?:
+        | '06:00'
+        | '06:15'
+        | '06:30'
+        | '06:45'
+        | '07:00'
+        | '07:15'
+        | '07:30'
+        | '07:45'
+        | '08:00'
+        | '08:15'
+        | '08:30'
+        | '08:45'
+        | '09:00'
+        | '09:15'
+        | '09:30'
+        | '09:45'
+        | '10:00'
+        | '10:15'
+        | '10:30'
+        | '10:45'
+        | '11:00'
+        | '11:15'
+        | '11:30'
+        | '11:45'
+        | '12:00'
+        | '12:15'
+        | '12:30'
+        | '12:45'
+        | '13:00'
+        | '13:15'
+        | '13:30'
+        | '13:45'
+        | '14:00'
+        | '14:15'
+        | '14:30'
+        | '14:45'
+        | '15:00'
+        | '15:15'
+        | '15:30'
+        | '15:45'
+        | '16:00'
+        | '16:15'
+        | '16:30'
+        | '16:45'
+        | '17:00'
+        | '17:15'
+        | '17:30'
+        | '17:45'
+        | '18:00'
+        | '18:15'
+        | '18:30'
+        | '18:45'
+        | '19:00'
+        | '19:15'
+        | '19:30'
+        | '19:45'
+        | '20:00'
+        | '20:15'
+        | '20:30'
+        | '20:45'
+        | '21:00'
+        | '21:15'
+        | '21:30'
+        | '21:45'
+        | '22:00'
+        | '22:15'
+        | '22:30'
+        | '22:45'
+        | '23:00'
+        | '23:15'
+        | '23:30'
+        | '23:45';
+      venueMode?: 'reference' | 'custom';
+      venueRef?: VenueReference;
+      customVenueName?: string;
+      venueDetails?: VenueDetails;
+      venue?: VenueReference;
+      includeInProgramVenueFilter?: boolean;
+      ticketType?: 'button' | 'info';
+      ticketUrl?: string;
+      ticketInfoText_no?: string;
+      ticketInfoText_en?: string;
+      ticketStatus?: 'available' | 'low_stock' | 'sold_out';
+      _type: 'legacyEventShowing';
+      _key: string;
+    }>;
+    _type: 'eventOccurrence';
+    _key: string;
+  }>;
+  ticketingMode?: 'shared' | 'per_showing';
   eventDate?: EventDateReference;
   eventTime?: {
     startTime?:
@@ -1119,6 +1455,7 @@ export type Event = {
       | '23:45';
   };
   eventDateValue?: string;
+  eventStartTimeValue?: string;
   venue?: VenueReference;
   artist?: Array<
     {
@@ -1137,7 +1474,8 @@ export type Event = {
   >;
   ticketType?: 'button' | 'info';
   ticketUrl?: string;
-  ticketInfoText?: string;
+  ticketInfoText_no?: string;
+  ticketInfoText_en?: string;
   ticketStatus?: 'available' | 'low_stock' | 'sold_out';
   image?: {
     asset?: SanityImageAssetReference;
@@ -1366,6 +1704,8 @@ export type Geopoint = {
 
 export type AllSanitySchemaTypes =
   | Accessibility
+  | VenueReference
+  | VenueDetails
   | ArticleReference
   | ArticleScrollContainer
   | ComposerReference
@@ -1413,7 +1753,6 @@ export type AllSanitySchemaTypes =
   | SiteSettings
   | Composer
   | Homepage
-  | VenueReference
   | ProgramPage
   | Slug
   | ArtistPage
@@ -1434,163 +1773,6 @@ export type AllSanitySchemaTypes =
   | SanityAssetSourceData
   | SanityImageAsset
   | Geopoint;
-
-// Source: ../frontend/src/pages/api/countdown.ts
-// Variable: EVENT_COUNTDOWN_QUERY
-// Query: *[_type == "event" && _id == $eventId][0]{  eventDate->{date},  eventTime}
-export type EVENT_COUNTDOWN_QUERY_RESULT = {
-  eventDate: {
-    date: string | null;
-  } | null;
-  eventTime: {
-    startTime?:
-      | '06:00'
-      | '06:15'
-      | '06:30'
-      | '06:45'
-      | '07:00'
-      | '07:15'
-      | '07:30'
-      | '07:45'
-      | '08:00'
-      | '08:15'
-      | '08:30'
-      | '08:45'
-      | '09:00'
-      | '09:15'
-      | '09:30'
-      | '09:45'
-      | '10:00'
-      | '10:15'
-      | '10:30'
-      | '10:45'
-      | '11:00'
-      | '11:15'
-      | '11:30'
-      | '11:45'
-      | '12:00'
-      | '12:15'
-      | '12:30'
-      | '12:45'
-      | '13:00'
-      | '13:15'
-      | '13:30'
-      | '13:45'
-      | '14:00'
-      | '14:15'
-      | '14:30'
-      | '14:45'
-      | '15:00'
-      | '15:15'
-      | '15:30'
-      | '15:45'
-      | '16:00'
-      | '16:15'
-      | '16:30'
-      | '16:45'
-      | '17:00'
-      | '17:15'
-      | '17:30'
-      | '17:45'
-      | '18:00'
-      | '18:15'
-      | '18:30'
-      | '18:45'
-      | '19:00'
-      | '19:15'
-      | '19:30'
-      | '19:45'
-      | '20:00'
-      | '20:15'
-      | '20:30'
-      | '20:45'
-      | '21:00'
-      | '21:15'
-      | '21:30'
-      | '21:45'
-      | '22:00'
-      | '22:15'
-      | '22:30'
-      | '22:45'
-      | '23:00'
-      | '23:15'
-      | '23:30'
-      | '23:45';
-    endTime?:
-      | '06:00'
-      | '06:15'
-      | '06:30'
-      | '06:45'
-      | '07:00'
-      | '07:15'
-      | '07:30'
-      | '07:45'
-      | '08:00'
-      | '08:15'
-      | '08:30'
-      | '08:45'
-      | '09:00'
-      | '09:15'
-      | '09:30'
-      | '09:45'
-      | '10:00'
-      | '10:15'
-      | '10:30'
-      | '10:45'
-      | '11:00'
-      | '11:15'
-      | '11:30'
-      | '11:45'
-      | '12:00'
-      | '12:15'
-      | '12:30'
-      | '12:45'
-      | '13:00'
-      | '13:15'
-      | '13:30'
-      | '13:45'
-      | '14:00'
-      | '14:15'
-      | '14:30'
-      | '14:45'
-      | '15:00'
-      | '15:15'
-      | '15:30'
-      | '15:45'
-      | '16:00'
-      | '16:15'
-      | '16:30'
-      | '16:45'
-      | '17:00'
-      | '17:15'
-      | '17:30'
-      | '17:45'
-      | '18:00'
-      | '18:15'
-      | '18:30'
-      | '18:45'
-      | '19:00'
-      | '19:15'
-      | '19:30'
-      | '19:45'
-      | '20:00'
-      | '20:15'
-      | '20:30'
-      | '20:45'
-      | '21:00'
-      | '21:15'
-      | '21:30'
-      | '21:45'
-      | '22:00'
-      | '22:15'
-      | '22:30'
-      | '22:45'
-      | '23:00'
-      | '23:15'
-      | '23:30'
-      | '23:45';
-  } | null;
-} | null;
 
 // Source: ../frontend/src/pages/api/filter-events.ts
 // Variable: FILTER_EVENTS_QUERY
@@ -1774,7 +1956,7 @@ export type FILTER_EVENTS_QUERY_RESULT = Array<{
   }> | null;
   ticketType: 'button' | 'info' | null;
   ticketUrl: string | null;
-  ticketInfoText: string | null;
+  ticketInfoText: null;
   ticketStatus: 'available' | 'low_stock' | 'sold_out' | null;
 }>;
 
@@ -1790,7 +1972,6 @@ export type HEALTH_CHECK_QUERY_RESULT = {
 import '@sanity/client';
 declare module '@sanity/client' {
   interface SanityQueries {
-    '*[_type == "event" && _id == $eventId][0]{\n  eventDate->{date},\n  eventTime\n}': EVENT_COUNTDOWN_QUERY_RESULT;
     '*[\n      _type == "event"\n      && publishingStatus == "published"\n      && (!defined($eventDate) || eventDate->date == $eventDate)\n      && (!defined($genre) || genre->slug.current == $genre)\n      && (!defined($venue) || venue->slug.current == $venue)\n    ] | order(eventDateValue asc, eventTime.startTime asc, coalesce(title_no, title_en, title) asc){\n      _id,\n      title_no,\n      title_en,\n      "title": coalesce(title_no, title_en, title),\n      "slug": coalesce(slug_no.current, slug_en.current, slug.current),\n      "image": {\n        "image": image,\n        "alt": coalesce(imageAlt_no, imageAlt_en, image.alt)\n      },\n      eventTime,\n      eventDate->{\n        date,\n        title_display_no,\n        title_display_en,\n        "title": coalesce(title_display_no, title_display_en)\n      },\n      venue->{title},\n      genre->{title},\n      "artists": artist[]->{name},\n      ticketType,\n      ticketUrl,\n      ticketInfoText,\n      ticketStatus\n    }': FILTER_EVENTS_QUERY_RESULT;
     '*[_type == "siteSettings"][0]{\n  _id,\n  _type\n}': HEALTH_CHECK_QUERY_RESULT;
   }

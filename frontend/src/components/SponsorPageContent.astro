@@ -55,7 +55,7 @@ function getLogoUrl(logo: any): string {
 <ContentPageLayout
   title={pageTitle}
   excerpt={sponsorPage?.excerpt}
-  pageDocument={sponsorPage}
+  pageDocument={sponsorPage || undefined}
 >
   {hasSponsors ? (
     <>

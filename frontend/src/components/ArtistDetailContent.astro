@@ -4,7 +4,7 @@ import DynamicComponent from '../components/DynamicComponent.astro';
 import ArtistCard from '../components/ArtistCard.astro';
 import EventCard from '../components/EventCard.astro';
 import ScrollNavigation from '../components/ScrollNavigation.astro';
-import { getMultilingualContent } from '../lib/utils/language.js';
+import { getMultilingualContent, getMultilingualValue, resolveSlugValue } from '../lib/utils/language.js';
 import type { ArtistResult } from '../lib/sanity/queries';
 import { stegaClean } from '@sanity/client/stega';
 import '../styles/event-card-collection.css';
@@ -37,15 +37,15 @@ const config = {
 }[language];
 
 // Get appropriate content array
-const content = getMultilingualContent(artist, language) || artist[config.contentField];
-const excerpt = artist[config.excerptField];
+const content = getMultilingualContent(artist, language) || (language === 'en' ? artist.content_en : artist.content_no);
+const excerpt = getMultilingualValue<string>(artist, 'excerpt', language);
 ---
 
 <Layout
   title={stegaClean(artist.name || '')}
   description={excerpt ? stegaClean(excerpt) : undefined}
-  slugNo={artist.slug_no?.current}
-  slugEn={artist.slug_en?.current}
+  slugNo={resolveSlugValue(artist.slug_no)}
+  slugEn={resolveSlugValue(artist.slug_en)}
   seo={artist.seo}
   image={artist.image?.image || artist.image}
 >
@@ -67,7 +67,7 @@ const excerpt = artist[config.excerptField];
       <section class="pagebuilder-content">
         <h2 class="sr-only">{config.aboutTitle}</h2>
         {content.map((block) => (
-          <DynamicComponent key={block._key || block._id} block={block} />
+          <DynamicComponent block={block} />
         ))}
       </section>
     )}

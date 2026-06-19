@@ -10,77 +10,118 @@ import PortableText from '../components/PortableText.astro';
 import EventSchema from '../components/structured-data/EventSchema.astro';
 import TicketButton from './TicketButton.astro';
 import AddToCalendar from './AddToCalendar.astro';
-import { formatDateWithWeekday } from '../lib/utils/dates';
-import { getMultilingualContent } from '../lib/utils/language.js';
+import {
+  buildEventShowingId,
+  getEventOccurrences,
+  getPrimaryEventDayCard,
+  getOccurrenceDisplayTitle,
+  getShowingDateTimeLabel,
+} from '../lib/eventOccurrences';
+import { getMultilingualContent, getMultilingualValue, resolveSlugValue } from '../lib/utils/language.js';
 import { IMAGE_QUALITY } from '../lib/sanityImage';
 import { stegaClean } from '@sanity/client/stega';
+import type { ArtistReference, ComposerReference, EventResult } from '../lib/sanity/queries';
 import '../styles/event.css';
 import '../styles/composer-card.css';
 
 interface Props {
-  event: any;
+  event: EventResult;
   language: 'no' | 'en';
   request?: Request;
 }
 
 const { event, language, request } = Astro.props;
+const eventFields = event as unknown as Record<string, unknown>;
+const usesSharedTicketing = event.ticketingMode !== 'per_showing';
+const occurrenceDayCards = getEventOccurrences(event).map((occurrence) => ({
+  _id: `${event._id}:${occurrence._key || occurrence.eventDate?.date || 'occurrence'}`,
+  event,
+  occurrenceKey: occurrence._key,
+  eventDate: occurrence.eventDate!,
+  showings: occurrence.showings || [],
+  venue: undefined,
+  hasMultipleShowings: (occurrence.showings || []).length > 1,
+  showingCount: (occurrence.showings || []).length,
+})).filter((occurrence) => occurrence.eventDate?.date && occurrence.showings.length > 0);
+const primaryDayCard = getPrimaryEventDayCard(event);
+const defaultOccurrenceKey =
+  primaryDayCard?.occurrenceKey ||
+  primaryDayCard?.eventDate?.date ||
+  occurrenceDayCards[0]?.occurrenceKey ||
+  occurrenceDayCards[0]?.eventDate?.date ||
+  '';
+const defaultShowingKeyByOccurrence = new Map(
+  occurrenceDayCards.map((dayCard) => [
+    dayCard.occurrenceKey || dayCard.eventDate.date,
+    buildEventShowingId(
+      event._id,
+      dayCard.occurrenceKey || dayCard.eventDate.date,
+      dayCard.showings[0]?._key || dayCard.showings[0]?.startTime
+    ),
+  ])
+);
+const timeLabel = language === 'en' ? 'Time' : 'Tid';
 
-// Language-specific configuration
 const config = {
   no: {
-    date: 'Dato',
-    time: 'Tid',
     venue: 'Sted',
-    free: 'Gratis',
-    buyTickets: 'Kjøp billetter her',
+    scheduleDates: 'Datoer',
     aboutConcert: 'Om konserten',
     listenMusic: 'Hør musikken',
     additionalContent: 'Tilleggsinnhold',
     composers: 'Komponister',
     artists: 'Artister',
     artistsOverviewHref: '/artister',
-    artistsOverviewText: 'Se alle artister',
-    descriptionField: 'description_no',
-    extraContentField: 'extraContent_no'
+    artistsOverviewText: 'Se alle artister'
   },
   en: {
-    date: 'Date',
-    time: 'Time',
     venue: 'Venue',
-    free: 'Free',
-    buyTickets: 'Buy tickets',
+    scheduleDates: 'Dates',
     aboutConcert: 'About the concert',
     listenMusic: 'Listen to the music',
     additionalContent: 'Additional Content',
     composers: 'Composers',
     artists: 'Artists',
     artistsOverviewHref: '/en/artists',
-    artistsOverviewText: 'See all artists',
-    descriptionField: 'description_en',
-    extraContentField: 'extraContent_en'
+    artistsOverviewText: 'See all artists'
   }
 }[language];
 
-// Get appropriate content arrays
-const description = getMultilingualContent(event, language, 'description') || event[config.descriptionField];
-const extraContent = getMultilingualContent(event, language, 'extraContent') || event[config.extraContentField];
+const description =
+  getMultilingualValue<string | any[]>(eventFields, 'description', language) ||
+  (language === 'en' ? event.description_en : event.description_no);
+const extraContent =
+  getMultilingualContent(eventFields, language, 'extraContent') ||
+  (language === 'en' ? event.extraContent_en : event.extraContent_no);
+const spotifyItems = (event.spotifyItems || []).filter(
+  (item): item is NonNullable<EventResult['spotifyItems']>[number] & { spotifyUrl: string } =>
+    typeof item.spotifyUrl === 'string' && item.spotifyUrl.length > 0
+);
 ---
 
 <Layout
   title={stegaClean(event.title || '')}
   description={stegaClean(event.excerpt || '')}
-  slugNo={event.slug_no?.current}
-  slugEn={event.slug_en?.current}
+  slugNo={resolveSlugValue(event.slug_no)}
+  slugEn={resolveSlugValue(event.slug_en)}
   seo={event.seo}
   image={event.image?.image || event.image}
   ogType="event"
 >
-  <!-- Structured Data: MusicEvent Schema -->
   <EventSchema event={event} lang={language} />
 
   <article class="event-page">
-      <header class="event-info-box">
-        <div class="event-header">
+    <header class="event-info-box">
+      <div class="event-hero-layout">
+        <div
+          class="event-header"
+          {...(occurrenceDayCards.length > 1
+            ? {
+                'data-occurrence-switcher': '',
+                'data-default-occurrence': defaultOccurrenceKey,
+              }
+            : {})}
+        >
           <hgroup>
             <h1 class="event-page__title">{stegaClean(event.title || '')}</h1>
             {event.excerpt && (
@@ -88,140 +129,515 @@ const extraContent = getMultilingualContent(event, language, 'extraContent') || 
             )}
           </hgroup>
 
-          <dl class="event-page__meta">
-            {event.eventDate?.date && (
-              <>
-                <dt class="sr-only">{config.date}</dt>
-                <dd>
-                  <time datetime={event.eventDate.date}>
-                    {stegaClean(formatDateWithWeekday(event.eventDate.date, language))}
-                  </time>
-                </dd>
-              </>
-            )}
-            {event.eventTime && (
-              <>
-                <dt class="sr-only">{config.time}</dt>
-                <dd>
-                  <time datetime={event.eventTime.startTime}>{stegaClean(event.eventTime.startTime)}</time>–<time datetime={event.eventTime.endTime}>{stegaClean(event.eventTime.endTime)}</time>
-                </dd>
-              </>
-            )}
-            {event.venue?.title && (
-              <>
-                <dt class="sr-only">{config.venue}</dt>
-                <dd class="event-page__venue">{stegaClean(event.venue.title)}</dd>
-              </>
-            )}
-          </dl>
+          {occurrenceDayCards.length > 1 && (
+            <div class="event-occurrence-picker">
+              <div
+                class="event-occurrence-picker__tabs"
+                role="tablist"
+                aria-label={config.scheduleDates}
+              >
+                {occurrenceDayCards.map((dayCard) => {
+                  const occurrenceKey = dayCard.occurrenceKey || dayCard.eventDate.date;
+                  const isSelected = occurrenceKey === defaultOccurrenceKey;
+                  const tabId = `event-occurrence-tab-${event._id}-${occurrenceKey}`;
+                  const panelId = `event-occurrence-panel-${event._id}-${occurrenceKey}`;
 
-          <AddToCalendar event={event} language={language} request={request} />
+                  return (
+                    <button
+                      id={tabId}
+                      type="button"
+                      class:list={['event-schedule__tab', 'link-button', { active: isSelected }]}
+                      role="tab"
+                      aria-selected={isSelected ? 'true' : 'false'}
+                      aria-controls={panelId}
+                      data-occurrence-tab={occurrenceKey}
+                      tabindex={isSelected ? '0' : '-1'}
+                    >
+                      {getOccurrenceDisplayTitle(dayCard, language)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {occurrenceDayCards.length === 1 && (() => {
+            const dayCard = occurrenceDayCards[0];
+            const activeShowing = dayCard?.showings[0];
+            const defaultShowingKey = defaultShowingKeyByOccurrence.get(dayCard.occurrenceKey || dayCard.eventDate.date);
+
+            return activeShowing ? (
+              <>
+                {dayCard.showings.length > 1 && (
+                  <div
+                    class="event-occurrence-picker"
+                    data-showing-switcher
+                    data-default-showing={defaultShowingKey}
+                  >
+                    <div
+                      class="event-occurrence-picker__tabs"
+                      role="tablist"
+                      aria-label={timeLabel}
+                    >
+                      {dayCard.showings.map((showing) => {
+                        const showingKey = buildEventShowingId(
+                          event._id,
+                          dayCard.occurrenceKey || dayCard.eventDate.date,
+                          showing._key || showing.startTime
+                        );
+                        const isSelected = showingKey === defaultShowingKey;
+                        const tabId = `event-showing-tab-${showingKey}`;
+                        const panelId = `event-showing-panel-${showingKey}`;
+
+                        return (
+                          <button
+                            id={tabId}
+                            type="button"
+                            class:list={['event-schedule__tab', 'link-button', { active: isSelected }]}
+                            role="tab"
+                            aria-selected={isSelected ? 'true' : 'false'}
+                            aria-controls={panelId}
+                            data-showing-tab={showingKey}
+                            tabindex={isSelected ? '0' : '-1'}
+                          >
+                            {getShowingDateTimeLabel(showing, language)}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {dayCard.showings.map((showing) => {
+                  const showingKey = buildEventShowingId(
+                    event._id,
+                    dayCard.occurrenceKey || dayCard.eventDate.date,
+                    showing._key || showing.startTime
+                  );
+                  const isSelected = showingKey === defaultShowingKey;
+                  const tabId = `event-showing-tab-${showingKey}`;
+                  const panelId = `event-showing-panel-${showingKey}`;
+
+                  return (
+                    <section
+                      id={panelId}
+                      data-showing-panel={showingKey}
+                      role={dayCard.showings.length > 1 ? 'tabpanel' : undefined}
+                      aria-labelledby={dayCard.showings.length > 1 ? tabId : undefined}
+                      hidden={dayCard.showings.length > 1 ? !isSelected : undefined}
+                    >
+                      <dl class="event-page__meta">
+                        <dt>{language === 'en' ? 'Date' : 'Dato'}</dt>
+                        <dd>
+                          <time datetime={dayCard.eventDate.date}>
+                            {getOccurrenceDisplayTitle(dayCard, language)}
+                          </time>
+                        </dd>
+                        {dayCard.showings.length === 1 && (
+                          <>
+                            <dt>{timeLabel}</dt>
+                            <dd>{getShowingDateTimeLabel(showing, language)}</dd>
+                          </>
+                        )}
+                        {showing.venue?.title && (
+                          <>
+                            <dt>{config.venue}</dt>
+                            <dd class="event-page__venue">{stegaClean(showing.venue.title)}</dd>
+                          </>
+                        )}
+                      </dl>
+
+                      <AddToCalendar
+                        event={event}
+                        dayCard={dayCard}
+                        showing={showing}
+                        language={language}
+                        request={request}
+                      />
+
+                      <div class="event-page__actions">
+                        {usesSharedTicketing ? (
+                          <TicketButton
+                            ticketType={event.ticketType}
+                            ticketStatus={event.ticketStatus}
+                            ticketUrl={event.ticketUrl}
+                            ticketInfoText={event.ticketInfoText}
+                            eventTitle={event.title}
+                            language={language}
+                          />
+                        ) : (
+                          <TicketButton
+                            ticketType={showing.ticketType}
+                            ticketStatus={showing.ticketStatus}
+                            ticketUrl={showing.ticketUrl}
+                            ticketInfoText={showing.ticketInfoText}
+                            eventTitle={event.title}
+                            language={language}
+                          />
+                        )}
+                      </div>
+                    </section>
+                  );
+                })}
+              </>
+            ) : null;
+          })()}
+
+          {occurrenceDayCards.length > 1 && (
+            <div>
+              {occurrenceDayCards.map((dayCard) => {
+                const occurrenceKey = dayCard.occurrenceKey || dayCard.eventDate.date;
+                const isSelected = occurrenceKey === defaultOccurrenceKey;
+                const tabId = `event-occurrence-tab-${event._id}-${occurrenceKey}`;
+                const panelId = `event-occurrence-panel-${event._id}-${occurrenceKey}`;
+                const defaultShowingKey = defaultShowingKeyByOccurrence.get(occurrenceKey);
+                return (
+                  <section
+                    id={panelId}
+                    data-occurrence-panel={occurrenceKey}
+                    role={occurrenceDayCards.length > 1 ? 'tabpanel' : undefined}
+                    aria-labelledby={occurrenceDayCards.length > 1 ? tabId : undefined}
+                    hidden={occurrenceDayCards.length > 1 ? !isSelected : undefined}
+                  >
+                    {dayCard.showings.length > 1 && (
+                      <div
+                        class="event-occurrence-picker"
+                        data-showing-switcher
+                        data-default-showing={defaultShowingKey}
+                      >
+                        <div
+                          class="event-occurrence-picker__tabs"
+                          role="tablist"
+                          aria-label={timeLabel}
+                        >
+                          {dayCard.showings.map((showing) => {
+                            const showingKey = buildEventShowingId(
+                              event._id,
+                              occurrenceKey,
+                              showing._key || showing.startTime
+                            );
+                            const isShowingSelected = showingKey === defaultShowingKey;
+                            const showingTabId = `event-showing-tab-${showingKey}`;
+                            const showingPanelId = `event-showing-panel-${showingKey}`;
+
+                            return (
+                              <button
+                                id={showingTabId}
+                                type="button"
+                                class:list={['event-schedule__tab', 'link-button', { active: isShowingSelected }]}
+                                role="tab"
+                                aria-selected={isShowingSelected ? 'true' : 'false'}
+                                aria-controls={showingPanelId}
+                                data-showing-tab={showingKey}
+                                tabindex={isShowingSelected ? '0' : '-1'}
+                              >
+                                {getShowingDateTimeLabel(showing, language)}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {dayCard.showings.map((showing) => {
+                      const showingKey = buildEventShowingId(
+                        event._id,
+                        occurrenceKey,
+                        showing._key || showing.startTime
+                      );
+                      const isShowingSelected = showingKey === defaultShowingKey;
+                      const showingTabId = `event-showing-tab-${showingKey}`;
+                      const showingPanelId = `event-showing-panel-${showingKey}`;
+
+                      return (
+                        <section
+                          id={showingPanelId}
+                          data-showing-panel={showingKey}
+                          role={dayCard.showings.length > 1 ? 'tabpanel' : undefined}
+                          aria-labelledby={dayCard.showings.length > 1 ? showingTabId : undefined}
+                          hidden={dayCard.showings.length > 1 ? !isShowingSelected : undefined}
+                        >
+                          <dl class="event-page__meta">
+                            {dayCard.showings.length === 1 && (
+                              <>
+                                <dt>{timeLabel}</dt>
+                                <dd>{getShowingDateTimeLabel(showing, language)}</dd>
+                              </>
+                            )}
+                            {showing.venue?.title && (
+                              <>
+                                <dt>{config.venue}</dt>
+                                <dd class="event-page__venue">{stegaClean(showing.venue.title)}</dd>
+                              </>
+                            )}
+                          </dl>
+
+                          <AddToCalendar
+                            event={event}
+                            dayCard={dayCard}
+                            showing={showing}
+                            language={language}
+                            request={request}
+                          />
+
+                          <div class="event-page__actions">
+                            {usesSharedTicketing ? (
+                              <TicketButton
+                                ticketType={event.ticketType}
+                                ticketStatus={event.ticketStatus}
+                                ticketUrl={event.ticketUrl}
+                                ticketInfoText={event.ticketInfoText}
+                                eventTitle={event.title}
+                                language={language}
+                              />
+                            ) : (
+                              <TicketButton
+                                ticketType={showing.ticketType}
+                                ticketStatus={showing.ticketStatus}
+                                ticketUrl={showing.ticketUrl}
+                                ticketInfoText={showing.ticketInfoText}
+                                eventTitle={event.title}
+                                language={language}
+                              />
+                            )}
+                          </div>
+                        </section>
+                      );
+                    })}
+                  </section>
+                );
+              })}
+            </div>
+          )}
         </div>
+      </div>
+    </header>
 
-        <div class="event-page__actions">
-          <TicketButton
-            ticketType={event.ticketType}
-            ticketStatus={event.ticketStatus}
-            ticketUrl={event.ticketUrl}
-            ticketInfoText={event.ticketInfoText}
-            eventTitle={event.title}
-            language={language}
-          />
+    <section class="main-event-info">
+      {event.image?.image?.asset && (
+        <HeaderImage
+          image={event.image.image}
+          alt={stegaClean(event.image.alt || event.title || '')}
+          credit={event.image.credit ? stegaClean(event.image.credit) : undefined}
+          aspectRatio="4:3"
+          loading="eager"
+          quality={IMAGE_QUALITY.CARD}
+          width="100%"
+        />
+      )}
+
+      {description && (
+        <div class="event-description">
+          <h2 class="section-title">{config.aboutConcert}</h2>
+          {Array.isArray(description) ? (
+            <PortableText value={description} className="description-text" />
+          ) : (
+            <p class="description-text">{stegaClean(description)}</p>
+          )}
         </div>
-      </header>
+      )}
+    </section>
 
-      <section class="main-event-info">
-        {event.image?.image?.asset && (
-          <HeaderImage
-            image={event.image.image}
-            alt={stegaClean(event.image.alt || event.title || '')}
-            credit={event.image.credit ? stegaClean(event.image.credit) : undefined}
-            aspectRatio="4:3"
-            loading="eager"
-            quality={IMAGE_QUALITY.CARD}
-            width="100%"
-          />
-        )}
-
-        {description && (
-          <div class="event-description">
-            <h2 class="section-title">{config.aboutConcert}</h2>
-            {Array.isArray(description) ? (
-              <PortableText value={description} className="description-text" />
-            ) : (
-              <p class="description-text">{stegaClean(description)}</p>
-            )}
-          </div>
-        )}
+    {spotifyItems.length > 0 && (
+      <section class="spotify-section">
+        <h2 class="spotify-title">{config.listenMusic}</h2>
+        <div class="scroll-container-wrapper" data-scroll-step="item">
+          <ul class="scroll-container scroll-container--always scroll-container--spotify scroll-container--styled-scrollbar">
+            {spotifyItems.map((item) => (
+              <li><Spotify {...item} spotifyUrl={item.spotifyUrl} height={152} /></li>
+            ))}
+          </ul>
+        </div>
+        <ScrollNavigation size="medium" ariaLabel={language === 'no' ? 'Bla gjennom musikk' : 'Scroll through music'} />
       </section>
+    )}
 
-      {event.spotifyItems && event.spotifyItems.length > 0 && (
-        <section class="spotify-section">
-          <h2 class="spotify-title">{config.listenMusic}</h2>
-          <div class="scroll-container-wrapper" data-scroll-step="item">
-            <ul class="scroll-container scroll-container--always scroll-container--spotify scroll-container--styled-scrollbar">
-              {event.spotifyItems.map((item) => (
-                <li><Spotify {...item} height={152} /></li>
-              ))}
-            </ul>
+    {extraContent && Array.isArray(extraContent) && extraContent.length > 0 && (
+      <section class="pagebuilder-content">
+        <h2 class="sr-only">{config.additionalContent}</h2>
+        {extraContent.map((block) => (
+          <DynamicComponent block={block} />
+        ))}
+      </section>
+    )}
+
+    {event.composers && event.composers.length > 0 && (
+      <section class="composers-section">
+        <h2 class="composers-title">{config.composers}</h2>
+        <div class="scroll-container-wrapper" data-scroll-step="item">
+          <div class="composer-section scroll-container scroll-container--always scroll-container--styled-scrollbar">
+            {event.composers.map((composer: ComposerReference) => (
+              <ComposerCard composer={composer} lang={language} />
+            ))}
           </div>
-          <ScrollNavigation size="medium" ariaLabel={language === 'no' ? 'Bla gjennom musikk' : 'Scroll through music'} />
-        </section>
-      )}
+        </div>
+        <ScrollNavigation size="medium" ariaLabel={language === 'no' ? 'Bla gjennom komponister' : 'Scroll through composers'} />
+      </section>
+    )}
 
-      {extraContent && Array.isArray(extraContent) && extraContent.length > 0 && (
-        <section class="pagebuilder-content">
-          <h2 class="sr-only">{config.additionalContent}</h2>
-          {extraContent.map((block) => (
-            <DynamicComponent key={block._key || block._id} block={block} />
-          ))}
-        </section>
-      )}
+    {event.artists && event.artists.filter(Boolean).length > 0 && (
+      <section class="artists-section">
+        <svg width="0" height="0" style="position: absolute;" aria-hidden="true">
+          <defs>
+            <clipPath id="artist-wave-clip-large" clipPathUnits="objectBoundingBox">
+              <path d="M 0 0.06 C 0.08 0.06, 0.12 0.04, 0.17 0.015 C 0.22 0, 0.28 0, 0.33 0.015 C 0.38 0.03, 0.42 0.06, 0.5 0.06 C 0.58 0.06, 0.62 0.03, 0.67 0.015 C 0.72 0, 0.78 0, 0.83 0.015 C 0.88 0.04, 0.92 0.06, 1 0.06 L 1 1 L 0 1 Z"/>
+            </clipPath>
+            <clipPath id="artist-wave-clip-medium" clipPathUnits="objectBoundingBox">
+              <path d="M 0 0.015 C 0.035 0.006, 0.077 0, 0.136 0 C 0.234 0, 0.286 0.01, 0.333 0.022 C 0.377 0.033, 0.415 0.048, 0.499 0.048 C 0.583 0.048, 0.621 0.033, 0.665 0.022 C 0.712 0.01, 0.764 0, 0.862 0 C 0.921 0, 0.963 0.006, 0.998 0.015 L 1 0.015 L 1 1 L 0 1 Z" />
+            </clipPath>
+          </defs>
+        </svg>
 
-      {event.composers && event.composers.length > 0 && (
-        <section class="composers-section">
-          <h2 class="composers-title">{config.composers}</h2>
-          <div class="scroll-container-wrapper" data-scroll-step="item">
-            <div class="composer-section scroll-container scroll-container--always scroll-container--styled-scrollbar">
-              {event.composers.map((composer) => (
-                <ComposerCard composer={composer} lang={language} />
-              ))}
-            </div>
+        <div class="artists-header scroll-section-header">
+          <h2 class="artists-title">{config.artists}</h2>
+          <a href={config.artistsOverviewHref} class="artists-link scroll-section-link hover-underline">{config.artistsOverviewText} →</a>
+        </div>
+        <div class="scroll-container-wrapper" data-scroll-step="item">
+          <div class="artist-section scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar">
+            {event.artists.filter(Boolean).map((artist: ArtistReference) => (
+              <ArtistCard artist={artist} language={language} size="medium" />
+            ))}
           </div>
-          <ScrollNavigation size="medium" ariaLabel={language === 'no' ? 'Bla gjennom komponister' : 'Scroll through composers'} />
-        </section>
-      )}
-
-      {event.artists && event.artists.filter(Boolean).length > 0 && (
-        <section class="artists-section">
-          {/* Hidden SVG for wave clip-path definitions */}
-          <svg width="0" height="0" style="position: absolute;" aria-hidden="true">
-            <defs>
-              {/* Large cards - line 6 wave pattern with two peaks and one valley */}
-              <clipPath id="artist-wave-clip-large" clipPathUnits="objectBoundingBox">
-                <path d="M 0 0.06 C 0.08 0.06, 0.12 0.04, 0.17 0.015 C 0.22 0, 0.28 0, 0.33 0.015 C 0.38 0.03, 0.42 0.06, 0.5 0.06 C 0.58 0.06, 0.62 0.03, 0.67 0.015 C 0.72 0, 0.78 0, 0.83 0.015 C 0.88 0.04, 0.92 0.06, 1 0.06 L 1 1 L 0 1 Z"/>
-              </clipPath>
-
-              {/* Medium cards - top shallow wave pattern from logo (line 7) */}
-              <clipPath id="artist-wave-clip-medium" clipPathUnits="objectBoundingBox">
-                <path d="M 0 0.015 C 0.035 0.006, 0.077 0, 0.136 0 C 0.234 0, 0.286 0.01, 0.333 0.022 C 0.377 0.033, 0.415 0.048, 0.499 0.048 C 0.583 0.048, 0.621 0.033, 0.665 0.022 C 0.712 0.01, 0.764 0, 0.862 0 C 0.921 0, 0.963 0.006, 0.998 0.015 L 1 0.015 L 1 1 L 0 1 Z" />
-              </clipPath>
-            </defs>
-          </svg>
-
-          <div class="artists-header scroll-section-header">
-            <h2 class="artists-title">{config.artists}</h2>
-            <a href={config.artistsOverviewHref} class="artists-link scroll-section-link hover-underline">{config.artistsOverviewText} →</a>
-          </div>
-          <div class="scroll-container-wrapper" data-scroll-step="item">
-            <div class="artist-section scroll-container scroll-container--always scroll-container--artist-cards scroll-container--styled-scrollbar">
-              {event.artists.filter(Boolean).map((artist) => (
-                <ArtistCard artist={artist} language={language} size="medium" />
-              ))}
-            </div>
-          </div>
-          <ScrollNavigation size="medium" ariaLabel={language === 'no' ? 'Bla gjennom artister' : 'Scroll through artists'} />
-        </section>
-      )}
+        </div>
+        <ScrollNavigation size="medium" ariaLabel={language === 'no' ? 'Bla gjennom artister' : 'Scroll through artists'} />
+      </section>
+    )}
   </article>
 </Layout>
+
+<script>
+  const activateOccurrenceTab = (
+    container: HTMLElement,
+    nextTab: HTMLButtonElement,
+    tabAttribute: 'data-occurrence-tab' | 'data-showing-tab',
+    panelAttribute: 'data-occurrence-panel' | 'data-showing-panel'
+  ) => {
+    const tabs = Array.from(container.querySelectorAll<HTMLButtonElement>(`[${tabAttribute}]`));
+    const panels = Array.from(container.querySelectorAll<HTMLElement>(`[${panelAttribute}]`));
+    const resolvedNextKey = tabAttribute === 'data-occurrence-tab' ? nextTab?.dataset.occurrenceTab : nextTab?.dataset.showingTab;
+
+    if (!resolvedNextKey) {
+      return;
+    }
+
+    tabs.forEach((tab) => {
+      const isActive = tab === nextTab;
+      tab.classList.toggle('active', isActive);
+      tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      tab.setAttribute('tabindex', isActive ? '0' : '-1');
+    });
+
+    panels.forEach((panel) => {
+      const panelKey = panelAttribute === 'data-occurrence-panel' ? panel.dataset.occurrencePanel : panel.dataset.showingPanel;
+      panel.hidden = panelKey !== resolvedNextKey;
+    });
+  };
+
+  const resetShowingSwitcher = (panel: HTMLElement | null) => {
+    if (!panel) {
+      return;
+    }
+
+    const switcher = panel.querySelector<HTMLElement>('[data-showing-switcher]');
+    if (!switcher) {
+      return;
+    }
+
+    const tabs = Array.from(switcher.querySelectorAll<HTMLButtonElement>('[data-showing-tab]'));
+    if (tabs.length === 0) {
+      return;
+    }
+
+    activateOccurrenceTab(panel, tabs[0], 'data-showing-tab', 'data-showing-panel');
+  };
+
+  const occurrenceSwitchers = Array.from(document.querySelectorAll<HTMLElement>('[data-occurrence-switcher]'));
+
+  occurrenceSwitchers.forEach((container) => {
+    const tabs = Array.from(container.querySelectorAll<HTMLButtonElement>('[data-occurrence-tab]'));
+    if (tabs.length === 0) {
+      return;
+    }
+
+    const defaultKey = container.getAttribute('data-default-occurrence');
+    const initialTab = tabs.find((tab) => tab.dataset.occurrenceTab === defaultKey) || tabs[0];
+    activateOccurrenceTab(container, initialTab, 'data-occurrence-tab', 'data-occurrence-panel');
+    resetShowingSwitcher(container.querySelector<HTMLElement>(`[data-occurrence-panel="${initialTab.dataset.occurrenceTab}"]`));
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => {
+        activateOccurrenceTab(container, tab, 'data-occurrence-tab', 'data-occurrence-panel');
+        resetShowingSwitcher(container.querySelector<HTMLElement>(`[data-occurrence-panel="${tab.dataset.occurrenceTab}"]`));
+        tab.focus();
+      });
+
+      tab.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft' && event.key !== 'Home' && event.key !== 'End') {
+          return;
+        }
+
+        event.preventDefault();
+
+        let nextIndex = index;
+        if (event.key === 'ArrowRight') {
+          nextIndex = (index + 1) % tabs.length;
+        } else if (event.key === 'ArrowLeft') {
+          nextIndex = (index - 1 + tabs.length) % tabs.length;
+        } else if (event.key === 'Home') {
+          nextIndex = 0;
+        } else if (event.key === 'End') {
+          nextIndex = tabs.length - 1;
+        }
+
+        const nextTab = tabs[nextIndex];
+        activateOccurrenceTab(container, nextTab, 'data-occurrence-tab', 'data-occurrence-panel');
+        resetShowingSwitcher(container.querySelector<HTMLElement>(`[data-occurrence-panel="${nextTab.dataset.occurrenceTab}"]`));
+        nextTab.focus();
+      });
+    });
+  });
+
+  const showingSwitchers = Array.from(document.querySelectorAll<HTMLElement>('[data-showing-switcher]'));
+
+  showingSwitchers.forEach((container) => {
+    const tabs = Array.from(container.querySelectorAll<HTMLButtonElement>('[data-showing-tab]'));
+    if (tabs.length === 0) {
+      return;
+    }
+
+    const defaultKey = container.getAttribute('data-default-showing');
+    const initialTab = tabs.find((tab) => tab.dataset.showingTab === defaultKey) || tabs[0];
+    activateOccurrenceTab(container.parentElement as HTMLElement, initialTab, 'data-showing-tab', 'data-showing-panel');
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => {
+        activateOccurrenceTab(container.parentElement as HTMLElement, tab, 'data-showing-tab', 'data-showing-panel');
+        tab.focus();
+      });
+
+      tab.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft' && event.key !== 'Home' && event.key !== 'End') {
+          return;
+        }
+
+        event.preventDefault();
+
+        let nextIndex = index;
+        if (event.key === 'ArrowRight') {
+          nextIndex = (index + 1) % tabs.length;
+        } else if (event.key === 'ArrowLeft') {
+          nextIndex = (index - 1 + tabs.length) % tabs.length;
+        } else if (event.key === 'Home') {
+          nextIndex = 0;
+        } else if (event.key === 'End') {
+          nextIndex = tabs.length - 1;
+        }
+
+        const nextTab = tabs[nextIndex];
+        activateOccurrenceTab(container.parentElement as HTMLElement, nextTab, 'data-showing-tab', 'data-showing-panel');
+        nextTab.focus();
+      });
+    });
+  });
+
+</script>

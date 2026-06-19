@@ -1,46 +1,512 @@
 /**
  * Event Schema - Festival concert and event documents
  *
- * The most complex document type, representing festival events with:
- * - Bilingual content (NO/EN titles, descriptions, body content)
- * - Date/time from eventDate reference + eventTime object
- * - Venue, artists, and composers references
- * - Ticket information (type, URL, status)
+ * Represents festival events with:
+ * - Shared bilingual editorial content
+ * - One or more occurrence days with one or more showings
+ * - Per-showing venue, ticket, and availability state
  * - Publishing workflow (draft/published/scheduled)
  * - SEO and image fields
  *
  * Custom behaviors via document actions:
- * - Publish syncs eventDateValue for sorting
+ * - Publish syncs derived sort fields from the earliest showing
  * - Publish syncs artists bidirectionally
  * - Publish offers to add to program page
  *
- * @see actions/compositeEventPublishAction.ts - Custom publish workflow
+ * @see actions/compositeEventPublishAction.tsx - Custom publish workflow
  * @see docs/PROJECT_GUIDE.md - Section 2.1 Schema Design
  */
 
 import { defineField, defineType } from 'sanity';
-import {
-  CalendarIcon,
-  ImageIcon,
-  UsersIcon,
-  ClockIcon,
-  LinkIcon,
-  ComposeIcon,
-  CogIcon,
-  CreditCardIcon,
-} from '@sanity/icons';
-import { imageComponent } from '../components/content/Image';
+import { CalendarIcon, ComposeIcon, CogIcon, CreditCardIcon } from '@sanity/icons';
 import { eventTimeOptions } from '../../lib/timeUtils';
 import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
 import { multilingualImageFields, imageFieldsets, imageGroup } from '../shared/imageFields';
 import { seoFields, seoGroup } from '../objects/seoFields';
-import { componentValidation, crossFieldValidation } from '../shared/validation';
+import { componentValidation } from '../shared/validation';
 import { eventSlugValidation } from '../../lib/slugValidation';
-import type { EventData, ValidationRule, MultilingualDocument } from '../shared/types';
 import { getLanguageStatus } from '../shared/previewHelpers';
 import { publishingFields, publishingGroup } from '../shared/publishingFields';
 import { excludeAlreadySelected } from '../shared/referenceFilters';
 import { MultiSelectReferenceInput } from '../components/inputs/MultiSelectReferenceInput';
+
+function hasShowings(document: Record<string, any> | undefined): boolean {
+  return Array.isArray(document?.showings) && document.showings.length > 0;
+}
+
+function hasLegacyOccurrences(document: Record<string, any> | undefined): boolean {
+  return Array.isArray(document?.occurrences) && document.occurrences.length > 0;
+}
+
+function hasScheduleEntries(document: Record<string, any> | undefined): boolean {
+  return hasShowings(document) || hasLegacyOccurrences(document);
+}
+
+function isPublishedDocument(document: Record<string, any> | undefined): boolean {
+  return document?.publishingStatus === 'published';
+}
+
+function showingHasAnyContent(showing: Record<string, any> | undefined): boolean {
+  if (!showing) return false;
+
+  return Boolean(
+    showing.startTime ||
+    showing.endTime ||
+    showing.ticketType ||
+    showing.ticketUrl ||
+    showing.ticketInfoText ||
+    showing.ticketInfoText_no ||
+    showing.ticketInfoText_en ||
+    showing.ticketStatus ||
+    showing.venue?._ref ||
+    showing.venueRef?._ref ||
+    showing.customVenueName ||
+    showing.venueDetails?.venueRef?._ref ||
+    showing.venueDetails?.customName
+  );
+}
+
+function isPerShowingTicketing(document: Record<string, any> | undefined): boolean {
+  return document?.ticketingMode === 'per_showing';
+}
+
+const commonShowingFields = [
+  defineField({
+    name: 'startTime',
+    title: 'Starter',
+    type: 'string',
+    fieldset: 'times',
+    options: {
+      list: eventTimeOptions,
+    },
+    validation: (Rule) =>
+      Rule.custom((value, context) => {
+        const parent = context.parent as Record<string, any> | undefined;
+        const document = context.document as Record<string, any> | undefined;
+
+        if ((isPublishedDocument(document) || showingHasAnyContent(parent)) && !value) {
+          return 'Starttidspunkt må velges';
+        }
+
+        return true;
+      }).warning('Starttidspunkt må velges'),
+  }),
+  defineField({
+    name: 'endTime',
+    title: 'Slutter',
+    type: 'string',
+    fieldset: 'times',
+    options: {
+      list: eventTimeOptions,
+    },
+    validation: (Rule) =>
+      Rule.custom((value, context) => {
+        const parent = context.parent as Record<string, any> | undefined;
+        const document = context.document as Record<string, any> | undefined;
+
+        if ((isPublishedDocument(document) || showingHasAnyContent(parent)) && !value) {
+          return 'Sluttidspunkt må velges';
+        }
+
+        return true;
+      }).warning('Sluttidspunkt må velges'),
+  }),
+  defineField({
+    name: 'eventDate',
+    title: 'Dato',
+    type: 'reference',
+    to: [{ type: 'eventDate' }],
+    options: {
+      sort: [{ field: 'date', direction: 'asc' }],
+    } as any,
+    validation: (Rule) =>
+      Rule.custom((value, context) => {
+        const parent = context.parent as Record<string, any> | undefined;
+        const document = context.document as Record<string, any> | undefined;
+
+        if ((isPublishedDocument(document) || showingHasAnyContent(parent)) && !value) {
+          return 'Dato må velges';
+        }
+
+        return true;
+      }).warning('Dato må velges'),
+  }),
+  defineField({
+    name: 'venueMode',
+    title: 'Type spillested',
+    type: 'string',
+    initialValue: 'reference',
+    options: {
+      list: [
+        { title: 'Velg fra eksisterende spillesteder', value: 'reference' },
+        { title: 'Skriv inn eget navn', value: 'custom' },
+      ],
+      layout: 'radio',
+    },
+  }),
+  defineField({
+    name: 'venueRef',
+    title: 'Spillested',
+    type: 'reference',
+    to: [{ type: 'venue' }],
+    description: 'Velg et spillested fra venue-listen',
+    hidden: ({ parent }) => (parent as Record<string, any> | undefined)?.venueMode === 'custom',
+  }),
+  defineField({
+    name: 'customVenueName',
+    title: 'Eget spillestednavn',
+    type: 'string',
+    description:
+      'Brukes når spillestedet ikke finnes i venue-listen. Dette vises på nettsiden, men blir ikke et filtervalg.',
+    hidden: ({ parent }) => (parent as Record<string, any> | undefined)?.venueMode !== 'custom',
+  }),
+  defineField({
+    name: 'venueDetails',
+    title: 'Legacy spillesteddetaljer',
+    type: 'object',
+    hidden: true,
+    fields: [
+      defineField({
+        name: 'mode',
+        title: 'Modus',
+        type: 'string',
+        options: {
+          list: [
+            { title: 'Velg fra spillesteder', value: 'reference' },
+            { title: 'Bruk eget navn', value: 'custom' },
+          ],
+        },
+        hidden: true,
+      }),
+      defineField({
+        name: 'venueRef',
+        title: 'Spillested',
+        type: 'reference',
+        to: [{ type: 'venue' }],
+        hidden: true,
+      }),
+      defineField({
+        name: 'customName',
+        title: 'Eget navn',
+        type: 'string',
+        hidden: true,
+      }),
+      defineField({
+        name: 'includeInProgramVenueFilter',
+        title: 'Ta med spillested i programfilter',
+        type: 'boolean',
+        initialValue: true,
+        hidden: true,
+      }),
+    ],
+  }),
+  defineField({
+    name: 'venue',
+    title: 'Legacy spillested',
+    type: 'reference',
+    to: [{ type: 'venue' }],
+    hidden: true,
+  }),
+  defineField({
+    name: 'includeInProgramVenueFilter',
+    title: 'Legacy programfilter',
+    type: 'boolean',
+    initialValue: true,
+    hidden: true,
+  }),
+];
+
+const legacyOccurrenceShowingFields = commonShowingFields.filter((field) => field.name !== 'eventDate');
+
+function orderFields(
+  fields: any[],
+  fieldNames: string[]
+): any[] {
+  return fieldNames
+    .map((fieldName) => fields.find((field) => field.name === fieldName))
+    .filter(Boolean);
+}
+
+const orderedTopLevelShowingFields = orderFields(commonShowingFields, [
+  'eventDate',
+  'startTime',
+  'endTime',
+  'venueMode',
+  'venueRef',
+  'customVenueName',
+  'venueDetails',
+  'venue',
+  'includeInProgramVenueFilter',
+]);
+
+const orderedLegacyOccurrenceShowingFields = orderFields(legacyOccurrenceShowingFields, [
+  'startTime',
+  'endTime',
+  'venueMode',
+  'venueRef',
+  'customVenueName',
+  'venueDetails',
+  'venue',
+  'includeInProgramVenueFilter',
+]);
+
+const topLevelShowingPreview = {
+  select: {
+    dateLabelNo: 'eventDate.title_display_no',
+    dateLabelEn: 'eventDate.title_display_en',
+    dateValue: 'eventDate.date',
+    startTime: 'startTime',
+    endTime: 'endTime',
+    ticketType: 'ticketType',
+    ticketStatus: 'ticketStatus',
+    ticketInfoTextNo: 'ticketInfoText_no',
+    ticketInfoTextEn: 'ticketInfoText_en',
+    venueTitle: 'venueRef.title',
+    venueName: 'venueRef.name',
+    customVenueName: 'customVenueName',
+    legacyVenueDetailsTitle: 'venueDetails.venueRef.title',
+    legacyVenueDetailsName: 'venueDetails.venueRef.name',
+    legacyCustomVenueName: 'venueDetails.customName',
+    legacyVenueTitle: 'venue.title',
+    legacyVenueName: 'venue.name',
+  },
+  prepare({
+    dateLabelNo,
+    dateLabelEn,
+    dateValue,
+    startTime,
+    endTime,
+    ticketType,
+    ticketStatus,
+    ticketInfoTextNo,
+    ticketInfoTextEn,
+    venueTitle,
+    venueName,
+    customVenueName,
+    legacyVenueDetailsTitle,
+    legacyVenueDetailsName,
+    legacyCustomVenueName,
+    legacyVenueTitle,
+    legacyVenueName,
+  }: Record<string, string | undefined>) {
+    const dateLabel =
+      dateLabelNo ||
+      dateLabelEn ||
+      (dateValue
+        ? new Date(dateValue).toLocaleDateString('nb-NO', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+          })
+        : 'Ingen dato');
+    const timeLabel = startTime && endTime ? `${startTime}–${endTime}` : startTime || 'Uten klokkeslett';
+    const venueLabel =
+      venueTitle ||
+      venueName ||
+      customVenueName ||
+      legacyVenueDetailsTitle ||
+      legacyVenueDetailsName ||
+      legacyCustomVenueName ||
+      legacyVenueTitle ||
+      legacyVenueName;
+    const ticketLabel =
+      ticketType === 'info'
+        ? ticketInfoTextNo || ticketInfoTextEn || 'Salgsinfo'
+        : ticketStatus === 'sold_out'
+          ? 'Utsolgt'
+          : ticketStatus === 'low_stock'
+            ? 'Få billetter'
+            : ticketStatus === 'available'
+              ? 'Billetter tilgjengelig'
+              : '';
+
+    return {
+      title: `${dateLabel} • ${timeLabel}`,
+      subtitle: ticketLabel
+        ? venueLabel ? `${venueLabel} • ${ticketLabel}` : ticketLabel
+        : venueLabel || undefined,
+    };
+  },
+};
+
+const legacyOccurrenceShowingPreview = {
+  select: {
+    startTime: 'startTime',
+    endTime: 'endTime',
+    ticketType: 'ticketType',
+    ticketStatus: 'ticketStatus',
+    ticketInfoTextNo: 'ticketInfoText_no',
+    ticketInfoTextEn: 'ticketInfoText_en',
+    venueTitle: 'venueRef.title',
+    venueName: 'venueRef.name',
+    customVenueName: 'customVenueName',
+    legacyVenueDetailsTitle: 'venueDetails.venueRef.title',
+    legacyVenueDetailsName: 'venueDetails.venueRef.name',
+    legacyCustomVenueName: 'venueDetails.customName',
+    legacyVenueTitle: 'venue.title',
+    legacyVenueName: 'venue.name',
+  },
+  prepare({
+    startTime,
+    endTime,
+    ticketType,
+    ticketStatus,
+    ticketInfoTextNo,
+    ticketInfoTextEn,
+    venueTitle,
+    venueName,
+    customVenueName,
+    legacyVenueDetailsTitle,
+    legacyVenueDetailsName,
+    legacyCustomVenueName,
+    legacyVenueTitle,
+    legacyVenueName,
+  }: Record<string, string | undefined>) {
+    const title = startTime && endTime ? `${startTime}–${endTime}` : startTime || 'Uten klokkeslett';
+    const venueLabel =
+      venueTitle ||
+      venueName ||
+      customVenueName ||
+      legacyVenueDetailsTitle ||
+      legacyVenueDetailsName ||
+      legacyCustomVenueName ||
+      legacyVenueTitle ||
+      legacyVenueName;
+    const subtitle =
+      ticketType === 'info'
+        ? ticketInfoTextNo || ticketInfoTextEn || 'Salgsinfo'
+        : ticketStatus === 'sold_out'
+          ? 'Utsolgt'
+          : ticketStatus === 'low_stock'
+            ? 'Få billetter'
+            : ticketStatus === 'available'
+              ? 'Billetter tilgjengelig'
+              : '';
+
+    return {
+      title,
+      subtitle: subtitle
+        ? venueLabel ? `${venueLabel} • ${subtitle}` : subtitle
+        : venueLabel || undefined,
+    };
+  },
+};
+
+const showingFields = [
+  defineField({
+    name: 'ticketType',
+    title: 'Type billettvisning',
+    type: 'string',
+    options: {
+      list: [
+        { title: 'Legg til kjøpsknapp', value: 'button' },
+        { title: 'Legg til salgsinfo (gratis, salgstart, etc.)', value: 'info' },
+      ],
+      layout: 'radio',
+    },
+    validation: (Rule) =>
+      Rule.custom((value, context) => {
+        const parent = context.parent as Record<string, any> | undefined;
+        const document = context.document as Record<string, any> | undefined;
+
+        if (
+          isPerShowingTicketing(document) &&
+          (isPublishedDocument(document) || showingHasAnyContent(parent)) &&
+          !value
+        ) {
+          return 'Velg type billettvisning';
+        }
+
+        return true;
+      }).warning('Velg type billettvisning'),
+    hidden: ({ document }) => !isPerShowingTicketing(document as Record<string, any> | undefined),
+  }),
+  defineField({
+    name: 'ticketUrl',
+    title: 'Billett-URL',
+    type: 'url',
+    description: 'Link til billettsystem for denne forestillingen',
+    validation: (Rule) =>
+      Rule.custom((value, context) => {
+        const ticketType = (context.parent as any)?.ticketType;
+        const document = context.document as Record<string, any> | undefined;
+        if (ticketType === 'button' && !value) {
+          return isPublishedDocument(document)
+            ? 'Billett-URL er påkrevd når du velger kjøpsknapp'
+            : 'Legg til Billett-URL når denne forestillingen er klar';
+        }
+        if (value) {
+          return componentValidation.url(Rule).validate(value, context);
+        }
+        return true;
+      }).warning('Billett-URL er påkrevd når du velger kjøpsknapp'),
+    hidden: ({ parent, document }) =>
+      !isPerShowingTicketing(document as Record<string, any> | undefined) ||
+      (parent as any)?.ticketType !== 'button',
+  }),
+  defineField({
+    name: 'ticketInfoText_no',
+    title: 'Billett-informasjon (norsk)',
+    type: 'string',
+    description:
+      'Tekst som vises istedenfor knapp, f.eks. "Gratis" eller "Salget starter snart"',
+    placeholder: 'Gratis',
+    validation: (Rule) =>
+      Rule.custom((value, context) => {
+        const parent = context.parent as Record<string, any> | undefined;
+        const ticketType = parent?.ticketType;
+        const document = context.document as Record<string, any> | undefined;
+        if (ticketType === 'info' && !value) {
+          return isPublishedDocument(document)
+            ? 'Billett-informasjon på norsk er påkrevd når du velger salgsinfo'
+            : 'Legg til norsk billett-informasjon når denne forestillingen er klar';
+        }
+        return true;
+      }).warning('Billett-informasjon på norsk er påkrevd når du velger salgsinfo'),
+    hidden: ({ parent, document }) =>
+      !isPerShowingTicketing(document as Record<string, any> | undefined) ||
+      (parent as any)?.ticketType !== 'info',
+  }),
+  defineField({
+    name: 'ticketInfoText_en',
+    title: 'Billett-informasjon (engelsk)',
+    type: 'string',
+    description: 'Valgfri engelsk variant av billettinformasjonen',
+    placeholder: 'Free',
+    validation: (Rule) => Rule.max(50).warning('Teksten bør være maksimum 50 tegn'),
+    hidden: ({ parent, document }) =>
+      !isPerShowingTicketing(document as Record<string, any> | undefined) ||
+      (parent as any)?.ticketType !== 'info',
+  }),
+  defineField({
+    name: 'ticketStatus',
+    title: 'Billettstatus',
+    type: 'string',
+    description: 'Viser tilgjengelighet av billetter for denne forestillingen',
+    options: {
+      list: [
+        { title: 'Billetter tilgjengelig', value: 'available' },
+        { title: 'Få billetter igjen', value: 'low_stock' },
+        { title: 'Utsolgt', value: 'sold_out' },
+      ],
+      layout: 'radio',
+    },
+    validation: (Rule) =>
+      Rule.custom((value, context) => {
+        const ticketType = (context.parent as any)?.ticketType;
+        const document = context.document as Record<string, any> | undefined;
+        if (ticketType === 'button' && !value) {
+          return isPublishedDocument(document)
+            ? 'Billettstatus er påkrevd når du velger kjøpsknapp'
+            : 'Velg billettstatus når denne forestillingen er klar';
+        }
+        return true;
+      }).warning('Billettstatus er påkrevd når du velger kjøpsknapp'),
+    hidden: ({ parent, document }) =>
+      !isPerShowingTicketing(document as Record<string, any> | undefined) ||
+      (parent as any)?.ticketType !== 'button',
+  }),
+];
 
 export const event = defineType({
   name: 'event',
@@ -54,13 +520,13 @@ export const event = defineType({
       name: 'dateTimeAsc',
       by: [
         { field: 'eventDateValue', direction: 'asc' },
-        { field: 'eventTime.startTime', direction: 'asc' },
+        { field: 'eventStartTimeValue', direction: 'asc' },
       ],
     },
     {
       title: 'Klokkeslett',
       name: 'timeAsc',
-      by: [{ field: 'eventTime.startTime', direction: 'asc' }],
+      by: [{ field: 'eventStartTimeValue', direction: 'asc' }],
     },
     { title: 'Navn A–Å', name: 'nameAsc', by: [{ field: 'title_no', direction: 'asc' }] },
     {
@@ -86,10 +552,15 @@ export const event = defineType({
       title: 'English (EN)',
       icon: ComposeIcon,
     },
+    {
+      name: 'schedule',
+      title: 'Tid og sted',
+      icon: CalendarIcon,
+    },
     imageGroup,
     {
       name: 'ticketing',
-      title: 'Billett-info',
+      title: 'Billetter',
       icon: CreditCardIcon,
     },
     publishingGroup,
@@ -97,13 +568,115 @@ export const event = defineType({
   ],
   fieldsets: [...imageFieldsets],
   fields: [
-    // FELLES INNHOLD (shared content)
+    defineField({
+      name: 'showings',
+      title: 'Legg til forestillinger',
+      type: 'array',
+      group: 'schedule',
+      description:
+        'Et tidspunkt og spillested per forestilling.',
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const document = context.document as Record<string, any> | undefined;
+          const hasLegacySchedule =
+            Boolean(document?.eventDate?._ref) && Boolean(document?.eventTime?.startTime);
+
+          if (isPublishedDocument(document) && (!Array.isArray(value) || value.length === 0) && !hasLegacySchedule && !hasLegacyOccurrences(document)) {
+            return 'Legg til minst én forestilling';
+          }
+
+          return true;
+        }).warning('Legg til minst én forestilling'),
+      of: [
+        {
+          type: 'object',
+          name: 'eventShowing',
+          title: 'Forestilling',
+          options: {
+            modal: { type: 'dialog', width: 3 },
+          },
+          fieldsets: [
+            {
+              name: 'times',
+              title: 'Tidspunkt',
+              options: { columns: 2 },
+            },
+          ],
+          fields: [...orderedTopLevelShowingFields, ...showingFields],
+          preview: topLevelShowingPreview,
+        },
+      ],
+    }),
+    defineField({
+      name: 'occurrences',
+      title: 'Legacy spilledager',
+      type: 'array',
+      group: 'schedule',
+      hidden: true,
+      of: [
+        {
+          type: 'object',
+          name: 'eventOccurrence',
+          title: 'Spilledag',
+          fields: [
+            defineField({
+              name: 'eventDate',
+              title: 'Dato',
+              type: 'reference',
+              to: [{ type: 'eventDate' }],
+              options: {
+                sort: [{ field: 'date', direction: 'asc' }],
+              } as any,
+            }),
+            defineField({
+              name: 'showings',
+              title: 'Forestillinger',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  name: 'legacyEventShowing',
+                  title: 'Forestilling',
+                  fieldsets: [
+                    {
+                      name: 'times',
+                      title: 'Tidspunkt',
+                      options: { columns: 2 },
+                    },
+                  ],
+                  fields: [...orderedLegacyOccurrenceShowingFields, ...showingFields],
+                  preview: legacyOccurrenceShowingPreview,
+                },
+              ],
+            }),
+          ],
+        },
+      ],
+    }),
+
+    // Legacy single-performance schedule fields, kept temporarily for migration.
+    defineField({
+      name: 'ticketingMode',
+      title: 'Billettmodus',
+      type: 'string',
+      group: 'ticketing',
+      initialValue: 'shared',
+      options: {
+        list: [
+          { title: 'Én felles billettlenke for alle spilletidspunkt', value: 'shared' },
+          { title: 'Eget billettvalg per forestilling', value: 'per_showing' },
+        ],
+        layout: 'radio',
+      },
+      validation: (Rule) => Rule.required().warning('Velg hvordan billettsalget skal håndteres'),
+    }),
     defineField({
       name: 'eventDate',
       title: 'Dato',
       type: 'reference',
       to: [{ type: 'eventDate' }],
-      description: 'Velg fra de konfigurerte festivaldatoene',
+      description:
+        'Legacy-felt for eldre arrangementer. Nye eller gjentatte arrangementer skal bruke Spilletider.',
       group: 'basic',
       options: {
         sort: [{ field: 'date', direction: 'asc' }],
@@ -115,12 +688,14 @@ export const event = defineType({
           }
           return true;
         }),
+      hidden: ({ document }) => hasScheduleEntries(document as Record<string, any> | undefined),
     }),
     defineField({
       name: 'eventTime',
       title: 'Klokkeslett',
       type: 'object',
       group: 'basic',
+      hidden: ({ document }) => hasScheduleEntries(document as Record<string, any> | undefined),
       fieldsets: [
         {
           name: 'times',
@@ -176,7 +751,16 @@ export const event = defineType({
       name: 'eventDateValue',
       title: 'Dato (for sortering)',
       type: 'date',
-      description: 'Synkroniseres automatisk fra festivaldato for korrekt sortering',
+      description: 'Synkroniseres automatisk fra første spilledag for korrekt sortering',
+      group: 'basic',
+      readOnly: true,
+      hidden: true,
+    }),
+    defineField({
+      name: 'eventStartTimeValue',
+      title: 'Starttid (for sortering)',
+      type: 'string',
+      description: 'Synkroniseres automatisk fra første forestilling for korrekt sortering',
       group: 'basic',
       readOnly: true,
       hidden: true,
@@ -186,7 +770,8 @@ export const event = defineType({
       title: 'Spillested',
       type: 'reference',
       to: [{ type: 'venue' }],
-      description: 'Velg spillestedet for arrangementet',
+      description:
+        'Legacy-felt for eldre arrangementer. Nye eller gjentatte arrangementer skal bruke spillested per forestilling.',
       group: 'basic',
       validation: (Rule) =>
         Rule.warning().custom((value) => {
@@ -195,6 +780,7 @@ export const event = defineType({
           }
           return true;
         }),
+      hidden: ({ document }) => hasScheduleEntries(document as Record<string, any> | undefined),
     }),
     defineField({
       name: 'artist',
@@ -247,7 +833,7 @@ export const event = defineType({
       name: 'ticketType',
       title: 'Type billettvisning',
       type: 'string',
-      description: 'Velg om du vil vise kjøpsknapp eller kun tekst-informasjon',
+      description: 'Brukes når arrangementet har én felles billettlenke for alle forestillinger.',
       group: 'ticketing',
       options: {
         list: [
@@ -258,12 +844,13 @@ export const event = defineType({
       },
       validation: (Rule) => Rule.required().error('Velg type billettvisning'),
       initialValue: 'button',
+      hidden: ({ document }) => isPerShowingTicketing(document as Record<string, any> | undefined),
     }),
     defineField({
       name: 'ticketUrl',
       title: 'Billett-URL',
       type: 'url',
-      description: 'Link til billettsystem (påkrevd for kjøpsknapp)',
+      description: 'Felles lenke til billettsystem for hele arrangementet',
       group: 'ticketing',
       validation: (Rule) =>
         Rule.custom((value, context) => {
@@ -276,27 +863,39 @@ export const event = defineType({
           }
           return true;
         }).error('Billett-URL er påkrevd når du velger kjøpsknapp'),
-      hidden: ({ document }) => document?.ticketType !== 'button',
+      hidden: ({ document }) =>
+        isPerShowingTicketing(document as Record<string, any> | undefined) || document?.ticketType !== 'button',
     }),
     defineField({
-      name: 'ticketInfoText',
-      title: 'Billett-informasjon',
+      name: 'ticketInfoText_no',
+      title: 'Billett-informasjon (norsk)',
       type: 'string',
-      description: 'Tekst som vises istedenfor knapp, f.eks. "Gratis" eller "Salget starter snart"',
+      description:
+        'Tekst som vises istedenfor knapp, f.eks. "Gratis" eller "Salget starter snart"',
       group: 'ticketing',
       placeholder: 'Gratis',
       validation: (Rule) =>
         Rule.custom((value, context) => {
           const ticketType = (context.document as any)?.ticketType;
           if (ticketType === 'info' && !value) {
-            return 'Billett-informasjon er påkrevd når du velger salgsinfo';
+            return 'Billett-informasjon på norsk er påkrevd når du velger salgsinfo';
           }
           return true;
         })
-          .error('Billett-informasjon er påkrevd når du velger salgsinfo')
-          .max(50)
-          .warning('Teksten bør være maksimum 50 tegn'),
-      hidden: ({ document }) => document?.ticketType !== 'info',
+          .error('Billett-informasjon på norsk er påkrevd når du velger salgsinfo'),
+      hidden: ({ document }) =>
+        isPerShowingTicketing(document as Record<string, any> | undefined) || document?.ticketType !== 'info',
+    }),
+    defineField({
+      name: 'ticketInfoText_en',
+      title: 'Billett-informasjon (engelsk)',
+      type: 'string',
+      description: 'Valgfri engelsk variant av billettinformasjonen',
+      group: 'ticketing',
+      placeholder: 'Free',
+      validation: (Rule) => Rule.max(50).warning('Teksten bør være maksimum 50 tegn'),
+      hidden: ({ document }) =>
+        isPerShowingTicketing(document as Record<string, any> | undefined) || document?.ticketType !== 'info',
     }),
     defineField({
       name: 'ticketStatus',
@@ -321,9 +920,11 @@ export const event = defineType({
           }
           return true;
         }),
-      hidden: ({ document }) => document?.ticketType !== 'button',
+      hidden: ({ document }) =>
+        isPerShowingTicketing(document as Record<string, any> | undefined) || document?.ticketType !== 'button',
     }),
     ...multilingualImageFields('image'),
+
     // NORSK INNHOLD
     defineField({
       name: 'title_no',
@@ -345,11 +946,9 @@ export const event = defineType({
       },
       validation: (Rule) =>
         Rule.required().custom(async (value, context) => {
-          // First check custom slug validation for uniqueness
           const slugValidation = await eventSlugValidation(value, context);
           if (slugValidation !== true) return slugValidation;
 
-          // Then check standard slug validation
           return componentValidation.slug(Rule).validate(value, context);
         }),
     }),
@@ -489,10 +1088,21 @@ export const event = defineType({
       title_no: 'title_no',
       title_en: 'title_en',
       media: 'image',
-      eventDate_no: 'eventDate.title_display_no',
-      eventDate_en: 'eventDate.title_display_en',
-      eventDateDate: 'eventDate.date',
-      startTime: 'eventTime.startTime',
+      showingDateNo: 'showings.0.eventDate.title_display_no',
+      showingDateEn: 'showings.0.eventDate.title_display_en',
+      showingDateValue: 'showings.0.eventDate.date',
+      showingStartTime: 'showings.0.startTime',
+      occurrenceDateNo: 'occurrences.0.eventDate.title_display_no',
+      occurrenceDateEn: 'occurrences.0.eventDate.title_display_en',
+      occurrenceDateValue: 'occurrences.0.eventDate.date',
+      occurrenceStartTime: 'occurrences.0.showings.0.startTime',
+      legacyDateNo: 'eventDate.title_display_no',
+      legacyDateEn: 'eventDate.title_display_en',
+      legacyDateValue: 'eventDate.date',
+      legacyStartTime: 'eventTime.startTime',
+      secondShowingKey: 'showings.1._key',
+      secondOccurrenceKey: 'occurrences.1._key',
+      secondOccurrenceShowingKey: 'occurrences.0.showings.1._key',
       _id: '_id',
     },
     prepare(selection) {
@@ -500,10 +1110,21 @@ export const event = defineType({
         title_no,
         title_en,
         media,
-        eventDate_no,
-        eventDate_en,
-        eventDateDate,
-        startTime,
+        showingDateNo,
+        showingDateEn,
+        showingDateValue,
+        showingStartTime,
+        occurrenceDateNo,
+        occurrenceDateEn,
+        occurrenceDateValue,
+        occurrenceStartTime,
+        legacyDateNo,
+        legacyDateEn,
+        legacyDateValue,
+        legacyStartTime,
+        secondShowingKey,
+        secondOccurrenceKey,
+        secondOccurrenceShowingKey,
         _id,
       } = selection;
 
@@ -511,30 +1132,55 @@ export const event = defineType({
       const statusText = isPublished ? 'Publisert' : 'Utkast';
       const title = title_no || title_en || 'Uten navn';
 
-      // Date with multi-level fallback chain
-      const eventDateLabel =
-        (title_no ? eventDate_no : eventDate_en) ||
-        eventDate_no ||
-        eventDate_en ||
-        (eventDateDate
-          ? new Date(eventDateDate).toLocaleDateString('nb-NO', {
+      const resolvedDateLabel =
+        (title_no ? showingDateNo : showingDateEn) ||
+        showingDateNo ||
+        showingDateEn ||
+        (title_no ? occurrenceDateNo : occurrenceDateEn) ||
+        occurrenceDateNo ||
+        occurrenceDateEn ||
+        (title_no ? legacyDateNo : legacyDateEn) ||
+        legacyDateNo ||
+        legacyDateEn ||
+        (showingDateValue
+          ? new Date(showingDateValue).toLocaleDateString('nb-NO', {
               weekday: 'long',
               day: 'numeric',
               month: 'long',
             })
-          : 'Ingen dato');
+          : occurrenceDateValue
+            ? new Date(occurrenceDateValue).toLocaleDateString('nb-NO', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+            })
+            : legacyDateValue
+            ? new Date(legacyDateValue).toLocaleDateString('nb-NO', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+              })
+            : 'Ingen dato');
 
-      const timeText = startTime ? ` kl. ${startTime}` : '';
-      const dateTimeText = `${eventDateLabel}${timeText}`;
-
-      // Language flags based on which languages have content
+      const resolvedStartTime = showingStartTime || occurrenceStartTime || legacyStartTime;
+      const timeText = resolvedStartTime ? ` kl. ${resolvedStartTime}` : '';
+      const hasMultipleDatesOrTimes = Boolean(
+        secondShowingKey || secondOccurrenceKey || secondOccurrenceShowingKey
+      );
       const langStatus = getLanguageStatus({ title_no, title_en });
-      const flagsText = langStatus !== 'Ingen språk valgt' ? langStatus + ' • ' : '';
+      const scheduleLabel = hasMultipleDatesOrTimes
+        ? 'Flere tidspunkt'
+        : `${resolvedDateLabel}${timeText}`;
+      const subtitleParts = [
+        scheduleLabel,
+        langStatus !== 'Ingen språk valgt' ? langStatus : '',
+        statusText,
+      ].filter(Boolean);
 
       return {
-        title: title,
-        subtitle: `${dateTimeText}\n${flagsText}${statusText}`,
-        media: media,
+        title,
+        subtitle: subtitleParts.join(' • '),
+        media,
       };
     },
   },

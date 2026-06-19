@@ -1,6 +1,7 @@
 export const prerender = false;
 
-import { buildCalendarEventDetails, buildIcsContent } from '../../../lib/calendar';
+import { buildCalendarEventDetails, buildCalendarEventDetailsForShowing, buildIcsContent } from '../../../lib/calendar';
+import { getEventOccurrences } from '../../../lib/eventOccurrences';
 import { SanityDataService } from '../../../lib/sanity/dataService';
 import { InputValidator } from '../../../lib/security';
 import type { Language } from '../../../lib/utils/language';
@@ -15,7 +16,10 @@ export async function GET(context: { params: { slug?: string }; request: Request
     return new Response(null, { status: 404 });
   }
 
-  const language = getLanguage(new URL(context.request.url).searchParams);
+  const searchParams = new URL(context.request.url).searchParams;
+  const language = getLanguage(searchParams);
+  const occurrenceParam = searchParams.get('occurrence');
+  const showingParam = searchParams.get('showing');
   const dataService = new SanityDataService(
     {
       perspective: 'published',
@@ -37,7 +41,30 @@ export async function GET(context: { params: { slug?: string }; request: Request
       return new Response(null, { status: 404 });
     }
 
-    const details = buildCalendarEventDetails(event, language, context.request);
+    let details = buildCalendarEventDetails(event, language, context.request);
+
+    if (occurrenceParam && showingParam) {
+      const matchedOccurrence = getEventOccurrences(event).find(
+        (occurrence) =>
+          (occurrence._key || occurrence.eventDate?.date) === occurrenceParam
+      );
+      const matchedShowing = matchedOccurrence?.showings?.find(
+        (showing) => (showing._key || showing.startTime) === showingParam
+      );
+
+      if (matchedOccurrence?.eventDate && matchedShowing) {
+        details = buildCalendarEventDetailsForShowing(
+          event,
+          {
+            eventDate: matchedOccurrence.eventDate,
+          },
+          matchedShowing,
+          language,
+          context.request
+        );
+      }
+    }
+
     if (!details) {
       return new Response(null, { status: 404 });
     }
