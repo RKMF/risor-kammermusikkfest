@@ -13,6 +13,8 @@ interface EventData {
   _id: string;
   title?: string;
   excerpt?: string;
+  slug_no?: { current: string } | string;
+  slug_en?: { current: string } | string;
   eventDate?: {
     date?: string;
   };
@@ -26,7 +28,7 @@ interface EventData {
   };
   image?: any;
   ticketUrl?: string;
-  ticketType?: 'link' | 'info';
+  ticketType?: 'paid' | 'free' | 'info' | 'link';
   ticketInfoText?: string;
   artists?: Array<{
     _id: string;
@@ -48,9 +50,12 @@ const { event, lang = 'no' } = Astro.props;
 const SITE_URL = 'https://kammermusikkfest.no';
 
 // Build event URL
+const resolveSlugValue = (slug: { current: string } | string | undefined): string | undefined =>
+  typeof slug === 'string' ? slug : slug?.current;
+
 const eventSlug = lang === 'en'
-  ? (event as any).slug_en?.current || (event as any).slug_no?.current
-  : (event as any).slug_no?.current || (event as any).slug_en?.current;
+  ? resolveSlugValue(event.slug_en) || resolveSlugValue(event.slug_no)
+  : resolveSlugValue(event.slug_no) || resolveSlugValue(event.slug_en);
 const eventUrl = lang === 'en'
   ? `${SITE_URL}/en/program/${eventSlug}`
   : `${SITE_URL}/program/${eventSlug}`;
@@ -94,7 +99,7 @@ const performers = (event.artists || [])
   }));
 
 // Build offers (ticket info)
-const offers = event.ticketType === 'link' && event.ticketUrl
+const offers = event.ticketType === 'paid' && event.ticketUrl
   ? {
       '@type': 'Offer',
       url: stegaClean(event.ticketUrl),

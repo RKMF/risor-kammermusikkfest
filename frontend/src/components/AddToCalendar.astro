@@ -1,5 +1,6 @@
 ---
 import type { EventResult } from '../lib/sanity/queries';
+import { resolveSlugValue } from '../lib/utils/language';
 import type { Language } from '../lib/utils/language';
 import {
   buildCalendarEventDetails,
@@ -39,8 +40,8 @@ const labels = {
 
 const icsSlug =
   language === 'en'
-    ? event.slug_en?.current || event.slug_no?.current
-    : event.slug_no?.current || event.slug_en?.current;
+    ? resolveSlugValue(event.slug_en) || resolveSlugValue(event.slug_no)
+    : resolveSlugValue(event.slug_no) || resolveSlugValue(event.slug_en);
 
 const icsHref = details && icsSlug ? `/api/calendar/${icsSlug}.ics?lang=${language}` : null;
 ---

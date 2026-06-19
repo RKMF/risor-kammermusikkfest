@@ -116,7 +116,7 @@ const resetButtonText = language === 'no' ? 'Nullstill filtre' : 'Reset filters'
 <ContentPageLayout
   title={pageTitle}
   excerpt={programPage?.excerpt}
-  pageDocument={programPage}
+  pageDocument={programPage || undefined}
   seo={resolvedSeo}
 >
   <!-- Structured Data: Festival Schema for Program Page -->

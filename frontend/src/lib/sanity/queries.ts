@@ -6,15 +6,41 @@
  * for components consuming Sanity data.
  */
 
-import type { SanityImageSource } from '@sanity/image-url';
 import type { PageBuilder, Seo } from '../../../sanity/sanity.types';
+import type { BilingualDocument } from '../utils/language';
+
+export interface ProjectedImageMetadata {
+  dimensions?: {
+    width?: number;
+    height?: number;
+    aspectRatio?: number;
+  };
+  lqip?: string;
+  palette?: {
+    dominant?: {
+      background?: string;
+      foreground?: string;
+    };
+  };
+}
+
+export interface ProjectedSanityImage {
+  asset?: {
+    _id?: string;
+    url?: string;
+    mimeType?: string;
+    metadata?: ProjectedImageMetadata;
+  };
+  hotspot?: unknown;
+  crop?: unknown;
+}
 
 /**
  * Image object structure returned by Sanity queries
  * Includes asset metadata, hotspot, and crop data
  */
 export interface SanityImageObject {
-  image?: SanityImageSource;
+  image?: ProjectedSanityImage;
   alt?: string;
   credit?: string;
 }
@@ -69,6 +95,21 @@ export interface ArtistReference {
 export interface ComposerReference {
   _id: string;
   name: string;
+  description_no?: any[];
+  description_en?: any[];
+  image?: SanityImageObject;
+}
+
+export interface BasePageResult extends BilingualDocument {
+  _id: string;
+  _type: string;
+  title?: string;
+  excerpt?: string;
+  slug?: string;
+  content_no?: PageBuilder;
+  content_en?: PageBuilder;
+  content?: PageBuilder;
+  seo?: Seo;
   image?: SanityImageObject;
 }
 
@@ -76,11 +117,13 @@ export interface ComposerReference {
  * Full artist result type from artistBySlug and publishedArtists queries
  * Used in artist detail pages and artist listing pages
  */
-export interface ArtistResult {
+export interface ArtistResult extends BilingualDocument {
   _id: string;
   _type: 'artist';
   name: string;
   slug: string;
+  slug_no?: { current: string } | string;
+  slug_en?: { current: string } | string;
   cardSize?: 'stor' | 'medium';
   excerpt?: string;
   excerpt_no?: string;
@@ -124,8 +167,8 @@ export interface EventResult {
   excerpt_no?: string;
   excerpt_en?: string;
   slug?: string;
-  slug_no?: { current: string };
-  slug_en?: { current: string };
+  slug_no?: { current: string } | string;
+  slug_en?: { current: string } | string;
   image?: SanityImageObject;
   eventDate?: EventDateObject;
   eventTime?: EventTimeObject;
@@ -145,24 +188,29 @@ export interface EventResult {
   content_en?: PageBuilder;
   extraContent_no?: PageBuilder;
   extraContent_en?: PageBuilder;
-  description?: string;  // Coalesced from description_no/description_en
-  description_no?: string;
-  description_en?: string;
+  description?: string | any[];
+  description_no?: string | any[];
+  description_en?: string | any[];
   seo?: Seo;
+  spotifyItems?: Array<{
+    _key?: string;
+    _type?: string;
+    spotifyUrl?: string;
+  }>;
 }
 
 /**
  * Article result type from articleBySlug and publishedArticles queries
  */
-export interface ArticleResult {
+export interface ArticleResult extends BilingualDocument {
   _id: string;
   _type: 'article';
   title?: string;
   title_no?: string;
   title_en?: string;
   slug?: string;
-  slug_no?: { current: string };
-  slug_en?: { current: string };
+  slug_no?: { current: string } | string;
+  slug_en?: { current: string } | string;
   excerpt?: string;
   excerpt_no?: string;
   excerpt_en?: string;
@@ -181,4 +229,48 @@ export interface ArticleResult {
   content_no?: PageBuilder;
   content_en?: PageBuilder;
   seo?: Seo;
+}
+
+export interface GenericPageResult extends BasePageResult {
+  _type: 'page';
+}
+
+export interface ProgramPageResult extends BasePageResult {
+  _type: 'programPage';
+  selectedEvents?: EventResult[];
+  venueFilterOrder?: VenueObject[];
+}
+
+export interface ArtistPageResult extends BasePageResult {
+  _type: 'artistPage';
+  selectedArtists?: ArtistResult[];
+}
+
+export interface ArticlePageResult extends BasePageResult {
+  _type: 'articlePage';
+  articles?: ArticleResult[];
+}
+
+export interface SponsorReference {
+  _id: string;
+  _type: 'sponsor';
+  name: string;
+  logo?: ProjectedSanityImage;
+  url?: string;
+}
+
+export interface SponsorPageResult extends BasePageResult {
+  _type: 'sponsorPage';
+  selectedSponsors?: SponsorReference[];
+}
+
+export interface HomepageResult extends BasePageResult {
+  _type: 'homepage';
+  adminTitle?: string;
+  homePageType?: string;
+  scheduledPeriod?: {
+    startDate?: string;
+    endDate?: string;
+  };
+  nextScheduledStart?: string;
 }

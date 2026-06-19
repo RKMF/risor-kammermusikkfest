@@ -53,5 +53,8 @@ jobs:
       - name: Check HTMX asset sync
         run: npm run check:htmx --workspace=frontend
 
+      - name: Check Astro templates and types
+        run: npm run check:astro --workspace=frontend
+
       - name: Build frontend
         run: npm run build --workspace=frontend
