@@ -39,6 +39,12 @@ let eventItems = incomingItems.filter((item) => !item._ref) as EventResult[]
 
 // Detect current language from URL
 const currentLanguage = detectLanguage(Astro.request)
+const eventDateTitleField = currentLanguage === 'en'
+  ? '"title": coalesce(title_display_en, title_display_no, title_display)'
+  : '"title": coalesce(title_display_no, title_display_en, title_display)'
+const showingTicketInfoField = currentLanguage === 'en'
+  ? '"ticketInfoText": coalesce(ticketInfoText_en, ticketInfoText_no, ticketInfoText)'
+  : '"ticketInfoText": coalesce(ticketInfoText_no, ticketInfoText_en, ticketInfoText)'
 
 if (eventRefs.length > 0) {
   const EVENT_QUERY = `*[_type == "event" && _id in $eventIds]{
@@ -79,14 +85,120 @@ if (eventRefs.length > 0) {
       "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
       "credit": coalesce(imageCredit_no, imageCredit_en)
     },
+    showings[]{
+      _key,
+      eventDate->{
+        _id,
+        date,
+        title_display_no,
+        title_display_en,
+        ${eventDateTitleField}
+      },
+      startTime,
+      endTime,
+      "venue": select(
+        defined(venueDetails.mode) && venueDetails.mode == "reference" && defined(venueDetails.venueRef) => venueDetails.venueRef->{
+          _id,
+          title,
+          name,
+          address,
+          city,
+          "slug": slug.current
+        },
+        defined(venueDetails.mode) && venueDetails.mode == "custom" && defined(venueDetails.customName) => {
+          "title": venueDetails.customName
+        },
+        defined(venue) => venue->{
+          _id,
+          title,
+          name,
+          address,
+          city,
+          "slug": slug.current
+        },
+        null
+      ),
+      "includeInProgramVenueFilter": select(
+        defined(venueDetails.mode) && venueDetails.mode == "reference" => coalesce(venueDetails.includeInProgramVenueFilter, true),
+        defined(venueDetails.mode) && venueDetails.mode == "custom" => false,
+        defined(includeInProgramVenueFilter) => includeInProgramVenueFilter,
+        true
+      ),
+      ticketType,
+      ticketUrl,
+      ticketInfoText_no,
+      ticketInfoText_en,
+      ${showingTicketInfoField},
+      ticketStatus
+    },
+    occurrences[]{
+      _key,
+      eventDate->{
+        _id,
+        date,
+        title_display_no,
+        title_display_en,
+        ${eventDateTitleField}
+      },
+      showings[]{
+        _key,
+        startTime,
+        endTime,
+        "venue": select(
+          defined(venueMode) && venueMode == "reference" && defined(venueRef) => venueRef->{
+            _id,
+            title,
+            name,
+            address,
+            city,
+            "slug": slug.current
+          },
+          defined(venueMode) && venueMode == "custom" && defined(customVenueName) => {
+            "title": customVenueName
+          },
+          defined(venueDetails.mode) && venueDetails.mode == "reference" && defined(venueDetails.venueRef) => venueDetails.venueRef->{
+            _id,
+            title,
+            name,
+            address,
+            city,
+            "slug": slug.current
+          },
+          defined(venueDetails.mode) && venueDetails.mode == "custom" && defined(venueDetails.customName) => {
+            "title": venueDetails.customName
+          },
+          defined(venue) => venue->{
+            _id,
+            title,
+            name,
+            address,
+            city,
+            "slug": slug.current
+          },
+          null
+        ),
+        "includeInProgramVenueFilter": select(
+          defined(venueMode) && venueMode == "reference" => coalesce(includeInProgramVenueFilter, true),
+          defined(venueMode) && venueMode == "custom" => false,
+          defined(venueDetails.mode) && venueDetails.mode == "reference" => coalesce(venueDetails.includeInProgramVenueFilter, true),
+          defined(venueDetails.mode) && venueDetails.mode == "custom" => false,
+          defined(includeInProgramVenueFilter) => includeInProgramVenueFilter,
+          true
+        ),
+        ticketType,
+        ticketUrl,
+        ticketInfoText_no,
+        ticketInfoText_en,
+        ${showingTicketInfoField},
+        ticketStatus
+      }
+    },
     eventDate->{
       _id,
       date,
       title_display_no,
       title_display_en,
-      ${currentLanguage === 'en'
-        ? '"title": coalesce(title_display_en, title_display_no, title_display)'
-        : '"title": coalesce(title_display_no, title_display_en, title_display)'}
+      ${eventDateTitleField}
     },
     eventTime,
     venue->{
@@ -101,6 +213,8 @@ if (eventRefs.length > 0) {
     ticketUrl,
     ticketInfoText,
     ticketStatus,
+    eventDateValue,
+    eventStartTimeValue,
     publishingStatus,
     scheduledPeriod,
     seo

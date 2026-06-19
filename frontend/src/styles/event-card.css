@@ -131,14 +131,12 @@ dl.event-card__meta dd {
   color: var(--color-blue);
 }
 
-/* Keep .event-detail for backwards compatibility */
-.event-detail {
-  display: block;
+.event-card__showing-times {
+  color: var(--color-blue);
 }
 
-.event-label {
-  font-weight: var(--font-weight-medium);
-  flex-shrink: 0;
+.event-card__showing-times {
+  font-weight: var(--font-weight-normal);
 }
 
 /* Event Image - Fixed aspect ratio with proper grid behavior */

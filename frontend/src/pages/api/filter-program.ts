@@ -2,8 +2,14 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createDataService } from '../../lib/sanity/dataService.js';
 import { QueryBuilder } from '../../lib/sanity/queryBuilder.js';
-import { formatDateWithWeekday } from '../../lib/utils/dates';
-import { compareEventChronologicallyAsc } from '../../lib/utils/eventOrdering';
+import type { EventDayCard } from '../../lib/eventOccurrences';
+import {
+  buildEventDayCards,
+  getOccurrenceDisplayTitle,
+  getProgramCardTimesText,
+  getProgramCardVenueText,
+} from '../../lib/eventOccurrences';
+import type { EventResult, VenueObject } from '../../lib/sanity/queries';
 import { deriveAvailableVenues } from '../../lib/utils/programFilters';
 import {
   applyProgramFilters,
@@ -22,43 +28,20 @@ import {
 import { getOptimizedImageUrl, getResponsiveImageSet, IMAGE_QUALITY } from '../../lib/sanityImage';
 import { getOrSetCachedValue } from '../../lib/serverCache.js';
 
-// Types for program page data
-interface EventVenue {
-  slug: string;
-  title: string;
-}
-
-interface EventDate {
-  date: string;
-  title?: string;
-}
-
-interface EventTime {
-  startTime?: string;
-}
-
-interface ProgramEvent {
-  _id: string;
-  eventDate?: EventDate;
-  eventTime?: EventTime;
-  venue?: EventVenue;
-  [key: string]: unknown; // Allow other properties from Sanity
-}
-
 interface DateGroup {
   date: string;
   displayTitle: string;
-  events: ProgramEvent[];
+  events: EventDayCard[];
 }
 
 interface ProgramPageData {
-  selectedEvents?: (ProgramEvent | null)[];
-  venueFilterOrder?: (EventVenue | null)[];
+  selectedEvents?: (EventResult | null)[];
+  venueFilterOrder?: (VenueObject | null)[];
 }
 
 function generateProgramFiltersHtml(
-  availableDates: EventDate[],
-  availableVenues: EventVenue[],
+  availableDates: Array<{ date: string; title?: string }>,
+  availableVenues: Array<{ slug: string; title: string }>,
   selectedDates: string[],
   selectedVenues: string[],
   language: 'no' | 'en'
@@ -181,7 +164,8 @@ function escapeHtml(text: string): string {
  * Generate HTML for an EventCard.
  * This replaces the expensive renderToString(EventCard) call.
  */
-function generateEventCardHtml(event: ProgramEvent, language: 'no' | 'en'): string {
+function generateEventCardHtml(dayCard: EventDayCard, language: 'no' | 'en'): string {
+  const event = dayCard.event;
   // Get cleaned values
   const title = stegaClean(event.title as string) || '';
   const excerpt = stegaClean(event.excerpt as string) || '';
@@ -193,10 +177,15 @@ function generateEventCardHtml(event: ProgramEvent, language: 'no' | 'en'): stri
   // Translation strings
   const dateLabel = language === 'en' ? 'Date and time' : 'Dato og tid';
   const venueLabel = language === 'en' ? 'Venue' : 'Sted';
+  const primaryShowing = dayCard.showings[0];
+  const usesSharedTicketing = event.ticketingMode !== 'per_showing';
+  const showingTimesText = getProgramCardTimesText(dayCard, language);
+  const venueText = getProgramCardVenueText(dayCard, language);
   const ticketButtonText = language === 'en' ? 'Buy tickets' : 'Kjøp billetter her';
-  const fewTicketsText = language === 'en' ? 'Few tickets' : 'Få billetter igjen';
+  const fewTicketsText = language === 'en' ? 'Few tickets left' : 'Få billetter igjen';
   const soldOutText = language === 'en' ? 'Sold out' : 'Utsolgt';
   const freeText = language === 'en' ? 'Free' : 'Gratis';
+  const badgeShowing = dayCard.showings.find((showing) => stegaClean(showing.ticketType as string) === 'info') || primaryShowing;
 
   // Image handling
   let imageHtml = '';
@@ -228,31 +217,43 @@ function generateEventCardHtml(event: ProgramEvent, language: 'no' | 'en'): stri
   // Event meta (date/time and venue)
   let metaHtml = '<dl class="event-card__meta">';
 
-  if (event.eventDate?.date) {
-    const dateDisplay = formatDateWithWeekday(event.eventDate.date, language);
-    const timeDisplay = event.eventTime?.startTime ? `, kl. ${escapeHtml(stegaClean(event.eventTime.startTime) || '')}` : '';
+  if (dayCard.eventDate?.date) {
+    const dateDisplay = getOccurrenceDisplayTitle(dayCard, language);
+    const timeDisplay =
+      !dayCard.hasMultipleShowings && primaryShowing?.startTime
+        ? language === 'en'
+          ? `, ${escapeHtml(stegaClean(primaryShowing.startTime) || '')}`
+          : `, kl. ${escapeHtml(stegaClean(primaryShowing.startTime) || '')}`
+        : '';
     metaHtml += `
       <dt class="visually-hidden">${dateLabel}</dt>
       <dd class="event-card__datetime">
-        <time datetime="${event.eventDate.date}">${dateDisplay}${timeDisplay}</time>
+        <time datetime="${dayCard.eventDate.date}">${dateDisplay}${timeDisplay}</time>
       </dd>
     `;
   }
 
-  if (event.venue?.title) {
+  if (dayCard.hasMultipleShowings && showingTimesText) {
+    metaHtml += `
+      <dt class="visually-hidden">${dateLabel}</dt>
+      <dd class="event-card__showing-times">${escapeHtml(language === 'en' ? `Times: ${showingTimesText}` : `Kl. ${showingTimesText}`)}</dd>
+    `;
+  }
+
+  if (venueText) {
     metaHtml += `
       <dt class="visually-hidden">${venueLabel}</dt>
-      <dd class="event-card__venue">${escapeHtml(stegaClean(event.venue.title) || '')}</dd>
+      <dd class="event-card__venue">${escapeHtml(venueText)}</dd>
     `;
   }
 
   metaHtml += '</dl>';
 
   // Ticket section
-  const ticketType = stegaClean(event.ticketType as string);
-  const ticketStatus = stegaClean(event.ticketStatus as string);
-  const ticketUrl = stegaClean(event.ticketUrl as string) || '';
-  const ticketInfoText = stegaClean(event.ticketInfoText as string) || freeText;
+  const ticketType = stegaClean((usesSharedTicketing ? event.ticketType : badgeShowing?.ticketType) as string);
+  const ticketStatus = stegaClean((usesSharedTicketing ? event.ticketStatus : badgeShowing?.ticketStatus) as string);
+  const ticketUrl = stegaClean((usesSharedTicketing ? event.ticketUrl : badgeShowing?.ticketUrl) as string) || '';
+  const ticketInfoText = stegaClean((usesSharedTicketing ? event.ticketInfoText : badgeShowing?.ticketInfoText) as string) || freeText;
 
   let ticketHtml = '';
   if (ticketType === 'info') {
@@ -269,7 +270,7 @@ function generateEventCardHtml(event: ProgramEvent, language: 'no' | 'en'): stri
   const excerptHtml = excerpt ? `<p class="event-card__excerpt">${escapeHtml(excerpt)}</p>` : '';
 
   return `
-    <article class="event-card" data-event-date="${event.eventDate?.date || ''}">
+    <article class="event-card" data-event-date="${dayCard.eventDate?.date || ''}">
       <h3 class="event-card__title">
         <a href="${eventPath}" class="event-card__title-link card-link">${escapeHtml(title)}</a>
       </h3>
@@ -346,38 +347,38 @@ export const GET: APIRoute = async ({ request, url }) => {
         PROGRAM_FILTER_DATA_CACHE_TTL_SECONDS
       ) as Promise<ProgramPageData>
     );
-    const events: ProgramEvent[] = (programPage?.selectedEvents || []).filter(
-      (event): event is ProgramEvent => event != null
+    const events: EventResult[] = (programPage?.selectedEvents || []).filter(
+      (event): event is EventResult => event != null
     );
-    const availableDates = events
-      .filter(
-        (event): event is ProgramEvent & { eventDate: EventDate } => Boolean(event?.eventDate?.date)
-      )
-      .map((event) => event.eventDate);
-    const availableVenues = deriveAvailableVenues(events, programPage?.venueFilterOrder || []);
+    const dayCards = buildEventDayCards(events);
+    const availableDates = dayCards.map((card) => ({
+      date: card.eventDate.date,
+      title: card.eventDate.title,
+    }));
+    const availableVenues = deriveAvailableVenues(dayCards, programPage?.venueFilterOrder || []);
 
-    // Group events by date (same logic as program.astro)
-    const eventsByDate = events.reduce<Record<string, DateGroup>>((acc, event) => {
-      if (!event?.eventDate?.date) return acc;
+    // Group event day cards by date
+    const eventsByDate = dayCards.reduce<Record<string, DateGroup>>((acc, dayCard) => {
+      if (!dayCard?.eventDate?.date) return acc;
 
-      const dateKey = event.eventDate.date;
+      const dateKey = dayCard.eventDate.date;
       if (!acc[dateKey]) {
         acc[dateKey] = {
-          date: event.eventDate.date,
-          displayTitle: event.eventDate.title || formatDateWithWeekday(event.eventDate.date, language),
+          date: dayCard.eventDate.date,
+          displayTitle: getOccurrenceDisplayTitle(dayCard, language),
           events: []
         };
       }
-      acc[dateKey].events.push(event);
+      acc[dateKey].events.push(dayCard);
       return acc;
     }, {});
 
-    // Sort dates chronologically and sort events within each date by time
+    // Sort dates chronologically
     const sortedDates: DateGroup[] = Object.values(eventsByDate)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       .map((dateGroup) => ({
         ...dateGroup,
-        events: [...dateGroup.events].sort(compareEventChronologicallyAsc)
+        events: [...dateGroup.events],
       }));
 
     const filteredDates = applyProgramFilters(sortedDates, selections);
@@ -408,9 +409,7 @@ export const GET: APIRoute = async ({ request, url }) => {
       // This is much faster than using experimental_AstroContainer.renderToString
       const sectionsHtml = filteredDates.map(({ date, displayTitle, events: dateEvents }) => {
         // Generate HTML for each event card
-        const eventCardsHtml = dateEvents
-          .map((event) => generateEventCardHtml(event, language))
-          .join('');
+        const eventCardsHtml = dateEvents.map((dayCard) => generateEventCardHtml(dayCard, language)).join('');
 
         const eventsLabel = language === 'no' ? 'Arrangementer' : 'Events';
         const scrollNavLabel = language === 'no'
