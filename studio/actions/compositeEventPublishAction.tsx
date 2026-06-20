@@ -8,34 +8,10 @@ import {
   findOrphanedReciprocalReferences,
   removeReciprocalReferences,
 } from '../utils/bidirectionalSync';
-
-interface EventOccurrenceDraft {
-  eventDate?: { _ref?: string };
-  showings?: Array<{
-    startTime?: string;
-  }>;
-}
-
-interface EventShowingDraft {
-  eventDate?: { _ref?: string };
-  startTime?: string;
-}
-
-function compareOccurrenceEntries(
-  a: { date: string; startTime: string | undefined },
-  b: { date: string; startTime: string | undefined }
-): number {
-  const dateComparison = a.date.localeCompare(b.date);
-  if (dateComparison !== 0) return dateComparison;
-
-  return (a.startTime || '').localeCompare(b.startTime || '');
-}
-
-function isDerivedOccurrenceEntry(
-  value: { date: string; startTime: string | undefined } | null
-): value is { date: string; startTime: string | undefined } {
-  return Boolean(value?.date);
-}
+import {
+  collectReferencedEventDateIds,
+  getPrimaryEventSortValuesFromReferences,
+} from '../lib/eventSortValues';
 
 /**
  * Composite publish action for events that:
@@ -82,30 +58,13 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
   // Step 1: Sync derived sort values
   const syncDateValue = useCallback(async () => {
     try {
-      const showings = Array.isArray((doc as any)?.showings)
-        ? ((doc as any).showings as EventShowingDraft[])
-        : [];
-      const occurrences = Array.isArray((doc as any)?.occurrences)
-        ? ((doc as any).occurrences as EventOccurrenceDraft[])
-        : [];
-
-      const showingRefs = Array.from(
-        new Set(
-          showings
-            .map((showing) => showing?.eventDate?._ref)
-            .filter((ref): ref is string => Boolean(ref))
-        )
-      );
-      const occurrenceRefs = Array.from(
-        new Set(
-          occurrences
-            .map((occurrence) => occurrence?.eventDate?._ref)
-            .filter((ref): ref is string => Boolean(ref))
-        )
-      );
-
+      const showings = Array.isArray((doc as any)?.showings) ? (doc as any).showings : [];
+      const occurrences = Array.isArray((doc as any)?.occurrences) ? (doc as any).occurrences : [];
+      const eventDate = (doc?.eventDate as { _ref?: string } | undefined) || undefined;
+      const eventTime = (doc?.eventTime as { startTime?: string } | undefined) || undefined;
       const dateByRef = new Map<string, string>();
-      const allDateRefs = Array.from(new Set([...showingRefs, ...occurrenceRefs]));
+      const allDateRefs = collectReferencedEventDateIds({ showings, occurrences, eventDate });
+
       if (allDateRefs.length > 0) {
         const eventDates = await client.fetch<Array<{ _id: string; date?: string }>>(
           `*[_id in $ids]{ _id, date }`,
@@ -119,63 +78,32 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
         }
       }
 
-      const derivedEntries = [
-        ...showings.map((showing) => {
-          const ref = showing?.eventDate?._ref;
-          const date = ref ? dateByRef.get(ref) : undefined;
+      const nextValues = getPrimaryEventSortValuesFromReferences(
+        { showings, occurrences, eventDate, eventTime },
+        dateByRef
+      );
+      const set: Record<string, string> = {};
+      const unset: string[] = [];
 
-          return date
-            ? {
-                date,
-                startTime: showing?.startTime,
-              }
-            : null;
-        }),
-        ...occurrences
-        .map((occurrence) => {
-          const ref = occurrence?.eventDate?._ref;
-          const date = ref ? dateByRef.get(ref) : undefined;
-          const firstShowing = Array.isArray(occurrence?.showings) ? occurrence.showings[0] : undefined;
-
-          return date
-            ? {
-                date,
-                startTime: firstShowing?.startTime,
-              }
-            : null;
-        })
-      ]
-        .filter(isDerivedOccurrenceEntry)
-        .sort(compareOccurrenceEntries);
-
-      const firstDerivedEntry = derivedEntries[0];
-      const legacyDateRef = (doc?.eventDate as { _ref?: string } | undefined)?._ref;
-
-      if (firstDerivedEntry) {
-        patch.execute([
-          {
-            set: {
-              eventDateValue: firstDerivedEntry.date,
-              eventStartTimeValue: firstDerivedEntry.startTime || '',
-            },
-          },
-        ]);
-        return;
+      if (nextValues.eventDateValue) {
+        set.eventDateValue = nextValues.eventDateValue;
+      } else {
+        unset.push('eventDateValue');
       }
 
-      if (legacyDateRef) {
-        const dateValue = await client.fetch<string>(`*[_id == $ref][0].date`, { ref: legacyDateRef });
+      if (typeof nextValues.eventStartTimeValue === 'string') {
+        set.eventStartTimeValue = nextValues.eventStartTimeValue;
+      } else {
+        unset.push('eventStartTimeValue');
+      }
 
-        if (dateValue) {
-          patch.execute([
-            {
-              set: {
-                eventDateValue: dateValue,
-                eventStartTimeValue: (doc?.eventTime as { startTime?: string } | undefined)?.startTime || '',
-              },
-            },
-          ]);
-        }
+      if (Object.keys(set).length > 0 || unset.length > 0) {
+        patch.execute([
+          {
+            ...(Object.keys(set).length > 0 ? { set } : {}),
+            ...(unset.length > 0 ? { unset } : {}),
+          },
+        ]);
       }
     } catch (error) {
       console.error('Failed to sync event sort fields:', error);
