@@ -21,6 +21,8 @@
     "deploy": "./node_modules/.bin/sanity deploy",
     "deploy-graphql": "./node_modules/.bin/sanity graphql deploy",
     "extract-schema": "./node_modules/.bin/sanity schema extract",
+    "backfill:event-sort-values": "./node_modules/.bin/sanity exec scripts/backfillEventSortValues.ts --with-user-token",
+    "backfill:event-sort-values:dry-run": "./node_modules/.bin/sanity exec scripts/backfillEventSortValues.ts --with-user-token -- --dry-run",
     "pretypegen": "node ../scripts/link-studio-hoisted-deps.mjs",
     "typegen": "./node_modules/.bin/sanity schema extract && ./node_modules/.bin/sanity typegen generate",
     "test": "vitest",
