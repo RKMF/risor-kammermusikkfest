@@ -21,6 +21,7 @@ import { defineField, defineType } from 'sanity';
 import { CalendarIcon, ComposeIcon, CogIcon, CreditCardIcon } from '@sanity/icons';
 import { eventTimeOptions } from '../../lib/timeUtils';
 import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
+import { EventShowingsInput } from '../../components/inputs/EventShowingsInput';
 import { multilingualImageFields, imageFieldsets, imageGroup } from '../shared/imageFields';
 import { seoFields, seoGroup } from '../objects/seoFields';
 import { componentValidation } from '../shared/validation';
@@ -29,6 +30,7 @@ import { getLanguageStatus } from '../shared/previewHelpers';
 import { publishingFields, publishingGroup } from '../shared/publishingFields';
 import { excludeAlreadySelected } from '../shared/referenceFilters';
 import { MultiSelectReferenceInput } from '../components/inputs/MultiSelectReferenceInput';
+import { getEventScheduleEntryCount } from '../../lib/eventSortValues';
 
 function hasShowings(document: Record<string, any> | undefined): boolean {
   return Array.isArray(document?.showings) && document.showings.length > 0;
@@ -521,6 +523,7 @@ export const event = defineType({
       by: [
         { field: 'eventDateValue', direction: 'asc' },
         { field: 'eventStartTimeValue', direction: 'asc' },
+        { field: 'title_no', direction: 'asc' },
       ],
     },
     {
@@ -573,6 +576,9 @@ export const event = defineType({
       title: 'Legg til forestillinger',
       type: 'array',
       group: 'schedule',
+      components: {
+        input: EventShowingsInput,
+      },
       description:
         'Et tidspunkt og spillested per forestilling.',
       validation: (Rule) =>
@@ -1088,21 +1094,11 @@ export const event = defineType({
       title_no: 'title_no',
       title_en: 'title_en',
       media: 'image',
-      showingDateNo: 'showings.0.eventDate.title_display_no',
-      showingDateEn: 'showings.0.eventDate.title_display_en',
-      showingDateValue: 'showings.0.eventDate.date',
-      showingStartTime: 'showings.0.startTime',
-      occurrenceDateNo: 'occurrences.0.eventDate.title_display_no',
-      occurrenceDateEn: 'occurrences.0.eventDate.title_display_en',
-      occurrenceDateValue: 'occurrences.0.eventDate.date',
-      occurrenceStartTime: 'occurrences.0.showings.0.startTime',
-      legacyDateNo: 'eventDate.title_display_no',
-      legacyDateEn: 'eventDate.title_display_en',
-      legacyDateValue: 'eventDate.date',
-      legacyStartTime: 'eventTime.startTime',
-      secondShowingKey: 'showings.1._key',
-      secondOccurrenceKey: 'occurrences.1._key',
-      secondOccurrenceShowingKey: 'occurrences.0.showings.1._key',
+      showings: 'showings',
+      occurrences: 'occurrences',
+      eventDate: 'eventDate',
+      eventDateValue: 'eventDateValue',
+      eventStartTimeValue: 'eventStartTimeValue',
       _id: '_id',
     },
     prepare(selection) {
@@ -1110,66 +1106,37 @@ export const event = defineType({
         title_no,
         title_en,
         media,
-        showingDateNo,
-        showingDateEn,
-        showingDateValue,
-        showingStartTime,
-        occurrenceDateNo,
-        occurrenceDateEn,
-        occurrenceDateValue,
-        occurrenceStartTime,
-        legacyDateNo,
-        legacyDateEn,
-        legacyDateValue,
-        legacyStartTime,
-        secondShowingKey,
-        secondOccurrenceKey,
-        secondOccurrenceShowingKey,
+        showings,
+        occurrences,
+        eventDate,
+        eventDateValue,
+        eventStartTimeValue,
         _id,
       } = selection;
 
       const isPublished = _id && !_id.startsWith('drafts.');
       const statusText = isPublished ? 'Publisert' : 'Utkast';
       const title = title_no || title_en || 'Uten navn';
+      const hasMultipleDatesOrTimes = getEventScheduleEntryCount({
+        showings,
+        occurrences,
+        eventDate,
+      }) > 1;
 
       const resolvedDateLabel =
-        (title_no ? showingDateNo : showingDateEn) ||
-        showingDateNo ||
-        showingDateEn ||
-        (title_no ? occurrenceDateNo : occurrenceDateEn) ||
-        occurrenceDateNo ||
-        occurrenceDateEn ||
-        (title_no ? legacyDateNo : legacyDateEn) ||
-        legacyDateNo ||
-        legacyDateEn ||
-        (showingDateValue
-          ? new Date(showingDateValue).toLocaleDateString('nb-NO', {
+        eventDateValue
+          ? new Date(eventDateValue).toLocaleDateString('nb-NO', {
               weekday: 'long',
               day: 'numeric',
               month: 'long',
             })
-          : occurrenceDateValue
-            ? new Date(occurrenceDateValue).toLocaleDateString('nb-NO', {
-              weekday: 'long',
-              day: 'numeric',
-              month: 'long',
-            })
-            : legacyDateValue
-            ? new Date(legacyDateValue).toLocaleDateString('nb-NO', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-              })
-            : 'Ingen dato');
+          : 'Ingen dato';
 
-      const resolvedStartTime = showingStartTime || occurrenceStartTime || legacyStartTime;
+      const resolvedStartTime = eventStartTimeValue;
       const timeText = resolvedStartTime ? ` kl. ${resolvedStartTime}` : '';
-      const hasMultipleDatesOrTimes = Boolean(
-        secondShowingKey || secondOccurrenceKey || secondOccurrenceShowingKey
-      );
       const langStatus = getLanguageStatus({ title_no, title_en });
       const scheduleLabel = hasMultipleDatesOrTimes
-        ? 'Flere tidspunkt'
+        ? 'Flere forestillinger'
         : `${resolvedDateLabel}${timeText}`;
       const subtitleParts = [
         scheduleLabel,
