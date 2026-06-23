@@ -17,11 +17,10 @@
  * @see docs/PROJECT_GUIDE.md - Section 2.1 Schema Design
  */
 
-import { defineField, defineType } from 'sanity';
+import { defineArrayMember, defineField, defineType } from 'sanity';
 import { CalendarIcon, ComposeIcon, CogIcon, CreditCardIcon } from '@sanity/icons';
 import { eventTimeOptions } from '../../lib/timeUtils';
 import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
-import { EventShowingsInput } from '../../components/inputs/EventShowingsInput';
 import { multilingualImageFields, imageFieldsets, imageGroup } from '../shared/imageFields';
 import { seoFields, seoGroup } from '../objects/seoFields';
 import { componentValidation } from '../shared/validation';
@@ -576,11 +575,9 @@ export const event = defineType({
       title: 'Legg til forestillinger',
       type: 'array',
       group: 'schedule',
-      components: {
-        input: EventShowingsInput,
-      },
+      initialValue: [],
       description:
-        'Et tidspunkt og spillested per forestilling.',
+        'Legg inn alle datoer, tidspunkt og spillesteder her. Dette er eneste sted tid og sted skal redigeres for arrangementet.',
       validation: (Rule) =>
         Rule.custom((value, context) => {
           const document = context.document as Record<string, any> | undefined;
@@ -594,10 +591,13 @@ export const event = defineType({
           return true;
         }).warning('Legg til minst én forestilling'),
       of: [
-        {
+        defineArrayMember({
           type: 'object',
           name: 'eventShowing',
           title: 'Forestilling',
+          initialValue: {
+            venueMode: 'reference',
+          },
           options: {
             modal: { type: 'dialog', width: 3 },
           },
@@ -610,7 +610,7 @@ export const event = defineType({
           ],
           fields: [...orderedTopLevelShowingFields, ...showingFields],
           preview: topLevelShowingPreview,
-        },
+        }),
       ],
     }),
     defineField({
@@ -620,7 +620,7 @@ export const event = defineType({
       group: 'schedule',
       hidden: true,
       of: [
-        {
+        defineArrayMember({
           type: 'object',
           name: 'eventOccurrence',
           title: 'Spilledag',
@@ -639,7 +639,7 @@ export const event = defineType({
               title: 'Forestillinger',
               type: 'array',
               of: [
-                {
+                defineArrayMember({
                   type: 'object',
                   name: 'legacyEventShowing',
                   title: 'Forestilling',
@@ -652,11 +652,11 @@ export const event = defineType({
                   ],
                   fields: [...orderedLegacyOccurrenceShowingFields, ...showingFields],
                   preview: legacyOccurrenceShowingPreview,
-                },
+                }),
               ],
             }),
           ],
-        },
+        }),
       ],
     }),
 
@@ -694,14 +694,14 @@ export const event = defineType({
           }
           return true;
         }),
-      hidden: ({ document }) => hasScheduleEntries(document as Record<string, any> | undefined),
+      hidden: true,
     }),
     defineField({
       name: 'eventTime',
       title: 'Klokkeslett',
       type: 'object',
       group: 'basic',
-      hidden: ({ document }) => hasScheduleEntries(document as Record<string, any> | undefined),
+      hidden: true,
       fieldsets: [
         {
           name: 'times',
@@ -786,7 +786,7 @@ export const event = defineType({
           }
           return true;
         }),
-      hidden: ({ document }) => hasScheduleEntries(document as Record<string, any> | undefined),
+      hidden: true,
     }),
     defineField({
       name: 'artist',

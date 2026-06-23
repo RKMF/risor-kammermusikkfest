@@ -77,6 +77,19 @@ describe('eventSortValues', () => {
     });
   });
 
+  it('clears sort values when no valid showings or fallback date remain', () => {
+    const dateByRef = new Map([['date-23', '2026-06-23']]);
+
+    expect(
+      getPrimaryEventSortValuesFromReferences(
+        {
+          showings: [{ startTime: '12:00' }, { eventDate: { _ref: 'missing-date' }, startTime: '14:00' }],
+        },
+        dateByRef
+      )
+    ).toEqual({});
+  });
+
   it('marks the preview as multi-occurrence when more than one schedule entry exists', () => {
     expect(
       getPrimaryEventScheduleDetails({

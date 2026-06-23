@@ -23,6 +23,8 @@
     "extract-schema": "./node_modules/.bin/sanity schema extract",
     "backfill:event-sort-values": "./node_modules/.bin/sanity exec scripts/backfillEventSortValues.ts --with-user-token",
     "backfill:event-sort-values:dry-run": "./node_modules/.bin/sanity exec scripts/backfillEventSortValues.ts --with-user-token -- --dry-run",
+    "audit:corrupted-event-showings": "./node_modules/.bin/sanity exec scripts/findCorruptedEventShowings.ts --with-user-token",
+    "repair:corrupted-event-showings": "./node_modules/.bin/sanity exec scripts/repairCorruptedEventShowings.ts --with-user-token",
     "pretypegen": "node ../scripts/link-studio-hoisted-deps.mjs",
     "typegen": "./node_modules/.bin/sanity schema extract && ./node_modules/.bin/sanity typegen generate",
     "test": "vitest",
