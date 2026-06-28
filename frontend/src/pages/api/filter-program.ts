@@ -10,6 +10,7 @@ import {
   getProgramCardVenueText,
 } from '../../lib/eventOccurrences';
 import type { EventResult, VenueObject } from '../../lib/sanity/queries';
+import { renderTicketDisplayHtml, resolveProgramCardTicketDisplay } from '../../lib/ticketDisplay';
 import { deriveAvailableVenues } from '../../lib/utils/programFilters';
 import {
   applyProgramFilters,
@@ -178,14 +179,9 @@ function generateEventCardHtml(dayCard: EventDayCard, language: 'no' | 'en'): st
   const dateLabel = language === 'en' ? 'Date and time' : 'Dato og tid';
   const venueLabel = language === 'en' ? 'Venue' : 'Sted';
   const primaryShowing = dayCard.showings[0];
-  const usesSharedTicketing = event.ticketingMode !== 'per_showing';
   const showingTimesText = getProgramCardTimesText(dayCard, language);
   const venueText = getProgramCardVenueText(dayCard, language);
-  const ticketButtonText = language === 'en' ? 'Buy tickets' : 'Kjøp billetter her';
-  const fewTicketsText = language === 'en' ? 'Few tickets left' : 'Få billetter igjen';
-  const soldOutText = language === 'en' ? 'Sold out' : 'Utsolgt';
-  const freeText = language === 'en' ? 'Free' : 'Gratis';
-  const badgeShowing = dayCard.showings.find((showing) => stegaClean(showing.ticketType as string) === 'info') || primaryShowing;
+  const ticketDisplay = resolveProgramCardTicketDisplay(event, language, dayCard);
 
   // Image handling
   let imageHtml = '';
@@ -249,22 +245,7 @@ function generateEventCardHtml(dayCard: EventDayCard, language: 'no' | 'en'): st
 
   metaHtml += '</dl>';
 
-  // Ticket section
-  const ticketType = stegaClean((usesSharedTicketing ? event.ticketType : badgeShowing?.ticketType) as string);
-  const ticketStatus = stegaClean((usesSharedTicketing ? event.ticketStatus : badgeShowing?.ticketStatus) as string);
-  const ticketUrl = stegaClean((usesSharedTicketing ? event.ticketUrl : badgeShowing?.ticketUrl) as string) || '';
-  const ticketInfoText = stegaClean((usesSharedTicketing ? event.ticketInfoText : badgeShowing?.ticketInfoText) as string) || freeText;
-
-  let ticketHtml = '';
-  if (ticketType === 'info') {
-    ticketHtml = `<span class="ticket-badge">${escapeHtml(ticketInfoText)}</span>`;
-  } else if (ticketStatus === 'sold_out') {
-    ticketHtml = `<span class="btn btn-disabled" role="button" aria-disabled="true">${soldOutText}</span>`;
-  } else if (ticketStatus === 'low_stock') {
-    ticketHtml = `<a href="${escapeHtml(ticketUrl)}" class="btn btn-warning" target="_blank" rel="noopener noreferrer">${fewTicketsText}</a>`;
-  } else {
-    ticketHtml = `<a href="${escapeHtml(ticketUrl)}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">${ticketButtonText}</a>`;
-  }
+  const ticketHtml = renderTicketDisplayHtml(ticketDisplay, escapeHtml, title);
 
   // Excerpt
   const excerptHtml = excerpt ? `<p class="event-card__excerpt">${escapeHtml(excerpt)}</p>` : '';
