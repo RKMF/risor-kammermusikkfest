@@ -17,6 +17,7 @@ import {
   getOccurrenceDisplayTitle,
   getShowingDateTimeLabel,
 } from '../lib/eventOccurrences';
+import { resolveEventPageTicketDisplay } from '../lib/ticketDisplay';
 import { getMultilingualContent, getMultilingualValue, resolveSlugValue } from '../lib/utils/language.js';
 import { IMAGE_QUALITY } from '../lib/sanityImage';
 import { stegaClean } from '@sanity/client/stega';
@@ -32,7 +33,6 @@ interface Props {
 
 const { event, language, request } = Astro.props;
 const eventFields = event as unknown as Record<string, unknown>;
-const usesSharedTicketing = event.ticketingMode !== 'per_showing';
 const occurrenceDayCards = getEventOccurrences(event).map((occurrence) => ({
   _id: `${event._id}:${occurrence._key || occurrence.eventDate?.date || 'occurrence'}`,
   event,
@@ -256,25 +256,10 @@ const spotifyItems = (event.spotifyItems || []).filter(
                       />
 
                       <div class="event-page__actions">
-                        {usesSharedTicketing ? (
-                          <TicketButton
-                            ticketType={event.ticketType}
-                            ticketStatus={event.ticketStatus}
-                            ticketUrl={event.ticketUrl}
-                            ticketInfoText={event.ticketInfoText}
-                            eventTitle={event.title}
-                            language={language}
-                          />
-                        ) : (
-                          <TicketButton
-                            ticketType={showing.ticketType}
-                            ticketStatus={showing.ticketStatus}
-                            ticketUrl={showing.ticketUrl}
-                            ticketInfoText={showing.ticketInfoText}
-                            eventTitle={event.title}
-                            language={language}
-                          />
-                        )}
+                        <TicketButton
+                          display={resolveEventPageTicketDisplay(event, language, showing)}
+                          eventTitle={event.title}
+                        />
                       </div>
                     </section>
                   );
@@ -381,25 +366,10 @@ const spotifyItems = (event.spotifyItems || []).filter(
                           />
 
                           <div class="event-page__actions">
-                            {usesSharedTicketing ? (
-                              <TicketButton
-                                ticketType={event.ticketType}
-                                ticketStatus={event.ticketStatus}
-                                ticketUrl={event.ticketUrl}
-                                ticketInfoText={event.ticketInfoText}
-                                eventTitle={event.title}
-                                language={language}
-                              />
-                            ) : (
-                              <TicketButton
-                                ticketType={showing.ticketType}
-                                ticketStatus={showing.ticketStatus}
-                                ticketUrl={showing.ticketUrl}
-                                ticketInfoText={showing.ticketInfoText}
-                                eventTitle={event.title}
-                                language={language}
-                              />
-                            )}
+                            <TicketButton
+                              display={resolveEventPageTicketDisplay(event, language, showing)}
+                              eventTitle={event.title}
+                            />
                           </div>
                         </section>
                       );
