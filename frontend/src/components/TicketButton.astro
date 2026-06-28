@@ -13,42 +13,33 @@
  */
 
 import { stegaClean } from '@sanity/client/stega';
+import type { ResolvedTicketDisplay } from '../lib/ticketDisplay';
 
 interface Props {
-  ticketType?: string;
-  ticketStatus?: string;
-  ticketUrl?: string;
-  ticketInfoText?: string;
+  display: ResolvedTicketDisplay;
   eventTitle?: string;
-  language: 'no' | 'en';
 }
 
-const { ticketType, ticketStatus, ticketUrl, ticketInfoText, eventTitle, language } = Astro.props;
+const { display, eventTitle } = Astro.props;
 
-const labels = {
-  no: { buy: 'Kjøp billetter her', few: 'Få billetter igjen', sold: 'Utsolgt', free: 'Gratis' },
-  en: { buy: 'Buy tickets', few: 'Few tickets left', sold: 'Sold out', free: 'Free' }
-}[language];
-
-const cleanType = stegaClean(ticketType);
-const cleanStatus = stegaClean(ticketStatus);
-const cleanUrl = stegaClean(ticketUrl);
-const cleanInfoText = stegaClean(ticketInfoText);
+const cleanMode = stegaClean(display.mode);
+const cleanLabel = stegaClean(display.label);
+const cleanUrl = stegaClean(display.url);
 const cleanTitle = stegaClean(eventTitle);
 ---
 
-{cleanType === 'info' ? (
-  <span class="ticket-badge">{cleanInfoText || labels.free}</span>
-) : cleanStatus === 'sold_out' ? (
+{cleanMode === 'hidden' ? null : cleanMode === 'info' ? (
+  <span class="ticket-badge">{cleanLabel}</span>
+) : cleanMode === 'sold_out' || display.isDisabled || !cleanUrl ? (
   <span class="btn btn-disabled" role="button" aria-disabled="true">
-    {labels.sold}
+    {cleanLabel}
   </span>
-) : cleanStatus === 'low_stock' ? (
+) : cleanMode === 'low_stock' ? (
   <a href={cleanUrl} class="btn btn-warning" target="_blank" rel="noopener noreferrer" data-track-ticket data-concert={cleanTitle}>
-    {labels.few}
+    {cleanLabel}
   </a>
 ) : (
   <a href={cleanUrl} class="btn btn-primary" target="_blank" rel="noopener noreferrer" data-track-ticket data-concert={cleanTitle}>
-    {labels.buy}
+    {cleanLabel}
   </a>
 )}

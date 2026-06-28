@@ -17,6 +17,7 @@ import {
   getProgramCardTimesText,
   getProgramCardVenueText,
 } from '../lib/eventOccurrences';
+import { resolveProgramCardTicketDisplay } from '../lib/ticketDisplay';
 import TicketButton from './TicketButton.astro';
 import '../styles/event-card.css';
 
@@ -42,9 +43,7 @@ const venueLabel = language === 'en' ? 'Venue' : 'Sted';
 const timePrefix = language === 'en' ? ', ' : ', kl. ';
 const showingTimesText = resolvedDayCard ? getProgramCardTimesText(resolvedDayCard, language) : '';
 const venueText = resolvedDayCard ? getProgramCardVenueText(resolvedDayCard, language) : '';
-const usesSharedTicketing = event.ticketingMode !== 'per_showing';
-const badgeShowing = resolvedDayCard?.showings.find((showing) => showing.ticketType === 'info')
-  || primaryShowing;
+const ticketDisplay = resolveProgramCardTicketDisplay(event, language, resolvedDayCard);
 ---
 
 <article class="event-card" data-event-date={resolvedDayCard?.eventDate.date || event.eventDate?.date}>
@@ -108,32 +107,5 @@ const badgeShowing = resolvedDayCard?.showings.find((showing) => showing.ticketT
     )}
   </dl>
 
-  {usesSharedTicketing ? (
-    <TicketButton
-      ticketType={event.ticketType}
-      ticketStatus={event.ticketStatus}
-      ticketUrl={event.ticketUrl}
-      ticketInfoText={event.ticketInfoText}
-      eventTitle={event.title}
-      language={language}
-    />
-  ) : primaryShowing && !resolvedDayCard?.hasMultipleShowings ? (
-    <TicketButton
-      ticketType={primaryShowing.ticketType}
-      ticketStatus={primaryShowing.ticketStatus}
-      ticketUrl={primaryShowing.ticketUrl}
-      ticketInfoText={primaryShowing.ticketInfoText}
-      eventTitle={event.title}
-      language={language}
-    />
-  ) : badgeShowing ? (
-    <TicketButton
-      ticketType={badgeShowing.ticketType}
-      ticketStatus={badgeShowing.ticketStatus}
-      ticketUrl={badgeShowing.ticketUrl}
-      ticketInfoText={badgeShowing.ticketInfoText}
-      eventTitle={event.title}
-      language={language}
-    />
-  ) : null}
+  <TicketButton display={ticketDisplay} eventTitle={event.title} />
 </article>
