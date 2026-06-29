@@ -1,7 +1,6 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createDataService } from '../../lib/sanity/dataService.js';
-import { QueryBuilder } from '../../lib/sanity/queryBuilder.js';
 import type { EventDayCard } from '../../lib/eventOccurrences';
 import {
   buildEventDayCards,
@@ -269,7 +268,7 @@ const rateLimiter = rateLimit({
   windowMs: 60 * 1000,
 });
 
-const PROGRAM_FILTER_DATA_CACHE_TTL_SECONDS = 60;
+const PROGRAM_FILTER_DATA_CACHE_TTL_SECONDS = 0;
 
 // OPTIONS handler for CORS preflight
 export const OPTIONS: APIRoute = async ({ request }) => {
@@ -321,12 +320,7 @@ export const GET: APIRoute = async ({ request, url }) => {
     const programPage = await getOrSetCachedValue(
       `program-filter-data:${language}`,
       PROGRAM_FILTER_DATA_CACHE_TTL_SECONDS,
-      async () => dataService.fetch(
-        QueryBuilder.programFilterData(language),
-        {},
-        `programFilterData:${language}`,
-        PROGRAM_FILTER_DATA_CACHE_TTL_SECONDS
-      ) as Promise<ProgramPageData>
+      async () => dataService.getProgramFilterData() as Promise<ProgramPageData>
     );
     const events: EventResult[] = (programPage?.selectedEvents || []).filter(
       (event): event is EventResult => event != null

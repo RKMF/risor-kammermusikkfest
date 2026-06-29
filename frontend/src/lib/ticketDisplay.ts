@@ -12,6 +12,8 @@ export interface ResolvedTicketDisplay {
   source: TicketDisplaySource;
 }
 
+export type TicketDisplayLanguage = 'no' | 'en';
+
 interface TicketFields {
   ticketType?: 'button' | 'info' | string;
   ticketStatus?: 'available' | 'low_stock' | 'sold_out' | string;
@@ -20,7 +22,7 @@ interface TicketFields {
 }
 
 interface ResolveTicketDisplayOptions extends TicketFields {
-  language: 'no' | 'en';
+  language: TicketDisplayLanguage;
   source?: TicketDisplaySource;
 }
 
@@ -29,15 +31,19 @@ const LABELS = {
     buy: 'Kjøp billetter her',
     few: 'Få billetter igjen',
     sold: 'Utsolgt',
-    free: 'Gratis',
+    infoFallback: 'Informasjon kommer',
   },
   en: {
     buy: 'Buy tickets',
     few: 'Few tickets left',
     sold: 'Sold out',
-    free: 'Free',
+    infoFallback: 'Information coming soon',
   },
 } as const;
+
+export function getDefaultInfoTicketLabel(language: TicketDisplayLanguage): string {
+  return LABELS[language].infoFallback;
+}
 
 function normalizeText(value?: string): string | undefined {
   const trimmed = value?.trim();
@@ -104,7 +110,7 @@ export function resolveTicketDisplay({
   if (ticketType === 'info') {
     return {
       mode: 'info',
-      label: infoText || labels.free,
+      label: infoText || labels.infoFallback,
       isDisabled: true,
       source,
     };
@@ -149,7 +155,7 @@ export function resolveTicketDisplay({
 
 export function resolveProgramCardTicketDisplay(
   event: EventResult,
-  language: 'no' | 'en',
+  language: TicketDisplayLanguage,
   dayCard?: EventDayCard | null
 ): ResolvedTicketDisplay {
   const { fields, source } = getProgramCardTicketFields(event, dayCard);
@@ -165,7 +171,7 @@ export function resolveProgramCardTicketDisplay(
 
 export function resolveEventPageTicketDisplay(
   event: EventResult,
-  language: 'no' | 'en',
+  language: TicketDisplayLanguage,
   showing?: EventShowingResult
 ): ResolvedTicketDisplay {
   const { fields, source } = getEventPageTicketFields(event, showing);

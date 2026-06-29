@@ -12,7 +12,7 @@ const CACHE_DURATION = {
   homepage: 60,
   page: 60,
   slugIndex: 60,
-  events: 60,
+  events: 0,
   articles: 60,
   artists: 60,
   default: 60
@@ -46,6 +46,11 @@ function getFromCache(key: string): any | null {
 }
 
 function setCache(key: string, data: any, duration: number): void {
+  if (duration <= 0) {
+    cache.delete(key);
+    return;
+  }
+
   cache.set(key, {
     data,
     timestamp: Date.now(),
@@ -66,6 +71,16 @@ export class SanityDataService {
       perspective: 'published',
       useCdn: true,
       ...options
+    };
+  }
+
+  private getFreshEventOptions(options: QueryOptions = {}): QueryOptions {
+    return {
+      ...options,
+      perspective: options.perspective || 'published',
+      useCdn: false,
+      token: options.token ?? this.defaultOptions.token,
+      stega: options.stega ?? this.defaultOptions.stega ?? false,
     };
   }
 
@@ -114,7 +129,7 @@ export class SanityDataService {
       : data;
 
     // Cache the result
-    const duration = cacheDuration || CACHE_DURATION.default;
+    const duration = cacheDuration ?? CACHE_DURATION.default;
     setCache(finalCacheKey, transformedData, duration);
 
     return transformedData;
@@ -137,11 +152,18 @@ export class SanityDataService {
       event: QueryBuilder.eventSlugs(this.language),
     }[kind]
 
+    const resolvedOptions = kind === 'event'
+      ? this.getFreshEventOptions(options)
+      : options;
+    const cacheDuration = kind === 'event'
+      ? CACHE_DURATION.events
+      : CACHE_DURATION.slugIndex;
+
     const slugs = await this.fetch(
       definition,
-      options,
+      resolvedOptions,
       this.getSlugIndexCacheKey(kind, options),
-      CACHE_DURATION.slugIndex,
+      cacheDuration,
       false,
       bypassCache
     )
@@ -201,9 +223,9 @@ export class SanityDataService {
   async getProgramPage(options: QueryOptions = {}) {
     return this.fetch(
       QueryBuilder.programPage(this.language),
-      options,
+      this.getFreshEventOptions(options),
       `programPage:${this.language}`,
-      CACHE_DURATION.page
+      CACHE_DURATION.events
     );
   }
 
@@ -279,12 +301,21 @@ export class SanityDataService {
     if (isDevelopment) console.log('[DataService] Fetching event with slug:', slug, 'language:', this.language);
     const result = await this.fetch(
       QueryBuilder.eventBySlug(slug, this.language),
-      options,
+      this.getFreshEventOptions(options),
       `event:${slug}:${this.language}`,
       CACHE_DURATION.events
     );
     if (isDevelopment) console.log('[DataService] Event query result:', result ? 'Found' : 'Not found');
     return result;
+  }
+
+  async getProgramFilterData(options: QueryOptions = {}) {
+    return this.fetch(
+      QueryBuilder.programFilterData(this.language),
+      this.getFreshEventOptions(options),
+      `programFilterData:${this.language}`,
+      CACHE_DURATION.events
+    );
   }
 
   async hasEventSlug(slug: string, options: QueryOptions = {}) {
