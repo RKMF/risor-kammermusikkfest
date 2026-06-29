@@ -39,6 +39,9 @@ export interface BilingualDocument {
   description_no?: unknown;
   description_en?: unknown;
   description?: unknown;
+  ticketInfoText_no?: string;
+  ticketInfoText_en?: string;
+  ticketInfoText?: string;
   extraContent_no?: unknown[];
   extraContent_en?: unknown[];
   extraContent?: unknown[];
@@ -163,7 +166,7 @@ export function transformMultilingualDocument<T extends BilingualDocument>(
   const transformed: BilingualDocument = { ...doc };
 
   // Add convenience fields with language-aware fallbacks
-  const multilingualFields = ['title', 'content', 'excerpt', 'description'];
+  const multilingualFields = ['title', 'content', 'excerpt', 'description', 'ticketInfoText', 'extraContent'];
 
   multilingualFields.forEach(field => {
     const value = getMultilingualValue(doc, field, language);
@@ -183,6 +186,13 @@ export function transformMultilingualDocument<T extends BilingualDocument>(
     const contentValue = getMultilingualValue(doc, 'content', language);
     if (contentValue && Array.isArray(contentValue)) {
       transformed.content = contentValue;
+    }
+  }
+
+  if (doc.extraContent_no || doc.extraContent_en) {
+    const extraContentValue = getMultilingualValue(doc, 'extraContent', language);
+    if (extraContentValue && Array.isArray(extraContentValue)) {
+      transformed.extraContent = extraContentValue;
     }
   }
 

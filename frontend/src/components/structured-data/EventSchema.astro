@@ -9,6 +9,7 @@
 import { stegaClean } from '@sanity/client/stega';
 import { getImageBuilder, IMAGE_QUALITY } from '../../lib/sanityImage';
 import { getNextUpcomingOccurrence } from '../../lib/eventOccurrences';
+import { resolveEventPageTicketDisplay } from '../../lib/ticketDisplay';
 
 interface EventData {
   _id: string;
@@ -106,9 +107,9 @@ const performers = (event.artists || [])
 // Build offers (ticket info)
 const ticketType = nextShowing?.ticketType || event.ticketType;
 const ticketUrl = nextShowing?.ticketUrl || event.ticketUrl;
-const ticketInfoText = nextShowing?.ticketInfoText || event.ticketInfoText;
 const ticketStatus = nextShowing?.ticketStatus || event.ticketStatus;
 const resolvedVenue = nextShowing?.venue || event.venue;
+const ticketDisplay = resolveEventPageTicketDisplay(event as any, lang, nextShowing as any);
 
 const offers = ticketType === 'button' && ticketUrl
   ? {
@@ -123,7 +124,7 @@ const offers = ticketType === 'button' && ticketUrl
   : ticketType === 'info'
     ? {
         '@type': 'Offer',
-        description: stegaClean(ticketInfoText) || (lang === 'en' ? 'Free admission' : 'Gratis inngang'),
+        description: stegaClean(ticketDisplay.label),
         availability: 'https://schema.org/InStock',
         price: 0,
         priceCurrency: 'NOK',
