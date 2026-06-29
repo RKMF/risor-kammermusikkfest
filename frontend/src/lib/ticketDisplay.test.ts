@@ -57,13 +57,13 @@ describe('resolveTicketDisplay', () => {
     expect(
       resolveTicketDisplay({
         ticketType: 'info',
-        ticketInfoText: 'Ferdig spilt',
+        ticketInfoText: 'Ferdigspilt',
         language: 'no',
         source: 'shared_event',
       })
     ).toMatchObject({
       mode: 'info',
-      label: 'Ferdig spilt',
+      label: 'Ferdigspilt',
       isDisabled: true,
       source: 'shared_event',
     });
@@ -72,6 +72,22 @@ describe('resolveTicketDisplay', () => {
   it('falls back to hidden when no usable ticket fields exist', () => {
     expect(resolveTicketDisplay({ language: 'no' }).mode).toBe('hidden');
   });
+
+  it('falls back to the localized neutral info text for info tickets without custom copy', () => {
+    expect(
+      resolveTicketDisplay({
+        ticketType: 'info',
+        language: 'no',
+      }).label
+    ).toBe('Informasjon kommer');
+
+    expect(
+      resolveTicketDisplay({
+        ticketType: 'info',
+        language: 'en',
+      }).label
+    ).toBe('Information coming soon');
+  });
 });
 
 describe('program card ticket resolution', () => {
@@ -79,7 +95,7 @@ describe('program card ticket resolution', () => {
     const event = createEvent({
       ticketingMode: 'shared',
       ticketType: 'info',
-      ticketInfoText: 'Ferdig spilt',
+      ticketInfoText: 'Ferdigspilt',
       ticketStatus: 'available',
     });
 
@@ -87,7 +103,7 @@ describe('program card ticket resolution', () => {
 
     expect(display).toMatchObject({
       mode: 'info',
-      label: 'Ferdig spilt',
+      label: 'Ferdigspilt',
       source: 'shared_event',
     });
   });
@@ -100,14 +116,14 @@ describe('program card ticket resolution', () => {
     });
     const showings = [
       createShowing({ _key: 'showing-1', ticketType: 'button', ticketStatus: 'available' }),
-      createShowing({ _key: 'showing-2', ticketType: 'info', ticketInfoText: 'Ferdig spilt' }),
+      createShowing({ _key: 'showing-2', ticketType: 'info', ticketInfoText: 'Ferdigspilt' }),
     ];
 
     const display = resolveProgramCardTicketDisplay(event, 'no', createDayCard(event, showings));
 
     expect(display).toMatchObject({
       mode: 'info',
-      label: 'Ferdig spilt',
+      label: 'Ferdigspilt',
       source: 'showing',
     });
   });
@@ -122,7 +138,7 @@ describe('event page ticket resolution', () => {
     });
     const showing = createShowing({
       ticketType: 'info',
-      ticketInfoText: 'Ferdig spilt',
+      ticketInfoText: 'Ferdigspilt',
       ticketStatus: undefined,
       ticketUrl: undefined,
     });
@@ -131,7 +147,7 @@ describe('event page ticket resolution', () => {
 
     expect(display).toMatchObject({
       mode: 'info',
-      label: 'Ferdig spilt',
+      label: 'Ferdigspilt',
       source: 'showing',
     });
   });
@@ -139,11 +155,11 @@ describe('event page ticket resolution', () => {
   it('uses the English concluded text when present', () => {
     const event = createEvent({
       ticketType: 'info',
-      ticketInfoText: 'This event has concluded',
+      ticketInfoText: 'Concert has concluded',
     });
 
     const display = resolveEventPageTicketDisplay(event, 'en');
-    expect(display.label).toBe('This event has concluded');
+    expect(display.label).toBe('Concert has concluded');
   });
 });
 
@@ -152,13 +168,13 @@ describe('renderTicketDisplayHtml', () => {
     const html = renderTicketDisplayHtml(
       {
         mode: 'info',
-        label: 'Ferdig spilt',
+        label: 'Ferdigspilt',
         isDisabled: true,
         source: 'shared_event',
       },
       (value) => value
     );
 
-    expect(html).toBe('<span class="ticket-badge">Ferdig spilt</span>');
+    expect(html).toBe('<span class="ticket-badge">Ferdigspilt</span>');
   });
 });
