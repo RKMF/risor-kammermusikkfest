@@ -1,5 +1,5 @@
 ---
-import { sanityClient } from "../lib/sanity/client";
+import { cachedSanityFetch } from '../lib/sanity/cachedFetch.js';
 import { createMultilingualField, detectLanguage } from "../lib/utils/language.js";
 import { sortEventsByMode } from '../lib/utils/eventOrdering';
 import EventCard from './EventCard.astro';
@@ -219,7 +219,7 @@ if (eventRefs.length > 0) {
     scheduledPeriod,
     seo
   }`
-  eventItems = await sanityClient.fetch(EVENT_QUERY, { eventIds: eventRefs })
+  eventItems = await cachedSanityFetch('event-scroll', EVENT_QUERY, { eventIds: eventRefs })
   eventItems.sort((a, b) => (itemOrder.get(a._id) ?? Infinity) - (itemOrder.get(b._id) ?? Infinity))
 }
 const programIndexLink = currentLanguage === 'no'

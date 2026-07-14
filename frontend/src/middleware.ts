@@ -1,4 +1,8 @@
 import type { MiddlewareHandler } from 'astro';
+import {
+  buildCanonicalProgramFilterPath,
+  hasValidProgramFilterParams,
+} from './lib/utils/programFilterState.js';
 
 /**
  * Security Middleware
@@ -40,6 +44,7 @@ const DYNAMIC_DETAIL_ROUTE_PATTERNS = [
   /^\/en\/artists\/[a-z0-9-]+$/,
   /^\/en\/program\/[a-z0-9-]+$/,
 ];
+const PROGRAM_PATHS = new Set(['/program', '/en/program']);
 
 export function isDynamicDetailRoutePath(pathname: string): boolean {
   return DYNAMIC_DETAIL_ROUTE_PATTERNS.some((pattern) => pattern.test(pathname));
@@ -110,7 +115,8 @@ function getCSPDirectives(): string {
 }
 
 export const onRequest: MiddlewareHandler = async (context, next) => {
-  const pathname = new URL(context.request.url).pathname.toLowerCase();
+  const requestUrl = new URL(context.request.url);
+  const pathname = requestUrl.pathname.toLowerCase();
   const earlyResponseStatus = getEarlyResponseStatus(pathname);
 
   if (earlyResponseStatus) {
@@ -118,6 +124,15 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
       status: earlyResponseStatus,
       headers: buildMissHeaders(),
     });
+  }
+
+  if (context.request.method === 'GET' && PROGRAM_PATHS.has(pathname)) {
+    const canonicalPath = buildCanonicalProgramFilterPath(pathname, requestUrl.searchParams);
+    const requestedPath = `${pathname}${requestUrl.search}`;
+
+    if (!hasValidProgramFilterParams(requestUrl.searchParams) || requestedPath !== canonicalPath) {
+      return context.redirect(canonicalPath, 308);
+    }
   }
 
   const response = await next();

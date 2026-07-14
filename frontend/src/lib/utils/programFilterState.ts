@@ -33,6 +33,8 @@ export interface ProgramFilterRenderState {
   venueButtons: ProgramFilterButtonState[];
 }
 
+export const MAX_PROGRAM_FILTER_VALUES = 10;
+
 export interface ProgramFilterDateGroup<TEvent extends { venue?: { slug?: string | null } | null }> {
   date: string;
   events: TEvent[];
@@ -46,7 +48,41 @@ function getValidatedUniqueValues(
     .map((value) => validator(value))
     .filter((value): value is string => Boolean(value));
 
-  return Array.from(new Set(validated));
+  return Array.from(new Set(validated)).sort().slice(0, MAX_PROGRAM_FILTER_VALUES);
+}
+
+export function hasValidProgramFilterParams(
+  searchParams: URLSearchParams,
+  allowLanguage: boolean = false
+): boolean {
+  const allowedKeys = new Set(allowLanguage ? ['date', 'venue', 'lang'] : ['date', 'venue']);
+  if (Array.from(searchParams.keys()).some((key) => !allowedKeys.has(key))) {
+    return false;
+  }
+
+  const dates = searchParams.getAll('date');
+  const venues = searchParams.getAll('venue');
+  if (dates.length > MAX_PROGRAM_FILTER_VALUES || venues.length > MAX_PROGRAM_FILTER_VALUES) {
+    return false;
+  }
+
+  if (dates.some((value) => InputValidator.validateDate(value) === null)) {
+    return false;
+  }
+
+  if (venues.some((value) => InputValidator.validateSlug(value) === null)) {
+    return false;
+  }
+
+  const languages = searchParams.getAll('lang');
+  if (!allowLanguage && languages.length > 0) {
+    return false;
+  }
+
+  return !allowLanguage || (
+    languages.length <= 1 &&
+    languages.every((language) => language === 'no' || language === 'en')
+  );
 }
 
 export function getValidatedSelectedDates(searchParams: URLSearchParams): string[] {
@@ -61,6 +97,17 @@ export function getValidatedSelectedVenues(searchParams: URLSearchParams): strin
   );
 }
 
+export function buildCanonicalProgramFilterPath(
+  basePath: string,
+  searchParams: URLSearchParams
+): string {
+  return buildProgramFilterPath(
+    basePath,
+    getValidatedSelectedDates(searchParams),
+    getValidatedSelectedVenues(searchParams)
+  );
+}
+
 export function buildProgramFilterPath(
   basePath: string,
   selectedDates: string[],
@@ -72,8 +119,10 @@ export function buildProgramFilterPath(
     params.set('lang', language);
   }
 
-  selectedDates.forEach((date) => params.append('date', date));
-  selectedVenues.forEach((venue) => params.append('venue', venue));
+  Array.from(new Set(selectedDates)).sort().slice(0, MAX_PROGRAM_FILTER_VALUES)
+    .forEach((date) => params.append('date', date));
+  Array.from(new Set(selectedVenues)).sort().slice(0, MAX_PROGRAM_FILTER_VALUES)
+    .forEach((venue) => params.append('venue', venue));
 
   const query = params.toString();
   return query ? `${basePath}?${query}` : basePath;

@@ -6,7 +6,7 @@
  */
 
 import type { APIRoute } from 'astro';
-import { sanityClient } from '../lib/sanity/client';
+import { cachedSanityFetch } from '../lib/sanity/cachedFetch';
 import { getSiteUrl } from '../lib/site';
 
 // Fetch only URLs that should be indexed.
@@ -117,7 +117,7 @@ function generateUrlEntry(loc: string, lastmod: string, priority: string, change
 export const GET: APIRoute = async () => {
   try {
     const SITE_URL = getSiteUrl();
-    const data = await sanityClient.fetch<SitemapData>(SITEMAP_QUERY);
+    const data = await cachedSanityFetch<SitemapData>('sitemap', SITEMAP_QUERY);
 
     const urls: string[] = [];
 

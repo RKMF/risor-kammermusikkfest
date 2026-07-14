@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { sanityClient } from '../lib/sanity/client';
+import { cachedSanityFetch } from '../lib/sanity/cachedFetch';
 import { getOrSetCachedValue } from '../lib/serverCache';
 import { getSiteUrl } from '../lib/site';
 
@@ -36,7 +36,10 @@ async function buildLlmsText(siteUrl: string): Promise<string> {
   let curatedPages: CuratedPageResult[] = [];
 
   try {
-    curatedPages = await sanityClient.fetch<CuratedPageResult[]>(CURATED_PAGE_QUERY);
+    curatedPages = await cachedSanityFetch<CuratedPageResult[]>(
+      'llms-pages',
+      CURATED_PAGE_QUERY
+    );
   } catch (error) {
     console.error('Failed to build llms.txt page list', error);
   }
