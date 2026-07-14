@@ -1,61 +1,33 @@
 import { sanityClient } from './client';
 import { QueryBuilder, buildQueryParams, type QueryDefinition, type QueryOptions } from './queryBuilder.js';
 import { transformMultilingualDocument, detectLanguage, type Language } from '../utils/language.js';
+import {
+  CONTENT_CACHE_TTL_SECONDS,
+  clearServerCache,
+  getOrSetCachedValue,
+} from '../serverCache.js';
 
 // Development mode flag for debug logging
 const isDevelopment = import.meta.env.DEV;
 
-// Cache configuration - disabled for instant content updates
-// Keep frontend freshness within roughly one minute while reducing repeated
-// Sanity reads inside the SSR runtime.
 const CACHE_DURATION = {
-  homepage: 60,
-  page: 60,
-  slugIndex: 60,
-  events: 0,
-  articles: 60,
-  artists: 60,
-  default: 60
+  homepage: CONTENT_CACHE_TTL_SECONDS,
+  page: CONTENT_CACHE_TTL_SECONDS,
+  slugIndex: CONTENT_CACHE_TTL_SECONDS,
+  events: CONTENT_CACHE_TTL_SECONDS,
+  articles: CONTENT_CACHE_TTL_SECONDS,
+  artists: CONTENT_CACHE_TTL_SECONDS,
+  default: CONTENT_CACHE_TTL_SECONDS
 };
-
-// In-memory cache
-interface CacheEntry {
-  data: any;
-  timestamp: number;
-  duration: number;
-}
-
-const cache = new Map<string, CacheEntry>();
 
 // Cache utilities
 function getCacheKey(query: string, params: any): string {
   return `${query}:${JSON.stringify(params)}`;
 }
 
-function isExpired(entry: CacheEntry): boolean {
-  return Date.now() - entry.timestamp > entry.duration * 1000;
-}
-
-function getFromCache(key: string): any | null {
-  const entry = cache.get(key);
-  if (!entry || isExpired(entry)) {
-    cache.delete(key);
-    return null;
-  }
-  return entry.data;
-}
-
-function setCache(key: string, data: any, duration: number): void {
-  if (duration <= 0) {
-    cache.delete(key);
-    return;
-  }
-
-  cache.set(key, {
-    data,
-    timestamp: Date.now(),
-    duration
-  });
+function getRequestTag(cacheKey: string): string {
+  const category = cacheKey.split(':', 1)[0].replace(/[^a-zA-Z0-9_-]/g, '-').toLowerCase();
+  return `query.${category || 'content'}`;
 }
 
 // Data service class
@@ -71,16 +43,6 @@ export class SanityDataService {
       perspective: 'published',
       useCdn: true,
       ...options
-    };
-  }
-
-  private getFreshEventOptions(options: QueryOptions = {}): QueryOptions {
-    return {
-      ...options,
-      perspective: options.perspective || 'published',
-      useCdn: false,
-      token: options.token ?? this.defaultOptions.token,
-      stega: options.stega ?? this.defaultOptions.stega ?? false,
     };
   }
 
@@ -100,39 +62,37 @@ export class SanityDataService {
     // Generate cache key including language
     const finalCacheKey = cacheKey || getCacheKey(query, { ...params, ...queryParams, lang: this.language });
 
-    // Check cache first
-    if (!bypassCache) {
-      const cached = getFromCache(finalCacheKey);
-      if (cached !== null) {
-        if (isDevelopment) console.log('[DataService] Returning cached result for:', finalCacheKey);
-        return cached;
-      }
-    }
-
-    // Fetch from Sanity with error handling
-    if (isDevelopment) console.log('[DataService] Executing GROQ query:', { query, params, queryParams });
-
-    let data: unknown;
-    try {
-      data = await this.client.fetch(query, params, queryParams);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      console.error('[DataService] Sanity fetch failed:', message);
-      throw new Error(`Failed to fetch data from Sanity: ${message}`);
-    }
-
-    if (isDevelopment) console.log('[DataService] Query returned:', data ? 'data' : 'null');
-
-    // Transform multilingual data if requested
-    const transformedData = transformMultilingual
-      ? this.transformData(data)
-      : data;
-
-    // Cache the result
     const duration = cacheDuration ?? CACHE_DURATION.default;
-    setCache(finalCacheKey, transformedData, duration);
+    const executeQuery = async () => {
+      if (isDevelopment) console.log('[DataService] Executing GROQ query:', { query, params, queryParams });
 
-    return transformedData;
+      let data: unknown;
+      try {
+        data = await this.client.fetch(query, params, {
+          ...queryParams,
+          tag: queryParams.tag ?? getRequestTag(finalCacheKey),
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.error('[DataService] Sanity fetch failed:', message);
+        throw new Error(`Failed to fetch data from Sanity: ${message}`);
+      }
+
+      if (isDevelopment) console.log('[DataService] Query returned:', data ? 'data' : 'null');
+      return transformMultilingual ? this.transformData(data) : data;
+    };
+
+    const isPublicPublishedQuery = (
+      mergedOptions.perspective === 'published' &&
+      mergedOptions.useCdn !== false &&
+      !mergedOptions.token
+    );
+
+    if (bypassCache || !isPublicPublishedQuery) {
+      return executeQuery() as Promise<T>;
+    }
+
+    return getOrSetCachedValue<T>(finalCacheKey, duration, executeQuery as () => Promise<T>);
   }
 
   private getSlugIndexCacheKey(kind: string, options: QueryOptions = {}): string {
@@ -152,18 +112,11 @@ export class SanityDataService {
       event: QueryBuilder.eventSlugs(this.language),
     }[kind]
 
-    const resolvedOptions = kind === 'event'
-      ? this.getFreshEventOptions(options)
-      : options;
-    const cacheDuration = kind === 'event'
-      ? CACHE_DURATION.events
-      : CACHE_DURATION.slugIndex;
-
     const slugs = await this.fetch(
       definition,
-      resolvedOptions,
+      options,
       this.getSlugIndexCacheKey(kind, options),
-      cacheDuration,
+      CACHE_DURATION.slugIndex,
       false,
       bypassCache
     )
@@ -177,12 +130,7 @@ export class SanityDataService {
     options: QueryOptions = {}
   ): Promise<boolean> {
     const cachedSlugs = await this.getSlugIndex(kind, options)
-    if (cachedSlugs.has(slug)) {
-      return true
-    }
-
-    const refreshedSlugs = await this.getSlugIndex(kind, options, true)
-    return refreshedSlugs.has(slug)
+    return cachedSlugs.has(slug)
   }
 
   // Transform data to include language-aware fields
@@ -223,7 +171,7 @@ export class SanityDataService {
   async getProgramPage(options: QueryOptions = {}) {
     return this.fetch(
       QueryBuilder.programPage(this.language),
-      this.getFreshEventOptions(options),
+      options,
       `programPage:${this.language}`,
       CACHE_DURATION.events
     );
@@ -301,7 +249,7 @@ export class SanityDataService {
     if (isDevelopment) console.log('[DataService] Fetching event with slug:', slug, 'language:', this.language);
     const result = await this.fetch(
       QueryBuilder.eventBySlug(slug, this.language),
-      this.getFreshEventOptions(options),
+      options,
       `event:${slug}:${this.language}`,
       CACHE_DURATION.events
     );
@@ -312,7 +260,7 @@ export class SanityDataService {
   async getProgramFilterData(options: QueryOptions = {}) {
     return this.fetch(
       QueryBuilder.programFilterData(this.language),
-      this.getFreshEventOptions(options),
+      options,
       `programFilterData:${this.language}`,
       CACHE_DURATION.events
     );
@@ -334,15 +282,8 @@ export class SanityDataService {
   }
 
   // Cache management
-  clearCache(): void {
-    cache.clear();
-  }
-
-  getCacheStats(): { size: number; entries: string[] } {
-    return {
-      size: cache.size,
-      entries: Array.from(cache.keys())
-    };
+  async clearCache(): Promise<void> {
+    await clearServerCache();
   }
 
 }
@@ -355,7 +296,6 @@ export function createDataService(request?: Request): SanityDataService {
   return new SanityDataService({
     perspective: 'published',
     useCdn: true,
-    token: import.meta.env.SANITY_API_READ_TOKEN,
     stega: false
   }, language);
 }

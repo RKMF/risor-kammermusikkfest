@@ -1258,6 +1258,8 @@ export interface QueryOptions {
   token?: string
   /** Enable Stega encoding when explicitly needed by a caller */
   stega?: boolean
+  /** Request tag used to attribute Sanity usage logs */
+  tag?: string
 }
 
 /**
@@ -1272,6 +1274,7 @@ export function buildQueryParams(options: QueryOptions = {}) {
     perspective: options.perspective || 'published',
     useCdn: options.useCdn ?? options.perspective === 'published',
     token: options.token,
-    stega: options.stega || false
+    stega: options.stega || false,
+    tag: options.tag
   }
 }

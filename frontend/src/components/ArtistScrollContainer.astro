@@ -1,5 +1,5 @@
 ---
-import { sanityClient } from "../lib/sanity/client";
+import { cachedSanityFetch } from '../lib/sanity/cachedFetch.js';
 import ArtistCard from './ArtistCard.astro';
 import ScrollNavigation from './ScrollNavigation.astro';
 import { createMultilingualField, detectLanguage } from '../lib/utils/language.js';
@@ -86,7 +86,7 @@ if (artistRefs.length > 0) {
     instagramUrl,
     seo
   }`
-  artistData = await sanityClient.fetch(ARTIST_QUERY, { artistIds: artistRefs })
+  artistData = await cachedSanityFetch('artist-scroll', ARTIST_QUERY, { artistIds: artistRefs })
   artistData.sort((a: any, b: any) => (itemOrder.get(a._id) ?? Infinity) - (itemOrder.get(b._id) ?? Infinity))
 }
 

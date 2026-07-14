@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { defineQuery } from 'groq';
-import { sanityClient } from '../../lib/sanity/client';
+import { cachedSanityFetch } from '../../lib/sanity/cachedFetch';
 
 /**
  * Health Check Endpoint
@@ -47,9 +47,11 @@ export const GET: APIRoute = async () => {
 
   try {
     // Test Sanity connection with simple query
-    const result = await sanityClient.fetch(HEALTH_CHECK_QUERY, {}, {
-      // Short timeout for health checks
-      timeout: 5000,
+    const result = await cachedSanityFetch('health', HEALTH_CHECK_QUERY, {}, {
+      ttlSeconds: 60,
+      queryOptions: {
+        timeout: 5000,
+      },
     });
 
     if (!result) {

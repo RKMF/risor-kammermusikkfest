@@ -1,6 +1,6 @@
 ---
 import { resolveLinkUrl } from '../lib/buildInternalUrl';
-import { sanityClient } from '../lib/sanity/client';
+import { cachedSanityFetch } from '../lib/sanity/cachedFetch.js';
 import { QueryBuilder } from '../lib/sanity/queryBuilder.js';
 import { detectLanguage } from '../lib/utils/language.js';
 
@@ -41,7 +41,8 @@ const hasLinks = links.length > 0;
 let tekstLogoSvg = '';
 try {
   const { query: logoQuery, params: logoParams } = QueryBuilder.siteSettingsTekstLogo();
-  const logoData = await sanityClient.fetch<{ tekstLogo?: { image?: { asset?: { url?: string } } } }>(
+  const logoData = await cachedSanityFetch<{ tekstLogo?: { image?: { asset?: { url?: string } } } }>(
+    'homepage-logo',
     logoQuery,
     logoParams
   );
