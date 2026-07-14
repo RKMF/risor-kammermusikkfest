@@ -1,5 +1,5 @@
 ---
-import { sanityClient } from "../lib/sanity/client";
+import { cachedSanityFetch } from '../lib/sanity/cachedFetch.js';
 import ComposerCard from './ComposerCard.astro';
 import ScrollNavigation from './ScrollNavigation.astro';
 import { detectLanguage } from '../lib/utils/language.js';
@@ -65,7 +65,7 @@ if (composerRefs.length > 0) {
       "credit": coalesce(imageCredit_no, imageCredit_en)
     }
   }`
-  composerData = await sanityClient.fetch(COMPOSER_QUERY, { composerIds: composerRefs })
+  composerData = await cachedSanityFetch('composer-scroll', COMPOSER_QUERY, { composerIds: composerRefs })
   composerData.sort((a: any, b: any) => (itemOrder.get(a._id) ?? Infinity) - (itemOrder.get(b._id) ?? Infinity))
 }
 

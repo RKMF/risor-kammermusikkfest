@@ -5,11 +5,11 @@ describe('SanityDataService slug index caching', () => {
   let fetchMock: ReturnType<typeof vi.fn>;
   let service: SanityDataService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     fetchMock = vi.fn();
     service = new SanityDataService({}, 'no');
     (service as any).client = { fetch: fetchMock };
-    service.clearCache();
+    await service.clearCache();
   });
 
   it('reuses the cached slug index for known slugs', async () => {
@@ -21,16 +21,15 @@ describe('SanityDataService slug index caching', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it('refreshes the slug index once when a warm cache misses', async () => {
-    fetchMock
-      .mockResolvedValueOnce(['known-slug'])
-      .mockResolvedValueOnce(['known-slug']);
+  it('reuses the cached slug index for missing slugs', async () => {
+    fetchMock.mockResolvedValueOnce(['known-slug']);
 
     await expect(service.hasPageSlug('missing-slug')).resolves.toBe(false);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    await expect(service.hasPageSlug('another-missing-slug')).resolves.toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it('bypasses the Sanity CDN for event slug lookups', async () => {
+  it('uses the Sanity CDN for event slug lookups', async () => {
     fetchMock.mockResolvedValueOnce(['known-event']);
 
     await expect(service.hasEventSlug('known-event')).resolves.toBe(true);
@@ -38,7 +37,7 @@ describe('SanityDataService slug index caching', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock.mock.calls[0]?.[2]).toMatchObject({
       perspective: 'published',
-      useCdn: false,
+      useCdn: true,
     });
   });
 });
@@ -47,14 +46,14 @@ describe('SanityDataService event freshness and multilingual transforms', () => 
   let fetchMock: ReturnType<typeof vi.fn>;
   let service: SanityDataService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     fetchMock = vi.fn();
     service = new SanityDataService({}, 'no');
     (service as any).client = { fetch: fetchMock };
-    service.clearCache();
+    await service.clearCache();
   });
 
-  it('bypasses the Sanity CDN for event detail reads', async () => {
+  it('uses the Sanity CDN for event detail reads', async () => {
     fetchMock.mockResolvedValueOnce({
       _id: 'event-1',
       _type: 'event',
@@ -67,7 +66,7 @@ describe('SanityDataService event freshness and multilingual transforms', () => 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock.mock.calls[0]?.[2]).toMatchObject({
       perspective: 'published',
-      useCdn: false,
+      useCdn: true,
     });
   });
 

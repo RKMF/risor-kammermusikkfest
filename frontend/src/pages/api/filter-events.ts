@@ -2,6 +2,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import {defineQuery} from 'groq';
 import { sanityClient } from '../../lib/sanity/client';
+import { cachedSanityFetch } from '../../lib/sanity/cachedFetch';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import type { SanityImageSource } from '@sanity/image-url';
 import {
@@ -252,7 +253,7 @@ export const POST: APIRoute = async ({ request }) => {
       ticketStatus
     }`)
 
-    const events = await sanityClient.fetch<EventResult[]>(FILTER_EVENTS_QUERY, {
+    const events = await cachedSanityFetch<EventResult[]>('filter-events', FILTER_EVENTS_QUERY, {
       eventDate: filters.eventDate || undefined,
       genre: filters.genre || undefined,
       venue: filters.venue || undefined,

@@ -1,5 +1,5 @@
 ---
-import { sanityClient } from "../lib/sanity/client";
+import { cachedSanityFetch } from '../lib/sanity/cachedFetch.js';
 import { createMultilingualField, detectLanguage } from "../lib/utils/language.js";
 import { formatDateForLanguage } from '../lib/utils/dates';
 import { getOptimizedImageUrl, getResponsiveImageSet, IMAGE_QUALITY } from '../lib/sanityImage';
@@ -98,7 +98,7 @@ if (articleRefs.length > 0) {
     publishingStatus,
     scheduledPeriod
   }`
-  articleData = await sanityClient.fetch(ARTICLE_QUERY, { articleIds: articleRefs })
+  articleData = await cachedSanityFetch('article-scroll', ARTICLE_QUERY, { articleIds: articleRefs })
   articleData.sort((a: any, b: any) => (itemOrder.get(a._id) ?? Infinity) - (itemOrder.get(b._id) ?? Infinity))
 }
 

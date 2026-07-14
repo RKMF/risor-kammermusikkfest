@@ -24,7 +24,6 @@ export async function GET(context: { params: { slug?: string }; request: Request
     {
       perspective: 'published',
       useCdn: true,
-      token: import.meta.env.SANITY_API_READ_TOKEN,
       stega: false,
     },
     language

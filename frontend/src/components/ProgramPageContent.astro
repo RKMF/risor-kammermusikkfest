@@ -32,7 +32,7 @@ const dataService = createDataService(Astro.request);
 
 // Clear cache in development to ensure fresh data
 if (import.meta.env.DEV) {
-  dataService.clearCache();
+  await dataService.clearCache();
 }
 
 // Fetch program page content

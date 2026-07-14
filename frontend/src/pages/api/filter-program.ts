@@ -18,6 +18,7 @@ import {
   buildProgramFilterRenderState,
   getValidatedSelectedDates,
   getValidatedSelectedVenues,
+  hasValidProgramFilterParams,
 } from '../../lib/utils/programFilterState';
 import { stegaClean } from '@sanity/client/stega';
 import {
@@ -26,7 +27,6 @@ import {
   getSecurityHeaders
 } from '../../lib/security';
 import { getOptimizedImageUrl, getResponsiveImageSet, IMAGE_QUALITY } from '../../lib/sanityImage';
-import { getOrSetCachedValue } from '../../lib/serverCache.js';
 
 interface DateGroup {
   date: string;
@@ -268,8 +268,6 @@ const rateLimiter = rateLimit({
   windowMs: 60 * 1000,
 });
 
-const PROGRAM_FILTER_DATA_CACHE_TTL_SECONDS = 0;
-
 // OPTIONS handler for CORS preflight
 export const OPTIONS: APIRoute = async ({ request }) => {
   const origin = request.headers.get('origin') ?? undefined;
@@ -303,6 +301,13 @@ export const GET: APIRoute = async ({ request, url }) => {
       );
     }
 
+    if (!hasValidProgramFilterParams(url.searchParams, true)) {
+      return new Response('Invalid program filters', {
+        status: 400,
+        headers: getSecurityHeaders(),
+      });
+    }
+
     // Get and validate filters from URL
     const language = (url.searchParams.get('lang') || 'no') as 'no' | 'en';
     const selectedDates = getValidatedSelectedDates(url.searchParams);
@@ -314,14 +319,10 @@ export const GET: APIRoute = async ({ request, url }) => {
 
     // Clear cache in development
     if (import.meta.env.DEV) {
-      dataService.clearCache();
+      await dataService.clearCache();
     }
 
-    const programPage = await getOrSetCachedValue(
-      `program-filter-data:${language}`,
-      PROGRAM_FILTER_DATA_CACHE_TTL_SECONDS,
-      async () => dataService.getProgramFilterData() as Promise<ProgramPageData>
-    );
+    const programPage = await dataService.getProgramFilterData() as ProgramPageData;
     const events: EventResult[] = (programPage?.selectedEvents || []).filter(
       (event): event is EventResult => event != null
     );
@@ -331,6 +332,18 @@ export const GET: APIRoute = async ({ request, url }) => {
       title: card.eventDate.title,
     }));
     const availableVenues = deriveAvailableVenues(dayCards, programPage?.venueFilterOrder || []);
+
+    const availableDateValues = new Set(availableDates.map((entry) => entry.date));
+    const availableVenueValues = new Set(availableVenues.map((entry) => entry.slug));
+    if (
+      selectedDates.some((date) => !availableDateValues.has(date)) ||
+      selectedVenues.some((venue) => !availableVenueValues.has(venue))
+    ) {
+      return new Response('Unknown program filters', {
+        status: 400,
+        headers: getSecurityHeaders(),
+      });
+    }
 
     // Group event day cards by date
     const eventsByDate = dayCards.reduce<Record<string, DateGroup>>((acc, dayCard) => {
@@ -455,7 +468,8 @@ export const GET: APIRoute = async ({ request, url }) => {
     return new Response(html, {
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'public, max-age=300, stale-while-revalidate=60',
+        'Cache-Control': 'public, max-age=0, must-revalidate',
+        'Vercel-CDN-Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
         'HX-Push-Url': pushUrl,
         ...getCORSHeaders(origin),
         ...getSecurityHeaders(),
