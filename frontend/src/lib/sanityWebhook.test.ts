@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { encodeSignatureHeader, SIGNATURE_HEADER_NAME } from '@sanity/webhook';
-import { POST } from './sanity';
+import { POST } from '../pages/api/webhooks/sanity';
 
 const SECRET = 'test-webhook-secret';
 
