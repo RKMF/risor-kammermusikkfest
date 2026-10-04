@@ -5,6 +5,7 @@ import {fileURLToPath} from 'node:url'
 const scriptDir = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(scriptDir, '..')
 const studioNodeModules = path.join(repoRoot, 'studio', 'node_modules')
+const studioBin = path.join(studioNodeModules, '.bin')
 
 const scopes = ['@codemirror', '@lezer', '@sanity']
 
@@ -41,7 +42,15 @@ function ensureScopedLink(scope) {
 }
 
 fs.mkdirSync(studioNodeModules, {recursive: true})
+fs.mkdirSync(studioBin, {recursive: true})
 
 for (const scope of scopes) {
   ensureScopedLink(scope)
+}
+
+const sanityBinSource = path.join(repoRoot, 'node_modules', '.bin', 'sanity')
+const sanityBinTarget = path.join(studioBin, 'sanity')
+
+if (fs.existsSync(sanityBinSource) && !fs.existsSync(sanityBinTarget)) {
+  fs.symlinkSync(path.relative(path.dirname(sanityBinTarget), sanityBinSource), sanityBinTarget)
 }
