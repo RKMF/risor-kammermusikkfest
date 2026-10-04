@@ -1,6 +1,18 @@
 import { sanityClient } from './client';
+import type { QueryParams } from '@sanity/client';
 import { QueryBuilder, buildQueryParams, type QueryDefinition, type QueryOptions } from './queryBuilder.js';
 import { transformMultilingualDocument, detectLanguage, type Language } from '../utils/language.js';
+import type {
+  ArtistPageResult,
+  ArtistResult,
+  ArticlePageResult,
+  ArticleResult,
+  EventResult,
+  GenericPageResult,
+  HomepageResult,
+  ProgramPageResult,
+  SponsorPageResult,
+} from './queries';
 import {
   CONTENT_CACHE_TTL_SECONDS,
   clearServerCache,
@@ -47,8 +59,8 @@ export class SanityDataService {
   }
 
   // Execute query with caching and multilingual transformation
-  async fetch<T = unknown>(
-    definition: QueryDefinition<T>,
+  async fetch<T = unknown, TParams extends QueryParams = QueryParams>(
+    definition: QueryDefinition<TParams>,
     options: QueryOptions = {},
     cacheKey?: string,
     cacheDuration?: number,
@@ -68,7 +80,7 @@ export class SanityDataService {
 
       let data: unknown;
       try {
-        data = await this.client.fetch(query, params, {
+        data = await this.client.fetch(query, params as QueryParams, {
           ...queryParams,
           tag: queryParams.tag ?? getRequestTag(finalCacheKey),
         });
@@ -143,7 +155,7 @@ export class SanityDataService {
 
   // Homepage methods
   async getHomepage(options: QueryOptions = {}) {
-    return this.fetch(
+    return this.fetch<HomepageResult | null>(
       QueryBuilder.homepage(this.language),
       options,
       `homepage:${this.language}`,
@@ -154,7 +166,7 @@ export class SanityDataService {
   // Page methods
   async getPageBySlug(slug: string, options: QueryOptions = {}) {
     if (isDevelopment) console.log('[DataService.getPageBySlug] Called with:', { slug, language: this.language });
-    const result = await this.fetch(
+    const result = await this.fetch<GenericPageResult | null>(
       QueryBuilder.pageBySlug(slug, this.language),
       options,
       `page:${slug}:${this.language}`,
@@ -169,7 +181,7 @@ export class SanityDataService {
   }
 
   async getProgramPage(options: QueryOptions = {}) {
-    return this.fetch(
+    return this.fetch<ProgramPageResult | null>(
       QueryBuilder.programPage(this.language),
       options,
       `programPage:${this.language}`,
@@ -178,7 +190,7 @@ export class SanityDataService {
   }
 
   async getArtistPage(options: QueryOptions = {}) {
-    return this.fetch(
+    return this.fetch<ArtistPageResult | null>(
       QueryBuilder.artistPage(this.language),
       options,
       `artistPage:${this.language}`,
@@ -187,7 +199,7 @@ export class SanityDataService {
   }
 
   async getArticlePage(options: QueryOptions = {}) {
-    return this.fetch(
+    return this.fetch<ArticlePageResult | null>(
       QueryBuilder.articlePage(this.language),
       options,
       `articlePage:${this.language}`,
@@ -196,7 +208,7 @@ export class SanityDataService {
   }
 
   async getSponsorPage(options: QueryOptions = {}) {
-    return this.fetch(
+    return this.fetch<SponsorPageResult | null>(
       QueryBuilder.sponsorPage(this.language),
       options,
       `sponsorPage:${this.language}`,
@@ -207,7 +219,7 @@ export class SanityDataService {
   // Article methods
   async getArticleBySlug(slug: string, options: QueryOptions = {}) {
     if (isDevelopment) console.log('[DataService] Getting article by slug:', slug, 'language:', this.language);
-    const result = await this.fetch(
+    const result = await this.fetch<ArticleResult | null>(
       QueryBuilder.articleBySlug(slug, this.language),
       options,
       `article:${slug}:${this.language}`,
@@ -222,7 +234,7 @@ export class SanityDataService {
   }
 
   async getPublishedArticles(options: QueryOptions = {}) {
-    return this.fetch(
+    return this.fetch<ArticleResult[]>(
       QueryBuilder.publishedArticles(),
       options,
       'articles:published',
@@ -232,7 +244,7 @@ export class SanityDataService {
 
   // Artist methods
   async getArtistBySlug(slug: string, options: QueryOptions = {}) {
-    return this.fetch(
+    return this.fetch<ArtistResult | null>(
       QueryBuilder.artistBySlug(slug, this.language),
       options,
       `artist:${slug}:${this.language}`,
@@ -247,7 +259,7 @@ export class SanityDataService {
   // Event methods
   async getEventBySlug(slug: string, options: QueryOptions = {}) {
     if (isDevelopment) console.log('[DataService] Fetching event with slug:', slug, 'language:', this.language);
-    const result = await this.fetch(
+    const result = await this.fetch<EventResult | null>(
       QueryBuilder.eventBySlug(slug, this.language),
       options,
       `event:${slug}:${this.language}`,
@@ -258,7 +270,7 @@ export class SanityDataService {
   }
 
   async getProgramFilterData(options: QueryOptions = {}) {
-    return this.fetch(
+    return this.fetch<EventResult[]>(
       QueryBuilder.programFilterData(this.language),
       options,
       `programFilterData:${this.language}`,
@@ -272,7 +284,7 @@ export class SanityDataService {
 
   // Slug generation for static paths
   async getSlugsForType(type: string, options: QueryOptions = {}) {
-    return this.fetch(
+    return this.fetch<string[]>(
       QueryBuilder.slugsForType(type),
       options,
       `slugs:${type}`,

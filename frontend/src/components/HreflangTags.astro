@@ -1,15 +1,13 @@
 ---
-import type { Language } from '../lib/utils/language';
 import { getSiteUrl } from '../lib/site';
 
 interface Props {
-  currentLang: Language;
   currentPath: string;
   slugNo?: string;
   slugEn?: string;
 }
 
-const { currentLang, currentPath, slugNo, slugEn } = Astro.props;
+const { currentPath, slugNo, slugEn } = Astro.props;
 
 // Get base URL from environment or request
 const baseUrl = getSiteUrl(Astro.request);
