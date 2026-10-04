@@ -28,12 +28,17 @@
     "typegen": "npm run typegen --workspace=studio"
   },
   "devDependencies": {
-    "vite": "7.3.5"
+    "esbuild": "0.28.2",
+    "vite": "8.3.0"
   },
   "overrides": {
     "sanity": "6.0.0",
     "path-to-regexp": "6.3.0",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "react-is": "19.2.7",
     "rollup": "4.61.1",
+    "tar": "7.5.22",
     "anymatch@3.1.3": {
       "picomatch": "2.3.2"
     }
