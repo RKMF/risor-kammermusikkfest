@@ -72,14 +72,12 @@ const description = providedDescription || (
 const { query: menuQuery, params: menuParams } = QueryBuilder.siteSettingsMenu();
 const menuData = await cachedSanityFetch<{
   menuItems: MenuItem[];
-  symbolLogo?: { name: string; image: any };
 }>(
   'layout-menu',
   menuQuery,
   menuParams
 );
 const menuItems = menuData?.menuItems || [];
-const symbolLogo = menuData?.symbolLogo;
 
 const { query: footerQuery, params: footerParams } = QueryBuilder.siteSettingsFooter();
 const siteSettings = await cachedSanityFetch<SiteSettings>('layout-footer', footerQuery, footerParams);
@@ -112,7 +110,6 @@ const faviconMimeType = siteSettings?.favicon?.asset?.mimeType || 'image/svg+xml
     />
 
     <HreflangTags
-      currentLang={currentLang}
       currentPath={currentPath}
       slugNo={slugNo}
       slugEn={slugEn}
@@ -289,7 +286,6 @@ const faviconMimeType = siteSettings?.favicon?.asset?.mimeType || 'image/svg+xml
       slugNo={slugNo}
       slugEn={slugEn}
       menuItems={menuItems}
-      symbolLogo={symbolLogo}
     />
 
     <main id="main-content" class:list={['main-content', { 'main-content--frontpage': frontpage }]} tabindex="-1">

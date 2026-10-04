@@ -335,9 +335,9 @@ Container queries let components respond to their container's size, not the view
 **2. Children fill parent column space:**
 ```css
 /* Children inside layout containers fill available column space */
-.grid-container > .grid-item > :global(*),
-.two-column-layout > .column > :global(*),
-.three-column-layout > .column > :global(*) {
+.grid-container > .grid-item > *,
+.two-column-layout > .column > *,
+.three-column-layout > .column > * {
   width: 100% !important;
   max-width: 100% !important;
   margin-inline: 0 !important;

@@ -116,17 +116,6 @@ const getDisplayWidth = (size: string): number => {
   }
 };
 
-// Define responsive breakpoints based on size
-const getImageWidths = (size: string): number[] => {
-  switch (size) {
-    case 'small': return [300, 400, 600];
-    case 'medium': return [400, 600, 800, 1200];
-    case 'large': return [600, 800, 1200, 1600];
-    case 'full': return [800, 1200, 1600, 2000];
-    default: return [400, 600, 800, 1200];
-  }
-};
-
 // Generate automatic sizes attribute if not provided
 const getAutoSizes = (size: string): string => {
   switch (size) {

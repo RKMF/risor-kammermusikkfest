@@ -139,7 +139,7 @@
   --component-width: 100%;
   --component-max-width: 100%;
 }
-.grid-container[data-columns] > .grid-item > :global(*) {
+.grid-container[data-columns] > .grid-item > * {
   margin-inline: 0;
 }
 
@@ -148,7 +148,7 @@
   --component-width: 100%;
   --component-max-width: 100%;
 }
-.two-column-layout[data-layout-context] > .column > :global(*) {
+.two-column-layout[data-layout-context] > .column > * {
   margin-inline: 0;
 }
 
@@ -157,7 +157,7 @@
   --component-width: 100%;
   --component-max-width: 100%;
 }
-.three-column-layout[data-layout-context] > .column > :global(*) {
+.three-column-layout[data-layout-context] > .column > * {
   margin-inline: 0;
 }
 
