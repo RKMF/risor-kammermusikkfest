@@ -1,19 +1,8 @@
 /** Central GROQ query definitions and reusable projections. */
 
 import {defineQuery} from 'groq'
+import type {QueryParams} from '@sanity/client'
 import {createMultilingualField, type Language} from '../utils/language.js'
-import type {
-  ArtistPageResult,
-  ArtistResult,
-  ArticlePageResult,
-  ArticleResult,
-  EventResult,
-  GenericPageResult,
-  HomepageResult,
-  ProgramPageResult,
-  SponsorPageResult,
-} from './queries'
-
 // Staging can see staging + published content; production sees published content only.
 
 const isStaging = import.meta.env.PUBLIC_SITE_ENV === 'staging'
@@ -46,13 +35,10 @@ const EVENT_ORDER_ASC = `eventDateValue asc, eventStartTimeValue asc, coalesce(t
 const EVENT_ORDER_TIME_ASC = `eventStartTimeValue asc, coalesce(title_no, title_en, title) asc`
 
 /**
- * Type-safe query definition with typed params and expected result.
- * All QueryBuilder methods return this interface for consistent data fetching.
+ * Type-safe query definition with typed params.
+ * Result types are applied at the data-service boundary where fetches execute.
  */
-export interface QueryDefinition<
-  TResult = unknown,
-  TParams extends Record<string, unknown> = Record<string, unknown>
-> {
+export interface QueryDefinition<TParams extends QueryParams = QueryParams> {
   query: ReturnType<typeof defineQuery>
   params: TParams
 }
@@ -1152,67 +1138,67 @@ const SITE_SETTINGS_TEKST_LOGO_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
 
 export const QueryBuilder = {
   /** Fetch the active homepage (default or scheduled) */
-  homepage(language: Language = 'no'): QueryDefinition<HomepageResult | null> {
+  homepage(language: Language = 'no'): QueryDefinition {
     return {query: buildHomepageQuery(language), params: {}}
   },
   /** Fetch a generic page by its slug */
-  pageBySlug(slug: string, language: Language = 'no'): QueryDefinition<GenericPageResult | null, {slug: string}> {
+  pageBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
     return {query: buildPageBySlugQuery(language), params: {slug}}
   },
-  pageSlugs(language: Language = 'no'): QueryDefinition<string[]> {
+  pageSlugs(language: Language = 'no'): QueryDefinition {
     return {query: buildPageSlugsQuery(language), params: {}}
   },
   /** Fetch program listing page with selected events */
-  programPage(language: Language = 'no'): QueryDefinition<ProgramPageResult | null> {
+  programPage(language: Language = 'no'): QueryDefinition {
     return {query: buildProgramPageQuery(language), params: {}}
   },
   /** Fetch lightweight program listing data for HTMX filtering */
-  programFilterData(language: Language = 'no'): QueryDefinition<EventResult[]> {
+  programFilterData(language: Language = 'no'): QueryDefinition {
     return {query: buildProgramFilterDataQuery(language), params: {}}
   },
   /** Fetch artist listing page with selected artists */
-  artistPage(language: Language = 'no'): QueryDefinition<ArtistPageResult | null> {
+  artistPage(language: Language = 'no'): QueryDefinition {
     return {query: buildArtistPageQuery(language), params: {}}
   },
   /** Fetch article listing page with articles */
-  articlePage(language: Language = 'no'): QueryDefinition<ArticlePageResult | null> {
+  articlePage(language: Language = 'no'): QueryDefinition {
     return {query: buildArticlePageQuery(language), params: {}}
   },
   /** Fetch sponsor page with selected sponsors */
-  sponsorPage(language: Language = 'no'): QueryDefinition<SponsorPageResult | null> {
+  sponsorPage(language: Language = 'no'): QueryDefinition {
     return {query: buildSponsorPageQuery(language), params: {}}
   },
   /** Fetch a single event by its slug */
-  eventBySlug(slug: string, language: Language = 'no'): QueryDefinition<EventResult, {slug: string}> {
+  eventBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
     return {query: buildEventBySlugQuery(language), params: {slug}}
   },
-  eventSlugs(language: Language = 'no'): QueryDefinition<string[]> {
+  eventSlugs(language: Language = 'no'): QueryDefinition {
     return {query: buildEventSlugsQuery(language), params: {}}
   },
   /** Fetch a single artist by their slug, including their events */
-  artistBySlug(slug: string, language: Language = 'no'): QueryDefinition<ArtistResult, {slug: string}> {
+  artistBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
     return {query: buildArtistBySlugQuery(language), params: {slug}}
   },
-  artistSlugs(): QueryDefinition<string[]> {
+  artistSlugs(): QueryDefinition {
     return {query: buildArtistSlugsQuery, params: {}}
   },
   /** Fetch a single article by its slug */
-  articleBySlug(slug: string, language: Language = 'no'): QueryDefinition<ArticleResult, {slug: string}> {
+  articleBySlug(slug: string, language: Language = 'no'): QueryDefinition<{slug: string}> {
     return {query: buildArticleBySlugQuery(language), params: {slug}}
   },
-  articleSlugs(language: Language = 'no'): QueryDefinition<string[]> {
+  articleSlugs(language: Language = 'no'): QueryDefinition {
     return {query: buildArticleSlugsQuery(language), params: {}}
   },
   /** Fetch all published articles ordered by date */
-  publishedArticles(language: Language = 'no'): QueryDefinition<ArticleResult[]> {
+  publishedArticles(language: Language = 'no'): QueryDefinition {
     return {query: buildPublishedArticlesQuery(language), params: {}}
   },
   /** Fetch all published artists ordered by name */
-  publishedArtists(language: Language = 'no'): QueryDefinition<ArtistResult[]> {
+  publishedArtists(language: Language = 'no'): QueryDefinition {
     return {query: buildPublishedArtistsQuery(language), params: {}}
   },
   /** Fetch all published events ordered by date and time */
-  publishedEvents(language: Language = 'no'): QueryDefinition<EventResult[]> {
+  publishedEvents(language: Language = 'no'): QueryDefinition {
     return {query: buildPublishedEventsQuery(language), params: {}}
   },
   /** Fetch all active event dates for program filtering */

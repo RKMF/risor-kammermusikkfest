@@ -17,21 +17,9 @@ interface Props {
   slugNo?: string;
   slugEn?: string;
   menuItems?: MenuItem[];
-  symbolLogo?: {
-    name: string;
-    image: {
-      asset: {
-        _id: string;
-        url: string;
-        mimeType: string;
-      };
-      hotspot?: any;
-      crop?: any;
-    };
-  };
 }
 
-const { currentLang, currentPath, slugNo, slugEn, menuItems = [], symbolLogo } = Astro.props;
+const { currentLang, currentPath, slugNo, slugEn, menuItems = [] } = Astro.props;
 
 // Transform CMS menu items into navigation format
 const navItems = menuItems.map((item) => {
