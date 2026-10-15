@@ -51,7 +51,7 @@ describe('middleware path hardening', () => {
 
     const linkHeader = response.headers.get('Link');
 
-    expect(linkHeader).toContain('</llms.txt>; rel="alternate"; type="text/plain"');
+    expect(linkHeader).toContain('</llms.txt>; rel="describedby"; type="text/plain"');
     expect(linkHeader).toContain('</sitemap.xml>; rel="sitemap"; type="application/xml"');
     expect(linkHeader).toContain('</.well-known/security.txt>; rel="security"');
     expect(linkHeader).toContain('</site.webmanifest>; rel="manifest"');

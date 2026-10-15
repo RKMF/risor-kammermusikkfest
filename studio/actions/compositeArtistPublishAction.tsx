@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { type DocumentActionComponent, useClient, useDocumentOperation } from 'sanity';
 import { PublishIcon, CheckmarkIcon } from '@sanity/icons';
 import { Button, Flex, Stack, Text, Spinner } from '@sanity/ui';
@@ -21,7 +21,7 @@ import {
 export const compositeArtistPublishAction: DocumentActionComponent = (props) => {
   const { id, type, draft, published, onComplete } = props;
   const client = useClient({ apiVersion: '2025-01-01' });
-  const { publish } = useDocumentOperation(id, type);
+  const { publish, unpublish } = useDocumentOperation(id, type);
 
   // Dialog states
   const [loadingDialogOpen, setLoadingDialogOpen] = useState(false);
@@ -47,7 +47,10 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
     return null;
   }
 
-  const isNewPublish = draft && !published;
+  // Keep this decision stable while the post-publish listing dialog is open.
+  // Sanity may update `published` immediately after publish.execute().
+  const isNewPublishFlow = useRef(Boolean(draft && !published));
+  const isNewPublish = isNewPublishFlow.current;
 
   // Step 1: Check for missing event references, publish, then check for orphaned references
   const handlePublish = useCallback(async () => {
@@ -229,6 +232,9 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
     async (addToPage: boolean) => {
       if (!addToPage) {
         setArtistPageDialogOpen(false);
+        if (isNewPublish) {
+          await unpublish.execute();
+        }
         onComplete();
         return;
       }
@@ -274,12 +280,15 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
       } catch (error) {
         console.error('Error adding artist to artist page:', error);
         setArtistPageDialogOpen(false);
+        if (isNewPublish) {
+          await unpublish.execute();
+        }
         onComplete();
       } finally {
         setIsAddingToPage(false);
       }
     },
-    [id, client, onComplete]
+    [id, client, isNewPublish, onComplete, unpublish]
   );
 
   return {
@@ -417,18 +426,21 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
                 type: 'dialog',
                 onClose: () => {
                   setArtistPageDialogOpen(false);
+                  if (isNewPublish) {
+                    void unpublish.execute();
+                  }
                   onComplete();
                 },
                 header: 'Legg til på artistoversikten?',
                 content: (
                   <Stack space={4} padding={4}>
-                    <Text>Vil du at denne artisten skal vises på artistoversikten?</Text>
+                    <Text>Skal denne nye artisten publiseres på årets artistoversikt?</Text>
                     <Text size={1} muted>
-                      Du kan også legge det til senere under Artistoversikt → Artister-fanen.
+                      Hvis du svarer nei, blir artisten liggende som kladd til den er klar for årets artistoversikt.
                     </Text>
                     <Flex gap={3} justify="flex-end">
                       <Button
-                        text="Nei, ikke vis på artistoversikten"
+                        text="Nei, behold som kladd"
                         mode="ghost"
                         onClick={() => handleAddToArtistPage(false)}
                         disabled={isAddingToPage}
