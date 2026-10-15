@@ -218,12 +218,7 @@ export const artist = defineType({
       _id,
     }) {
       // Use shared helper functions for consistent status display
-      const statusText = getPublishingStatusText(
-        _id,
-        publishingStatus,
-        scheduledStart,
-        scheduledEnd
-      );
+      const statusText = getPublishingStatusText(_id, publishingStatus, scheduledStart, scheduledEnd);
       const langStatus = getLanguageStatus({
         hasNorwegian,
         hasEnglish,

@@ -27,7 +27,6 @@ import {
   DocumentsIcon,
   ComposeIcon,
   UsersIcon,
-  WarningOutlineIcon,
 } from '@sanity/icons';
 
 export const structure = (S: StructureBuilder) =>
@@ -72,16 +71,76 @@ export const structure = (S: StructureBuilder) =>
         .title('Arrangementer')
         .icon(CalendarIcon)
         .child(
-          S.documentTypeList('event').defaultOrdering([
-            { field: 'eventDateValue', direction: 'asc' },
-            { field: 'eventStartTimeValue', direction: 'asc' },
-            { field: 'title_no', direction: 'asc' },
-          ])
+          S.list()
+            .title('Arrangementer')
+            .items([
+              S.listItem()
+                .title('Aktuelle arrangementer')
+                .icon(CalendarIcon)
+                .child(
+                  S.documentList()
+                    .title('Aktuelle arrangementer')
+                    .schemaType('event')
+                    .apiVersion('2025-01-01')
+                    .defaultOrdering([
+                      { field: 'eventDateValue', direction: 'asc' },
+                      { field: 'eventStartTimeValue', direction: 'asc' },
+                      { field: 'title_no', direction: 'asc' },
+                    ])
+                    .filter('_type == "event" && _id in *[_type == "programPage"].selectedEvents[]._ref'),
+                ),
+              S.listItem()
+                .title('Tidligere arrangementer')
+                .icon(CalendarIcon)
+                .child(
+                  S.documentList()
+                    .title('Tidligere arrangementer')
+                    .schemaType('event')
+                    .apiVersion('2025-01-01')
+                    .defaultOrdering([
+                      { field: 'eventDateValue', direction: 'desc' },
+                      { field: 'eventStartTimeValue', direction: 'asc' },
+                      { field: 'title_no', direction: 'asc' },
+                    ])
+                    .filter(
+                      '_type == "event" && (publishingStatus == "published" || !defined(publishingStatus)) && !(_id in *[_type == "programPage"].selectedEvents[]._ref)',
+                    ),
+                ),
+            ]),
         ),
       S.listItem()
         .title('Artister')
         .icon(UserIcon)
-        .child(S.documentTypeList('artist').defaultOrdering([{ field: 'name', direction: 'asc' }])),
+        .child(
+          S.list()
+            .title('Artister')
+            .items([
+              S.listItem()
+                .title('Aktuelle artister')
+                .icon(UserIcon)
+                .child(
+                  S.documentList()
+                    .title('Aktuelle artister')
+                    .schemaType('artist')
+                    .apiVersion('2025-01-01')
+                    .defaultOrdering([{ field: 'name', direction: 'asc' }])
+                    .filter('_type == "artist" && _id in *[_type == "artistPage"].selectedArtists[]._ref'),
+                ),
+              S.listItem()
+                .title('Tidligere artister')
+                .icon(UserIcon)
+                .child(
+                  S.documentList()
+                    .title('Tidligere artister')
+                    .schemaType('artist')
+                    .apiVersion('2025-01-01')
+                    .defaultOrdering([{ field: 'name', direction: 'asc' }])
+                    .filter(
+                      '_type == "artist" && (publishingStatus == "published" || !defined(publishingStatus)) && !(_id in *[_type == "artistPage"].selectedArtists[]._ref)',
+                    ),
+                ),
+            ]),
+        ),
       S.listItem().title('Artikler').icon(DocumentTextIcon).child(S.documentTypeList('article')),
 
       // ========== REFERANSEDATA ==========

@@ -2,10 +2,8 @@ import type { APIRoute } from 'astro';
 import { getSiteUrl } from '../lib/site';
 const isStagingSite = import.meta.env.PUBLIC_SITE_ENV === 'staging';
 
-function getRobotsText(): string {
-  const siteUrl = getSiteUrl();
-
-  if (isStagingSite) {
+export function buildRobotsText(siteUrl: string, staging: boolean): string {
+  if (staging) {
     return [
       '# Staging site: do not index',
       'User-agent: *',
@@ -22,18 +20,12 @@ function getRobotsText(): string {
     '# Keep API endpoints out of crawler queues',
     'Disallow: /api/',
     '',
-    '# Keep faceted program filters out of crawler queues',
-    'Disallow: /program?*date=',
-    'Disallow: /program?*venue=',
-    'Disallow: /en/program?*date=',
-    'Disallow: /en/program?*venue=',
-    '',
     `Sitemap: ${siteUrl}/sitemap.xml`,
   ].join('\n');
 }
 
 export const GET: APIRoute = async () =>
-  new Response(`${getRobotsText()}\n`, {
+  new Response(`${buildRobotsText(getSiteUrl(), isStagingSite)}\n`, {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       'Cache-Control': 'public, max-age=3600',

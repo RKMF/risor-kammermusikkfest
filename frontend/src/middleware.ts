@@ -29,7 +29,7 @@ const GONE_PATHS = new Set([
 const MISS_CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=300';
 const HTML_CACHE_CONTROL = 'public, s-maxage=60, stale-while-revalidate=300';
 const DISCOVERY_LINKS = [
-  '</llms.txt>; rel="alternate"; type="text/plain"',
+  '</llms.txt>; rel="describedby"; type="text/plain"',
   '</sitemap.xml>; rel="sitemap"; type="application/xml"',
   '</.well-known/security.txt>; rel="security"',
   '</site.webmanifest>; rel="manifest"',

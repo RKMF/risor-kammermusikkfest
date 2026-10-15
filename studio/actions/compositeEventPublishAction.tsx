@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { type DocumentActionComponent, useClient, useDocumentOperation } from 'sanity';
 import { PublishIcon, CheckmarkIcon } from '@sanity/icons';
 import { Button, Flex, Stack, Text, Spinner } from '@sanity/ui';
@@ -26,7 +26,7 @@ import {
 export const compositeEventPublishAction: DocumentActionComponent = (props) => {
   const { id, type, draft, published, onComplete } = props;
   const client = useClient({ apiVersion: '2025-01-01' });
-  const { patch, publish } = useDocumentOperation(id, type);
+  const { patch, publish, unpublish } = useDocumentOperation(id, type);
 
   // Dialog states
   const [loadingDialogOpen, setLoadingDialogOpen] = useState(false);
@@ -53,7 +53,10 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
   }
 
   const doc = draft || published;
-  const isNewPublish = draft && !published;
+  // Keep this decision stable while the post-publish listing dialog is open.
+  // Sanity may update `published` immediately after publish.execute().
+  const isNewPublishFlow = useRef(Boolean(draft && !published));
+  const isNewPublish = isNewPublishFlow.current;
 
   // Step 1: Sync derived sort values
   const syncDateValue = useCallback(async () => {
@@ -274,6 +277,9 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
     async (addToProgram: boolean) => {
       if (!addToProgram) {
         setProgramDialogOpen(false);
+        if (isNewPublish) {
+          await unpublish.execute();
+        }
         onComplete();
         return;
       }
@@ -319,12 +325,15 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
       } catch (error) {
         console.error('Error adding event to program page:', error);
         setProgramDialogOpen(false);
+        if (isNewPublish) {
+          await unpublish.execute();
+        }
         onComplete();
       } finally {
         setIsAddingToProgram(false);
       }
     },
-    [id, client, onComplete]
+    [id, client, isNewPublish, onComplete, unpublish]
   );
 
   return {
@@ -462,18 +471,21 @@ export const compositeEventPublishAction: DocumentActionComponent = (props) => {
                 type: 'dialog',
                 onClose: () => {
                   setProgramDialogOpen(false);
+                  if (isNewPublish) {
+                    void unpublish.execute();
+                  }
                   onComplete();
                 },
                 header: 'Legg til på programsiden?',
                 content: (
                   <Stack space={4} padding={4}>
-                    <Text>Vil du at dette arrangementet skal vises på programsiden?</Text>
+                    <Text>Skal dette nye arrangementet publiseres på årets programsider?</Text>
                     <Text size={1} muted>
-                      Du kan også legge det til senere under Programside → Arrangementer-fanen.
+                      Hvis du svarer nei, blir arrangementet liggende som kladd til det er klart for årets program.
                     </Text>
                     <Flex gap={3} justify="flex-end">
                       <Button
-                        text="Nei, ikke vis på programsiden"
+                        text="Nei, behold som kladd"
                         mode="ghost"
                         onClick={() => handleAddToProgram(false)}
                         disabled={isAddingToProgram}
