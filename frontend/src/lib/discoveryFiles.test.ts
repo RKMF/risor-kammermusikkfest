@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { buildLlmsText, CURATED_PAGE_QUERY } from './llms.txt';
-import { buildRobotsText } from './robots.txt';
-import { buildSitemapXml, generateUrlEntry, SITEMAP_QUERY } from './sitemap.xml';
+import { buildLlmsText, CURATED_PAGE_QUERY } from '../pages/llms.txt';
+import { buildRobotsText } from '../pages/robots.txt';
+import { buildSitemapXml, generateUrlEntry, SITEMAP_QUERY } from '../pages/sitemap.xml';
 
 describe('discovery files', () => {
   it('builds a deduplicated, XML-safe sitemap', () => {
