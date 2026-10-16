@@ -142,6 +142,17 @@ export const structure = (S: StructureBuilder) =>
                     .filter('_type == "artist" && _id in *[_type == "artistPage"].selectedArtists[]._ref'),
                 ),
               S.listItem()
+                .title('Utkast')
+                .icon(UserIcon)
+                .child(
+                  S.documentList()
+                    .title('Utkast')
+                    .schemaType('artist')
+                    .apiVersion('2025-01-01')
+                    .defaultOrdering([{ field: 'name', direction: 'asc' }])
+                    .filter('_type == "artist" && publishingStatus in ["staging", "draft", "scheduled"]'),
+                ),
+              S.listItem()
                 .title('Tidligere artister')
                 .icon(UserIcon)
                 .child(
