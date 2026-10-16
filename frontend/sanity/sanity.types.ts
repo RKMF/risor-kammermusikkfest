@@ -1969,10 +1969,13 @@ export type HEALTH_CHECK_QUERY_RESULT = {
 } | null;
 
 // Query TypeMap
-import '@sanity/client';
-declare module '@sanity/client' {
+declare global {
   interface SanityQueries {
     '*[\n      _type == "event"\n      && publishingStatus == "published"\n      && (!defined($eventDate) || eventDate->date == $eventDate)\n      && (!defined($genre) || genre->slug.current == $genre)\n      && (!defined($venue) || venue->slug.current == $venue)\n    ] | order(eventDateValue asc, eventTime.startTime asc, coalesce(title_no, title_en, title) asc){\n      _id,\n      title_no,\n      title_en,\n      "title": coalesce(title_no, title_en, title),\n      "slug": coalesce(slug_no.current, slug_en.current, slug.current),\n      "image": {\n        "image": image,\n        "alt": coalesce(imageAlt_no, imageAlt_en, image.alt)\n      },\n      eventTime,\n      eventDate->{\n        date,\n        title_display_no,\n        title_display_en,\n        "title": coalesce(title_display_no, title_display_en)\n      },\n      venue->{title},\n      genre->{title},\n      "artists": artist[]->{name},\n      ticketType,\n      ticketUrl,\n      ticketInfoText,\n      ticketStatus\n    }': FILTER_EVENTS_QUERY_RESULT;
     '*[_type == "siteSettings"][0]{\n  _id,\n  _type\n}': HEALTH_CHECK_QUERY_RESULT;
   }
+}
+// Lets @sanity/client releases that predate the global registry read it too
+declare module '@sanity/client' {
+  interface SanityQueries extends globalThis.SanityQueries {}
 }

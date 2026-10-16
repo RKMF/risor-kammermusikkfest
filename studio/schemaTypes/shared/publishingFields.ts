@@ -35,7 +35,9 @@ export const publishingStatusField = (groupName = 'publishing') =>
       ],
       layout: 'radio',
     },
-    initialValue: 'published',
+    // New content must remain editorially private until an editor explicitly
+    // chooses where it should be visible.
+    initialValue: 'draft',
     validation: (Rule) => Rule.required(),
     group: groupName,
     components: {
