@@ -9,8 +9,24 @@ import type { APIRoute } from 'astro';
 import { cachedSanityFetch } from '../lib/sanity/cachedFetch';
 import { getSiteUrl } from '../lib/site';
 
-// Fetch only URLs that should be indexed.
-const SITEMAP_QUERY = `{
+// Keep this predicate aligned with the public Sanity perspective. The sitemap
+// must never advertise draft, staging-only, expired, or noindex content.
+const PUBLIC_INDEXABLE_FILTER = `(
+  (
+    publishingStatus == "published" ||
+    !defined(publishingStatus) ||
+    (
+      publishingStatus == "scheduled" &&
+      defined(scheduledPeriod.startDate) &&
+      defined(scheduledPeriod.endDate) &&
+      scheduledPeriod.startDate <= now() &&
+      scheduledPeriod.endDate >= now()
+    )
+  ) &&
+  (!defined(seo.indexingStatus) || seo.indexingStatus != "noindex")
+)`;
+
+export const SITEMAP_QUERY = `{
   "homepage": *[
     _type == "homepage" &&
     (!defined(seo.indexingStatus) || seo.indexingStatus != "noindex") &&
@@ -55,25 +71,25 @@ const SITEMAP_QUERY = `{
   ][0]{
     "_updatedAt": _updatedAt
   },
-  "events": *[_type == "event" && defined(slug_no.current)] {
+  "events": *[_type == "event" && ${PUBLIC_INDEXABLE_FILTER} && (defined(slug_no.current) || defined(slug_en.current))] {
     "slug_no": slug_no.current,
     "slug_en": slug_en.current,
     "_updatedAt": _updatedAt,
     "indexingStatus": seo.indexingStatus
   },
-  "artists": *[_type == "artist" && defined(slug_no.current)] {
+  "artists": *[_type == "artist" && ${PUBLIC_INDEXABLE_FILTER} && (defined(slug_no.current) || defined(slug_en.current))] {
     "slug_no": slug_no.current,
     "slug_en": slug_en.current,
     "_updatedAt": _updatedAt,
     "indexingStatus": seo.indexingStatus
   },
-  "articles": *[_type == "article" && defined(slug_no.current)] {
+  "articles": *[_type == "article" && ${PUBLIC_INDEXABLE_FILTER} && (defined(slug_no.current) || defined(slug_en.current))] {
     "slug_no": slug_no.current,
     "slug_en": slug_en.current,
     "_updatedAt": _updatedAt,
     "indexingStatus": seo.indexingStatus
   },
-  "pages": *[_type == "page" && defined(slug_no.current)] {
+  "pages": *[_type == "page" && ${PUBLIC_INDEXABLE_FILTER} && (defined(slug_no.current) || defined(slug_en.current))] {
     "slug_no": slug_no.current,
     "slug_en": slug_en.current,
     "_updatedAt": _updatedAt,
@@ -85,7 +101,6 @@ interface SitemapItem {
   slug_no?: string;
   slug_en?: string;
   _updatedAt?: string;
-  indexingStatus?: 'index' | 'noindex';
 }
 
 interface SitemapData {
@@ -105,13 +120,29 @@ function formatDate(dateString?: string): string {
   return new Date(dateString).toISOString().split('T')[0];
 }
 
-function generateUrlEntry(loc: string, lastmod: string, priority: string, changefreq: string): string {
+function escapeXml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&apos;');
+}
+
+export function generateUrlEntry(loc: string, lastmod: string): string {
   return `  <url>
-    <loc>${loc}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
+    <loc>${escapeXml(loc)}</loc>
+    <lastmod>${escapeXml(lastmod)}</lastmod>
   </url>`;
+}
+
+export function buildSitemapXml(urls: string[]): string {
+  const uniqueUrls = [...new Set(urls)];
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${uniqueUrls.join('\n')}
+</urlset>`;
 }
 
 export const GET: APIRoute = async () => {
@@ -120,147 +151,92 @@ export const GET: APIRoute = async () => {
     const data = await cachedSanityFetch<SitemapData>('sitemap', SITEMAP_QUERY);
 
     const urls: string[] = [];
+    const addUrl = (url: string) => urls.push(url);
 
     // Indexable singleton and listing pages
     if (data.homepage) {
       const lastmod = formatDate(data.homepage._updatedAt);
-      urls.push(generateUrlEntry(`${SITE_URL}/`, lastmod, '1.0', 'daily'));
-      urls.push(generateUrlEntry(`${SITE_URL}/en`, lastmod, '1.0', 'daily'));
+      addUrl(generateUrlEntry(`${SITE_URL}/`, lastmod));
+      addUrl(generateUrlEntry(`${SITE_URL}/en`, lastmod));
     }
     if (data.programPage) {
       const lastmod = formatDate(data.programPage._updatedAt);
-      urls.push(generateUrlEntry(`${SITE_URL}/program`, lastmod, '0.9', 'daily'));
-      urls.push(generateUrlEntry(`${SITE_URL}/en/program`, lastmod, '0.9', 'daily'));
+      addUrl(generateUrlEntry(`${SITE_URL}/program`, lastmod));
+      addUrl(generateUrlEntry(`${SITE_URL}/en/program`, lastmod));
     }
     if (data.artistPage) {
       const lastmod = formatDate(data.artistPage._updatedAt);
-      urls.push(generateUrlEntry(`${SITE_URL}/artister`, lastmod, '0.8', 'weekly'));
-      urls.push(generateUrlEntry(`${SITE_URL}/en/artists`, lastmod, '0.8', 'weekly'));
+      addUrl(generateUrlEntry(`${SITE_URL}/artister`, lastmod));
+      addUrl(generateUrlEntry(`${SITE_URL}/en/artists`, lastmod));
     }
     if (data.articlePage) {
       const lastmod = formatDate(data.articlePage._updatedAt);
-      urls.push(generateUrlEntry(`${SITE_URL}/artikler`, lastmod, '0.7', 'weekly'));
-      urls.push(generateUrlEntry(`${SITE_URL}/en/articles`, lastmod, '0.7', 'weekly'));
+      addUrl(generateUrlEntry(`${SITE_URL}/artikler`, lastmod));
+      addUrl(generateUrlEntry(`${SITE_URL}/en/articles`, lastmod));
     }
     if (data.sponsorPage) {
       const lastmod = formatDate(data.sponsorPage._updatedAt);
-      urls.push(generateUrlEntry(`${SITE_URL}/sponsorer`, lastmod, '0.5', 'monthly'));
-      urls.push(generateUrlEntry(`${SITE_URL}/en/sponsors`, lastmod, '0.5', 'monthly'));
+      addUrl(generateUrlEntry(`${SITE_URL}/sponsorer`, lastmod));
+      addUrl(generateUrlEntry(`${SITE_URL}/en/sponsors`, lastmod));
     }
 
-    // Events - high priority (main content)
+    // Events - main content
     for (const event of data.events || []) {
-      if (event.indexingStatus === 'noindex') continue;
       if (event.slug_no) {
-        urls.push(generateUrlEntry(
-          `${SITE_URL}/program/${event.slug_no}`,
-          formatDate(event._updatedAt),
-          '0.8',
-          'weekly'
-        ));
+        addUrl(generateUrlEntry(`${SITE_URL}/program/${event.slug_no}`, formatDate(event._updatedAt)));
       }
       if (event.slug_en) {
-        urls.push(generateUrlEntry(
-          `${SITE_URL}/en/program/${event.slug_en}`,
-          formatDate(event._updatedAt),
-          '0.8',
-          'weekly'
-        ));
+        addUrl(generateUrlEntry(`${SITE_URL}/en/program/${event.slug_en}`, formatDate(event._updatedAt)));
       }
     }
 
     // Artists
     for (const artist of data.artists || []) {
-      if (artist.indexingStatus === 'noindex') continue;
       if (artist.slug_no) {
-        urls.push(generateUrlEntry(
-          `${SITE_URL}/artister/${artist.slug_no}`,
-          formatDate(artist._updatedAt),
-          '0.7',
-          'monthly'
-        ));
+        addUrl(generateUrlEntry(`${SITE_URL}/artister/${artist.slug_no}`, formatDate(artist._updatedAt)));
       }
       if (artist.slug_en) {
-        urls.push(generateUrlEntry(
-          `${SITE_URL}/en/artists/${artist.slug_en}`,
-          formatDate(artist._updatedAt),
-          '0.7',
-          'monthly'
-        ));
+        addUrl(generateUrlEntry(`${SITE_URL}/en/artists/${artist.slug_en}`, formatDate(artist._updatedAt)));
       }
     }
 
     // Articles
     for (const article of data.articles || []) {
-      if (article.indexingStatus === 'noindex') continue;
       if (article.slug_no) {
-        urls.push(generateUrlEntry(
-          `${SITE_URL}/artikler/${article.slug_no}`,
-          formatDate(article._updatedAt),
-          '0.6',
-          'monthly'
-        ));
+        addUrl(generateUrlEntry(`${SITE_URL}/artikler/${article.slug_no}`, formatDate(article._updatedAt)));
       }
       if (article.slug_en) {
-        urls.push(generateUrlEntry(
-          `${SITE_URL}/en/articles/${article.slug_en}`,
-          formatDate(article._updatedAt),
-          '0.6',
-          'monthly'
-        ));
+        addUrl(generateUrlEntry(`${SITE_URL}/en/articles/${article.slug_en}`, formatDate(article._updatedAt)));
       }
     }
 
     // Generic pages
     for (const page of data.pages || []) {
-      if (page.indexingStatus === 'noindex') continue;
       if (page.slug_no) {
-        urls.push(generateUrlEntry(
-          `${SITE_URL}/${page.slug_no}`,
-          formatDate(page._updatedAt),
-          '0.5',
-          'monthly'
-        ));
+        addUrl(generateUrlEntry(`${SITE_URL}/${page.slug_no}`, formatDate(page._updatedAt)));
       }
       if (page.slug_en) {
-        urls.push(generateUrlEntry(
-          `${SITE_URL}/en/${page.slug_en}`,
-          formatDate(page._updatedAt),
-          '0.5',
-          'monthly'
-        ));
+        addUrl(generateUrlEntry(`${SITE_URL}/en/${page.slug_en}`, formatDate(page._updatedAt)));
       }
     }
 
-    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${urls.join('\n')}
-</urlset>`;
+    const sitemap = buildSitemapXml(urls);
 
     return new Response(sitemap, {
       status: 200,
       headers: {
         'Content-Type': 'application/xml',
-        'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600',
       },
     });
   } catch (error) {
     console.error('Sitemap generation error:', error);
-    const SITE_URL = getSiteUrl();
-    // Return a minimal sitemap on error
-    const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${SITE_URL}/</loc>
-    <priority>1.0</priority>
-  </url>
-</urlset>`;
-
-    return new Response(fallbackSitemap, {
-      status: 200,
+    return new Response(null, {
+      status: 503,
       headers: {
         'Content-Type': 'application/xml',
+        'Cache-Control': 'no-store',
+        'Retry-After': '300',
       },
     });
   }

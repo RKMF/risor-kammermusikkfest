@@ -2,7 +2,6 @@
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
 import react from '@astrojs/react';
-import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
@@ -87,22 +86,5 @@ export default defineConfig({
     }
   },
 
-  integrations: [
-    react(),
-    sitemap({
-      // Filter out API routes and error pages
-      filter: (page) =>
-        !page.includes('/api/') &&
-        !page.includes('/404') &&
-        !page.includes('/500'),
-      // i18n support - match Astro i18n config
-      i18n: {
-        defaultLocale: 'no',
-        locales: {
-          no: 'nb-NO',
-          en: 'en-GB',
-        },
-      },
-    }),
-  ],
+  integrations: [react()],
 });
