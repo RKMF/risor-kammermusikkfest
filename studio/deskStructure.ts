@@ -87,7 +87,9 @@ export const structure = (S: StructureBuilder) =>
                       { field: 'eventStartTimeValue', direction: 'asc' },
                       { field: 'title_no', direction: 'asc' },
                     ])
-                    .filter('_type == "event" && _id in *[_type == "programPage"].selectedEvents[]._ref'),
+                    .filter(
+                      '_type == "event" && (publishingStatus == "published" || !defined(publishingStatus)) && _id in *[_type == "programPage"].selectedEvents[]._ref',
+                    ),
                 ),
               S.listItem()
                 .title('Utkast')
@@ -102,7 +104,9 @@ export const structure = (S: StructureBuilder) =>
                       { field: 'eventStartTimeValue', direction: 'asc' },
                       { field: 'title_no', direction: 'asc' },
                     ])
-                    .filter('_type == "event" && publishingStatus in ["staging", "draft", "scheduled"]'),
+                    .filter(
+                      '_type == "event" && (publishingStatus in ["staging", "draft", "scheduled"] || (_id in path("drafts.**") && !defined(publishingStatus)))',
+                    ),
                 ),
               S.listItem()
                 .title('Tidligere arrangementer')
@@ -139,7 +143,9 @@ export const structure = (S: StructureBuilder) =>
                     .schemaType('artist')
                     .apiVersion('2025-01-01')
                     .defaultOrdering([{ field: 'name', direction: 'asc' }])
-                    .filter('_type == "artist" && _id in *[_type == "artistPage"].selectedArtists[]._ref'),
+                    .filter(
+                      '_type == "artist" && (publishingStatus == "published" || !defined(publishingStatus)) && _id in *[_type == "artistPage"].selectedArtists[]._ref',
+                    ),
                 ),
               S.listItem()
                 .title('Utkast')
@@ -150,7 +156,9 @@ export const structure = (S: StructureBuilder) =>
                     .schemaType('artist')
                     .apiVersion('2025-01-01')
                     .defaultOrdering([{ field: 'name', direction: 'asc' }])
-                    .filter('_type == "artist" && publishingStatus in ["staging", "draft", "scheduled"]'),
+                    .filter(
+                      '_type == "artist" && (publishingStatus in ["staging", "draft", "scheduled"] || (_id in path("drafts.**") && !defined(publishingStatus)))',
+                    ),
                 ),
               S.listItem()
                 .title('Tidligere artister')
