@@ -90,6 +90,21 @@ export const structure = (S: StructureBuilder) =>
                     .filter('_type == "event" && _id in *[_type == "programPage"].selectedEvents[]._ref'),
                 ),
               S.listItem()
+                .title('Utkast')
+                .icon(CalendarIcon)
+                .child(
+                  S.documentList()
+                    .title('Utkast')
+                    .schemaType('event')
+                    .apiVersion('2025-01-01')
+                    .defaultOrdering([
+                      { field: 'eventDateValue', direction: 'asc' },
+                      { field: 'eventStartTimeValue', direction: 'asc' },
+                      { field: 'title_no', direction: 'asc' },
+                    ])
+                    .filter('_type == "event" && publishingStatus in ["staging", "draft", "scheduled"]'),
+                ),
+              S.listItem()
                 .title('Tidligere arrangementer')
                 .icon(CalendarIcon)
                 .child(
