@@ -122,6 +122,23 @@
   object-position: center;
 }
 
+.artist-card-wrapper {
+  display: contents;
+}
+
+.artist-card-wrapper--detail {
+  display: block;
+  width: 100%;
+}
+
+.artist-card-wrapper--detail .artist-card-credit {
+  display: block;
+  margin: 0.5rem 0 0;
+  font-size: var(--step--1);
+  line-height: 1.2;
+  color: var(--color-blue);
+}
+
 /* Medium card image - use aspect-ratio to fix mobile browser overflow
  * Mobile Safari/Chrome calculate height:100% incorrectly in grid+scroll contexts */
 .artist-card--medium .artist-card-image {
