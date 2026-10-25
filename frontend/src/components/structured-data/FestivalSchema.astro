@@ -6,6 +6,8 @@
  * Represents the festival as a whole with references to individual events.
  */
 
+import { getSiteUrl } from '../../lib/site';
+
 interface FestivalDates {
   startDate?: string;
   endDate?: string;
@@ -33,7 +35,7 @@ const {
   lang = 'no',
 } = Astro.props;
 
-const SITE_URL = 'https://kammermusikkfest.no';
+const SITE_URL = getSiteUrl(Astro.request);
 
 const festivalUrl = lang === 'en' ? `${SITE_URL}/en/program` : `${SITE_URL}/program`;
 
