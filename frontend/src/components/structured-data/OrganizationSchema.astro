@@ -6,6 +6,8 @@
  * for search engines and AI systems. Included site-wide in Layout.
  */
 
+import { getSiteUrl } from '../../lib/site';
+
 interface Props {
   /** Additional social media URLs to include */
   socialUrls?: string[];
@@ -14,7 +16,7 @@ interface Props {
 
 const { socialUrls = [], lang = 'no' } = Astro.props;
 
-const SITE_URL = 'https://kammermusikkfest.no';
+const SITE_URL = getSiteUrl(Astro.request);
 const description = lang === 'en'
   ? 'Norway\'s premier chamber music festival, held annually in Risør. World-class musicians perform classical and contemporary chamber music.'
   : 'Norges ledende kammermusikkfestival, holdt årlig i Risør. Verdensklasse musikere fremfører klassisk og moderne kammermusikk.';

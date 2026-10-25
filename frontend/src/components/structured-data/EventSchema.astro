@@ -10,6 +10,7 @@ import { stegaClean } from '@sanity/client/stega';
 import { getImageBuilder, IMAGE_QUALITY } from '../../lib/sanityImage';
 import { getNextUpcomingOccurrence } from '../../lib/eventOccurrences';
 import { resolveEventPageTicketDisplay } from '../../lib/ticketDisplay';
+import { getSiteUrl } from '../../lib/site';
 
 interface EventData {
   _id: string;
@@ -51,7 +52,7 @@ interface Props {
 
 const { event, lang = 'no' } = Astro.props;
 
-const SITE_URL = 'https://kammermusikkfest.no';
+const SITE_URL = getSiteUrl(Astro.request);
 
 // Build event URL
 const resolveSlugValue = (slug: { current: string } | string | undefined): string | undefined =>
