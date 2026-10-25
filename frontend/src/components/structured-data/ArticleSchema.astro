@@ -8,6 +8,7 @@
 
 import { stegaClean } from '@sanity/client/stega';
 import { getImageBuilder, IMAGE_QUALITY } from '../../lib/sanityImage';
+import { getSiteUrl } from '../../lib/site';
 
 interface ArticleData {
   _id: string;
@@ -33,7 +34,7 @@ interface Props {
 
 const { article, lang = 'no' } = Astro.props;
 
-const SITE_URL = 'https://kammermusikkfest.no';
+const SITE_URL = getSiteUrl(Astro.request);
 
 // Get language-specific content
 const title = lang === 'en'

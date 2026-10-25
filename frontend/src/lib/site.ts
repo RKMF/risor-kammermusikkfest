@@ -1,4 +1,4 @@
-const DEFAULT_PRODUCTION_SITE_URL = 'https://kammermusikkfest.no';
+const DEFAULT_PRODUCTION_SITE_URL = 'https://www.kammermusikkfest.no';
 
 function normalizeOrigin(origin: string): string {
   return origin.replace(/\/$/, '');

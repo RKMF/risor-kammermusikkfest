@@ -22,12 +22,12 @@ describe('discovery files', () => {
   });
 
   it('keeps production robots rules path-based and staging fully blocked', () => {
-    const production = buildRobotsText('https://kammermusikkfest.no', false);
+    const production = buildRobotsText('https://www.kammermusikkfest.no', false);
     const staging = buildRobotsText('https://staging.kammermusikkfest.no', true);
 
     expect(production).toContain('Allow: /');
     expect(production).toContain('Disallow: /api/');
-    expect(production).toContain('Sitemap: https://kammermusikkfest.no/sitemap.xml');
+    expect(production).toContain('Sitemap: https://www.kammermusikkfest.no/sitemap.xml');
     expect(production).not.toContain('?date=');
     expect(staging).toContain('Disallow: /');
     expect(staging).not.toContain('Sitemap:');
