@@ -149,36 +149,14 @@ const COUNTDOWN_COMPONENT = `
     ...
   }`
 
-const EVENT_IMAGE_SELECTION = `
-  "image": {
-    "image": image{
-      asset->{
-        _id,
-        url,
-        metadata {
-          dimensions {
-            width,
-            height,
-            aspectRatio
-          },
-          lqip,
-          palette {
-            dominant {
-              background,
-              foreground
-            }
-          }
-        }
-      },
-      hotspot,
-      crop
-    },
-    "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
-    "credit": coalesce(imageCredit_no, imageCredit_en)
-  }
-`
+function buildImageCreditField(language: Language = 'no'): string {
+  return language === 'en'
+    ? '"credit": coalesce(imageCredit_en, imageCredit_no)'
+    : '"credit": coalesce(imageCredit_no, imageCredit_en)'
+}
 
-const ARTIST_IMAGE_SELECTION = `
+function buildEventImageSelection(language: Language = 'no'): string {
+  return `
   "image": {
     "image": image{
       asset->{
@@ -203,11 +181,13 @@ const ARTIST_IMAGE_SELECTION = `
       crop
     },
     "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
-    "credit": coalesce(imageCredit_no, imageCredit_en)
+    ${buildImageCreditField(language)}
   }
 `
+}
 
-const ARTICLE_IMAGE_SELECTION = `
+function buildArtistImageSelection(language: Language = 'no'): string {
+  return `
   "image": {
     "image": image{
       asset->{
@@ -232,9 +212,41 @@ const ARTICLE_IMAGE_SELECTION = `
       crop
     },
     "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
-    "credit": coalesce(imageCredit_no, imageCredit_en)
+    ${buildImageCreditField(language)}
   }
 `
+}
+
+function buildArticleImageSelection(language: Language = 'no'): string {
+  return `
+  "image": {
+    "image": image{
+      asset->{
+        _id,
+        url,
+        metadata {
+          dimensions {
+            width,
+            height,
+            aspectRatio
+          },
+          lqip,
+          palette {
+            dominant {
+              background,
+              foreground
+            }
+          }
+        }
+      },
+      hotspot,
+      crop
+    },
+    "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
+    ${buildImageCreditField(language)}
+  }
+`
+}
 
 function buildEventDateSelection(language: Language = 'no'): string {
   const titleField = language === 'en'
@@ -361,7 +373,7 @@ function buildEventCardFields(language: Language = 'no'): string {
     excerpt_no,
     excerpt_en,
     ${createMultilingualField('excerpt', language)},
-    ${EVENT_IMAGE_SELECTION},
+    ${buildEventImageSelection(language)},
     ${buildTopLevelEventShowingsSelection(language)},
     ${buildEventOccurrencesSelection(language)},
     ${buildEventDateSelection(language)},
@@ -397,7 +409,7 @@ function buildArtistScrollCardFields(language: Language = 'no'): string {
     instrument_en,
     ${createMultilingualField('instrument', language)},
     country,
-    ${ARTIST_IMAGE_SELECTION},
+    ${buildArtistImageSelection(language)},
     publishingStatus,
     scheduledPeriod,
     instagram,
@@ -424,14 +436,14 @@ function buildArticleScrollCardFields(language: Language = 'no'): string {
     excerpt_no,
     excerpt_en,
     ${createMultilingualField('excerpt', language)},
-    ${ARTICLE_IMAGE_SELECTION},
+    ${buildArticleImageSelection(language)},
     publishedAt,
     publishingStatus,
     scheduledPeriod
   `
 }
 
-function buildComposerScrollCardFields(): string {
+function buildComposerScrollCardFields(language: Language = 'no'): string {
   return `
     _id,
     name,
@@ -461,7 +473,7 @@ function buildComposerScrollCardFields(): string {
         crop
       },
       "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
-      "credit": coalesce(imageCredit_no, imageCredit_en)
+      ${buildImageCreditField(language)}
     }
   `
 }
@@ -522,7 +534,7 @@ function buildTopLevelPageContent(language: Language = 'no'): string {
   _type == "composerScrollContainer" => {
     ...,
     items[defined(@->)]->{
-      ${buildComposerScrollCardFields()}
+      ${buildComposerScrollCardFields(language)}
     }
   },
   _type == "homepageHeroComponent" => {
@@ -597,7 +609,7 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
   description_no,
   description_en,
   ${createMultilingualField('description', language)},
-  ${EVENT_IMAGE_SELECTION},
+  ${buildEventImageSelection(language)},
   ${buildTopLevelEventShowingsSelection(language)},
   ${buildEventOccurrencesSelection(language)},
   ${buildEventDateSelection(language)},
@@ -609,7 +621,7 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
     _id,
     name,
     "slug": slug.current,
-    ${ARTIST_IMAGE_SELECTION},
+    ${buildArtistImageSelection(language)},
     instrument_no,
     instrument_en,
     ${createMultilingualField('instrument', language)},
@@ -620,7 +632,7 @@ const buildEventBaseFields = (language: Language = 'no'): string => `
     name,
     description_no,
     description_en,
-    ${ARTIST_IMAGE_SELECTION}
+    ${buildArtistImageSelection(language)}
   },
   ticketingMode,
   ticketType,
@@ -671,7 +683,7 @@ const buildArtistBaseFields = (language: Language = 'no'): string => `
   instrument_en,
   ${createMultilingualField('instrument', language)},
   country,
-  ${ARTIST_IMAGE_SELECTION},
+  ${buildArtistImageSelection(language)},
   "slug": slug.current,
   "slug_no": slug,
   "slug_en": slug,
@@ -702,7 +714,7 @@ const buildArticleBaseFields = (language: Language = 'no'): string => `
   slug_en,
   "slug": coalesce(slug_no.current, slug_en.current, slug.current),
   ${createMultilingualField('excerpt', language)},
-  ${ARTICLE_IMAGE_SELECTION},
+  ${buildArticleImageSelection(language)},
   publishingStatus,
   scheduledPeriod,
   publishedAt,

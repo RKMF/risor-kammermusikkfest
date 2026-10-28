@@ -92,7 +92,9 @@ if (articleRefs.length > 0) {
         crop
       },
       "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
-      "credit": coalesce(imageCredit_no, imageCredit_en)
+      "credit": ${currentLanguage === 'en'
+        ? 'coalesce(imageCredit_en, imageCredit_no)'
+        : 'coalesce(imageCredit_no, imageCredit_en)'}
     },
     publishedAt,
     publishingStatus,
