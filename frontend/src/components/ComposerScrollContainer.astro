@@ -62,7 +62,9 @@ if (composerRefs.length > 0) {
         crop
       },
       "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
-      "credit": coalesce(imageCredit_no, imageCredit_en)
+      "credit": ${currentLanguage === 'en'
+        ? 'coalesce(imageCredit_en, imageCredit_no)'
+        : 'coalesce(imageCredit_no, imageCredit_en)'}
     }
   }`
   composerData = await cachedSanityFetch('composer-scroll', COMPOSER_QUERY, { composerIds: composerRefs })
