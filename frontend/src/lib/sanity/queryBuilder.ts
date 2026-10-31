@@ -511,6 +511,9 @@ function buildTopLevelPageContent(language: Language = 'no'): string {
   },
   _type == "contentScrollContainer" => {
     ...,
+    "credit": ${language === 'en'
+      ? 'coalesce(credit_en, credit_no)'
+      : 'coalesce(credit_no, credit_en)'},
     items[]{${NESTED_PAGE_CONTENT}}
   },
   _type == "artistScrollContainer" => {
