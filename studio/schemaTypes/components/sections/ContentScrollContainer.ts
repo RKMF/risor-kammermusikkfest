@@ -16,6 +16,20 @@ export const contentScrollContainer = defineType({
       validation: (Rule) => Rule.max(100),
     }),
     defineField({
+      name: 'credit_no',
+      title: 'Kreditering (norsk)',
+      type: 'string',
+      description: 'Kreditering for bildene i karusellen på norsk (f.eks. "Foto: John Doe")',
+      fieldset: 'credit',
+    }),
+    defineField({
+      name: 'credit_en',
+      title: 'Kreditering (English)',
+      type: 'string',
+      description: 'Credit for the images in the carousel in English (e.g. "Photo: John Doe")',
+      fieldset: 'credit',
+    }),
+    defineField({
       name: 'items',
       title: 'Innhold',
       type: 'array',
@@ -36,6 +50,13 @@ export const contentScrollContainer = defineType({
       description: 'Vis eller skjul scrollbar',
       initialValue: false,
     }),
+  ],
+  fieldsets: [
+    {
+      name: 'credit',
+      title: 'Kreditering',
+      options: { columns: 2 },
+    },
   ],
   preview: {
     select: {

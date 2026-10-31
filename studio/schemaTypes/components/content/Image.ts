@@ -3,6 +3,38 @@ import { DocumentIcon } from '@sanity/icons';
 import { componentValidation, componentSpecificValidation } from '../../shared/validation';
 import type { ImageData, ComponentHTMLGenerator, ValidationRule } from '../../shared/types';
 
+function isInsideContentScrollContainer(document: unknown, path: readonly unknown[] = []): boolean {
+  let value: unknown = document;
+  const ancestors: unknown[] = [value];
+
+  for (const segment of path) {
+    if (typeof segment === 'number') {
+      value = Array.isArray(value) ? value[segment] : undefined;
+    } else if (typeof segment === 'string') {
+      value = !Array.isArray(value) ? (value as Record<string, unknown> | null)?.[segment] : undefined;
+    } else if (
+      segment &&
+      typeof segment === 'object' &&
+      '_key' in segment &&
+      Array.isArray(value)
+    ) {
+      const key = (segment as { _key?: unknown })._key;
+      value = value.find((item) => (item as Record<string, unknown> | null)?._key === key);
+    } else {
+      value = undefined;
+    }
+
+    ancestors.push(value);
+  }
+
+  return ancestors.some(
+    (ancestor) =>
+      ancestor &&
+      typeof ancestor === 'object' &&
+      (ancestor as Record<string, unknown>)._type === 'contentScrollContainer',
+  );
+}
+
 export const imageComponent = defineType({
   name: 'imageComponent',
   title: 'Bilde',
@@ -28,6 +60,7 @@ export const imageComponent = defineType({
       type: 'string',
       description:
         'Hvem som har tatt eller eier bildet (f.eks. "Foto: John Doe" eller "Kilde: Unsplash")',
+      hidden: ({ document, path }) => isInsideContentScrollContainer(document, path),
       validation: componentValidation.title,
     }),
     defineField({
