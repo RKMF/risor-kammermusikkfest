@@ -4,9 +4,13 @@ import Image from './Image.astro'
 import ScrollNavigation from './ScrollNavigation.astro'
 import { IMAGE_QUALITY } from '../lib/sanityImage'
 import { stegaClean } from '@sanity/client/stega'
+import { detectLanguage } from '../lib/utils/language'
 
 interface Props {
   title?: string
+  credit?: string
+  credit_no?: string
+  credit_en?: string
   items?: any[]
   showScrollbar?: boolean
   className?: string
@@ -16,6 +20,9 @@ interface Props {
 
 const {
   title,
+  credit: rawCredit,
+  credit_no: rawCreditNo,
+  credit_en: rawCreditEn,
   items: rawItems,
   showScrollbar = false,
   className = '',
@@ -25,6 +32,12 @@ const {
 
 // Ensure items is always an array (handles null from Sanity)
 const items = rawItems ?? []
+const currentLanguage = detectLanguage(Astro.request)
+const credit = stegaClean(
+  (currentLanguage === 'en'
+    ? rawCreditEn || rawCreditNo || rawCredit
+    : rawCreditNo || rawCreditEn || rawCredit) || '',
+)
 
 // CSS classes
 const scrollbarClass = showScrollbar ? '' : 'hide-scrollbar'
@@ -80,6 +93,7 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
       })}
     </ul>
   </div>
+  {credit && <p class="content-scroll-credit">{credit}</p>}
   <ScrollNavigation size="medium" ariaLabel={title ? `Bla i ${title.toLowerCase()}` : 'Bla i innhold'} />
 </section>
 
@@ -93,6 +107,12 @@ const sanityAttributes = _key ? { 'data-sanity': `${_type}.${_key}` } : {}
     font-size: var(--step-3);
     font-weight: 600;
     margin-block-end: var(--space-m-l); /* Fluid 16px → 30px */
+  }
+
+  .content-scroll-credit {
+    margin: var(--space-xs) 0 0;
+    font-size: var(--step--1);
+    text-align: left;
   }
 
   /* Scroll list - behavior from scroll-containers.css */

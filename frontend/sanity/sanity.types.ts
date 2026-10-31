@@ -121,6 +121,8 @@ export type ArtistScrollContainer = {
 export type ContentScrollContainer = {
   _type: 'contentScrollContainer';
   title?: string;
+  credit_no?: string;
+  credit_en?: string;
   items?: Array<
     | ({
         _key: string;

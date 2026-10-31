@@ -174,6 +174,9 @@ export interface PortableTextMarkDefinition {
 // Section component interfaces
 export interface ScrollContainerData extends GlobalComponentData {
   title?: string;
+  credit_no?: string;
+  credit_en?: string;
+  credit?: string;
   items: any[];
   showScrollbar?: boolean;
   format?: string;
