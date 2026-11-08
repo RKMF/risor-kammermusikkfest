@@ -211,7 +211,9 @@ function buildArtistImageSelection(language: Language = 'no'): string {
       hotspot,
       crop
     },
-    "alt": coalesce(imageAlt_no, imageAlt_en, image.alt),
+    "alt": ${language === 'en'
+      ? 'coalesce(imageAlt_en, imageAlt_no, image.alt)'
+      : 'coalesce(imageAlt_no, imageAlt_en, image.alt)'},
     ${buildImageCreditField(language)}
   }
 `
