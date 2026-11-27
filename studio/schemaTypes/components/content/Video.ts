@@ -1,5 +1,7 @@
 import { defineField, defineType } from 'sanity';
-import { DocumentIcon, PlayIcon } from '@sanity/icons';
+import { DocumentIcon } from '@sanity/icons/Document';
+import { PlayIcon } from '@sanity/icons/Play';
+
 import { componentValidation } from '../../shared/validation';
 import type { VideoData, ComponentHTMLGenerator, ValidationRule } from '../../shared/types';
 

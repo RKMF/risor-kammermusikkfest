@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { AddCommentIcon } from '@sanity/icons';
+import { AddCommentIcon } from '@sanity/icons/AddComment';
+
 import { componentSpecificValidation, componentValidation } from '../../shared/validation';
 import type { QuoteData, ComponentHTMLGenerator, ValidationRule } from '../../shared/types';
 

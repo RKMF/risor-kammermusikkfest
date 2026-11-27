@@ -1,5 +1,6 @@
 import { defineField, FieldDefinition } from 'sanity';
-import { ImageIcon } from '@sanity/icons';
+import { ImageIcon } from '@sanity/icons/Image';
+
 import { componentValidation, componentSpecificValidation, seoValidation } from './validation';
 import type { ValidationRule, SchemaGroup } from './types';
 

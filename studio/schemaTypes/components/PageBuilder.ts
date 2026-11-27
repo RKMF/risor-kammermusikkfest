@@ -1,22 +1,21 @@
 import { defineField, defineType } from 'sanity';
-import {
-  DocumentIcon,
-  ImageIcon,
-  PlayIcon,
-  LinkIcon,
-  TiersIcon,
-  DocumentTextIcon,
-  TextIcon,
-  EllipsisHorizontalIcon,
-  AddCommentIcon,
-  BlockContentIcon,
-  BoltIcon,
-  CalendarIcon,
-  ExpandIcon,
-  ClockIcon,
-  MenuIcon,
-  ComposeIcon,
-} from '@sanity/icons';
+import { DocumentIcon } from '@sanity/icons/Document';
+import { ImageIcon } from '@sanity/icons/Image';
+import { PlayIcon } from '@sanity/icons/Play';
+import { LinkIcon } from '@sanity/icons/Link';
+import { TiersIcon } from '@sanity/icons/Tiers';
+import { DocumentTextIcon } from '@sanity/icons/DocumentText';
+import { TextIcon } from '@sanity/icons/Text';
+import { EllipsisHorizontalIcon } from '@sanity/icons/EllipsisHorizontal';
+import { AddCommentIcon } from '@sanity/icons/AddComment';
+import { BlockContentIcon } from '@sanity/icons/BlockContent';
+import { BoltIcon } from '@sanity/icons/Bolt';
+import { CalendarIcon } from '@sanity/icons/Calendar';
+import { ExpandIcon } from '@sanity/icons/Expand';
+import { ClockIcon } from '@sanity/icons/Clock';
+import { MenuIcon } from '@sanity/icons/Menu';
+import { ComposeIcon } from '@sanity/icons/Compose';
+
 
 export const pageBuilder = defineType({
   name: 'pageBuilder',

@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { UsersIcon } from '@sanity/icons';
+import { UsersIcon } from '@sanity/icons/Users';
+
 import { componentValidation } from '../shared/validation';
 
 export const sponsor = defineType({

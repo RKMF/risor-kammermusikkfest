@@ -16,7 +16,11 @@
  */
 
 import { defineField, defineType } from 'sanity';
-import { UserIcon, ComposeIcon, CogIcon, ImageIcon } from '@sanity/icons';
+import { UserIcon } from '@sanity/icons/User';
+import { ComposeIcon } from '@sanity/icons/Compose';
+import { CogIcon } from '@sanity/icons/Cog';
+import { ImageIcon } from '@sanity/icons/Image';
+
 import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
 import { multilingualImageFields, imageFieldsets, imageGroup } from '../shared/imageFields';
 import { seoFields, seoGroup } from '../objects/seoFields';

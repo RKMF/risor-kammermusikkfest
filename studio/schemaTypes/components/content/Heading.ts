@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { BlockContentIcon } from '@sanity/icons';
+import { BlockContentIcon } from '@sanity/icons/BlockContent';
+
 import { componentSpecificValidation, componentValidation } from '../../shared/validation';
 import type { HeadingData, ComponentHTMLGenerator, ValidationRule } from '../../shared/types';
 

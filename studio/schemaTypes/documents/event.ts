@@ -18,7 +18,11 @@
  */
 
 import { defineArrayMember, defineField, defineType } from 'sanity';
-import { CalendarIcon, ComposeIcon, CogIcon, CreditCardIcon } from '@sanity/icons';
+import { CalendarIcon } from '@sanity/icons/Calendar';
+import { ComposeIcon } from '@sanity/icons/Compose';
+import { CogIcon } from '@sanity/icons/Cog';
+import { CreditCardIcon } from '@sanity/icons/CreditCard';
+
 import { eventTimeOptions } from '../../lib/timeUtils';
 import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
 import { multilingualImageFields, imageFieldsets, imageGroup } from '../shared/imageFields';

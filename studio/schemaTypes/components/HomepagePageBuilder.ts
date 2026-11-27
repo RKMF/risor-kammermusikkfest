@@ -1,19 +1,18 @@
 import { defineType } from 'sanity';
-import {
-  DocumentIcon,
-  ImageIcon,
-  PlayIcon,
-  LinkIcon,
-  TiersIcon,
-  TextIcon,
-  AddCommentIcon,
-  BlockContentIcon,
-  MenuIcon,
-  CalendarIcon,
-  ExpandIcon,
-  ClockIcon,
-  ComposeIcon,
-} from '@sanity/icons';
+import { DocumentIcon } from '@sanity/icons/Document';
+import { ImageIcon } from '@sanity/icons/Image';
+import { PlayIcon } from '@sanity/icons/Play';
+import { LinkIcon } from '@sanity/icons/Link';
+import { TiersIcon } from '@sanity/icons/Tiers';
+import { TextIcon } from '@sanity/icons/Text';
+import { AddCommentIcon } from '@sanity/icons/AddComment';
+import { BlockContentIcon } from '@sanity/icons/BlockContent';
+import { MenuIcon } from '@sanity/icons/Menu';
+import { CalendarIcon } from '@sanity/icons/Calendar';
+import { ExpandIcon } from '@sanity/icons/Expand';
+import { ClockIcon } from '@sanity/icons/Clock';
+import { ComposeIcon } from '@sanity/icons/Compose';
+
 
 type HomepageBuilderItem = {
   _type?: string;

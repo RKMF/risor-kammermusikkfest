@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { TextIcon } from '@sanity/icons';
+import { TextIcon } from '@sanity/icons/Text';
+
 import { LoremIpsumInput } from './LoremIpsumButton';
 
 export const portableTextBlock = defineType({

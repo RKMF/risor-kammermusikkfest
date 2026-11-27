@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { DashboardIcon } from '@sanity/icons';
+import { DashboardIcon } from '@sanity/icons/Dashboard';
+
 
 export const threeColumnLayout = defineType({
   name: 'threeColumnLayout',

@@ -1,5 +1,6 @@
 import { defineField, defineType, defineArrayMember } from 'sanity';
-import { LinkIcon } from '@sanity/icons';
+import { LinkIcon } from '@sanity/icons/Link';
+
 import { buttonURLValidation } from '../../../lib/urlValidation';
 import { componentSpecificValidation } from '../../shared/validation';
 

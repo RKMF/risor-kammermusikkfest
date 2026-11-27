@@ -1,5 +1,6 @@
 import { defineType, defineArrayMember } from 'sanity';
-import { DocumentTextIcon } from '@sanity/icons';
+import { DocumentTextIcon } from '@sanity/icons/DocumentText';
+
 import { componentValidation, componentSpecificValidation } from '../../shared/validation';
 import type {
   PortableTextData,

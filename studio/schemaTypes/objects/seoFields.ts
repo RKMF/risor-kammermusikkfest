@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { SearchIcon } from '@sanity/icons';
+import { SearchIcon } from '@sanity/icons/Search';
+
 import { seoValidation } from '../shared/validation';
 import type { SeoFieldsData, ValidationRule, SchemaGroup } from '../shared/types';
 

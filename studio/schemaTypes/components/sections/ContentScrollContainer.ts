@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { InlineElementIcon } from '@sanity/icons';
+import { InlineElementIcon } from '@sanity/icons/InlineElement';
+
 
 export const contentScrollContainer = defineType({
   name: 'contentScrollContainer',

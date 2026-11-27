@@ -1,5 +1,7 @@
 import { defineField, defineType } from 'sanity';
-import { LinkIcon, ImageIcon } from '@sanity/icons';
+import { LinkIcon } from '@sanity/icons/Link';
+import { ImageIcon } from '@sanity/icons/Image';
+
 
 const heroLinkReferenceTargets = [
   { type: 'programPage' },
