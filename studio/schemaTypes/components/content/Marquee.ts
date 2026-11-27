@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { MenuIcon } from '@sanity/icons';
+import { MenuIcon } from '@sanity/icons/Menu';
+
 
 export const marqueeComponent = defineType({
   name: 'marqueeComponent',

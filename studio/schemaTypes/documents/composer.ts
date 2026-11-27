@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { ComposeIcon } from '@sanity/icons';
+import { ComposeIcon } from '@sanity/icons/Compose';
+
 import { componentValidation } from '../shared/validation';
 import { multilingualImageFields, imageFieldsets, imageGroup } from '../shared/imageFields';
 import { getLanguageStatus } from '../shared/previewHelpers';

@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { ClockIcon } from '@sanity/icons';
+import { ClockIcon } from '@sanity/icons/Clock';
+
 
 export const countdownComponent = defineType({
   name: 'countdownComponent',

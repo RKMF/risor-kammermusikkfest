@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { type DocumentActionComponent, useClient, useDocumentOperation } from 'sanity';
-import { TrashIcon } from '@sanity/icons';
+import { TrashIcon } from '@sanity/icons/Trash';
+
 import { Button, Flex, Stack, Text } from '@sanity/ui';
 
 export interface ReferenceCleanupConfig {
@@ -125,7 +126,7 @@ export function createDeleteWithReferencesAction(
         },
         header: `Slett ${config.labelSingular}`,
         content: (
-          <Stack space={4} padding={4}>
+          <Stack gap={4} padding={4}>
             {blockingReferences.length > 0 ? (
               <>
                 <Text>

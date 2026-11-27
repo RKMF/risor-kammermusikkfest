@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StringInputProps, useClient, useFormValue } from 'sanity';
 import { Stack, Card, Text, Flex, Box, Spinner } from '@sanity/ui';
-import { WarningOutlineIcon } from '@sanity/icons';
+import { WarningOutlineIcon } from '@sanity/icons/WarningOutline';
 
 interface ReferencingDocument {
   _id: string;
@@ -111,7 +111,7 @@ export function PublishingStatusInput(props: StringInputProps) {
   );
 
   return (
-    <Stack space={3}>
+    <Stack gap={3}>
       {/* Render the default radio button input */}
       {props.renderDefault(props)}
 
@@ -130,14 +130,14 @@ export function PublishingStatusInput(props: StringInputProps) {
       {/* Show warning ONLY when 'draft' is selected AND there are references */}
       {value === 'draft' && !loading && references.length > 0 && (
         <Card padding={4} radius={2} tone="caution" border>
-          <Stack space={4}>
+          <Stack gap={4}>
             <Flex align="flex-start" gap={3}>
               <Box style={{ flexShrink: 0, marginTop: '2px' }}>
                 <Text size={2}>
                   <WarningOutlineIcon />
                 </Text>
               </Box>
-              <Stack space={4}>
+              <Stack gap={4}>
                 <Text size={2} weight="semibold">
                   NB: Dette innholdet er referert andre steder
                 </Text>
@@ -146,13 +146,13 @@ export function PublishingStatusInput(props: StringInputProps) {
                   Når du skjuler dette innholdet, vil det automatisk forsvinne fra:
                 </Text>
 
-                <Stack space={3}>
+                <Stack gap={3}>
                   {Object.entries(groupedReferences).map(([type, docs]) => (
                     <Box key={type}>
                       <Text size={2} weight="semibold">
                         {getTypeName(type)}
                       </Text>
-                      <Stack space={2} marginTop={2} marginLeft={3}>
+                      <Stack gap={2} marginTop={2} marginLeft={3}>
                         {docs.map((doc) => (
                           <Text key={doc._id} size={2}>
                             • {getDisplayTitle(doc)}

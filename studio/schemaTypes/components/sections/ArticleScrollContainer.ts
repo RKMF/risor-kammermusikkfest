@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { DocumentTextIcon } from '@sanity/icons';
+import { DocumentTextIcon } from '@sanity/icons/DocumentText';
+
 import { componentValidation, contentValidation } from '../../shared/validation';
 import { excludeAlreadySelected } from '../../shared/referenceFilters';
 

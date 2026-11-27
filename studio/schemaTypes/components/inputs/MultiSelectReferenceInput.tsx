@@ -12,7 +12,9 @@ import {
   Dialog,
   Button,
 } from '@sanity/ui';
-import { SearchIcon, AddIcon } from '@sanity/icons';
+import { SearchIcon } from '@sanity/icons/Search';
+import { AddIcon } from '@sanity/icons/Add';
+
 
 interface ReferenceItem {
   _id: string;
@@ -227,7 +229,7 @@ export function MultiSelectReferenceInput(props: ArrayOfObjectsInputProps) {
   return (
     <>
       {/* Render the default array input UI (shows selected items as chips) */}
-      <Stack space={3}>
+      <Stack gap={3}>
         {props.renderDefault(props)}
 
         {/* Custom "Add multiple" button */}
@@ -265,7 +267,7 @@ export function MultiSelectReferenceInput(props: ArrayOfObjectsInputProps) {
           }
         >
           <Card padding={4}>
-            <Stack space={4}>
+            <Stack gap={4}>
               {/* Search input */}
               <TextInput
                 icon={SearchIcon}
@@ -276,7 +278,7 @@ export function MultiSelectReferenceInput(props: ArrayOfObjectsInputProps) {
 
               {/* Checkbox list */}
               <Card border padding={4} radius={2} style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                <Stack space={3}>
+                <Stack gap={3}>
                   {filteredItems.length === 0 ? (
                     <Text muted>
                       {searchQuery ? 'Ingen resultater funnet' : 'Ingen elementer tilgjengelig'}

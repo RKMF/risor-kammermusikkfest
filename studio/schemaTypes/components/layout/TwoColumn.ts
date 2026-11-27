@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { SplitHorizontalIcon } from '@sanity/icons';
+import { SplitHorizontalIcon } from '@sanity/icons/SplitHorizontal';
+
 
 export const twoColumnLayout = defineType({
   name: 'twoColumnLayout',

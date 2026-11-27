@@ -1,5 +1,7 @@
 import { defineField, defineType } from 'sanity';
-import { PlayIcon, MicrophoneIcon } from '@sanity/icons';
+import { PlayIcon } from '@sanity/icons/Play';
+import { MicrophoneIcon } from '@sanity/icons/Microphone';
+
 import { componentValidation } from '../../shared/validation';
 import type { ValidationRule } from '../../shared/types';
 

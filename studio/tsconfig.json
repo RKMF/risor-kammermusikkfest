@@ -8,7 +8,6 @@
     "forceConsistentCasingInFileNames": true,
     "module": "Preserve",
     "moduleResolution": "bundler",
-    "baseUrl": ".",
     "paths": {
       "sanity": ["./node_modules/sanity"],
       "sanity/*": ["./node_modules/sanity/*"]

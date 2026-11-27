@@ -1,5 +1,8 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
-import { CalendarIcon, ComposeIcon, HomeIcon } from '@sanity/icons';
+import { CalendarIcon } from '@sanity/icons/Calendar';
+import { ComposeIcon } from '@sanity/icons/Compose';
+import { HomeIcon } from '@sanity/icons/Home';
+
 import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
 import { componentValidation } from '../shared/validation';
 import type { ProgramPageData } from '../shared/types';

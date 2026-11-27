@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { HomeIcon } from '@sanity/icons';
+import { HomeIcon } from '@sanity/icons/Home';
+
 import { venueSlugValidation } from '../../lib/slugValidation';
 import {
   componentValidation,

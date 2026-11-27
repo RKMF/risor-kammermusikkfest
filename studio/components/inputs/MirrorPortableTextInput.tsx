@@ -59,7 +59,7 @@ export function createMirrorPortableTextInput(sourceField: string) {
     }, [canCopy, isEmpty, handleCopyFromSource]);
 
     return (
-      <Stack space={3}>
+      <Stack gap={3}>
         {copyButton}
         {renderDefault(props)}
       </Stack>

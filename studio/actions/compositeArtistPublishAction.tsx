@@ -1,6 +1,8 @@
 import { useCallback, useRef, useState } from 'react';
 import { type DocumentActionComponent, useClient, useDocumentOperation } from 'sanity';
-import { PublishIcon, CheckmarkIcon } from '@sanity/icons';
+import { PublishIcon } from '@sanity/icons/Publish';
+import { CheckmarkIcon } from '@sanity/icons/Checkmark';
+
 import { Button, Flex, Stack, Text, Spinner } from '@sanity/ui';
 import {
   findMissingReciprocalReferences,
@@ -305,7 +307,7 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
             // Loading dialog should not be closeable, but onClose is required
           },
           content: (
-            <Stack space={4} padding={4}>
+            <Stack gap={4} padding={4}>
               <Flex
                 justify="center"
                 align="center"
@@ -332,13 +334,13 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
             },
             header: 'Synkroniser arrangementer?',
             content: (
-              <Stack space={4} padding={4}>
+              <Stack gap={4} padding={4}>
                 <Text>
                   {eventCount === 1
                     ? 'Dette arrangementet har ikke denne artisten i sin artistliste:'
                     : `Disse ${eventCount} arrangementene har ikke denne artisten i sine artistlister:`}
                 </Text>
-                <Stack space={2} paddingLeft={3}>
+                <Stack gap={2} paddingLeft={3}>
                   {eventNames.map((name, index) => (
                     <Text key={index} size={2}>
                       • {name}
@@ -383,13 +385,13 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
               },
               header: 'Fjern artisten fra arrangementer?',
               content: (
-                <Stack space={4} padding={4}>
+                <Stack gap={4} padding={4}>
                   <Text>
                     {orphanedEventCount === 1
                       ? 'Dette arrangementet har fremdeles denne artisten i sin liste, men artisten har ikke lenger arrangementet:'
                       : `Disse ${orphanedEventCount} arrangementene har fremdeles denne artisten i sine lister, men artisten har ikke lenger disse arrangementene:`}
                   </Text>
-                  <Stack space={2} paddingLeft={3}>
+                  <Stack gap={2} paddingLeft={3}>
                     {orphanedEventNames.map((name, index) => (
                       <Text key={index} size={2}>
                         • {name}
@@ -433,7 +435,7 @@ export const compositeArtistPublishAction: DocumentActionComponent = (props) => 
                 },
                 header: 'Legg til på artistoversikten?',
                 content: (
-                  <Stack space={4} padding={4}>
+                  <Stack gap={4} padding={4}>
                     <Text>Skal denne nye artisten publiseres på årets artistoversikt?</Text>
                     <Text size={1} muted>
                       Hvis du svarer nei, blir artisten liggende som kladd til den er klar for årets artistoversikt.

@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { ThLargeIcon } from '@sanity/icons';
+import { ThLargeIcon } from '@sanity/icons/ThLarge';
+
 
 export const gridComponent = defineType({
   name: 'gridComponent',

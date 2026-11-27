@@ -1,5 +1,8 @@
 import { defineField, defineType } from 'sanity';
-import { UsersIcon, ComposeIcon, UserIcon } from '@sanity/icons';
+import { UsersIcon } from '@sanity/icons/Users';
+import { ComposeIcon } from '@sanity/icons/Compose';
+import { UserIcon } from '@sanity/icons/User';
+
 import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
 import { componentValidation } from '../shared/validation';
 import type { ArtistPageData } from '../shared/types';

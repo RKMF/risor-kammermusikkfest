@@ -13,7 +13,8 @@
  */
 
 import { defineField, defineType } from 'sanity';
-import { CalendarIcon } from '@sanity/icons';
+import { CalendarIcon } from '@sanity/icons/Calendar';
+
 import { componentValidation, contentValidation } from '../../shared/validation';
 import type {
   EventScrollContainerData,

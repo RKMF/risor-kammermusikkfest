@@ -1,5 +1,6 @@
 import { Button, Stack } from '@sanity/ui';
-import { TextIcon } from '@sanity/icons';
+import { TextIcon } from '@sanity/icons/Text';
+
 import { type InputProps, set, unset } from 'sanity';
 import { useCallback } from 'react';
 
@@ -49,8 +50,8 @@ export function LoremIpsumInput(props: InputProps) {
   const isEmpty = !value || (Array.isArray(value) && value.length === 0);
 
   return (
-    <Stack space={3}>
-      <Stack space={2}>
+    <Stack gap={3}>
+      <Stack gap={2}>
         <Button
           icon={TextIcon}
           text="Fyll med Lorem Ipsum"
