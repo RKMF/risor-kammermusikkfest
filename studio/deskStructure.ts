@@ -17,17 +17,16 @@
  */
 
 import { StructureBuilder } from 'sanity/structure';
-import {
-  CogIcon,
-  DocumentTextIcon,
-  UserIcon,
-  CalendarIcon,
-  HomeIcon,
-  EarthGlobeIcon,
-  DocumentsIcon,
-  ComposeIcon,
-  UsersIcon,
-} from '@sanity/icons';
+import { CogIcon } from '@sanity/icons/Cog';
+import { DocumentTextIcon } from '@sanity/icons/DocumentText';
+import { UserIcon } from '@sanity/icons/User';
+import { CalendarIcon } from '@sanity/icons/Calendar';
+import { HomeIcon } from '@sanity/icons/Home';
+import { EarthGlobeIcon } from '@sanity/icons/EarthGlobe';
+import { DocumentsIcon } from '@sanity/icons/Documents';
+import { ComposeIcon } from '@sanity/icons/Compose';
+import { UsersIcon } from '@sanity/icons/Users';
+
 
 export const structure = (S: StructureBuilder) =>
   S.list()

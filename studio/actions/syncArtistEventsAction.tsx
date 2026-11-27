@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react';
 import { type DocumentActionComponent, useClient, useDocumentOperation } from 'sanity';
-import { CheckmarkIcon, PublishIcon } from '@sanity/icons';
+import { CheckmarkIcon } from '@sanity/icons/Checkmark';
+import { PublishIcon } from '@sanity/icons/Publish';
+
 import { Button, Flex, Stack, Text } from '@sanity/ui';
 import {
   findMissingReciprocalReferences,
@@ -93,7 +95,7 @@ export const syncArtistEventsAction: DocumentActionComponent = (props) => {
       },
       header: 'Synkroniser arrangementer?',
       content: (
-        <Stack space={4} padding={4}>
+        <Stack gap={4} padding={4}>
           <Text>
             {eventCount === 1
               ? 'Det er 1 arrangement som ikke har denne artisten i sin artistliste.'

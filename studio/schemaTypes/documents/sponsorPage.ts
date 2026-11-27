@@ -1,5 +1,7 @@
 import { defineField, defineType } from 'sanity';
-import { UsersIcon, ComposeIcon } from '@sanity/icons';
+import { UsersIcon } from '@sanity/icons/Users';
+import { ComposeIcon } from '@sanity/icons/Compose';
+
 import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
 import { componentValidation } from '../shared/validation';
 import { getLanguageStatus } from '../shared/previewHelpers';

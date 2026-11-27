@@ -1,5 +1,7 @@
 import { defineField, defineType } from 'sanity';
-import { DocumentIcon, TiersIcon } from '@sanity/icons';
+import { DocumentIcon } from '@sanity/icons/Document';
+import { TiersIcon } from '@sanity/icons/Tiers';
+
 import { generateQuoteHtml } from '../content/Quote';
 import { componentValidation, contentValidation } from '../../shared/validation';
 import type { AccordionData, ComponentHTMLGenerator, ValidationRule } from '../../shared/types';

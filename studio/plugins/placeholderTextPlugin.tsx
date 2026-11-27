@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Flex, Text } from '@sanity/ui';
-import { ComposeIcon } from '@sanity/icons';
+import { ComposeIcon } from '@sanity/icons/Compose';
+
 import { definePlugin, set } from 'sanity';
 
 const PLACEHOLDER_TEXT =

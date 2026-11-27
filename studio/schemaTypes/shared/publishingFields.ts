@@ -6,7 +6,8 @@
  */
 
 import { defineField } from 'sanity';
-import { CogIcon } from '@sanity/icons';
+import { CogIcon } from '@sanity/icons/Cog';
+
 import { crossFieldValidation } from './validation';
 import { PublishingStatusInput } from '../../components/inputs/PublishingStatusInput';
 

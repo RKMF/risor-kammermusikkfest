@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react';
 import { type DocumentActionComponent, useClient, useDocumentOperation } from 'sanity';
-import { CheckmarkIcon, PublishIcon } from '@sanity/icons';
+import { CheckmarkIcon } from '@sanity/icons/Checkmark';
+import { PublishIcon } from '@sanity/icons/Publish';
+
 import { Button, Flex, Stack, Text } from '@sanity/ui';
 
 export const addArticleToArticlePageAction: DocumentActionComponent = (props) => {
@@ -107,7 +109,7 @@ export const addArticleToArticlePageAction: DocumentActionComponent = (props) =>
       },
       header: 'Legg til på artikkeloversikten?',
       content: (
-        <Stack space={4} padding={4}>
+        <Stack gap={4} padding={4}>
           <Text>Vil du at denne artikkelen skal vises på artikkeloversikten?</Text>
           <Text size={1} muted>
             Du kan også legge det til senere under Artikkeloversikt → Artikler-fanen.

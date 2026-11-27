@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { BoltIcon } from '@sanity/icons';
+import { BoltIcon } from '@sanity/icons/Bolt';
+
 import { buttonURLValidation } from '../../../lib/urlValidation';
 import { componentSpecificValidation } from '../../shared/validation';
 import type { ButtonData, ComponentHTMLGenerator, ValidationRule } from '../../shared/types';

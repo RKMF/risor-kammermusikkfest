@@ -1,5 +1,8 @@
 import { defineField, defineType } from 'sanity';
-import { DocumentIcon, ComposeIcon, DocumentTextIcon } from '@sanity/icons';
+import { DocumentIcon } from '@sanity/icons/Document';
+import { ComposeIcon } from '@sanity/icons/Compose';
+import { DocumentTextIcon } from '@sanity/icons/DocumentText';
+
 import { createMirrorPortableTextInput } from '../../components/inputs/MirrorPortableTextInput';
 import { componentValidation } from '../shared/validation';
 import { seoFields, seoGroup } from '../objects/seoFields';

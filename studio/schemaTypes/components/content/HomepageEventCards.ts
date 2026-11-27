@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
-import { CalendarIcon } from '@sanity/icons';
+import { CalendarIcon } from '@sanity/icons/Calendar';
+
 import { excludeAlreadySelected } from '../../shared/referenceFilters';
 import { MultiSelectReferenceInput } from '../../components/inputs/MultiSelectReferenceInput';
 

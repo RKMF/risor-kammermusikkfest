@@ -6,6 +6,9 @@ on:
       - 'package.json'
       - 'frontend/package.json'
       - 'package-lock.json'
+      - '.nvmrc'
+      - '.npmrc'
+      - '.github/workflows/**'
       - 'vercel.json'
       - 'frontend/astro.config.mjs'
       - 'frontend/tsconfig.json'
@@ -13,6 +16,7 @@ on:
       - 'frontend/scripts/**'
       - 'frontend/public/**'
       - 'frontend/public/vendor/htmx.min.js'
+      - 'studio/**'
   push:
     branches-ignore:
       - main
@@ -20,6 +24,9 @@ on:
       - 'package.json'
       - 'frontend/package.json'
       - 'package-lock.json'
+      - '.nvmrc'
+      - '.npmrc'
+      - '.github/workflows/**'
       - 'vercel.json'
       - 'frontend/astro.config.mjs'
       - 'frontend/tsconfig.json'
@@ -27,6 +34,7 @@ on:
       - 'frontend/scripts/**'
       - 'frontend/public/**'
       - 'frontend/public/vendor/htmx.min.js'
+      - 'studio/**'
 
 permissions:
   contents: read
@@ -48,7 +56,7 @@ jobs:
           cache-dependency-path: package-lock.json
 
       - name: Align npm version
-        run: npm install --global npm@11.17.0
+        run: npm install --global npm@11.21.3
 
       - name: Install dependencies
         run: npm ci
@@ -61,3 +69,18 @@ jobs:
 
       - name: Build frontend
         run: npm run build --workspace=frontend
+
+      - name: Check dependency graph
+        run: npm run check-deps
+
+      - name: Run frontend tests
+        run: npm test --workspace=frontend -- --run
+
+      - name: Typecheck Studio
+        run: npx tsc -p studio/tsconfig.json --noEmit
+
+      - name: Run Studio tests
+        run: npm test --workspace=studio -- --run
+
+      - name: Build Studio
+        run: npm run build --workspace=studio

@@ -1,5 +1,10 @@
 import { defineField, defineType } from 'sanity';
-import { CogIcon, ComposeIcon, ImageIcon, HeartIcon, MenuIcon } from '@sanity/icons';
+import { CogIcon } from '@sanity/icons/Cog';
+import { ComposeIcon } from '@sanity/icons/Compose';
+import { ImageIcon } from '@sanity/icons/Image';
+import { HeartIcon } from '@sanity/icons/Heart';
+import { MenuIcon } from '@sanity/icons/Menu';
+
 import { multilingualImageFields, imageFieldsets } from '../shared/imageFields';
 import { seoGroup } from '../objects/seoFields';
 import { componentValidation, crossFieldValidation } from '../shared/validation';

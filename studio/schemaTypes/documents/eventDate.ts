@@ -1,5 +1,8 @@
 import { defineField, defineType } from 'sanity';
-import { CalendarIcon, ComposeIcon, CogIcon } from '@sanity/icons';
+import { CalendarIcon } from '@sanity/icons/Calendar';
+import { ComposeIcon } from '@sanity/icons/Compose';
+import { CogIcon } from '@sanity/icons/Cog';
+
 import { DateNoDisplayInput, DateEnDisplayInput } from '../../components/LocalizedDateDisplay';
 import { componentValidation } from '../shared/validation';
 import { eventDateSlugValidation } from '../../lib/slugValidation';

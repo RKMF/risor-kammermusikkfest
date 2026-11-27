@@ -28,11 +28,16 @@ const { block } = Astro.props;
 // Look up the Astro component for this block's _type
 const Component = componentRegistry[block._type];
 const isKnownComponent = isRegisteredComponent(block._type);
+const showDebugInfo = import.meta.env.DEV;
+
+if (!isKnownComponent) {
+  console.warn(`Unknown content block type: ${block._type}`);
+}
 ---
 
 {isKnownComponent && Component ? (
   <Component {...block} />
-) : (
+) : showDebugInfo ? (
   <div class="unknown-component">
     <p>⚠️ Ukjent komponent: <code>{block._type}</code></p>
     <details>
@@ -40,7 +45,7 @@ const isKnownComponent = isRegisteredComponent(block._type);
       <pre>{JSON.stringify(block, null, 2)}</pre>
     </details>
   </div>
-)}
+) : null}
 
 <style>
   .unknown-component {
